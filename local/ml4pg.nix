@@ -1,24 +1,22 @@
-{ stdenv, fetchgit, emacs }:
+with import <nixpkgs> {};
 
-stdenv.mkDerivation (rec {
-  name = "ProofGeneral-4.3pre131011";
-
-  src = fetchgit {
-    url = http://proofgeneral.inf.ed.ac.uk/releases/ProofGeneral-4.3pre131011.tgz;
-    sha256 = "0104iy2xik5npkdg9p2ir6zqyrmdc93azrgm3ayvg0z76vmnb816";
+stdenv.mkDerivation {
+  name = "ml4pg";
+  src  = fetchgit {
+    url    = git://gitorious.org/ml4pg/ml4pg.git;
+    rev    = "1d45cf9";
+    sha256 = "1icca9mpa819nvlljq70cm0f6a88wldh2zkn28mjgvqgsxv007j0";
   };
-
-  sourceRoot = name;
-
-  buildInputs = [ proofgeneral emacs openjdk graphviz ];
-
-  meta = {
-    description = "Machine Learning for Proof General, an AI assistant for theorem proving";
-    longDescription = ''
-      ML4PG applies machine-learning methods to formal proofs, via the Emacs-based Proof General
-      interface. It finds similarities between proofs based on structure, tactic usage, etc. and
-      presents them as clusters, graphs and automata.
-    '';
-    homepage = http://staff.computing.dundee.ac.uk/katya/ML4PG;
-  };
-})
+  buildInputs = [
+    jre
+    emacs
+    emacs24Packages.proofgeneral
+    graphviz
+    coq
+  ];
+  builder = ./ml4pg-builder.sh;
+  shellHook = ''
+    export CWD=$(pwd)
+    export ML4PG_HOME="$CWD/"
+  '';
+}
