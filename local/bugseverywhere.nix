@@ -1,5 +1,5 @@
 { fetchgit, pythonPackages, buildPythonPackage }:
- 
+
 buildPythonPackage {
   name = "bugseverywhere";
   version = "2014-11-28";
@@ -21,4 +21,4 @@ buildPythonPackage {
     homepage = http://bugseverywhere.org;
     repositories.git = git://gitorious.org/be/be.git;
   };
-} 
+}

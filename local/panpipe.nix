@@ -5,8 +5,8 @@ stdenv.mkDerivation {
 
   src = fetchgit {
     url = git://gitorious.org/panpipe/panpipe.git;
-    rev = "36e8537";
-    sha256 = "0khp2dyi237f7pdxngnl3q3gg95h6ciwsz4705sch050aka3yvlw";
+    rev = "361fd45";
+    sha256 = "057f4gcfal59xqw91pv97428yb3fwi12zpfy0lr0l77n6ar4ly6c";
   };
 
   buildInputs = [ haskellPackages.ghc haskellPackages.pandoc ];
