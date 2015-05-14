@@ -45,16 +45,27 @@
                      callPackage ./local/quickspec2.nix {};
 
     jukebox        = with haskellPackages;
-                     callPackage ./local/jukebox.nix {};
+                     callPackage ./local/jukebox.nix {
+                       minisat = hsMinisat;
+                     };
+
+    hsMinisat      = with haskellPackages;
+                     callPackage ./local/haskell-minisat.nix {};
 
     termRewriting  = with haskellPackages;
-                     callPackage ./local/term-rewriting.nix {};
+                     callPackage ./local/term-rewriting.nix {
+                     };
 
     uglymemo       = with haskellPackages;
                      callPackage ./local/uglymemo.nix {};
 
     unionFindArray = with haskellPackages;
                      callPackage ./local/union-find-array.nix {};
+
+    z3hs           = with (import <nixpkgs/pkgs/development/haskell-modules/lib.nix> { inherit pkgs; });
+                     overrideCabal haskellngPackages.z3 (drv: {
+                       configureFlags = "--extra-include-dirs=${pkgs.z3}/include/ --extra-lib-dirs=${pkgs.z3}/lib/";
+                     });
 
     # Updated get_iplayer
     get_iplayer = stdenv.lib.overrideDerivation pkgs.get_iplayer (oldAttrs : {
@@ -78,6 +89,14 @@
         sha256 = "1949z7pjb51w89954narwcd1ykb9wxi7prldic1a1slxrr5b6lq7";
       };
     });
+
+    git2html = callPackage ./local/git2html.nix {};
+
+    hs2ast = with haskellPackages;
+             callPackage /home/chris/Programming/Haskell/HS2AST/default.nix {};
+
+    treefeats = with haskellPackages;
+                callPackage /home/chris/Programming/Haskell/TreeFeatures/default.nix {};
 
     # Default Haskell modules
     #hsEnv = haskellPackages.ghcWithPackagesOld (pkgs : [

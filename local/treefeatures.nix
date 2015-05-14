@@ -15,12 +15,8 @@ stdenv.mkDerivation {
     haskellPackages.MissingH
   ];
 
-  buildPhase = ''
-    ghc --make processor.hs
-  '';
-
   installPhase = ''
     mkdir -p "$out/bin"
-    cp processor "$out/bin/"
+    cp TreeFeatures "$out/bin/"
   '';
 }
