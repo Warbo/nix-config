@@ -23,14 +23,9 @@
     kernel.sysctl."net.ipv4.tcp_sack" = 0;
   };
   networking = {
-    hostName = "nixos"; # Define your hostname.
+    hostName = "nixos";
     interfaceMonitor.enable = false; # Watch for plugged cable.
     firewall.enable = false;
-
-    # WICD
-    #wireless.enable = false;
-    #useDHCP = false;
-    #wicd.enable = true;
 
     # NetworkManager
     networkmanager.enable = true;
@@ -43,13 +38,6 @@
     timeZone = "Europe/London";
   };
 
-  # Select internationalisation properties.
-  # i18n = {
-  #   consoleFont = "lat9w-16";
-  #   consoleKeyMap = "us";
-  #   defaultLocale = "en_US.UTF-8";
-  # };
-
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
   environment.systemPackages = with pkgs; [
@@ -60,12 +48,6 @@
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
-
-  # Enable CUPS to print documents.
-  #services.printing = {
-  #    enable = true;
-  #    drivers = [ pkgs.gutenprint ];
-  #};
 
   # Enable the X11 windowing system.
   services.xserver = {
@@ -84,22 +66,6 @@
       };
     };
   };
-
-  #services.openvpn = {
-  #  enable = true;
-  #  servers = {
-  #    dundeesoc = {
-  #      config = ''
-  #        client
-  #        remote vpn.computing.dundee.ac.uk
-  #        dev tun
-  #        proto tcp-client
-  #        port 8080
-  #        
-  #      '';
-  #    };
-  #  };
-  #};
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.extraUsers.chris = {
