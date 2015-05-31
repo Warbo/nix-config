@@ -9,7 +9,8 @@ stdenv.mkDerivation {
 
   propagatedBuildInputs = [
     pandoc
-    haskellPackages.pandocCiteproc
+    #haskellPackages.citeproc-hs-pandoc-filter
+    haskellPackages.pandoc-citeproc
     panpipe
     panhandle
     texLiveFull
