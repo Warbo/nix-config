@@ -4,32 +4,31 @@
 
 { config, pkgs, ... }:
 
-{
+rec {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
     ];
 
-  #fileSystems."/home".device = "/dev/sda6";
-
   # Use the GRUB 2 boot loader.
   boot = {
-    loader.grub.enable = true;
-    loader.grub.version = 2;
-    # Define on which hard drive you want to install Grub.
-    loader.grub.device = "/dev/sda";
-    #kernelPackages = pkgs.linuxPackages_3_12;
+    loader.grub = {
+      enable  = true;
+      version = 2;
+      device  = "/dev/sda";
+    };
+
     kernelModules = [ "kvm-intel" "tun" "virtio" ];
     kernel.sysctl."net.ipv4.tcp_sack" = 0;
   };
   networking = {
-    hostName = "nixos";
+    hostName                = "nixos";
     interfaceMonitor.enable = false; # Watch for plugged cable.
-    firewall.enable = false;
+    firewall.enable         = false;
 
     # NetworkManager
     networkmanager.enable = true;
-    enableIPv6 = false;
+    enableIPv6            = false;
   };
 
   powerManagement.enable = true;
@@ -51,30 +50,35 @@
 
   # Enable the X11 windowing system.
   services.xserver = {
-    enable = true;
-    layout = "gb";
-    xkbOptions = "ctrl:nocaps";
-    #desktopManager.xfce.enable = true;
-    windowManager.xmonad.enable = true;
-    windowManager.default = "xmonad";
-    windowManager.xmonad.enableContribAndExtras = true;
+    enable         = true;
+    layout         = "gb";
+    xkbOptions     = "ctrl:nocaps";
+    windowManager  = {
+      default      = "xmonad";
+      xmonad       = {
+        enable                 = true;
+        enableContribAndExtras = true;
+        extraPackages          = self: [ self.xmonad-contrib ];
+      };
+    };
+
     desktopManager.default = "none";
     displayManager = {
       auto = {
         enable = true;
-        user = "chris"; # login as "chris"
+        user   = "chris"; # login as "chris"
       };
     };
   };
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.extraUsers.chris = {
-    name = "chris";
-    group = "users";
-    extraGroups = [ "wheel" "voice" "networkmanager" ];
-    uid = 1000;
-    createHome = true;
-    home = "/home/chris";
-    shell = "/run/current-system/sw/bin/bash";
+    name        = "chris";
+    group       = "users";
+    extraGroups = [ "wheel" "voice" "networkmanager" "fuse" ];
+    uid         = 1000;
+    createHome  = true;
+    home        = "/home/chris";
+    shell       = "/run/current-system/sw/bin/bash";
   };
 }
