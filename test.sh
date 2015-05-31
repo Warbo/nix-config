@@ -48,10 +48,8 @@ function check_installs {
         then
             check_install "$pkg"
         else
-            if [ "$TEST" -eq "$pkg" ]
+            if [ "$TEST" = "$pkg" ]
             then
-                return
-            else
                 check_install "$pkg"
             fi
         fi
@@ -64,24 +62,24 @@ echo "GENERIC BUILD/INSTALL TESTS"
 
 pkg_tests=(check_installs
     # GHC bootstrapping chain
-    #ncursesFix haskell.compiler.ghc742Binary haskell.compiler.ghc784 ghc7101C
+    ncursesFix haskell.compiler.ghc742Binary haskell.compiler.ghc784 ghc7101C
 
     # GHC 7.10.1 package infrastructure
-    #haskell.compiler.ghc7101 haskell.packages.ghc7101.random
+    haskell.compiler.ghc7101 haskell.packages.ghc7101.random
 
     # Default Haskell package infrastructure (should be 7.10.1)
-    #haskellPackages.random
+    haskellPackages.random
 
     # Dundee Uni applications
-    #coalp ml4pg quickspec weka treefeats hs2ast
+    coalp ml4pg quickspec weka treefeats hs2ast
 
     # Personal infrastructure
-    pandoc panpipe panhandle md2pdf
-    git2html2
+    pandoc panpipe panhandle md2pdf git2html
+    #git2html2
     #gitHtml git2html
 
     # Misc
-    #agdaBase haskell.packages.ghc784.Agda emacsMelpa.agda2-mode
+    agdaBase haskell.packages.ghc784.Agda emacsMelpa.agda2-mode
 )
 "${pkg_tests[@]}" # Run the command specified by the array
 
@@ -97,6 +95,12 @@ check "ncursesFix creates libncurses.so.5"
 
 nix-shell -p git2html --pure --command 'which git2html'
 check "git2html installs its script"
+
+nix-shell -p panpipe --pure --command 'which panpipe'
+check "panpipe binary is installed"
+
+nix-shell -p panhandle --pure --command 'which panhandle'
+check "panhandle binary is installed"
 
 echo "TESTS END"
 
