@@ -1,38 +1,72 @@
 {
   packageOverrides = pkgs: with pkgs; rec {
 
-    # Lets us turn off tests,haddock, etc.
+    # Shorthand synonyms #
+    #====================#
+
+    # Gives us dontCheck, dontHaddock, etc.
     hsTools = import "${<nixpkgs>}/pkgs/development/haskell-modules/lib.nix" {
       inherit pkgs;
     };
 
-    # Use OpenJDK rather than IcedTea, since it has far fewer dependencies
-    jre = openjre;
+    callHaskell = haskellPackages.callPackage;
 
-    # Custom packages
+    haskell-agda = haskell.packages.ghc784.Agda;
 
-    # Writing infrastructure
-    md2pdf   = callPackage ./local/md2pdf.nix   {};
-    #panpipe        = import ./local/panpipe.nix;
-    panpipe        = haskellPackages.callPackage /home/chris/Programming/Haskell/PanPipe {};
-    #panhandle      = callPackage ./local/panhandle.nix      {};
-    panhandle      = haskellPackages.callPackage /home/chris/Programming/Haskell/pan-handler {};
-    pandocLib      = hsTools.dontCheck
-                       (haskellPackages.callPackage ./local/pandoc.nix {});
+    # Custom packages #
+    #=================#
 
-    #pngquant       = callPackage ./local/pngquant.nix       {};
-    #dupeguru       = callPackage ./local/dupeguru.nix       { pythonPackages = };
-    #mcaixictw      = callPackage ./local/mcaixictw.nix      {};
-    #whitey         = callPackage ./local/whitey.nix         {};
-    #ml4pg          = callPackage ./local/ml4pg.nix          {};
-    ml4pg          = import /home/chris/Programming/ML4PG;
-    #bugseverywhere = callPackage ./local/bugseverywhere.nix {};
-    #pidetop        = callPackage ./local/pidetop.nix        {};
+    # Projects and dependencies #
+    #---------------------------#
 
-    # TIP tools     https://github.com/tip-org/tools
-    #geniplate          = with haskellPackages;
-    #                     callPackage ./local/geniplate.nix            {};
+    #mcaixictw = callPackage ./local/mcaixictw.nix {};
 
+    #pidetop = callPackage ./local/pidetop.nix {};
+
+    ml4pg = import /home/chris/Programming/ML4PG;
+    #ml4pg = callPackage ./local/ml4pg.nix {};
+
+    hs2ast       = callHaskell /home/chris/Programming/Haskell/HS2AST/default.nix {};
+    treefeats    = callHaskell /home/chris/Programming/Haskell/TreeFeatures/default.nix {};
+    #treefeatures = callPackage ./local/treefeatures.nix   {};
+
+    weka = pkgs.weka.override { jre = openjre; };
+
+    coalp = let raw = callHaskell ./local/coalp.nix {};
+            in  hsTools.dontCheck (hsTools.dontHaddock raw);
+
+    quickspec = callHaskell /home/chris/Programming/Haskell/quickspec {};
+    #quickspec = ./local/quickspec.nix {
+    #              cabal = cabal;
+    #              QuickCheck = QuickCheck;
+    #              random = random;
+    #              spoon = spoon;
+    #              transformers = transformers;
+    #            };
+
+    # QuickSpec v2 and its dependencies (currently taken from v2 GitHub branch)
+    # Hopefully these will get added to Hackage eventually...
+    #quickspec2     = callHaskell ./local/quickspec2.nix {};
+
+    #jukebox        = callHaskell ./local/jukebox.nix {
+    #                   minisat = hsMinisat;
+    #                 };
+
+    #hsMinisat      = callHaskell ./local/haskell-minisat.nix {};
+
+    #termRewriting  = callHaskell ./local/term-rewriting.nix {};
+
+    #uglymemo       = callHaskell ./local/uglymemo.nix {};
+
+    #unionFindArray = callHaskell ./local/union-find-array.nix {};
+
+    #z3hs           = with (import <nixpkgs/pkgs/development/haskell-modules/lib.nix> { inherit pkgs; });
+    #                 overrideCabal haskellngPackages.z3 (drv: {
+    #                   configureFlags = "--extra-include-dirs=${pkgs.z3}/include/ --extra-lib-dirs=${pkgs.z3}/lib/";
+    #                 });
+
+    # TIP tools (both from https://github.com/tip-org/tools) and dependencies
+    # Hopefully these will get added to Hackage eventually...
     #tipLib             = callPackage ./local/tip-lib.nix              {
     #                       cabal = haskellPackages.cabal.override {
     #                         extension = self : super : {
@@ -44,45 +78,50 @@
     #                       cabal = haskellPackages.cabal;
     #                       geniplate = geniplate;
     #                     };
+    #geniplate          = callHaskell ./local/geniplate.nix            {};
 
-    #treefeatures   = callPackage ./local/treefeatures.nix   {};
-    #ditaaeps       = callPackage ./local/ditaaeps.nix       {};
+    # Writing infrastructure #
+    #------------------------#
 
-    quickspec      = haskellPackages.callPackage /home/chris/Programming/Haskell/quickspec {};
-    #./local/quickspec.nix {
-                       #cabal = cabal;
-                       #QuickCheck = QuickCheck;
-                       #random = random;
-                       #spoon = spoon;
-                       #transformers = transformers;
-    #                 };
+    md2pdf    = callPackage ./local/md2pdf.nix {};
+    panpipe   = callHaskell /home/chris/Programming/Haskell/PanPipe {};
+    panhandle = callHaskell /home/chris/Programming/Haskell/pan-handler {};
+    #panpipe   = import ./local/panpipe.nix;
+    #panhandle = callPackage ./local/panhandle.nix {};
+    #ditaaeps  = callPackage ./local/ditaaeps.nix {};
 
-    # QuickSpec v2 and dependencies (currently taken from v2 GitHub branch)
-    #quickspec2     = with haskellPackages;
-    #                 callPackage ./local/quickspec2.nix {};
+    # Manage chriswarbo.net #
+    #-----------------------#
 
-    #jukebox        = with haskellPackages;
-    #                 callPackage ./local/jukebox.nix {
-    #                   minisat = hsMinisat;
-    #                 };
+    git2html  = callPackage ./local/git2html.nix {};
+    git2html2 = import /home/chris/Programming/git2html;
 
-    #hsMinisat      = with haskellPackages;
-    #                 callPackage ./local/haskell-minisat.nix {};
+    # Generates a static HTML interface for git repos
+    gitHtml = callPackage ./local/git-html.nix {
+                repos = /home/chris/Programming/repos;
+              };
 
-    #termRewriting  = with haskellPackages;
-    #                 callPackage ./local/term-rewriting.nix {
-    #                 };
+    # Other #
+    #-------#
 
-    #uglymemo       = with haskellPackages;
-    #                 callPackage ./local/uglymemo.nix {};
+    #pngquant       = callPackage ./local/pngquant.nix       {};
+    #dupeguru       = callPackage ./local/dupeguru.nix       { pythonPackages = };
+    #whitey         = callPackage ./local/whitey.nix         {};
+    #bugseverywhere = callPackage ./local/bugseverywhere.nix {};
 
-    #unionFindArray = with haskellPackages;
-    #                 callPackage ./local/union-find-array.nix {};
+    # Default Haskell modules
+    hsEnv = haskellPackages.ghcWithPackages (pkgs : [
+              pkgs.Agda
+              pkgs.xmonad
+              pkgs.xmonad-extras
+              pkgs.xmonad-contrib
+            ]);
 
-    #z3hs           = with (import <nixpkgs/pkgs/development/haskell-modules/lib.nix> { inherit pkgs; });
-    #                 overrideCabal haskellngPackages.z3 (drv: {
-    #                   configureFlags = "--extra-include-dirs=${pkgs.z3}/include/ --extra-lib-dirs=${pkgs.z3}/lib/";
-    #                 });
+    # Overrides #
+    #===========#
+
+    # Use OpenJDK rather than IcedTea, since it has far fewer dependencies
+    jre = openjre;
 
     # Updated get_iplayer
     #get_iplayer = stdenv.lib.overrideDerivation pkgs.get_iplayer (oldAttrs : {
@@ -103,27 +142,15 @@
     #  };
     #});
 
-    git2html = callPackage ./local/git2html.nix {};
-    git2html2 = import /home/chris/Programming/git2html;
-
-    hs2ast = haskellPackages.callPackage /home/chris/Programming/Haskell/HS2AST/default.nix {};
-
-    treefeats = haskellPackages.callPackage /home/chris/Programming/Haskell/TreeFeatures/default.nix {};
-
-    weka = pkgs.weka.override {
-      jre = openjre;
-    };
-
-    # CoALP, via cabal2nix; make sure doCheck and doHaddock are false
-    coalp = let raw = haskellPackages.callPackage ./local/coalp.nix {};
-            in  hsTools.dontCheck (hsTools.dontHaddock raw);
+    # Haskell Fix #
+    #-------------#
 
     # Bug https://github.com/NixOS/nixpkgs/issues/7810 causes ghc742Binary to
     # look for libncurses.so.5 which the default ncurses doesn't provide. We use
     # ncursesFix to work around this. The ./local/ncurses directory is just a
     # copy of nixpkgs 41b53577a8f2:pkgs/development/libraries/ncurses
 
-    ncursesFix = callPackage ./local/ncurses {};
+    ncursesFix = callHaskell ./local/ncurses {};
 
     # We *could* override ncurses with ncursesFix at the top level, ie.
 
@@ -170,25 +197,5 @@
 
     # Point the default synonym to our setup
     haskellPackages = haskell.packages.ghc7101;
-
-    # Default Haskell modules
-    hsEnv = haskellPackages.ghcWithPackages (pkgs : [
-       pkgs.Agda
-       pkgs.xmonad
-       pkgs.xmonad-extras
-       pkgs.xmonad-contrib
-    ]);
-
-    haskell-agda = haskell.packages.ghc784.Agda;
-
-    # Manage chriswarbo.net
-
-    # Bare clones of all git repos, with post-update hooks in place
-    gitRepos = /home/chris/Programming/repos;
-
-    # Generates a static HTML interface for git repos
-    gitHtml = callPackage ./local/git-html.nix { repos = gitRepos; };
-
-
   };
 }
