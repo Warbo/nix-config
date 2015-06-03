@@ -37,8 +37,9 @@ function check {
 }
 
 function check_install {
-    nix-shell -p "$1" --pure --command "exit 0"
-    check "Package $1 installs without issue"
+    echo "Checking package '$1'"
+    nix-shell -p "$1" --pure --command "true"
+    check "Package '$1' installs without issue"
 }
 
 function check_installs {
@@ -61,24 +62,27 @@ echo "START TESTS"
 echo "GENERIC BUILD/INSTALL TESTS"
 
 pkg_tests=(check_installs
-    # GHC bootstrapping chain
+    # Make sure ncurses fix propagates through the GHC bootstrapping chain
     ncursesFix haskell.compiler.ghc742Binary haskell.compiler.ghc784 ghc7101C
 
-    # GHC 7.10.1 package infrastructure
+    # Make sure the resulting Haskell packages/libraries work
     haskell.compiler.ghc7101 haskell.packages.ghc7101.random
 
-    # Default Haskell package infrastructure (should be 7.10.1)
+    # Make sure our Haskell packages are the default
     haskellPackages.random
 
-    # Dundee Uni applications
+    # Dundee Uni projects and their dependencies
     coalp ml4pg quickspec weka treefeats hs2ast
 
-    # Personal infrastructure
-    pandoc panpipe panhandle md2pdf git2html
-    #git2html2
-    #gitHtml git2html
+    # Writing infrastructure
+    pandoc panpipe panhandle md2pdf
 
-    # Misc
+    # Web site infrastructure
+    #git2html
+    #git2html2
+    #gitHtml
+
+    # Agda
     agdaBase haskell.packages.ghc784.Agda emacsMelpa.agda2-mode
 )
 "${pkg_tests[@]}" # Run the command specified by the array
@@ -104,11 +108,6 @@ check "panhandle binary is installed"
 
 echo "TESTS END"
 
-if [ "$exit_code" -eq 0 ]
-then
-    echo "ALL TESTS PASSED"
-else
-    echo "SOME TEST(S) FAILED"
-fi
+test "$exit_code" -eq 0 && echo "ALL TESTS PASSED" || echo "SOME TEST(S) FAILED"
 
 exit $exit_code

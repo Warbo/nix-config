@@ -10,12 +10,16 @@
     jre = openjre;
 
     # Custom packages
+
+    # Writing infrastructure
+    md2pdf   = callPackage ./local/md2pdf.nix   {};
     #panpipe        = import ./local/panpipe.nix;
     panpipe        = haskellPackages.callPackage /home/chris/Programming/Haskell/PanPipe {};
     #panhandle      = callPackage ./local/panhandle.nix      {};
     panhandle      = haskellPackages.callPackage /home/chris/Programming/Haskell/pan-handler {};
     pandocLib      = hsTools.dontCheck
                        (haskellPackages.callPackage ./local/pandoc.nix {});
+
     #pngquant       = callPackage ./local/pngquant.nix       {};
     #dupeguru       = callPackage ./local/dupeguru.nix       { pythonPackages = };
     #mcaixictw      = callPackage ./local/mcaixictw.nix      {};
@@ -99,7 +103,6 @@
     #  };
     #});
 
-    md2pdf   = callPackage ./local/md2pdf.nix   {};
     git2html = callPackage ./local/git2html.nix {};
     git2html2 = import /home/chris/Programming/git2html;
 

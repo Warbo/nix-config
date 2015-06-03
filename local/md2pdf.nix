@@ -20,5 +20,6 @@ stdenv.mkDerivation {
   installPhase = ''
     mkdir -p "$out/bin"
     cp md2pdf "$out/bin/"
+    cp renderWatch "$out/bin"
   '';
 }
