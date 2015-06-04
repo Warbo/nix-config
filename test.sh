@@ -63,7 +63,7 @@ pkg_tests=(check_installs
     haskellPackages.random
 
     # Dundee Uni projects and their dependencies
-    coalp ml4pg ml4pg2 quickspec weka
+    coalp ml4pg quickspec weka
 
     hs2ast treefeatures
 

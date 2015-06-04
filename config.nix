@@ -23,14 +23,13 @@
 
     #pidetop = callPackage ./local/pidetop.nix {};
 
-    mlSrc  = fetchgit {
-               name   = "ml4pg";
-               url    = /home/chris/Programming/ML4PG;
-               sha256 = "1lg8p0p30dp6pvbi007hlpxk1bnyxhfazzvgyqrx837da43ymm7f";
-             };
-    ml4pg  = import "${mlSrc}/default.nix";
-
     # Holy nested quotations Batman!
+    ml4pg  = import "${fetchgit {
+                         name   = "ml4pg";
+                         url    = /home/chris/Programming/ML4PG;
+                         sha256 = "03v6vxb6dnrx5fvw8x7x4xkmhvzhq71qpkzv54pmvnb775m933rv";
+                       }}/default.nix";
+
     hs2ast = callHaskell "${fetchgit {
                               name   = "hs2ast";
                               url    = /home/chris/Programming/Haskell/HS2AST;
@@ -97,10 +96,17 @@
     #------------------------#
 
     md2pdf    = callPackage ./local/md2pdf.nix {};
-    panpipe   = callHaskell /home/chris/Programming/Haskell/PanPipe {};
-    panhandle = callHaskell /home/chris/Programming/Haskell/pan-handler {};
-    #panpipe   = import ./local/panpipe.nix;
-    #panhandle = callPackage ./local/panhandle.nix {};
+    panpipe   = callHaskell "${fetchgit {
+                                 name   = "panpipe";
+                                 url    = /home/chris/Programming/Haskell/PanPipe;
+                                 sha256 = "0sajlq926yr4684vbzmjh2209fnmrx1p1lqfbhxj5j0h166424ak";
+                               }}/default.nix" {};
+    panhandle = callHaskell "${fetchgit {
+                                 name   = "panhandle";
+                                 url    =  /home/chris/Programming/Haskell/pan-handler;
+                                 sha256 = "0ix7wd3k5q50ydanrv4sb2nfjbz32c4y38i4qzirrqf3dvbv734m";
+                               }}/default.nix" {};
+
     #ditaaeps  = callPackage ./local/ditaaeps.nix {};
 
     # Manage chriswarbo.net #
