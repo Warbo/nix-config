@@ -28,17 +28,11 @@ function check {
     # $? should contain the pass/fail result of the test
     result=$?
     printf "TEST %s... " "$1"
-    if [ $result -eq 0 ]
-    then
-        pass
-    else
-        fail
-    fi
+    test $result -eq 0 && pass || fail
 }
 
 function check_install {
-    echo "Checking package '$1'"
-    nix-shell -p "$1" --pure --command "true"
+    nix-shell -p "$1" --pure --show-trace --command "true"
     check "Package '$1' installs without issue"
 }
 
@@ -49,10 +43,7 @@ function check_installs {
         then
             check_install "$pkg"
         else
-            if [ "$TEST" = "$pkg" ]
-            then
-                check_install "$pkg"
-            fi
+            test "$TEST" = "$pkg" && check_install "$pkg"
         fi
     done
 }
@@ -72,7 +63,11 @@ pkg_tests=(check_installs
     haskellPackages.random
 
     # Dundee Uni projects and their dependencies
-    coalp ml4pg quickspec weka treefeats hs2ast
+    coalp ml4pg quickspec weka
+
+    # FIXME: These need making canonical
+    hs2ast hs2ast2 treefeats #treefeatures
+    treefeatures2 treefeatures3
 
     # Writing infrastructure
     pandoc panpipe panhandle md2pdf

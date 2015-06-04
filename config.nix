@@ -26,9 +26,29 @@
     ml4pg = import /home/chris/Programming/ML4PG;
     #ml4pg = callPackage ./local/ml4pg.nix {};
 
-    hs2ast       = callHaskell /home/chris/Programming/Haskell/HS2AST/default.nix {};
-    treefeats    = callHaskell /home/chris/Programming/Haskell/TreeFeatures/default.nix {};
-    #treefeatures = callPackage ./local/treefeatures.nix   {};
+    # FIXME: These should come from git; remove overrides once repos are canonical
+    hsPath        = /home/chris/Programming/Haskell/HS2AST;
+    hs2ast        = callHaskell hsPath {};
+    hs2ast2       = stdenv.lib.overrideDerivation hs2ast (old: {
+                      name = "hs2ast2";
+                      src  = fetchgit {
+                        name   = "hs2ast";
+                        url    = hsPath;
+                        sha256 = "1lg8p0p30dp6pvbi007hlpxk1bnyxhfazzvgyqrx837da43ymm7f";
+                      };
+                    });
+
+    tfSrc = fetchgit {
+              name   = "tfSrc";
+              url    = /home/chris/Programming/Haskell/TreeFeatures;
+              sha256 = "1w71h7b1i91fdbxv62m3cbq045n1fdfp54h6bra2ccdj2snibx3y";
+            };
+    tfPath        = /home/chris/Programming/Haskell/TreeFeatures;
+    treefeats     = callHaskell "${tfSrc}/default.nix" {};
+    treefeatures  = callPackage ./local/treefeatures.nix {};
+    treefeatures2 = stdenv.lib.overrideDerivation treefeats (old: {
+                      src = tfSrc;
+                    });
 
     weka = pkgs.weka.override { jre = openjre; };
 
@@ -150,7 +170,7 @@
     # ncursesFix to work around this. The ./local/ncurses directory is just a
     # copy of nixpkgs 41b53577a8f2:pkgs/development/libraries/ncurses
 
-    ncursesFix = callHaskell ./local/ncurses {};
+    ncursesFix = callPackage ./local/ncurses {};
 
     # We *could* override ncurses with ncursesFix at the top level, ie.
 
