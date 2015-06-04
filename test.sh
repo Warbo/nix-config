@@ -63,11 +63,9 @@ pkg_tests=(check_installs
     haskellPackages.random
 
     # Dundee Uni projects and their dependencies
-    coalp ml4pg quickspec weka
+    coalp ml4pg ml4pg2 quickspec weka
 
-    # FIXME: These need making canonical
-    hs2ast hs2ast2 treefeats #treefeatures
-    treefeatures2 treefeatures3
+    hs2ast treefeatures
 
     # Writing infrastructure
     pandoc panpipe panhandle md2pdf
