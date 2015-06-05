@@ -12,6 +12,7 @@ stdenv.mkDerivation {
 
   buildPhase = ''
     cd ..
+    test -d "html" && rm -rf "html"
     mkdir "html"
     ungit=$(basename  .git) # Remove any ".git" suffix
     git2html -p "${name}" \

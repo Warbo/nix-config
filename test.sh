@@ -1,6 +1,6 @@
 #!/bin/sh
 
-# Automated tests for custom packages
+# Automated tests for custom packages. Also serves to warm up our Nix cache.
 
 # Allow one test to be specified
 
@@ -67,14 +67,15 @@ pkg_tests=(check_installs
 
     hs2ast treefeatures
 
+    # Allows testing prior to committing
+    hs2ast-unstable treefeatures-unstable
+
     # Writing infrastructure
     pandoc panpipe panhandle md2pdf
 
     # Web site infrastructure
-    gitSites
-    #git2html
-    #git2html2
-    #gitHtml
+    git2html
+    #gitSites
 
     # Agda
     agdaBase haskell.packages.ghc784.Agda emacsMelpa.agda2-mode

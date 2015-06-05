@@ -23,26 +23,27 @@
 
     #pidetop = callPackage ./local/pidetop.nix {};
 
-    # Holy nested quotations Batman!
-    ml4pg  = import "${fetchgit {
-                         name   = "ml4pg";
-                         url    = /home/chris/Programming/ML4PG;
-                         sha256 = "03v6vxb6dnrx5fvw8x7x4xkmhvzhq71qpkzv54pmvnb775m933rv";
-                       }}";
+    ml4pg  = import (fetchgit {
+                       name   = "ml4pg";
+                       url    = /home/chris/Programming/repos/ml4pg.git;
+                       sha256 = "03v6vxb6dnrx5fvw8x7x4xkmhvzhq71qpkzv54pmvnb775m933rv";
+                     });
 
-    hs2ast = callHaskell "${fetchgit {
-                              name   = "hs2ast";
-                              url    = /home/chris/Programming/Haskell/HS2AST;
-                              sha256 = "1lg8p0p30dp6pvbi007hlpxk1bnyxhfazzvgyqrx837da43ymm7f";
-                            }}" {};
+    hs2ast = callHaskell (fetchgit {
+                            name   = "hs2ast";
+                            url    = /home/chris/Programming/repos/hs2ast.git;
+                            sha256 = "1lg8p0p30dp6pvbi007hlpxk1bnyxhfazzvgyqrx837da43ymm7f";
+                          }) {};
 
-    treefeatures = callHaskell "${fetchgit {
-                                    name   = "tfSrc";
-                                    url    = /home/chris/Programming/Haskell/TreeFeatures;
-                                    sha256 = "1w71h7b1i91fdbxv62m3cbq045n1fdfp54h6bra2ccdj2snibx3y";
-                                  }}" {};
+    treefeatures = callHaskell (fetchgit {
+                                  name   = "tfSrc";
+                                  url    = /home/chris/Programming/repos/tree-features.git;
+                                  sha256 = "1w71h7b1i91fdbxv62m3cbq045n1fdfp54h6bra2ccdj2snibx3y";
+                                }) {};
 
-    weka = pkgs.weka.override { jre = openjre; };
+    # For testing purposes
+    hs2ast-unstable       = callHaskell /home/chris/Programming/Haskell/HS2AST {};
+    treefeatures-unstable = callHaskell /home/chris/Programming/Haskell/TreeFeatures {};
 
     coalp = let raw = callHaskell ./local/coalp.nix {};
             in  hsTools.dontCheck (hsTools.dontHaddock raw);
@@ -113,8 +114,10 @@
     # Manage chriswarbo.net #
     #-----------------------#
 
-    git2html  = callPackage ./local/git2html.nix {};
-    git2html2 = import /home/chris/Programming/git2html;
+    git2html-real = callPackage ./local/git2html.nix {};
+    git2html      = stdenv.lib.overrideDerivation git2html-real (old: {
+                      src = /home/chris/Programming/git2html;
+                    });
 
     # Deep clone a git repository into the Nix store
     gitRepo = name: import ./local/git-repo.nix {
@@ -128,12 +131,30 @@
                       src = gitRepo name;
                     };
 
-    repos = [ "ant-colony"
-              "arrowlets-for-nodejs"
-              #"ml4pg"
-              "ml4hs"
-              "tree-features"
-            ];
+    repos = [
+      "ant-colony"
+      "apt-repo-tools"
+      "arrowlets-for-nodejs"
+      "bitbitjump-maude"
+      "chriswarbo-net"
+      "clutter-file-browser"
+      "genetic-turing-machines"
+      "hs2ast"
+      "js-plumb"
+      "mc-aixi-ctw"
+      "ml4hs"
+      "ml4pg"
+      "panhandle"
+      "panpipe"
+      "php-core"
+      "php-easycheck"
+      "php-plumb"
+      "php-prelude"
+      "powerplay"
+      "python-decompiler"
+      "search-optimisation-streams"
+      "tree-features"
+    ];
 
     gitSites = stdenv.mkDerivation {
       name = "git-sites";
@@ -175,7 +196,8 @@
     #===========#
 
     # Use OpenJDK rather than IcedTea, since it has far fewer dependencies
-    jre = openjre;
+    jre  = openjre;
+    weka = pkgs.weka.override { jre = openjre; };
 
     # Updated get_iplayer
     #get_iplayer = stdenv.lib.overrideDerivation pkgs.get_iplayer (oldAttrs : {
