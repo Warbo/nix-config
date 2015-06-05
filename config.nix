@@ -117,9 +117,13 @@
     git2html2 = import /home/chris/Programming/git2html;
 
     # Generates a static HTML interface for git repos
-    gitHtml = callPackage ./local/git-html.nix {
-                repos = /home/chris/Programming/repos;
-              };
+    gitHtml = repo: callPackage ./local/git-html.nix {
+                      inherit repo;
+                      src    = /home/chris/Programming/repos;
+                      suffix = ".git";
+                    };
+
+    antRepo = gitHtml "ant-colony";
 
     # Other #
     #-------#
