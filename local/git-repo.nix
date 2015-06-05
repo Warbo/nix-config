@@ -1,36 +1,34 @@
-# Render a git repository to a static HTML site
+# Deep clone a git repo
 with import <nixpkgs> {};
 
-{ src, url? "http://chriswarbo.net/git/", repo, suffix? "" }:
+{ name, repo }:
 
 stdenv.mkDerivation {
-  name = "git-html-${repo}";
+  name = "git-repo-${name}";
 
   src = with stdenv.lib;
-        if types.path.check src   # Paths should be full git clones
-           then "${src}/${repo}${suffix}"
-        else if isDerivation src  # Derivations should come from fetchgit
-                then overrideDefinition src (old: {
+        if types.path.check repo   # Paths should be full git clones
+           then repo
+        else if isDerivation repo  # Derivations should come from fetchgit
+                then overrideDefinition repo (old: {
                   deepClone = true; # We want the whole repo
                 })
-                else throw "git-html src should be path or result of fetchgit";
+                else throw "git-repo should be path or result of fetchgit";
 
-  buildInputs = [ git git2html ];
+  buildInputs = [ git ];
 
   buildPhase = ''
-    mv *
-    ls -lh
-    #mkdir "html"
-    #ungit=$(basename "${repo}" .git) # Remove any ".git" suffix
-    #mkdir -p "html"
-    #git2html -p "$ungit" \
-    #         -r "${repo}"  \
-    #         -l "${url}${repo}" \
-    #         "html/$ungit"
+    mv hooks/post-update.sample hooks/post-update
+    chmod +x hooks/post-update
+    sh hooks/post-update
   '';
 
   installPhase = ''
     mkdir -p "$out"
-    #cp -ar html/* "$out/"
+    shopt -s dotglob
+    cp -r * "$out/"
+    shopt -u dotglob
   '';
+
+  fixupPhase = "";  # Don't fiddle with repo contents
 }

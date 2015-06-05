@@ -71,7 +71,7 @@ pkg_tests=(check_installs
     pandoc panpipe panhandle md2pdf
 
     # Web site infrastructure
-    antRepo
+    gitSites
     #git2html
     #git2html2
     #gitHtml

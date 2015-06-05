@@ -116,14 +116,44 @@
     git2html  = callPackage ./local/git2html.nix {};
     git2html2 = import /home/chris/Programming/git2html;
 
-    # Generates a static HTML interface for git repos
-    gitHtml = repo: callPackage ./local/git-html.nix {
-                      inherit repo;
-                      src    = /home/chris/Programming/repos;
-                      suffix = ".git";
+    # Deep clone a git repository into the Nix store
+    gitRepo = name: import ./local/git-repo.nix {
+                      inherit name;
+                      repo = "/home/chris/Programming/repos/${name}.git";
                     };
 
-    antRepo = gitHtml "ant-colony";
+    # Generates a static HTML interface for a git repo
+    gitHtml = name: import ./local/git-html.nix {
+                      inherit name;
+                      src = gitRepo name;
+                    };
+
+    repos = [ "ant-colony"
+              "arrowlets-for-nodejs"
+              #"ml4pg"
+              "ml4hs"
+              "tree-features"
+            ];
+
+    gitSites = stdenv.mkDerivation {
+      name = "git-sites";
+      srcs = map gitHtml repos;
+
+      setSourceRoot = ''
+        mkdir -p "repos"
+        sourceRoot="repos"
+      '';
+
+      installPhase = ''
+        mkdir -p "$out"
+        cd ..
+        for repo in git-html-*
+        do
+          name=$(echo "$repo" | sed -e 's/^git-html-//')
+          cp -ar "$repo" "$out/$name"
+        done
+      '';
+    };
 
     # Other #
     #-------#
