@@ -1,12 +1,6 @@
 {
   allowUnfree = true;
-  packageOverrides = pkgs:
-    with pkgs;
-    with (import ./local/haskellFix.nix) pkgs;
-    rec {
-    # Haskell Fix
-    inherit haskellPackages haskell
-            ncursesFix ghc742BinaryC ghc784C ghc7101C ghc784P ghc7101P;
+  packageOverrides = pkgs: with pkgs; rec {
 
     # Shorthand synonyms #
     #====================#
@@ -149,6 +143,11 @@
 
     # Overrides #
     #===========#
+
+    # Haskell Fix
+    inherit ((import ./local/haskellFix.nix) pkgs)
+      haskellPackages haskell ncursesFix ghc742BinaryC ghc784C ghc7101C ghc784P
+      ghc7101P;
 
     # Use OpenJDK rather than IcedTea, since it has far fewer dependencies
     jre  = openjre;
