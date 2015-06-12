@@ -1,5 +1,12 @@
 {
-  packageOverrides = pkgs: with pkgs; rec {
+  allowUnfree = true;
+  packageOverrides = pkgs:
+    with pkgs;
+    with (import ./local/haskellFix.nix) pkgs;
+    rec {
+    # Haskell Fix
+    inherit haskellPackages haskell
+            ncursesFix ghc742BinaryC ghc784C ghc7101C ghc784P ghc7101P;
 
     # Shorthand synonyms #
     #====================#
@@ -29,17 +36,14 @@
                        sha256 = "03v6vxb6dnrx5fvw8x7x4xkmhvzhq71qpkzv54pmvnb775m933rv";
                      });
 
-    hs2ast = callHaskell (fetchgit {
-                            name   = "hs2ast";
-                            url    = /home/chris/Programming/repos/hs2ast.git;
-                            sha256 = "1lg8p0p30dp6pvbi007hlpxk1bnyxhfazzvgyqrx837da43ymm7f";
-                          }) {};
-
-    treefeatures = callHaskell (fetchgit {
-                                  name   = "tfSrc";
-                                  url    = /home/chris/Programming/repos/tree-features.git;
-                                  sha256 = "1w71h7b1i91fdbxv62m3cbq045n1fdfp54h6bra2ccdj2snibx3y";
-                                }) {};
+    inherit (import (fetchgit {
+                       name   = "haskell-te";
+                       url    = /home/chris/Programming/repos/haskell-te.git;
+                       rev    = "4d73f8c";
+                       sha256 = "138962qksa5fj89s45bp6s6pdm2hpk0wwv7k67z7d36kc34xq4s1";
+                     }) {})
+      quickspec hipspec hipspecifyer hs2ast treefeatures ml4hs;
+    #######mlspec       = te.mlspec;
 
     # For testing purposes
     hs2ast-unstable       = callHaskell /home/chris/Programming/Haskell/HS2AST {};
@@ -48,7 +52,14 @@
     coalp = let raw = callHaskell ./local/coalp.nix {};
             in  hsTools.dontCheck (hsTools.dontHaddock raw);
 
-    quickspec = callHaskell /home/chris/Programming/Haskell/quickspec {};
+    #quickspec = callHaskell /home/chris/Programming/Haskell/quickspec {};
+
+                          #(fetchgit {
+                          #  name   = "mlspec";
+                          #  url    = /home/chris/Programming/repos/mlspec.git;
+                          #  sha256 = "0953jzp9ar330aga19qdr42svs90vwh6hpwzbd1qmawysz1n7zhk";
+                          #}) {};
+
     #quickspec = ./local/quickspec.nix {
     #              cabal = cabal;
     #              QuickCheck = QuickCheck;
@@ -98,16 +109,16 @@
 
     md2pdf    = callPackage ./local/md2pdf.nix {};
 
-    panpipe   = callHaskell "${fetchgit {
-                                 name   = "panpipe";
-                                 url    = /home/chris/Programming/Haskell/PanPipe;
-                                 sha256 = "0sajlq926yr4684vbzmjh2209fnmrx1p1lqfbhxj5j0h166424ak";
-                               }}" {};
-    panhandle = callHaskell "${fetchgit {
-                                 name   = "panhandle";
-                                 url    =  /home/chris/Programming/Haskell/pan-handler;
-                                 sha256 = "0ix7wd3k5q50ydanrv4sb2nfjbz32c4y38i4qzirrqf3dvbv734m";
-                               }}" {};
+    panpipe   = callHaskell (fetchgit {
+                               name   = "panpipe";
+                               url    = http://chriswarbo.net/git/panpipe.git;
+                               sha256 = "0sajlq926yr4684vbzmjh2209fnmrx1p1lqfbhxj5j0h166424ak";
+                             }) {};
+    panhandle = callHaskell (fetchgit {
+                               name   = "panhandle";
+                               url    =  http://chriswarbo.net/git/panhandle.git;
+                               sha256 = "0ix7wd3k5q50ydanrv4sb2nfjbz32c4y38i4qzirrqf3dvbv734m";
+                             }) {};
 
     #ditaaeps  = callPackage ./local/ditaaeps.nix {};
 
@@ -118,63 +129,7 @@
     git2html      = stdenv.lib.overrideDerivation git2html-real (old: {
                       src = /home/chris/Programming/git2html;
                     });
-
-    # Deep clone a git repository into the Nix store
-    gitRepo = name: import ./local/git-repo.nix {
-                      inherit name;
-                      repo = "/home/chris/Programming/repos/${name}.git";
-                    };
-
-    # Generates a static HTML interface for a git repo
-    gitHtml = name: import ./local/git-html.nix {
-                      inherit name;
-                      src = gitRepo name;
-                    };
-
-    repos = [
-      "ant-colony"
-      "apt-repo-tools"
-      "arrowlets-for-nodejs"
-      "bitbitjump-maude"
-      "chriswarbo-net"
-      "clutter-file-browser"
-      "genetic-turing-machines"
-      "hs2ast"
-      "js-plumb"
-      "mc-aixi-ctw"
-      "ml4hs"
-      "ml4pg"
-      "panhandle"
-      "panpipe"
-      "php-core"
-      "php-easycheck"
-      "php-plumb"
-      "php-prelude"
-      "powerplay"
-      "python-decompiler"
-      "search-optimisation-streams"
-      "tree-features"
-    ];
-
-    gitSites = stdenv.mkDerivation {
-      name = "git-sites";
-      srcs = map gitHtml repos;
-
-      setSourceRoot = ''
-        mkdir -p "repos"
-        sourceRoot="repos"
-      '';
-
-      installPhase = ''
-        mkdir -p "$out"
-        cd ..
-        for repo in git-html-*
-        do
-          name=$(echo "$repo" | sed -e 's/^git-html-//')
-          cp -ar "$repo" "$out/$name"
-        done
-      '';
-    };
+    cwNet         = import /home/chris/blog;
 
     # Other #
     #-------#
@@ -200,13 +155,13 @@
     weka = pkgs.weka.override { jre = openjre; };
 
     # Updated get_iplayer
-    #get_iplayer = stdenv.lib.overrideDerivation pkgs.get_iplayer (oldAttrs : {
-    #  name = "get_iplayer-2.92";
-    #  src  = fetchurl {
-    #    url    = ftp://ftp.infradead.org/pub/get_iplayer/get_iplayer-2.92.tar.gz;
-    #    sha256 = "1pg4ay32ykxbnvk9dglwpbfjwhcc4ijfl8va89jzyxicbf7s6077";
-    #  };
-    #});
+    get_iplayer = stdenv.lib.overrideDerivation pkgs.get_iplayer (oldAttrs : {
+      name = "get_iplayer";
+      src  = fetchurl {
+        url    = ftp://ftp.infradead.org/pub/get_iplayer/get_iplayer-2.94.tar.gz;
+        sha256 = "16p0bw879fl8cs6rp37g1hgrcai771z6rcqk2nvm49kk39dx1zi4";
+      };
+    });
 
     # Coq with Mtac support
     #coq_mtac = stdenv.lib.overrideDerivation coq (oldAttrs : {
@@ -217,61 +172,5 @@
     #    sha256 = "1949z7pjb51w89954narwcd1ykb9wxi7prldic1a1slxrr5b6lq7";
     #  };
     #});
-
-    # Haskell Fix #
-    #-------------#
-
-    # Bug https://github.com/NixOS/nixpkgs/issues/7810 causes ghc742Binary to
-    # look for libncurses.so.5 which the default ncurses doesn't provide. We use
-    # ncursesFix to work around this. The ./local/ncurses directory is just a
-    # copy of nixpkgs 41b53577a8f2:pkgs/development/libraries/ncurses
-
-    ncursesFix = callPackage ./local/ncurses {};
-
-    # We *could* override ncurses with ncursesFix at the top level, ie.
-
-    #ncurses = ncursesFix;
-
-    # But we'd rather not, since that would cause most of the OS to be rebuilt.
-    # Instead, we only override the ncurses used by ghc742Binary.
-
-    # Since GHC is written in Haskell, it needs to be bootstrapped. As of
-    # 2015-05-27 the default haskellPackages is built with ghc7101, ghc7101 is
-    # built with ghc784 and ghc784 is built with the pre-built binary
-    # ghc742Binary.
-    # These packages are defined relative to each other in haskell-packages.nix,
-    # rather than going through the top level where we can override them. Hence
-    # we must override:
-    #
-    #  - haskell.compiler.ghc742Binary (to fix the ncurses issue)
-    #  - haskell.compiler.ghc784       (to be built by *our* ghc742Binary)
-    #  - haskell.compiler.ghc7101      (to be built by *our* ghc784)
-    #  - haskell.packages.ghc7101      (to be built by *our* ghc7101)
-    #  - haskellPackages               (to be *our* haskell.packages.ghc7101)
-
-    # Define the compilers and packages
-    ghc742BinaryC = pkgs.haskell.compiler.ghc742Binary.override {
-                      ncurses = ncursesFix;
-                    };
-    ghc784C  = pkgs.haskell.compiler.ghc784.override  { ghc = ghc742BinaryC; };
-    ghc7101C = pkgs.haskell.compiler.ghc7101.override { ghc = ghc784C;       };
-    ghc784P  = pkgs.haskell.packages.ghc784.override  { ghc = ghc784C;       };
-    ghc7101P = pkgs.haskell.packages.ghc7101.override { ghc = ghc7101C;      };
-
-    # Replace the regular Haskell setup with our modification
-    haskell = pkgs.haskell // {
-      compiler = pkgs.haskell.compiler // {
-        ghc742Binary = ghc742BinaryC;
-        ghc784       = ghc784C;
-        ghc7101      = ghc7101C;
-      };
-      packages = {
-        ghc784  = ghc784P;
-        ghc7101 = ghc7101P;
-      };
-    };
-
-    # Point the default synonym to our setup
-    haskellPackages = haskell.packages.ghc7101;
   };
 }

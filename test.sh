@@ -63,9 +63,7 @@ pkg_tests=(check_installs
     haskellPackages.random
 
     # Dundee Uni projects and their dependencies
-    coalp ml4pg quickspec weka
-
-    hs2ast treefeatures
+    coalp ml4pg quickspec weka hs2ast treefeatures ####mlspec
 
     # Allows testing prior to committing
     hs2ast-unstable treefeatures-unstable
@@ -75,10 +73,12 @@ pkg_tests=(check_installs
 
     # Web site infrastructure
     git2html
-    #gitSites
 
     # Agda
     agdaBase haskell.packages.ghc784.Agda emacsMelpa.agda2-mode
+
+    # Other
+    jre get_iplayer
 )
 "${pkg_tests[@]}" # Run the command specified by the array
 
@@ -92,14 +92,21 @@ curses_libs=$(nix-shell -p ncursesFix --pure \
 echo "$curses_libs" | grep -q "libncurses.so.5"
 check "ncursesFix creates libncurses.so.5"
 
-nix-shell -p git2html --pure --command 'which git2html'
-check "git2html installs its script"
+nix-shell -p git2html  --pure --command 'which git2html'  > /dev/null
+check  "git2html script is installed"
 
-nix-shell -p panpipe --pure --command 'which panpipe'
-check "panpipe binary is installed"
+nix-shell -p panpipe   --pure --command 'which panpipe'   > /dev/null
+check   "panpipe binary is installed"
 
-nix-shell -p panhandle --pure --command 'which panhandle'
+nix-shell -p panhandle --pure --command 'which panhandle' > /dev/null
 check "panhandle binary is installed"
+
+nix-shell '<nixpkgs>' -A cwNet --command "true"
+check "Can make build environment for chriswarbo.net"
+
+nix-shell '<nixpkgs>' -A cwNet \
+  --command 'echo "import Hakyll; main = return ()" | runhaskell'
+check "Hakyll library is available to chriswarbo.net"
 
 echo "TESTS END"
 
