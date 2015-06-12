@@ -33,11 +33,10 @@
     inherit (import (fetchgit {
                        name   = "haskell-te";
                        url    = /home/chris/Programming/repos/haskell-te.git;
-                       rev    = "4d73f8c";
-                       sha256 = "138962qksa5fj89s45bp6s6pdm2hpk0wwv7k67z7d36kc34xq4s1";
+                       rev    = "bca3414";
+                       sha256 = "0g8pb2b4i493hkmwalll1laby89m0xahp5cchgdiqlqhh79amgfq";
                      }) {})
-      quickspec hipspec hipspecifyer hs2ast treefeatures ml4hs;
-    #######mlspec       = te.mlspec;
+      quickspec hipspec hipspecifyer hs2ast treefeatures ml4hs mlspec;
 
     # For testing purposes
     hs2ast-unstable       = callHaskell /home/chris/Programming/Haskell/HS2AST {};
@@ -45,22 +44,6 @@
 
     coalp = let raw = callHaskell ./local/coalp.nix {};
             in  hsTools.dontCheck (hsTools.dontHaddock raw);
-
-    #quickspec = callHaskell /home/chris/Programming/Haskell/quickspec {};
-
-                          #(fetchgit {
-                          #  name   = "mlspec";
-                          #  url    = /home/chris/Programming/repos/mlspec.git;
-                          #  sha256 = "0953jzp9ar330aga19qdr42svs90vwh6hpwzbd1qmawysz1n7zhk";
-                          #}) {};
-
-    #quickspec = ./local/quickspec.nix {
-    #              cabal = cabal;
-    #              QuickCheck = QuickCheck;
-    #              random = random;
-    #              spoon = spoon;
-    #              transformers = transformers;
-    #            };
 
     # QuickSpec v2 and its dependencies (currently taken from v2 GitHub branch)
     # Hopefully these will get added to Hackage eventually...

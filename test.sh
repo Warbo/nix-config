@@ -63,7 +63,7 @@ pkg_tests=(check_installs
     haskellPackages.random
 
     # Dundee Uni projects and their dependencies
-    coalp ml4pg quickspec weka hs2ast treefeatures ####mlspec
+    coalp ml4pg quickspec weka hs2ast treefeatures mlspec
 
     # Allows testing prior to committing
     hs2ast-unstable treefeatures-unstable
