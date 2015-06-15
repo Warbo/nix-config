@@ -13,8 +13,6 @@ rec {
   nixpkgs.config = {
     # hipspecify doesn't provide a licence, so cabal2nix assumes it's unfree
     allowUnfree = true;
-
-    packageOverrides = /home/chris/.nixpkgs/local/haskellFix.nix;
   };
 
   # Use the GRUB 2 boot loader.
