@@ -53,13 +53,7 @@ echo "START TESTS"
 echo "GENERIC BUILD/INSTALL TESTS"
 
 pkg_tests=(check_installs
-    # Make sure ncurses fix propagates through the GHC bootstrapping chain
-    ncursesFix haskell.compiler.ghc742Binary haskell.compiler.ghc784 ghc7101C
-
-    # Make sure the resulting Haskell packages/libraries work
-    haskell.compiler.ghc7101 haskell.packages.ghc7101.random
-
-    # Make sure our Haskell packages are the default
+    # Make sure Haskell packages work
     haskellPackages.random
 
     # Dundee Uni projects and their dependencies
@@ -78,19 +72,11 @@ pkg_tests=(check_installs
     agdaBase haskell.packages.ghc784.Agda emacsMelpa.agda2-mode
 
     # Other
-    jre get_iplayer
+    get_iplayer
 )
 "${pkg_tests[@]}" # Run the command specified by the array
 
 echo "START PACKAGE-SPECIFIC TESTS"
-
-curses_libs=$(nix-shell -p ncursesFix --pure \
-                        --command 'find $(echo $NIX_LDFLAGS |
-                                          grep -o "[-]L/nix/store/[^/]*ncurses[^/]*/lib" |
-                                          grep -o "/nix/store/.*")')
-
-echo "$curses_libs" | grep -q "libncurses.so.5"
-check "ncursesFix creates libncurses.so.5"
 
 nix-shell -p git2html  --pure --command 'which git2html'  > /dev/null
 check  "git2html script is installed"

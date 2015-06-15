@@ -93,8 +93,9 @@
                              }) {};
     panhandle = callHaskell (fetchgit {
                                name   = "panhandle";
-                               url    =  http://chriswarbo.net/git/panhandle.git;
-                               sha256 = "0ix7wd3k5q50ydanrv4sb2nfjbz32c4y38i4qzirrqf3dvbv734m";
+                               url    = http://chriswarbo.net/git/panhandle.git;
+                               rev    = "f49f798";
+                               sha256 = "0gdaw7q9ciszh750nd7ps5wvk2bb265iaxs315lfl4rsnbvggwkd";
                              }) {};
 
     #ditaaeps  = callPackage ./local/ditaaeps.nix {};
@@ -126,15 +127,6 @@
 
     # Overrides #
     #===========#
-
-    # Haskell Fix
-    inherit ((import ./local/haskellFix.nix) pkgs)
-      haskellPackages haskell ncursesFix ghc742BinaryC ghc784C ghc7101C ghc784P
-      ghc7101P;
-
-    # Use OpenJDK rather than IcedTea, since it has far fewer dependencies
-    jre  = openjre;
-    weka = pkgs.weka.override { jre = openjre; };
 
     # Updated get_iplayer
     get_iplayer = stdenv.lib.overrideDerivation pkgs.get_iplayer (oldAttrs : {
