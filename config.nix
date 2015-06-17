@@ -30,17 +30,26 @@
                        sha256 = "03v6vxb6dnrx5fvw8x7x4xkmhvzhq71qpkzv54pmvnb775m933rv";
                      });
 
-    inherit (import (fetchgit {
-                       name   = "haskell-te";
-                       url    = /home/chris/Programming/repos/haskell-te.git;
-                       rev    = "bca3414";
-                       sha256 = "0g8pb2b4i493hkmwalll1laby89m0xahp5cchgdiqlqhh79amgfq";
-                     }) {})
-      quickspec hipspec hipspecifyer hs2ast treefeatures ml4hs mlspec;
+    haskell-te = import (fetchgit {
+                           name   = "haskell-te";
+                           url    = /home/chris/Programming/repos/haskell-te.git;
+                           rev    = "5670e5c";
+                           sha256 = "0ydxy7b7aq6s7vp282rjpa1729z7qq36dwyhb6pp3r7ib0yfpp13";
+                         });
 
-    # For testing purposes
-    hs2ast-unstable       = callHaskell /home/chris/Programming/Haskell/HS2AST {};
-    treefeatures-unstable = callHaskell /home/chris/Programming/Haskell/TreeFeatures {};
+    # Default version of Theory Exploration tools
+    inherit (haskell-te {})
+      quickspec hipspec hipspecifyer hs2ast treefeatures ml4hs mlspec
+      ArbitraryHaskell;
+
+    # Work-in-progress version of Theory Exploration tools (useful for
+    # integration testing before committing/pushing)
+    te-unstable = haskell-te {
+      hs2ast           = /home/chris/Programming/Haskell/HS2AST;
+      treefeatures     = /home/chris/Programming/Haskell/TreeFeatures;
+      ArbitraryHaskell = /home/chris/Programming/Haskell/ArbitraryHaskell;
+      ml4hs            = /home/chris/Programming/Haskell/ML4HS;
+    };
 
     coalp = let raw = callHaskell ./local/coalp.nix {};
             in  hsTools.dontCheck (hsTools.dontHaddock raw);
