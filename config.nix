@@ -34,8 +34,8 @@
     inherit (import (fetchgit {
                name   = "haskell-te";
                url    = /home/chris/Programming/repos/haskell-te.git;
-               rev    = "75e090a";
-               sha256 = "05hr3kws0jsp5c0fq0s8xdckz1ysqxlgzv2nypwrw7i3z7iximc0";
+               rev    = "3d43f79";
+               sha256 = "0i2xlp101ffd8r1zn6hcqvg41qn8d7xvf2pj2igka26hk4b1ndxa";
              }) {})
       quickspec hipspec hipspecifyer hs2ast treefeatures ml4hs mlspec
       ArbitraryHaskell;
