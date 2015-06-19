@@ -60,8 +60,8 @@ pkg_tests=(check_installs
     coalp ml4pg quickspec weka hs2ast treefeatures mlspec ArbitraryHaskell
 
     # Allows testing prior to committing
-    te-unstable.hs2ast te-unstable.treefeatures te-unstable.mlspec
-    te-unstable.ArbitraryHaskell te-unstable.ml4hs
+    te-unstable.ArbitraryHaskell te-unstable.hs2ast te-unstable.treefeatures
+    te-unstable.mlspec te-unstable.ml4hs
 
     # Writing infrastructure
     pandoc panpipe panhandle md2pdf

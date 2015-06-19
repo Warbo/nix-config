@@ -30,21 +30,19 @@
                        sha256 = "03v6vxb6dnrx5fvw8x7x4xkmhvzhq71qpkzv54pmvnb775m933rv";
                      });
 
-    haskell-te = import (fetchgit {
-                           name   = "haskell-te";
-                           url    = /home/chris/Programming/repos/haskell-te.git;
-                           rev    = "5670e5c";
-                           sha256 = "0ydxy7b7aq6s7vp282rjpa1729z7qq36dwyhb6pp3r7ib0yfpp13";
-                         });
-
     # Default version of Theory Exploration tools
-    inherit (haskell-te {})
+    inherit (import (fetchgit {
+               name   = "haskell-te";
+               url    = /home/chris/Programming/repos/haskell-te.git;
+               rev    = "75e090a";
+               sha256 = "05hr3kws0jsp5c0fq0s8xdckz1ysqxlgzv2nypwrw7i3z7iximc0";
+             }) {})
       quickspec hipspec hipspecifyer hs2ast treefeatures ml4hs mlspec
       ArbitraryHaskell;
 
     # Work-in-progress version of Theory Exploration tools (useful for
     # integration testing before committing/pushing)
-    te-unstable = haskell-te {
+    te-unstable = (import /home/chris/System/Packages/haskell-te) {
       hs2ast           = /home/chris/Programming/Haskell/HS2AST;
       treefeatures     = /home/chris/Programming/Haskell/TreeFeatures;
       ArbitraryHaskell = /home/chris/Programming/Haskell/ArbitraryHaskell;
