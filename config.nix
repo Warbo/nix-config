@@ -14,6 +14,86 @@
 
     haskell-agda = haskell.packages.ghc784.Agda;
 
+    # This one package depends on all of the packages we want in our user config
+    # so we don't need to keep track of everything separately. Use commands like
+    # `nix-env -i all`, etc. to get the equivalent of a per-user `nixos-rebuild`
+    all = buildEnv {
+      name = "all";
+      paths = [
+        #bash
+        #kde4.basket
+        #binutils
+        #haskellPackages.cabal-install
+        #cabal2nix
+        #cacert
+        #conkeror
+        #coq
+        #dmenu
+        #dvtm
+        #emacs
+        #ffmpeg
+        #file
+        #firefox
+        #gcc
+        #gensgs
+        #get_iplayer
+        #haskellPackages.ghc
+        #ghostscript
+        #gimp
+        #git
+        #git2html
+        #graphviz
+        #imagemagick
+        #inkscape
+        #inotifyTools
+        #kde4.kbibtex
+        #lyx
+        #md2pdf
+        #ml4pg
+        #mplayer
+        #msmtp
+        #mupdf
+        #networkmanagerapplet
+        #nix-repl
+        #openssh
+        #optipng
+        #pandoc
+        #panhandle
+        #panpipe
+        #perlPackages.XMLSimple
+        #pidgin
+        #pioneers
+        #pmutils
+        #psmisc
+        #arandr
+        #pythonPackages.whitey
+        #smbnetfs
+        #sshfsFuse
+        #texLive
+        #texLiveFull
+        #tightvnc
+        #trayer
+        #uae
+        #unison
+        #unzip
+        #vlc
+        #wget
+        #wmname
+        #x11vnc
+        #xbindkeys
+        #xcape
+        #xfce.xfce4notifyd
+        #haskellPackages.xmobar
+        #xorg.xmodmap
+        #xmp
+        #xorg.xproto
+        #xsane
+        #youtube-dl
+        #zip
+        warbo-utilities
+      ];
+    };
+
     # Custom packages #
     #=================#
 
@@ -34,8 +114,8 @@
     inherit (import (fetchgit {
                name   = "haskell-te";
                url    = /home/chris/Programming/repos/haskell-te.git;
-               rev    = "3d43f79";
-               sha256 = "0i2xlp101ffd8r1zn6hcqvg41qn8d7xvf2pj2igka26hk4b1ndxa";
+               rev    = "3ca20ba";
+               sha256 = "1p1dyx71sb5fd0pgjc6rqbqgvhgqy4kz096zm76nnw0gzvnlj4dx";
              }) {})
       quickspec hipspec hipspecifyer hs2ast treefeatures ml4hs mlspec
       ArbitraryHaskell;
@@ -123,6 +203,13 @@
     #dupeguru       = callPackage ./local/dupeguru.nix       { pythonPackages = };
     #whitey         = callPackage ./local/whitey.nix         {};
     #bugseverywhere = callPackage ./local/bugseverywhere.nix {};
+
+    warbo-utilities = import (fetchgit {
+        name   = "warbo-utilities-src";
+        url    = /home/chris/Programming/repos/warbo-utilities.git;
+        rev    = "3ae3601";
+        sha256 = "0ccpjpfsziknrzl5j5vsl5l31qhf6z8x6l4dp6aymxm962g3lay3";
+      });
 
     # Default Haskell modules
     hsEnv = haskellPackages.ghcWithPackages (pkgs : [
