@@ -5,11 +5,6 @@
     # Shorthand synonyms #
     #====================#
 
-    # Gives us dontCheck, dontHaddock, etc.
-    hsTools = import "${<nixpkgs>}/pkgs/development/haskell-modules/lib.nix" {
-      inherit pkgs;
-    };
-
     callHaskell = haskellPackages.callPackage;
 
     haskell-agda = haskell.packages.ghc784.Agda;
@@ -114,23 +109,37 @@
     inherit (import (fetchgit {
                name   = "haskell-te";
                url    = /home/chris/Programming/repos/haskell-te.git;
-               rev    = "3ca20ba";
-               sha256 = "1p1dyx71sb5fd0pgjc6rqbqgvhgqy4kz096zm76nnw0gzvnlj4dx";
+               rev    = "38b70f8";
+               sha256 = "0km9jq136c8zvxw7nmd9vcbp2pz48yyyz9vf37g9xxd4p5avzam2";
              }) {})
-      quickspec hipspec hipspecifyer hs2ast treefeatures ml4hs mlspec
-      ArbitraryHaskell;
+      quickspec hipspec hipspecifyer HS2AST treefeatures ml4hs mlspec
+      ArbitraryHaskell AstPlugin;
 
     # Work-in-progress version of Theory Exploration tools (useful for
     # integration testing before committing/pushing)
     te-unstable = (import /home/chris/System/Packages/haskell-te) {
-      hs2ast           = /home/chris/Programming/Haskell/HS2AST;
+      HS2AST           = /home/chris/Programming/Haskell/HS2AST;
       treefeatures     = /home/chris/Programming/Haskell/TreeFeatures;
       ArbitraryHaskell = /home/chris/Programming/Haskell/ArbitraryHaskell;
       ml4hs            = /home/chris/Programming/Haskell/ML4HS;
+      AstPlugin        = /home/chris/Programming/Haskell/AstPlugin;
     };
 
+    astplugin = haskellPackages.callPackage
+                  /home/chris/Programming/Haskell/AstPlugin {};
+
+    ghcWithPlugin = name:
+      runCommand "dummy" {
+        buildInputs = [
+          (haskellPackages.ghcWithPackages (hsPkgs: [
+             hsPkgs.${name}
+             astplugin
+          ]))
+        ];
+      } "";
+
     coalp = let raw = callHaskell ./local/coalp.nix {};
-            in  hsTools.dontCheck (hsTools.dontHaddock raw);
+            in  haskell.lib.dontCheck (haskell.lib.dontHaddock raw);
 
     # QuickSpec v2 and its dependencies (currently taken from v2 GitHub branch)
     # Hopefully these will get added to Hackage eventually...
@@ -207,8 +216,8 @@
     warbo-utilities = import (fetchgit {
         name   = "warbo-utilities-src";
         url    = /home/chris/Programming/repos/warbo-utilities.git;
-        rev    = "3ae3601";
-        sha256 = "0ccpjpfsziknrzl5j5vsl5l31qhf6z8x6l4dp6aymxm962g3lay3";
+        rev    = "05293e9";
+        sha256 = "19jdgj7g902pdwpslwnrjz6zdgwa5rkl2kk0vki9ihydigdngvij";
       });
 
     # Default Haskell modules
