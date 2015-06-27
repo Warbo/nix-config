@@ -109,10 +109,10 @@
     inherit (import (fetchgit {
                name   = "haskell-te";
                url    = /home/chris/Programming/repos/haskell-te.git;
-               rev    = "38b70f8";
-               sha256 = "0km9jq136c8zvxw7nmd9vcbp2pz48yyyz9vf37g9xxd4p5avzam2";
+               rev    = "e8dbb12";
+               sha256 = "0kvhc65zb7n390dx4hbzf5228jxq54gpsdn3wam0zkld04xh0xx3";
              }) {})
-      quickspec hipspec hipspecifyer HS2AST treefeatures ml4hs mlspec
+      quickspec hipspec HS2AST treefeatures ml4hs mlspec
       ArbitraryHaskell AstPlugin;
 
     # Work-in-progress version of Theory Exploration tools (useful for
@@ -137,6 +137,27 @@
           ]))
         ];
       } "";
+
+    weka-cli = stdenv.mkDerivation {
+      name = "weka-cli";
+      src  = /home/chris/empty;
+      propagatedBuildInputs = [ jre weka ];
+      installPhase = ''
+        # Make it easy to run Weka
+        mkdir -p "$out/bin"
+        cat <<'EOF' > "$out/bin/weka-cli"
+        #!bin/sh
+        ${jre}/bin/java -Xmx1000M -cp ${weka}/share/weka/weka.jar "$@"
+        EOF
+        chmod +x "$out/bin/weka-cli"
+      '';
+      shellHook = ''
+        # jar weka.jar launches the GUI, -cp weka.jar runs from CLI
+        function weka-cli {
+          ${jre}/bin/java -Xmx1000M -cp ${weka}/share/weka/weka.jar "$@"
+        }
+      '';
+    };
 
     coalp = let raw = callHaskell ./local/coalp.nix {};
             in  haskell.lib.dontCheck (haskell.lib.dontHaddock raw);
