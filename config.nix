@@ -109,8 +109,8 @@
     inherit (import (fetchgit {
                name   = "haskell-te";
                url    = /home/chris/Programming/repos/haskell-te.git;
-               rev    = "e8dbb12";
-               sha256 = "0kvhc65zb7n390dx4hbzf5228jxq54gpsdn3wam0zkld04xh0xx3";
+               rev = "3df8061";
+               sha256 = "094mq41x70m3qmq38lhsxhx2ir6pc47di3fp9rpnl5wa0nin8ib4";
              }) {})
       quickspec hipspec HS2AST treefeatures ml4hs mlspec
       ArbitraryHaskell AstPlugin;
