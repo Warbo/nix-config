@@ -21,10 +21,10 @@
         #haskellPackages.cabal-install
         #cabal2nix
         #cacert
-        #conkeror
+        conkeror
         #coq
-        #dmenu
-        #dvtm
+        dmenu
+        dvtm
         #emacs
         #ffmpeg
         #file
@@ -109,8 +109,8 @@
     inherit (import (fetchgit {
                name   = "haskell-te";
                url    = /home/chris/Programming/repos/haskell-te.git;
-               rev = "3df8061";
-               sha256 = "094mq41x70m3qmq38lhsxhx2ir6pc47di3fp9rpnl5wa0nin8ib4";
+               rev = "937f6d9";
+               sha256 = "1c9irvws84dklly6fm7kzl5jsh2h4snk1b4y1hxsppwjwvl11gw2";
              }) {})
       quickspec hipspec HS2AST treefeatures ml4hs mlspec
       ArbitraryHaskell AstPlugin;
@@ -133,7 +133,10 @@
         buildInputs = [
           (haskellPackages.ghcWithPackages (hsPkgs: [
              hsPkgs.${name}
-             astplugin
+             AstPlugin
+             hsPkgs.stringable
+             hsPkgs.atto-lisp
+             hsPkgs.attoparsec
           ]))
         ];
       } "";
