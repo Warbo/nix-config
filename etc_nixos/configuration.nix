@@ -3,17 +3,11 @@
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 
 { config, pkgs, ... }:
-
 rec {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
     ];
-
-  nixpkgs.config = {
-    # hipspecify doesn't provide a licence, so cabal2nix assumes it's unfree
-    allowUnfree = true;
-  };
 
   # Use the GRUB 2 boot loader.
   boot = {
@@ -80,7 +74,7 @@ rec {
   users.extraUsers.chris = {
     name        = "chris";
     group       = "users";
-    extraGroups = [ "wheel" "voice" "networkmanager" "fuse" ];
+    extraGroups = [ "wheel" "voice" "networkmanager" "fuse" "dialout" ];
     uid         = 1000;
     createHome  = true;
     home        = "/home/chris";
