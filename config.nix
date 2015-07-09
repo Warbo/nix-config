@@ -15,6 +15,7 @@
     all = buildEnv {
       name = "all";
       paths = [
+        jq
         #bash
         #kde4.basket
         #binutils
@@ -26,28 +27,27 @@
         dmenu
         dvtm
         #emacs
-        #ffmpeg
-        #file
-        #firefox
+        file
+        firefox
         #gcc
         #gensgs
-        #get_iplayer
+        get_iplayer
         #haskellPackages.ghc
         #ghostscript
-        #gimp
+        gimp
         #git
         #git2html
         #graphviz
         #imagemagick
-        #inkscape
+        inkscape
         #inotifyTools
         #kde4.kbibtex
-        #lyx
+        lyx
         #md2pdf
         #ml4pg
-        #mplayer
+        mplayer
         #msmtp
-        #mupdf
+        mupdf
         #networkmanagerapplet
         #nix-repl
         #openssh
@@ -55,8 +55,8 @@
         #pandoc
         #panhandle
         #panpipe
-        #perlPackages.XMLSimple
-        #pidgin
+        pidgin
+        xorg.xkill
         #pioneers
         #pmutils
         #psmisc
@@ -68,23 +68,23 @@
         #texLiveFull
         #tightvnc
         #trayer
-        #uae
+        uae
         #unison
-        #unzip
-        #vlc
-        #wget
+        unzip
+        vlc
+        wget
         #wmname
         #x11vnc
-        #xbindkeys
+        xbindkeys
         #xcape
-        #xfce.xfce4notifyd
+        xfce.xfce4notifyd
         #haskellPackages.xmobar
-        #xorg.xmodmap
+        xorg.xmodmap
         #xmp
         #xorg.xproto
         #xsane
-        #youtube-dl
-        #zip
+        youtube-dl
+        zip
         warbo-utilities
       ];
     };
@@ -109,10 +109,10 @@
     inherit (import (fetchgit {
                name   = "haskell-te";
                url    = /home/chris/Programming/repos/haskell-te.git;
-               rev = "937f6d9";
-               sha256 = "1c9irvws84dklly6fm7kzl5jsh2h4snk1b4y1hxsppwjwvl11gw2";
+               rev    = import ./local/haskell-te.rev.nix;
+               sha256 = import ./local/haskell-te.sha256.nix;
              }) {})
-      quickspec hipspec HS2AST treefeatures ml4hs mlspec
+      quickspec HS2AST treefeatures ml4hs ML4HSHelper mlspec
       ArbitraryHaskell AstPlugin;
 
     # Work-in-progress version of Theory Exploration tools (useful for
@@ -122,21 +122,22 @@
       treefeatures     = /home/chris/Programming/Haskell/TreeFeatures;
       ArbitraryHaskell = /home/chris/Programming/Haskell/ArbitraryHaskell;
       ml4hs            = /home/chris/Programming/Haskell/ML4HS;
+      ML4HSHelper      = /home/chris/Programming/Haskell/ML4HSHelper;
       AstPlugin        = /home/chris/Programming/Haskell/AstPlugin;
     };
 
-    astplugin = haskellPackages.callPackage
-                  /home/chris/Programming/Haskell/AstPlugin {};
+    #astplugin = haskellPackages.callPackage
+    #              /home/chris/Programming/Haskell/AstPlugin {};
 
     ghcWithPlugin = name:
       runCommand "dummy" {
         buildInputs = [
+          jq
+          ML4HSHelper
           (haskellPackages.ghcWithPackages (hsPkgs: [
+             hsPkgs.quickspec
              hsPkgs.${name}
              AstPlugin
-             hsPkgs.stringable
-             hsPkgs.atto-lisp
-             hsPkgs.attoparsec
           ]))
         ];
       } "";
@@ -209,7 +210,7 @@
     panpipe   = callHaskell (fetchgit {
                                name   = "panpipe";
                                url    = http://chriswarbo.net/git/panpipe.git;
-                               sha256 = "0sajlq926yr4684vbzmjh2209fnmrx1p1lqfbhxj5j0h166424ak";
+                               sha256 = "0z3rhfnh58cfyllbmx25dlx5wycqcz6yhfg4flc2k8rz4whcc4l6";
                              }) {};
     panhandle = callHaskell (fetchgit {
                                name   = "panhandle";
@@ -240,8 +241,8 @@
     warbo-utilities = import (fetchgit {
         name   = "warbo-utilities-src";
         url    = /home/chris/Programming/repos/warbo-utilities.git;
-        rev    = "05293e9";
-        sha256 = "19jdgj7g902pdwpslwnrjz6zdgwa5rkl2kk0vki9ihydigdngvij";
+        rev    = import ./local/warbo-utilities.rev.nix;
+        sha256 = import ./local/warbo-utilities.sha256.nix;
       });
 
     # Default Haskell modules
@@ -262,6 +263,10 @@
         url    = ftp://ftp.infradead.org/pub/get_iplayer/get_iplayer-2.94.tar.gz;
         sha256 = "16p0bw879fl8cs6rp37g1hgrcai771z6rcqk2nvm49kk39dx1zi4";
       };
+      propagatedBuildInputs = oldAttrs.propagatedBuildInputs ++ [
+        perlPackages.XMLSimple
+        ffmpeg
+      ];
     });
 
     # Coq with Mtac support
