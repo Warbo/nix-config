@@ -15,74 +15,68 @@
     all = buildEnv {
       name = "all";
       paths = [
-        jq
         #bash
-        #kde4.basket
-        #binutils
-        #haskellPackages.cabal-install
-        #cabal2nix
+        kde4.basket
+        binutils
+        haskellPackages.cabal-install
+        cabal2nix
         #cacert
         conkeror
-        #coq
+        coq
         dmenu
         dvtm
-        #emacs
+        emacs
         file
         firefox
         #gcc
-        #gensgs
+        gensgs
         get_iplayer
         #haskellPackages.ghc
         #ghostscript
         gimp
-        #git
-        #git2html
+        git
+        git2html
         #graphviz
         #imagemagick
         inkscape
         #inotifyTools
-        #kde4.kbibtex
-        lyx
-        #md2pdf
-        #ml4pg
+        kde4.kbibtex
         mplayer
-        #msmtp
+        msmtp
         mupdf
-        #networkmanagerapplet
-        #nix-repl
-        #openssh
-        #optipng
-        #pandoc
+        networkmanagerapplet
+        nix-repl
+        openssh
+        pandoc
         #panhandle
         #panpipe
         pidgin
+        poppler_utils
         xorg.xkill
-        #pioneers
-        #pmutils
+        pioneers
+        pmutils
         #psmisc
-        #arandr
+        arandr
         #pythonPackages.whitey
         #smbnetfs
-        #sshfsFuse
-        #texLive
-        #texLiveFull
-        #tightvnc
-        #trayer
+        sshfsFuse
+        myTexLive
+        tightvnc
+        trayer
         uae
         #unison
         unzip
         vlc
         wget
         #wmname
-        #x11vnc
         xbindkeys
-        #xcape
+        xcape
         xfce.xfce4notifyd
         #haskellPackages.xmobar
         xorg.xmodmap
         #xmp
         #xorg.xproto
-        #xsane
+        xsane
         youtube-dl
         zip
         warbo-utilities
@@ -129,39 +123,8 @@
     #astplugin = haskellPackages.callPackage
     #              /home/chris/Programming/Haskell/AstPlugin {};
 
-    ghcWithPlugin = name:
-      runCommand "dummy" {
-        buildInputs = [
-          jq
-          ML4HSHelper
-          (haskellPackages.ghcWithPackages (hsPkgs: [
-             hsPkgs.quickspec
-             hsPkgs.${name}
-             AstPlugin
-          ]))
-        ];
-      } "";
 
-    weka-cli = stdenv.mkDerivation {
-      name = "weka-cli";
-      src  = /home/chris/empty;
-      propagatedBuildInputs = [ jre weka ];
-      installPhase = ''
-        # Make it easy to run Weka
-        mkdir -p "$out/bin"
-        cat <<'EOF' > "$out/bin/weka-cli"
-        #!bin/sh
-        ${jre}/bin/java -Xmx1000M -cp ${weka}/share/weka/weka.jar "$@"
-        EOF
-        chmod +x "$out/bin/weka-cli"
-      '';
-      shellHook = ''
-        # jar weka.jar launches the GUI, -cp weka.jar runs from CLI
-        function weka-cli {
-          ${jre}/bin/java -Xmx1000M -cp ${weka}/share/weka/weka.jar "$@"
-        }
-      '';
-    };
+    QuickSpecMeasure = callHaskell /home/chris/Programming/Haskell/QuickSpecMeasure {};
 
     coalp = let raw = callHaskell ./local/coalp.nix {};
             in  haskell.lib.dontCheck (haskell.lib.dontHaddock raw);
@@ -219,6 +182,11 @@
                                sha256 = "0gdaw7q9ciszh750nd7ps5wvk2bb265iaxs315lfl4rsnbvggwkd";
                              }) {};
 
+    myTexLive = texLiveAggregationFun {
+                  paths = [ texLive texLiveExtra texLiveFull texLiveBeamer
+                            lmodern ];
+                };
+
     #ditaaeps  = callPackage ./local/ditaaeps.nix {};
 
     # Manage chriswarbo.net #
@@ -233,17 +201,18 @@
     # Other #
     #-------#
 
-    #pngquant       = callPackage ./local/pngquant.nix       {};
     #dupeguru       = callPackage ./local/dupeguru.nix       { pythonPackages = };
     #whitey         = callPackage ./local/whitey.nix         {};
     #bugseverywhere = callPackage ./local/bugseverywhere.nix {};
 
-    warbo-utilities = import (fetchgit {
-        name   = "warbo-utilities-src";
-        url    = /home/chris/Programming/repos/warbo-utilities.git;
-        rev    = import ./local/warbo-utilities.rev.nix;
-        sha256 = import ./local/warbo-utilities.sha256.nix;
-      });
+    # warbo-utilities = import (fetchgit {
+    #     name   = "warbo-utilities-src";
+    #     url    = /home/chris/Programming/repos/warbo-utilities.git;
+    #     rev    = import ./local/warbo-utilities.rev.nix;
+    #     sha256 = import ./local/warbo-utilities.sha256.nix;
+    #   });
+
+    warbo-utilities = import /home/chris/warbo-utilities;
 
     # Default Haskell modules
     hsEnv = haskellPackages.ghcWithPackages (pkgs : [
@@ -269,6 +238,7 @@
       ];
     });
 
+
     # Coq with Mtac support
     #coq_mtac = stdenv.lib.overrideDerivation coq (oldAttrs : {
     #  name = "coq-mtac";
@@ -279,4 +249,5 @@
     #  };
     #});
   };
+
 }
