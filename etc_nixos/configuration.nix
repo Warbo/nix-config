@@ -39,7 +39,7 @@ rec {
   # List packages installed in system profile. To search by name, run:
   # $ nix-env -qaP | grep wget
   environment.systemPackages = with pkgs; [
-    trayer networkmanagerapplet
+    trayer networkmanagerapplet pmutils
   ];
 
   # List services that you want to enable:
