@@ -31,6 +31,9 @@
         #gcc
         gensgs
         get_iplayer
+          # FIXME: These two should be dependencies of get_iplayer
+          perlPackages.XMLSimple
+          ffmpeg
         #haskellPackages.ghc
         #ghostscript
         gimp
@@ -59,6 +62,7 @@
         arandr
         #pythonPackages.whitey
         #smbnetfs
+        cifs_utils
         sshfsFuse
         myTexLive
         tightvnc
@@ -106,7 +110,7 @@
                rev    = import ./local/haskell-te.rev.nix;
                sha256 = import ./local/haskell-te.sha256.nix;
              }) {})
-      quickspec HS2AST treefeatures ml4hs ML4HSHelper mlspec
+      quickspec HS2AST treefeatures ml4hs mlspec
       ArbitraryHaskell AstPlugin;
 
     # Work-in-progress version of Theory Exploration tools (useful for
@@ -116,7 +120,6 @@
       treefeatures     = /home/chris/Programming/Haskell/TreeFeatures;
       ArbitraryHaskell = /home/chris/Programming/Haskell/ArbitraryHaskell;
       ml4hs            = /home/chris/Programming/Haskell/ML4HS;
-      ML4HSHelper      = /home/chris/Programming/Haskell/ML4HSHelper;
       AstPlugin        = /home/chris/Programming/Haskell/AstPlugin;
     };
 
@@ -216,11 +219,12 @@
 
     # Default Haskell modules
     hsEnv = haskellPackages.ghcWithPackages (pkgs : [
-              pkgs.Agda
               pkgs.xmonad
               pkgs.xmonad-extras
               pkgs.xmonad-contrib
             ]);
+
+    ghcTurtle = haskellPackages.ghcWithPackages (pkgs: [ pkgs.turtle ]);
 
     # Overrides #
     #===========#
@@ -249,5 +253,4 @@
     #  };
     #});
   };
-
 }
