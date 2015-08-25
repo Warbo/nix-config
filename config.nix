@@ -16,6 +16,7 @@
       name = "all";
       paths = [
         #bash
+        abduco
         kde4.basket
         binutils
         haskellPackages.cabal-install
