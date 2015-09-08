@@ -30,7 +30,13 @@ rec {
     enableIPv6            = false;
   };
 
-  powerManagement.enable = true;
+  powerManagement = {
+    enable = true;
+    powerDownCommands = ''
+      umount -at cifs
+      killall sshfs || true
+    '';
+  };
 
   time = {
     timeZone = "Europe/London";
@@ -46,6 +52,8 @@ rec {
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
+
+  environment.etc."ssh/ssh_config".source = /home/chris/ssh_config;
 
   # Enable the X11 windowing system.
   services.xserver = {
@@ -68,6 +76,12 @@ rec {
         user   = "chris"; # login as "chris"
       };
     };
+  };
+
+  # Enable updatedb for the locate command. Run as chris to access /home/chris
+  services.locate = {
+    enable    = true;
+    localuser = "chris";
   };
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
