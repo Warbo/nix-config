@@ -15,13 +15,14 @@ stdenv.mkDerivation rec {
 
   installPhase = ''
     unzip "$src"
+    cd DitaaEps
 
     mkdir -p "$out/bin"
     mkdir -p "$out/lib"
     mkdir -p "$out/share/ditaa"
 
     cp *.jar "$out/lib/"
-    cp COPYING HISTORY "$out/share/ditaa"
+    cp README.txt "$out/share/ditaa"
 
     cat > "$out/bin/ditaaeps" << EOF
     #!${stdenv.shell}
