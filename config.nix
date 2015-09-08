@@ -24,6 +24,7 @@
         #cacert
         conkeror
         coq
+        dillo
         dmenu
         dvtm
         emacs
@@ -44,7 +45,6 @@
         #imagemagick
         inkscape
         #inotifyTools
-        kde4.kbibtex
         mplayer
         msmtp
         mupdf
@@ -65,7 +65,7 @@
         #smbnetfs
         cifs_utils
         sshfsFuse
-        myTexLive
+        #myTexLive # Don't rebuild texLive every time we install all
         tightvnc
         trayer
         uae
@@ -73,14 +73,14 @@
         unzip
         vlc
         wget
-        #wmname
+        wmname
         xbindkeys
         xcape
         xfce.xfce4notifyd
-        #haskellPackages.xmobar
         xorg.xmodmap
-        #xmp
-        #xorg.xproto
+        haskellPackages.xmobar
+        xmp
+        xorg.xproto
         xsane
         youtube-dl
         zip
@@ -123,10 +123,6 @@
       ml4hs            = /home/chris/Programming/Haskell/ML4HS;
       AstPlugin        = /home/chris/Programming/Haskell/AstPlugin;
     };
-
-    #astplugin = haskellPackages.callPackage
-    #              /home/chris/Programming/Haskell/AstPlugin {};
-
 
     QuickSpecMeasure = callHaskell /home/chris/Programming/Haskell/QuickSpecMeasure {};
 
@@ -209,13 +205,6 @@
     #whitey         = callPackage ./local/whitey.nix         {};
     #bugseverywhere = callPackage ./local/bugseverywhere.nix {};
 
-    # warbo-utilities = import (fetchgit {
-    #     name   = "warbo-utilities-src";
-    #     url    = /home/chris/Programming/repos/warbo-utilities.git;
-    #     rev    = import ./local/warbo-utilities.rev.nix;
-    #     sha256 = import ./local/warbo-utilities.sha256.nix;
-    #   });
-
     warbo-utilities = import /home/chris/warbo-utilities;
 
     # Default Haskell modules
@@ -226,6 +215,15 @@
             ]);
 
     ghcTurtle = haskellPackages.ghcWithPackages (pkgs: [ pkgs.turtle ]);
+
+    # To use profiled libraries, use: nix-shell --arg compiler '"profiled"'
+    haskell.packages.profiled = haskellPackages.override {
+      overrides = self: super: {
+        mkDerivation = args: super.mkDerivation (args // {
+          enableLibraryProfiling = true;
+        });
+      };
+    };
 
     # Overrides #
     #===========#
@@ -242,7 +240,6 @@
         ffmpeg
       ];
     });
-
 
     # Coq with Mtac support
     #coq_mtac = stdenv.lib.overrideDerivation coq (oldAttrs : {
