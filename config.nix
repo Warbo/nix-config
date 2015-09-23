@@ -24,6 +24,7 @@
         #cacert
         conkeror
         coq
+        dash
         dillo
         dmenu
         dvtm
@@ -37,10 +38,10 @@
           perlPackages.XMLSimple
           ffmpeg
         #haskellPackages.ghc
-        #ghostscript
+        ghostscript
         gimp
         git
-        git2html
+        #git2html
         #graphviz
         #imagemagick
         inkscape
@@ -48,12 +49,13 @@
         mplayer
         msmtp
         mupdf
+
+        # Networking GUI
         networkmanagerapplet
+        gnome3.gcr
+
         nix-repl
         openssh
-        pandoc
-        #panhandle
-        #panpipe
         pidgin
         poppler_utils
         xorg.xkill
@@ -112,7 +114,7 @@
                sha256 = import ./local/haskell-te.sha256.nix;
              }) {})
       quickspec HS2AST treefeatures ml4hs mlspec
-      ArbitraryHaskell AstPlugin;
+      ArbitraryHaskell AstPlugin ML4HSFE;
 
     # Work-in-progress version of Theory Exploration tools (useful for
     # integration testing before committing/pushing)
@@ -173,7 +175,8 @@
     panpipe   = callHaskell (fetchgit {
                                name   = "panpipe";
                                url    = http://chriswarbo.net/git/panpipe.git;
-                               sha256 = "0z3rhfnh58cfyllbmx25dlx5wycqcz6yhfg4flc2k8rz4whcc4l6";
+                               rev    = "c37a8a15e36bc3591e33f9b1dc73f70e18fa850d";
+                               sha256 = "02fpl2rk6d2cvqf7z6a080v7l014ljkwgyq3xd821vxfknnpbkvs";
                              }) {};
     panhandle = callHaskell (fetchgit {
                                name   = "panhandle";
@@ -196,7 +199,6 @@
     git2html      = stdenv.lib.overrideDerivation git2html-real (old: {
                       src = /home/chris/Programming/git2html;
                     });
-    cwNet         = import /home/chris/blog;
 
     # Other #
     #-------#
@@ -204,6 +206,9 @@
     #dupeguru       = callPackage ./local/dupeguru.nix       { pythonPackages = };
     #whitey         = callPackage ./local/whitey.nix         {};
     #bugseverywhere = callPackage ./local/bugseverywhere.nix {};
+    linkchecker     = callPackage ./local/linkchecker.nix    {};
+
+    jsbeautifier    = callPackage ./local/jsbeautifier.nix   {};
 
     warbo-utilities = import /home/chris/warbo-utilities;
 
@@ -217,13 +222,13 @@
     ghcTurtle = haskellPackages.ghcWithPackages (pkgs: [ pkgs.turtle ]);
 
     # To use profiled libraries, use: nix-shell --arg compiler '"profiled"'
-    haskell.packages.profiled = haskellPackages.override {
-      overrides = self: super: {
-        mkDerivation = args: super.mkDerivation (args // {
-          enableLibraryProfiling = true;
-        });
-      };
-    };
+    #haskell.packages.profiled = haskellPackages.override {
+    #  overrides = self: super: {
+    #    mkDerivation = args: super.mkDerivation (args // {
+    #      enableLibraryProfiling = true;
+    #    });
+    #  };
+    #};
 
     # Overrides #
     #===========#
