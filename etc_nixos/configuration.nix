@@ -25,6 +25,16 @@ rec {
     interfaceMonitor.enable = false; # Watch for plugged cable.
     firewall.enable         = false;
 
+    # Block time wasters
+    extraHosts = ''
+      127.0.0.1 news.ycombinator.com
+      127.0.0.1 slashdot.org
+      127.0.0.1 reddit.com
+      127.0.0.1 tumblr.com
+      127.0.0.1 4chan.org
+      127.0.0.1 news.bbc.co.uk
+    '';
+
     # NetworkManager
     networkmanager.enable = true;
     enableIPv6            = false;
@@ -82,6 +92,13 @@ rec {
   services.locate = {
     enable    = true;
     localuser = "chris";
+    extraFlags = ["--prunepaths='/home/chris/Public /home/chris/Uni'"];
+  };
+
+  # Locale, etc.
+  i18n = {
+    defaultLocale = "en_GB.UTF-8";
+    consoleKeyMap = "gb";
   };
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
