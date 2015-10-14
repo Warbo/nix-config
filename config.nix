@@ -5,10 +5,6 @@
     # Shorthand synonyms #
     #====================#
 
-    callHaskell = haskellPackages.callPackage;
-
-    haskell-agda = haskell.packages.ghc784.Agda;
-
     # This one package depends on all of the packages we want in our user config
     # so we don't need to keep track of everything separately. Use commands like
     # `nix-env -i all`, etc. to get the equivalent of a per-user `nixos-rebuild`
@@ -67,7 +63,6 @@
         #smbnetfs
         cifs_utils
         sshfsFuse
-        #myTexLive # Don't rebuild texLive every time we install all
         tightvnc
         trayer
         uae
@@ -78,6 +73,7 @@
         wmname
         xbindkeys
         xcape
+        xfce.exo
         xfce.xfce4notifyd
         xorg.xmodmap
         haskellPackages.xmobar
@@ -87,6 +83,7 @@
         youtube-dl
         zip
         warbo-utilities
+        zotero
       ];
     };
 
@@ -114,7 +111,7 @@
                sha256 = import ./local/haskell-te.sha256.nix;
              }) {})
       quickspec HS2AST treefeatures ml4hs mlspec
-      ArbitraryHaskell AstPlugin ML4HSFE;
+      ArbitraryHaskell AstPlugin ML4HSFE nix-eval;
 
     # Work-in-progress version of Theory Exploration tools (useful for
     # integration testing before committing/pushing)
@@ -122,13 +119,16 @@
       HS2AST           = /home/chris/Programming/Haskell/HS2AST;
       treefeatures     = /home/chris/Programming/Haskell/TreeFeatures;
       ArbitraryHaskell = /home/chris/Programming/Haskell/ArbitraryHaskell;
-      ml4hs            = /home/chris/Programming/Haskell/ML4HS;
+      ml4hs            = /home/chris/Programming/ML4HS;
       AstPlugin        = /home/chris/Programming/Haskell/AstPlugin;
+      nix-eval         = /home/chris/Programming/Haskell/nix-eval;
+      mlspec           = /home/chris/Programming/Haskell/MLSpec;
     };
 
-    QuickSpecMeasure = callHaskell /home/chris/Programming/Haskell/QuickSpecMeasure {};
+    QuickSpecMeasure = haskellPackages.callPackage
+                         /home/chris/Programming/Haskell/QuickSpecMeasure {};
 
-    coalp = let raw = callHaskell ./local/coalp.nix {};
+    coalp = let raw = haskellPackages.callPackage ./local/coalp.nix {};
             in  haskell.lib.dontCheck (haskell.lib.dontHaddock raw);
 
     # QuickSpec v2 and its dependencies (currently taken from v2 GitHub branch)
@@ -170,25 +170,18 @@
     # Writing infrastructure #
     #------------------------#
 
-    md2pdf    = callPackage ./local/md2pdf.nix {};
-
-    panpipe   = callHaskell (fetchgit {
+    panpipe   = haskellPackages.callPackage (fetchgit {
                                name   = "panpipe";
                                url    = http://chriswarbo.net/git/panpipe.git;
                                rev    = "c37a8a15e36bc3591e33f9b1dc73f70e18fa850d";
                                sha256 = "02fpl2rk6d2cvqf7z6a080v7l014ljkwgyq3xd821vxfknnpbkvs";
                              }) {};
-    panhandle = callHaskell (fetchgit {
+    panhandle = haskellPackages.callPackage (fetchgit {
                                name   = "panhandle";
                                url    = http://chriswarbo.net/git/panhandle.git;
                                rev    = "f49f798";
                                sha256 = "0gdaw7q9ciszh750nd7ps5wvk2bb265iaxs315lfl4rsnbvggwkd";
                              }) {};
-
-    myTexLive = texLiveAggregationFun {
-                  paths = [ texLive texLiveExtra texLiveFull texLiveBeamer
-                            lmodern ];
-                };
 
     #ditaaeps  = callPackage ./local/ditaaeps.nix {};
 
@@ -208,7 +201,19 @@
     #bugseverywhere = callPackage ./local/bugseverywhere.nix {};
     linkchecker     = callPackage ./local/linkchecker.nix    {};
 
+    translitcodec   = callPackage ./local/translitcodec.nix  {};
+
+    pdfmeat         = callPackage ./local/pdfmeat.nix        {};
+
+    x2vnc           = callPackage ./local/x2vnc.nix          {};
+
+    subdist = callPackage ./local/subdist.nix {};
+
+    docear = callPackage ./local/docear.nix {};
+
     jsbeautifier    = callPackage ./local/jsbeautifier.nix   {};
+
+    bibclean        = callPackage ./local/bibclean.nix       {};
 
     warbo-utilities = import /home/chris/warbo-utilities;
 
@@ -220,6 +225,14 @@
             ]);
 
     ghcTurtle = haskellPackages.ghcWithPackages (pkgs: [ pkgs.turtle ]);
+
+    haskellPackages = pkgs.haskellPackages.override {
+      overrides = self: super: {
+        nix-eval         = self.callPackage (import /home/chris/Programming/Haskell/nix-eval) {};
+        mlspec-helper    = te-unstable.mlspec-helper;
+        every-bit-counts = self.callPackage (import /home/chris/System/Packages/Haskell/ebc/new) {};
+      };
+    };
 
     # To use profiled libraries, use: nix-shell --arg compiler '"profiled"'
     #haskell.packages.profiled = haskellPackages.override {
