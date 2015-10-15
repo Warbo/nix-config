@@ -201,6 +201,12 @@
     #bugseverywhere = callPackage ./local/bugseverywhere.nix {};
     linkchecker     = callPackage ./local/linkchecker.nix    {};
 
+    pdfssa4met = callPackage ./local/pdfssa4met.nix {};
+
+    scholar = callPackage ./local/scholar.nix {};
+
+    searchtobibtex = callPackage ./local/searchtobibtex.nix {};
+
     translitcodec   = callPackage ./local/translitcodec.nix  {};
 
     pdfmeat         = callPackage ./local/pdfmeat.nix        {};
