@@ -1,4 +1,4 @@
-{ stdenv, fetchurl }:
+{ stdenv, fetchurl, xlibsWrapper }:
 
 stdenv.mkDerivation {
 name = "x2vnc";
@@ -8,5 +8,5 @@ src = fetchurl {
   sha256 = "00bh9j3m6snyd2fgnzhj5vlkj9ibh69gfny9bfzlxbnivb06s1yw";
   };
 
-  buildInputs = [];
+  buildInputs = [ xlibsWrapper ];
 }
