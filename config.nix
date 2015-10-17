@@ -213,6 +213,8 @@
 
     x2vnc           = callPackage ./local/x2vnc.nix          {};
 
+    x2x = callPackage ./local/x2x.nix {};
+
     subdist = callPackage ./local/subdist.nix {};
 
     docear = callPackage ./local/docear.nix {};
@@ -220,6 +222,8 @@
     jsbeautifier    = callPackage ./local/jsbeautifier.nix   {};
 
     bibclean        = callPackage ./local/bibclean.nix       {};
+
+    pdf-extract     = callPackage ./local/pdf-extract        {};
 
     warbo-utilities = import /home/chris/warbo-utilities;
 
@@ -236,7 +240,8 @@
       overrides = self: super: {
         nix-eval         = self.callPackage (import /home/chris/Programming/Haskell/nix-eval) {};
         mlspec-helper    = te-unstable.mlspec-helper;
-        every-bit-counts = self.callPackage (import /home/chris/System/Packages/Haskell/ebc/new) {};
+        every-bit-counts = self.callPackage (import /home/chris/S
+        ystem/Packages/Haskell/ebc/new) {};
       };
     };
 
@@ -266,13 +271,13 @@
     });
 
     # Coq with Mtac support
-    #coq_mtac = stdenv.lib.overrideDerivation coq (oldAttrs : {
-    #  name = "coq-mtac";
-    #  src  = fetchgit {
-    #    url    = https://github.com/beta-ziliani/coq.git;
-    #    rev    = "2651fd3";
-    #    sha256 = "1949z7pjb51w89954narwcd1ykb9wxi7prldic1a1slxrr5b6lq7";
-    #  };
-    #});
+    coq_mtac = stdenv.lib.overrideDerivation coq (oldAttrs : {
+      name = "coq-mtac";
+      src  = fetchgit {
+        url    = https://github.com/beta-ziliani/coq.git;
+        rev    = "2651fd3";
+        sha256 = "1949z7pjb51w89954narwcd1ykb9wxi7prldic1a1slxrr5b6lq7";
+      };
+    });
   };
 }
