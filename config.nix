@@ -1,6 +1,20 @@
 {
   allowUnfree = true;
-  packageOverrides = pkgs: with pkgs; rec {
+  packageOverrides = pkgs: with pkgs;
+
+    # Turn files of the form "./local/foo.nix" into packages "foo"
+    (with lib;
+    let mkPkg = x: old:
+      let n = removeSuffix ".nix" x;
+       in old // builtins.listToAttrs [{
+                   name = n;
+                   value = callPackage "${./local}/${n}.nix" {};
+                 }];
+     in fold mkPkg
+              {}
+              (filter (hasSuffix ".nix")
+                      (builtins.attrNames (builtins.readDir ./local))))
+     // rec {
 
     # Shorthand synonyms #
     #====================#
@@ -110,8 +124,8 @@
                rev    = import ./local/haskell-te.rev.nix;
                sha256 = import ./local/haskell-te.sha256.nix;
              }) {})
-      quickspec HS2AST treefeatures ml4hs mlspec
-      ArbitraryHaskell AstPlugin ML4HSFE nix-eval;
+      quickspec HS2AST treefeatures ml4hs mlspec getDeps
+      ArbitraryHaskell AstPlugin ML4HSFE nix-eval order-deps;
 
     # Work-in-progress version of Theory Exploration tools (useful for
     # integration testing before committing/pushing)
@@ -123,6 +137,8 @@
       AstPlugin        = /home/chris/Programming/Haskell/AstPlugin;
       nix-eval         = /home/chris/Programming/Haskell/nix-eval;
       mlspec           = /home/chris/Programming/Haskell/MLSpec;
+      order-deps       = /home/chris/Programming/Haskell/order-deps;
+      getDeps          = /home/chris/Programming/Haskell/getDeps;
     };
 
     QuickSpecMeasure = haskellPackages.callPackage
@@ -165,23 +181,17 @@
     #                       cabal = haskellPackages.cabal;
     #                       geniplate = geniplate;
     #                     };
-    #geniplate          = callHaskell ./local/geniplate.nix            {};
 
     # Writing infrastructure #
     #------------------------#
 
-    panpipe   = haskellPackages.callPackage (fetchgit {
-                               name   = "panpipe";
-                               url    = http://chriswarbo.net/git/panpipe.git;
-                               rev    = "c37a8a15e36bc3591e33f9b1dc73f70e18fa850d";
-                               sha256 = "02fpl2rk6d2cvqf7z6a080v7l014ljkwgyq3xd821vxfknnpbkvs";
-                             }) {};
-    panhandle = haskellPackages.callPackage (fetchgit {
-                               name   = "panhandle";
-                               url    = http://chriswarbo.net/git/panhandle.git;
-                               rev    = "f49f798";
-                               sha256 = "0gdaw7q9ciszh750nd7ps5wvk2bb265iaxs315lfl4rsnbvggwkd";
-                             }) {};
+    switchSrc = p: s: stdenv.lib.overrideDerivation p { src = s; };
+
+    panpipe-unstable = switchSrc pkgs.panpipe
+                                 /home/chris/Programming/Haskell/PanPipe;
+
+    panhandle-unstable = switchSrc pkgs.panhandle
+                                   /home/chris/Programming/Haskell/pan-handler;
 
     #ditaaeps  = callPackage ./local/ditaaeps.nix {};
 

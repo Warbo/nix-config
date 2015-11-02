@@ -13,7 +13,6 @@ stdenv.mkDerivation {
     haskellPackages.pandoc-citeproc
     panpipe
     panhandle
-    texLiveFull
     inotifyTools
   ];
 

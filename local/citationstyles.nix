@@ -1,4 +1,4 @@
-{ stdenv, fetchgit }:
+{ stdenv, fetchgit, jre }:
 
 stdenv.mkDerivation rec {
   name = "citation-styles";
