@@ -1,3 +1,4 @@
+# Turn files of the form "./local/foo.nix" into packages "foo"
 pkgs: with pkgs; with lib;
   let mkPkg = x: old:
       let n = removeSuffix ".nix" x;
@@ -6,6 +7,6 @@ pkgs: with pkgs; with lib;
                    value = callPackage "${./local}/${n}.nix" {};
                  }];
    in fold mkPkg
-           pkgs
+           {}
            (filter (hasSuffix ".nix")
            (builtins.attrNames (builtins.readDir ./local)))
