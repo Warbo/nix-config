@@ -1,20 +1,4 @@
-{
-  allowUnfree = true;
-  packageOverrides = pkgs: with pkgs;
-
-    # Turn files of the form "./local/foo.nix" into packages "foo"
-    (with lib;
-    let mkPkg = x: old:
-      let n = removeSuffix ".nix" x;
-       in old // builtins.listToAttrs [{
-                   name = n;
-                   value = callPackage "${./local}/${n}.nix" {};
-                 }];
-     in fold mkPkg
-              {}
-              (filter (hasSuffix ".nix")
-                      (builtins.attrNames (builtins.readDir ./local))))
-     // rec {
+let custom = pkgs: with pkgs; pkgs // rec {
 
     # Shorthand synonyms #
     #====================#
@@ -121,8 +105,8 @@
     inherit (import (fetchgit {
                name   = "haskell-te";
                url    = /home/chris/Programming/repos/haskell-te.git;
-               rev    = import ./local/haskell-te.rev.nix;
-               sha256 = import ./local/haskell-te.sha256.nix;
+               rev    = import ./local/haskell-te.rev;
+               sha256 = import ./local/haskell-te.sha256;
              }) {})
       quickspec HS2AST treefeatures ml4hs mlspec getDeps
       ArbitraryHaskell AstPlugin ML4HSFE nix-eval order-deps;
@@ -144,56 +128,16 @@
     QuickSpecMeasure = haskellPackages.callPackage
                          /home/chris/Programming/Haskell/QuickSpecMeasure {};
 
-    coalp = let raw = haskellPackages.callPackage ./local/coalp.nix {};
-            in  haskell.lib.dontCheck (haskell.lib.dontHaddock raw);
-
-    # QuickSpec v2 and its dependencies (currently taken from v2 GitHub branch)
-    # Hopefully these will get added to Hackage eventually...
-    #quickspec2     = callHaskell ./local/quickspec2.nix {};
-
-    #jukebox        = callHaskell ./local/jukebox.nix {
-    #                   minisat = hsMinisat;
-    #                 };
-
-    #hsMinisat      = callHaskell ./local/haskell-minisat.nix {};
-
-    #termRewriting  = callHaskell ./local/term-rewriting.nix {};
-
-    #uglymemo       = callHaskell ./local/uglymemo.nix {};
-
-    #unionFindArray = callHaskell ./local/union-find-array.nix {};
-
-    #z3hs           = with (import <nixpkgs/pkgs/development/haskell-modules/lib.nix> { inherit pkgs; });
-    #                 overrideCabal haskellngPackages.z3 (drv: {
-    #                   configureFlags = "--extra-include-dirs=${pkgs.z3}/include/ --extra-lib-dirs=${pkgs.z3}/lib/";
-    #                 });
-
-    # TIP tools (both from https://github.com/tip-org/tools) and dependencies
-    # Hopefully these will get added to Hackage eventually...
-    #tipLib             = callPackage ./local/tip-lib.nix              {
-    #                       cabal = haskellPackages.cabal.override {
-    #                         extension = self : super : {
-    #                           noHaddock = true;
-    #                         };
-    #                       };
-    #                     };
-    #tipHaskellFrontend = callPackage ./local/tip-haskell-frontend.nix {
-    #                       cabal = haskellPackages.cabal;
-    #                       geniplate = geniplate;
-    #                     };
-
     # Writing infrastructure #
     #------------------------#
 
-    switchSrc = p: s: stdenv.lib.overrideDerivation p { src = s; };
+    switchSrc = p: s: stdenv.lib.overrideDerivation p (old: old // { src = s; });
 
-    panpipe-unstable = switchSrc pkgs.panpipe
-                                 /home/chris/Programming/Haskell/PanPipe;
+    #panpipe-unstable = switchSrc pkgs.panpipe
+    #                             /home/chris/Programming/Haskell/PanPipe;
 
-    panhandle-unstable = switchSrc pkgs.panhandle
-                                   /home/chris/Programming/Haskell/pan-handler;
-
-    #ditaaeps  = callPackage ./local/ditaaeps.nix {};
+    #panhandle-unstable = switchSrc pkgs.panhandle
+    #                               /home/chris/Programming/Haskell/pan-handler;
 
     # Manage chriswarbo.net #
     #-----------------------#
@@ -205,33 +149,6 @@
 
     # Other #
     #-------#
-
-    #dupeguru       = callPackage ./local/dupeguru.nix       { pythonPackages = };
-    #whitey         = callPackage ./local/whitey.nix         {};
-    #bugseverywhere = callPackage ./local/bugseverywhere.nix {};
-    linkchecker     = callPackage ./local/linkchecker.nix    {};
-
-    pdfssa4met = callPackage ./local/pdfssa4met.nix {};
-
-    scholar = callPackage ./local/scholar.nix {};
-
-    searchtobibtex = callPackage ./local/searchtobibtex.nix {};
-
-    translitcodec   = callPackage ./local/translitcodec.nix  {};
-
-    pdfmeat         = callPackage ./local/pdfmeat.nix        {};
-
-    x2vnc           = callPackage ./local/x2vnc.nix          {};
-
-    x2x = callPackage ./local/x2x.nix {};
-
-    subdist = callPackage ./local/subdist.nix {};
-
-    docear = callPackage ./local/docear.nix {};
-
-    jsbeautifier    = callPackage ./local/jsbeautifier.nix   {};
-
-    bibclean        = callPackage ./local/bibclean.nix       {};
 
     pdf-extract     = callPackage ./local/pdf-extract        {};
 
@@ -249,9 +166,7 @@
     haskellPackages = pkgs.haskellPackages.override {
       overrides = self: super: {
         nix-eval         = self.callPackage (import /home/chris/Programming/Haskell/nix-eval) {};
-        mlspec-helper    = te-unstable.mlspec-helper;
-        every-bit-counts = self.callPackage (import /home/chris/S
-        ystem/Packages/Haskell/ebc/new) {};
+        every-bit-counts = self.callPackage (import /home/chris/System/Packages/Haskell/ebc/new) {};
       };
     };
 
@@ -290,4 +205,10 @@
       };
     });
   };
+
+  # Turn files of the form "./local/foo.nix" into packages "foo"
+  local = import ./local.nix;
+in {
+  allowUnfree      = true;
+  packageOverrides = pkgs: custom (local pkgs);
 }
