@@ -8,9 +8,14 @@
     [ <nixpkgs/nixos/modules/installer/scan/not-detected.nix>
     ];
 
-  boot.initrd.availableKernelModules = [ "uhci_hcd" "ehci_hcd" "ata_piix" "ahci" "firewire_ohci" ];
-  boot.kernelModules = [ "kvm-intel" ];
-  boot.extraModulePackages = [ ];
+  boot = {
+    initrd.availableKernelModules = [ "uhci_hcd" "ehci_hcd" "ata_piix" "ahci" "firewire_ohci" ];
+    kernelModules = [ "kvm-intel" ];
+    extraModulePackages = [ ];
+    extraModprobeConfig = ''
+      options thinkpad-acpi brightness_mode=1
+    '';
+  };
 
   fileSystems."/" =
     { device = "/dev/disk/by-label/nixos";
