@@ -19,10 +19,13 @@ url: let
   # invalidate the cache. This is a cheap operation and needs to be up-to-date.
   getHeadRev = stdenv.mkDerivation {
     inherit url;
-    name        = "repo-head-${hashString "sha256" url}";
-    version     = toString currentTime;
-    builder     = ./latestGitBuilder.sh;
-    buildInputs = [ git gnused ];
+    name         = "repo-head-${hashString "sha256" url}";
+    version      = toString currentTime;
+    buildInputs  = [ git gnused ];
+    buildCommand = ''
+      source $stdenv/setup
+      printf "%s" $(git ls-remote "$url" | grep HEAD | sed -e 's/\s.*//g') > "$out"
+    '';
   };
 
   # Extract the commit ID as a string. Ignore how we got it, since fetching git
