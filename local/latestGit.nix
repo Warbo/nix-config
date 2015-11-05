@@ -6,30 +6,34 @@
 # let latestGit = import /path/to/latestGit.nix
 #  in stdenv.mkDerivation {
 #       name = "My Project";
-#       src  = latestGit "http://example.com/project.git";
+#       src  = latestGit { url = "http://example.com/project.git"; };
 #     }
 
 with import <nixpkgs> {};
 with builtins;
 
-# All we need is a URL. Other values can be set by overrides.
-url: let
+# We need the url. ref lets us pick branches, etc.
+{}: { url, ref ? "HEAD" }:
 
-  # Get the commit ID of a git repo's HEAD. Version with currentTime to
-  # invalidate the cache. This is a cheap operation and needs to be up-to-date.
+let
+
+  # Get the commit ID for the given ref in the given repo. Use currentTime as a
+  # version to miss any cached result. This is a cheap operation and needs to be
+  # up-to-date.
   getHeadRev = stdenv.mkDerivation {
-    inherit url;
+    inherit url ref;
     name         = "repo-head-${hashString "sha256" url}";
     version      = toString currentTime;
     buildInputs  = [ git gnused ];
     buildCommand = ''
       source $stdenv/setup
-      printf "%s" $(git ls-remote "$url" | grep HEAD | sed -e 's/\s.*//g') > "$out"
+      # printf is an ugly way to avoid trailing newlines
+      printf "%s" $(git ls-remote "$url" "$ref" | sed -e 's/\s.*//g') > "$out"
     '';
   };
 
-  # Extract the commit ID as a string. Ignore how we got it, since fetching git
-  # repos is expensive and we don't want to invalidate caches unnecessarily.
+  # Extract the commit ID as a string. Ignore how we got it, to avoid cache
+  # misses (git repos are expensive).
   rev = unsafeDiscardStringContext (readFile "${getHeadRev}");
 
   # fetchgit does all of the hard work, but it requires a hash. Make one up.
