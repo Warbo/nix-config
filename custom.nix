@@ -3,9 +3,10 @@
 # imports.pkgs contains everything from ./pkgs: use it and put it in the result.
 pkgs: imports:
 
-with pkgs; with imports; with imports.pkgs;
+let local = imports.pkgs pkgs;
+ in with local; with pkgs; with imports;
 
-imports // imports.pkgs // rec {
+imports // local // rec {
 
   # Shorthand synonyms #
   #====================#

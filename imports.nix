@@ -4,7 +4,7 @@ pkgs: with pkgs; with lib;
       let n = removeSuffix ".nix" x;
        in old // builtins.listToAttrs [{
                    name  = n;
-                   value = import "${./imports}/${n}.nix";
+                   value = import (./imports + "/${n}.nix");
                  }];
    in fold mkPkg
            {}
