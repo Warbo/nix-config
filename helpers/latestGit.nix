@@ -13,7 +13,7 @@ with import <nixpkgs> {};
 with builtins;
 
 # We need the url. ref lets us pick branches, etc.
-{}: { url, ref ? "HEAD" }:
+{ url, ref ? "HEAD" }:
 
 let
 
