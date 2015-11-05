@@ -1,4 +1,11 @@
-pkgs: local: with pkgs; local // rec {
+# pkgs is the nixpkgs we're overriding: use it, but don't put it in the result.
+# imports contains everything from ./imports: use it and put it in the result.
+# imports.pkgs contains everything from ./pkgs: use it and put it in the result.
+pkgs: imports:
+
+with pkgs; with imports; with imports.pkgs;
+
+imports // imports.pkgs // rec {
 
   # Shorthand synonyms #
   #====================#
