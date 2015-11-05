@@ -3,7 +3,7 @@
 # imports.pkgs contains everything from ./pkgs: use it and put it in the result.
 pkgs: imports:
 
-let local = imports.pkgs pkgs;
+let local = imports.local pkgs;
  in with local; with pkgs; with imports;
 
 imports // local // rec {
