@@ -1,13 +1,9 @@
-{ stdenv, fetchgit }:
+{ stdenv, latestGit }:
 
 stdenv.mkDerivation {
   name = "hydra";
 
-  src = fetchgit {
-    url = https://github.com/NixOS/hydra.git;
-    rev = "e003665146";
-    sha256 = "0xkqgdq909a7csq86ljw12dw1m7922il97fg407dyc6vw3rd2mcx";
-  };
+  src = latestGit { url = https://github.com/NixOS/hydra.git; };
 
   installPhase = ''
     mkdir -p "$out/lib/hydra"

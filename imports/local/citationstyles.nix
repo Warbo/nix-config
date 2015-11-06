@@ -1,12 +1,8 @@
-{ stdenv, fetchgit, jre }:
+{ stdenv, latestGit, jre }:
 
 stdenv.mkDerivation rec {
   name = "citation-styles";
-  src = fetchgit {
-    url = https://github.com/citation-style-language/styles.git;
-    rev = "682b58b67f";
-    sha256 = "0xy085sfd9dy8bg1ngw9svll96xyxck2yylq7c6jw3lpg7b71if6";
-  };
+  src = latestGit { url = https://github.com/citation-style-language/styles.git; };
 
   installPhase = ''
     unzip "$src"

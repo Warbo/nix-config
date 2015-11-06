@@ -1,14 +1,10 @@
-{ stdenv, fetchgit, python3Packages, python3, utillinux }:
+{ stdenv, latestGit, python3Packages, python3, utillinux }:
 
 stdenv.mkDerivation {
   name = "dupeguru";
   version = "2015-04-05";
 
-  src = fetchgit {
-    url = https://github.com/hsoft/dupeguru.git;
-    rev = "bba20f4218";
-    sha256 = "1ybcq85xv2ijxyxlh9knwnaq1hg4mmwgjdzvyaw4kpscjyqw7fmz";
-  };
+  src = latestGit { url = https://github.com/hsoft/dupeguru.git; };
 
   propagatedBuildInputs = [
     python3

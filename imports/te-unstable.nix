@@ -1,4 +1,5 @@
-import /home/chris/System/Packages/haskell-te {
+with import <nixpkgs> {};
+callPackage /home/chris/System/Packages/haskell-te {
   HS2AST           = /home/chris/Programming/Haskell/HS2AST;
   treefeatures     = /home/chris/Programming/Haskell/TreeFeatures;
   ArbitraryHaskell = /home/chris/Programming/Haskell/ArbitraryHaskell;
