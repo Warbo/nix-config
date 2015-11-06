@@ -9,4 +9,4 @@ pkgs: with pkgs; with lib;
    in fold mkPkg
            {}
            (filter (hasSuffix ".nix")
-           (builtins.attrNames (builtins.readDir ./local)))
+                   (builtins.attrNames (builtins.readDir ./local)))
