@@ -4,7 +4,8 @@ buildPythonPackage {
   name = "bugseverywhere";
   version = "2014-11-28";
 
-  src = latestGit { url = git://gitorious.org/be/be.git; };
+  # README says git://gitorious.org/be/be.git, but it's down
+  src = latestGit { url = "http://chriswarbo.net/git/bugseverywhere.git"; };
 
   propagatedBuildInputs = [
     pythonPackages.python

@@ -2,6 +2,8 @@
 # so we don't need to keep track of everything separately. Use commands like
 # `nix-env -i all`, etc. to get the equivalent of a per-user `nixos-rebuild`
 
+with import <nixpkgs> {};
+
 buildEnv {
   name = "all";
   paths = [

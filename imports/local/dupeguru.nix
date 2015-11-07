@@ -1,16 +1,30 @@
-{ stdenv, latestGit, python3Packages, python3, utillinux }:
+{ stdenv, latestGit, python3Packages, utillinux }:
 
 stdenv.mkDerivation {
+#python3Packages.buildPythonPackage {
   name = "dupeguru";
   version = "2015-04-05";
 
   src = latestGit { url = https://github.com/hsoft/dupeguru.git; };
 
   propagatedBuildInputs = [
-    python3
+    python3Packages.python
     python3Packages.pyqt5
+    python3Packages.alabaster
+    python3Packages.snowballstemmer
+    python3Packages.markupsafe
+    python3Packages.pytz
+    python3Packages.jinja2
+    python3Packages.six
+    python3Packages.docutils
+    python3Packages.Babel
+    python3Packages.pygments
+    python3Packages.polib
+    python3Packages.sphinx
     utillinux
   ];
+
+#  DISPLAY=":0";
 
   configurePhase = ''
     bash bootstrap.sh
@@ -74,6 +88,14 @@ stdenv.mkDerivation {
     . env/bin/activate
     python3 configure.py
     python3 build.py
-    python3 run.py
+  '';
+
+  installPhase = ''
+    mkdir -p "$out/bin"
+    mkdir -p "$out/lib"
+    cp -r .  "$out/lib/dupeguru"
+    pushd "$out/bin"
+    ln -s ../lib/dupeguru/run.py dupeguru
+    popd
   '';
 }
