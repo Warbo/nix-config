@@ -58,6 +58,7 @@ buildEnv {
     #pythonPackages.whitey
     #smbnetfs
     cifs_utils
+    skulpture
     sshfsFuse
     tightvnc
     trayer
