@@ -14,12 +14,11 @@ imports // local // rec {
   # Other #
   #-------#
 
-  #haskellPackages = pkgs.haskellPackages.override {
-  #  overrides = self: super: {
+  haskellPackages = pkgs.haskellPackages.override {
+    overrides = self: super: imports.haskellOverrides pkgs self;
   #    nix-eval         = self.callPackage (import /home/chris/Programming/Haskell/nix-eval) {};
   #    every-bit-counts = self.callPackage (import /home/chris/System/Packages/Haskell/ebc/new) {};
-  #  };
-  #};
+  };
 
   # To use profiled libraries, use: nix-shell --arg compiler '"profiled"'
   #haskell.packages.profiled = haskellPackages.override {
