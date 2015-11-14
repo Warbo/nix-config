@@ -1,6 +1,7 @@
 # pkgs is the nixpkgs we're overriding: use it, but don't put it in the result.
 # imports contains everything from ./imports: use it and put it in the result.
-# imports.pkgs contains everything from ./pkgs: use it and put it in the result.
+# imports.local contains everything from ./imports/local: use it and put it in
+# the result.
 pkgs: imports:
 
 let local = imports.local pkgs;
@@ -8,28 +9,18 @@ let local = imports.local pkgs;
 
 imports // local // rec {
 
-  # Default version of Theory Exploration tools
+  # FIXME: Not needed by anything?
   inherit (haskell-te) quickspec;
 
-  # Other #
-  #-------#
-
+  # Add everything from ./imports/haskell to haskellPackages
   haskellPackages = pkgs.haskellPackages.override {
     overrides = self: super: imports.haskellOverrides pkgs self;
   #    nix-eval         = self.callPackage (import /home/chris/Programming/Haskell/nix-eval) {};
   #    every-bit-counts = self.callPackage (import /home/chris/System/Packages/Haskell/ebc/new) {};
   };
 
-  # To use profiled libraries, use: nix-shell --arg compiler '"profiled"'
-  #haskell.packages.profiled = haskellPackages.override {
-  #  overrides = self: super: {
-  #    mkDerivation = args: super.mkDerivation (args // {
-  #      enableLibraryProfiling = true;
-  #    });
-  #  };
-  #};
-
   # Updated get_iplayer
+  # FIXME: Can this be an import?
   get_iplayer = stdenv.lib.overrideDerivation pkgs.get_iplayer (oldAttrs : {
     name = "get_iplayer";
     src  = fetchurl {
