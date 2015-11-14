@@ -7,37 +7,31 @@ with import <nixpkgs> {};
 buildEnv {
   name = "all";
   paths = [
-    #bash
     abduco
     kde4.basket
     binutils
     haskellPackages.cabal-install
     cabal2nix
-    #cacert
+    compton
     conkeror
     coq
     dash
     dillo
     dmenu
+    droid-fonts
     dvtm
     emacs
     file
     firefox
-    #gcc
     gensgs
     get_iplayer
       # FIXME: These two should be dependencies of get_iplayer
       perlPackages.XMLSimple
       ffmpeg
-    #haskellPackages.ghc
     ghostscript
     gimp
     git
-    #git2html
-    #graphviz
-    #imagemagick
     inkscape
-    #inotifyTools
     mplayer
     msmtp
     mupdf
@@ -53,17 +47,13 @@ buildEnv {
     xorg.xkill
     pioneers
     pmutils
-    #psmisc
     arandr
-    #pythonPackages.whitey
-    #smbnetfs
     cifs_utils
     skulpture
     sshfsFuse
     tightvnc
     trayer
     uae
-    #unison
     unzip
     vlc
     wget
