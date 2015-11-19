@@ -28,9 +28,11 @@ buildEnv {
       # FIXME: These two should be dependencies of get_iplayer
       perlPackages.XMLSimple
       ffmpeg
+    ghc
     ghostscript
     gimp
     git
+    gtk_engines
     inkscape
     mplayer
     msmtp
@@ -47,11 +49,16 @@ buildEnv {
     xorg.xkill
     pioneers
     pmutils
+    psmisc
     arandr
     cifs_utils
     skulpture
     sshfsFuse
+    smbnetfs
+    sox
+    imagemagick
     tightvnc
+    tomahawk
     trayer
     uae
     unzip
@@ -61,6 +68,7 @@ buildEnv {
     xbindkeys
     xcape
     xfce.exo
+    xfce.gtk_xfce_engine
     xfce.xfce4notifyd
     xorg.xmodmap
     haskellPackages.xmobar
