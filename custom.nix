@@ -13,10 +13,16 @@ imports // local // rec {
   inherit (haskell-te) quickspec;
 
   # Add everything from ./imports/haskell to haskellPackages
-  haskellPackages = pkgs.haskellPackages.override {
-    overrides = self: super: imports.haskellOverrides pkgs self;
-  #    nix-eval         = self.callPackage (import /home/chris/Programming/Haskell/nix-eval) {};
-  #    every-bit-counts = self.callPackage (import /home/chris/System/Packages/Haskell/ebc/new) {};
+  overrideHaskellPkgs = hsPkgs:
+    hsPkgs.override {
+      overrides = self: super: imports.haskellOverrides pkgs self;
+    };
+
+  haskellPackages = overrideHaskellPkgs pkgs.haskellPackages;
+  haskell = pkgs.haskell // {
+    packages = pkgs.haskell.packages // {
+      ghc784 = overrideHaskellPkgs pkgs.haskell.packages.ghc784;
+    };
   };
 
   # Updated get_iplayer

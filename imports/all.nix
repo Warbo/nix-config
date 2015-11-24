@@ -8,6 +8,8 @@ buildEnv {
   name = "all";
   paths = [
     abduco
+    aspell
+    aspellDicts.en
     kde4.basket
     binutils
     haskellPackages.cabal-install
@@ -32,6 +34,7 @@ buildEnv {
     ghostscript
     gimp
     git
+    gnumake
     gtk_engines
     inkscape
     mplayer

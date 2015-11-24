@@ -1,12 +1,11 @@
 pkgs: hsPkgs:
-  with pkgs; with lib;
   let mkPkg = x: old:
-      let n = removeSuffix ".nix" x;
+      let n = pkgs.lib.removeSuffix ".nix" x;
        in old // builtins.listToAttrs [{
                    name  = n;
                    value = hsPkgs.callPackage (./haskell + "/${n}.nix") {};
                  }];
-   in fold mkPkg
+   in pkgs.lib.fold mkPkg
            {}
-           (filter (hasSuffix ".nix")
+           (builtins.filter (pkgs.lib.hasSuffix ".nix")
                    (builtins.attrNames (builtins.readDir ./haskell)))
