@@ -1,7 +1,9 @@
 # Updated get_iplayer
-pkgs: {
+pkgs:
 
-  with import <nixpkgs> {};
+with import <nixpkgs> {};
+
+{
   get_iplayer = stdenv.lib.overrideDerivation pkgs.get_iplayer (oldAttrs : {
     name = "get_iplayer";
     src  = fetchurl {
