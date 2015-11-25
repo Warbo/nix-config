@@ -1,10 +1,10 @@
 # Custom Nix Packages #
 
-This directory provides user-specific overrides for the Nix package manager.
+This directory provides user-specific overrides for the Nix package manager. By naming it `~/.nixpkgs`, it will be automatically loaded by Nix; you could also load it separately, e.g. via an `import`.
 
 # Layout #
 
- - `config.nix` is loaded by Nix automatically and used as a source of configuration options. The most important for us is `packageOverrides` (described below), which is the union of all the top-level *.nix files in `custom/` (i.e. we don't recurse into sub-directories of custom/).
+ - `config.nix` is loaded by Nix automatically (if it's in `~/.nixpkgs`) and used as a source of configuration options. The most important for us is `packageOverrides` (described below), which is the union of all the top-level *.nix files in `custom/` (i.e. we don't recurse into sub-directories of `custom/`).
  - `custom/` is where we define the results of `packageOverrides`. Each *.nix file in `custom/` should provide a function, which will be given `pkgs` as its argument and should return a set of attributes; these will be added to the result of `packageOverrides`. The filenames in `custom/` aren't important, as long as they end in `.nix`.
  - `custom/imports/` lets us define named expressions. A file called `custom/imports/foo.nix` will cause an attribute named `foo` to appear in `<nixpkgs>`, whose value corresponds to `import custom/imports/foo.nix`. The expressions in `custom/imports/` are mostly special cases; consider using friendlier alternatives like `custom/local/` instead.
  - `custom/local/` lets us define named packages. Basically the same as `custom/imports/`, but values will have the form `callPackage custom/local/foo.nix {}` rather than just a plain `import`. Most regular packages should probably go here.

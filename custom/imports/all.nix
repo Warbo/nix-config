@@ -14,6 +14,7 @@ buildEnv {
     binutils
     haskellPackages.cabal-install
     cabal2nix
+    cmus
     compton
     conkeror
     coq
@@ -59,6 +60,7 @@ buildEnv {
     sshfsFuse
     smbnetfs
     sox
+    st
     imagemagick
     tightvnc
     tomahawk
@@ -66,6 +68,8 @@ buildEnv {
     uae
     unzip
     vlc
+    w3m
+    warbo-utilities
     wget
     wmname
     xbindkeys
@@ -80,7 +84,6 @@ buildEnv {
     xsane
     youtube-dl
     zip
-    warbo-utilities
     zotero
   ];
 }
