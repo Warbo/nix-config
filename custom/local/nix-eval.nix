@@ -1,3 +1,1 @@
-{ haskell-te }:
-
-haskell-te.nix-eval
+{ haskellPackages }: haskellPackages.nix-eval

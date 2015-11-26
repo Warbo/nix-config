@@ -1,3 +1,1 @@
-{ haskell-te }:
-
-haskell-te.getDeps
+{ haskellPackages }: haskellPackages.getDeps

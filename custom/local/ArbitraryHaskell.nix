@@ -1,3 +1,1 @@
-{ haskell-te }:
-
-haskell-te.ArbitraryHaskell
+{ haskellPackages }: haskellPackages.ArbitraryHaskell

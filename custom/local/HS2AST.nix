@@ -1,3 +1,1 @@
-{ haskell-te }:
-
-haskell-te.HS2AST
+{ haskellPackages }: haskellPackages.HS2AST

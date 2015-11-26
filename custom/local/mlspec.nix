@@ -1,3 +1,1 @@
-{ haskell-te }:
-
-haskell-te.mlspec
+{ haskellPackages }: haskellPackages.mlspec

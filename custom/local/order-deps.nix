@@ -1,3 +1,1 @@
-{ haskell-te }:
-
-haskell-te.order-deps
+{ haskellPackages }: haskellPackages.order-deps

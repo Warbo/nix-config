@@ -1,3 +1,1 @@
-{ haskell-te }:
-
-haskell-te.ML4HSFE
+{ haskellPackages }: haskellPackages.ML4HSFE

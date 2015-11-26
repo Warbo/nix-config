@@ -1,3 +1,1 @@
-{ haskell-te }:
-
-haskell-te.AstPlugin
+{ haskellPackages }: haskellPackages.AstPlugin
