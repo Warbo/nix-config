@@ -1,12 +1,24 @@
-# Override Haskell packages using haskellOverrides
+# Override Haskell packages using haskell/*.nix
 with import <nixpkgs> {};
 
 pkgs:
 
-# Add everything from ./imports/haskell to haskellPackages
-let overrideHaskellPkgs = hsPkgs:
+# Add everything from haskell/ to haskellPackages
+let haskellOverrides = hsPkgs:
+    let mkPkg = x: old:
+        let n = pkgs.lib.removeSuffix ".nix" x;
+         in old // builtins.listToAttrs [{
+                     name  = n;
+                     value = hsPkgs.callPackage (./haskell + "/${n}.nix") {};
+                   }];
+     in pkgs.lib.fold mkPkg
+                      {}
+                      (builtins.filter (pkgs.lib.hasSuffix ".nix")
+                                       (builtins.attrNames (builtins.readDir ./haskell)));
+
+  overrideHaskellPkgs = hsPkgs:
       hsPkgs.override {
-        overrides = self: super: haskellOverrides pkgs self;
+        overrides = self: super: haskellOverrides self;
       };
 in {
   # Latest
