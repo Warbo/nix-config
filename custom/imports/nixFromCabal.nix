@@ -18,9 +18,14 @@ let pkgs  = import <nixpkgs> {};
         echo "Looking for Cabal files in '$out'"
         cd "$out"
 
-        echo "Creating '$out/default.nix'"
+        echo "Setting permissions"
         chmod +w . # We need this if dir has come from the store
+
+        echo "Creating '$out/default.nix'"
         touch default.nix
+        chmod +w default.nix
+
+        echo "Generating package definition"
         cabal2nix ./. > default.nix
       '';
     };
