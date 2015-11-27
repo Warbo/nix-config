@@ -1,3 +1,3 @@
-{ haskell-te }:
+{ haskellPackages }:
 
-haskell-te.treefeatures
+haskellPackages.TreeFeatures
