@@ -46,10 +46,14 @@ rec {
     timeZone = "Europe/London";
   };
 
-  # List packages installed in system profile. To search by name, run:
-  # $ nix-env -qaP | grep wget
+  # Packages to install in system profile.
+  # NOTE: You *could* install these individually via `nix-env -i` as root, but
+  # those won't be updated by `nixos-rebuild` and aren't version controlled.
+  # To see if there are any such packages, do `nix-env -q` as root.
   environment.systemPackages = with pkgs; [
-    trayer networkmanagerapplet pmutils shared_mime_info
+    trayer networkmanagerapplet pmutils shared_mime_info cryptsetup lsof
+    samba st wpa_supplicant xfsprogs
+
     # KDE
     kde4.kdemultimedia kde4.kdegraphics kde4.kdeutils kde4.applications
     kde4.kdegames kde4.kdeedu kde4.kdebindings kde4.kdeaccessibility
@@ -128,16 +132,6 @@ rec {
     uid         = 1000;
     createHome  = true;
     home        = "/home/chris";
-    shell       = "/run/current-system/sw/bin/bash";
-  };
-
-  users.extraUsers.kde = {
-    name        = "kde";
-    group       = "users";
-    extraGroups = [ "wheel" "voice" "networkmanager" "fuse" "dialout" "atd" ];
-    uid         = 1001;
-    createHome  = true;
-    home        = "/home/kde";
     shell       = "/run/current-system/sw/bin/bash";
   };
 }
