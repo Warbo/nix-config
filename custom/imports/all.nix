@@ -73,6 +73,7 @@ buildEnv {
     wget
     wmname
     xbindkeys
+    xcalib
     xcape
     xfce.exo
     xfce.gtk_xfce_engine
