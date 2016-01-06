@@ -51,7 +51,6 @@ buildEnv {
     pidgin
     poppler_utils
     xorg.xkill
-    pioneers
     pmutils
     psmisc
     arandr
@@ -62,8 +61,6 @@ buildEnv {
     sox
     st
     imagemagick
-    tightvnc
-    tomahawk
     trayer
     uae
     unzip
@@ -80,11 +77,8 @@ buildEnv {
     xfce.xfce4notifyd
     xorg.xmodmap
     haskellPackages.xmobar
-    xmp
     xorg.xproto
-    xsane
     youtube-dl
     zip
-    zotero
   ];
 }
