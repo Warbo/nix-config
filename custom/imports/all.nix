@@ -7,7 +7,6 @@ with import <nixpkgs> {};
 buildEnv {
   name = "all";
   paths = [
-    abduco
     aspell
     aspellDicts.en
     kde4.basket
@@ -17,15 +16,15 @@ buildEnv {
     cmus
     compton
     conkeror
-    coq
-    dash
     dillo
     dmenu
     droid-fonts
+    dtach
     dvtm
     emacs
     file
     firefox
+    gcalcli
     gensgs
     get_iplayer
       # FIXME: These two should be dependencies of get_iplayer
@@ -33,11 +32,9 @@ buildEnv {
       ffmpeg
     ghc
     ghostscript
-    gimp
     git
     gnumake
     gtk_engines
-    inkscape
     mplayer
     msmtp
     mupdf
@@ -62,11 +59,9 @@ buildEnv {
     st
     imagemagick
     trayer
-    uae
     unzip
     vlc
     w3m
-    warbo-utilities
     wget
     wmname
     xbindkeys
