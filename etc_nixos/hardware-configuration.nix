@@ -14,6 +14,7 @@
     extraModulePackages = [ ];
     extraModprobeConfig = ''
       options thinkpad-acpi brightness_mode=1
+      options ath9k nohwcrypt=1
     '';
   };
 
