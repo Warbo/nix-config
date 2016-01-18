@@ -9,7 +9,22 @@ rec {
       ./hardware-configuration.nix
     ];
 
+  nixpkgs.config = {
+    packageOverrides = super: let self = super.pkgs; in {
+      # Workaround for https://github.com/NixOS/nixpkgs/issues/11467
+      # Build mesa_drivers with llvm_36.
+      # The r600 driver doesn't work with llvm_37.
+      mesa_drivers = self.mesaDarwinOr (
+        let mo = self.mesa_noglu.override {
+          llvmPackages = self.llvmPackages_36;
+        };
+         in mo.drivers
+      );
+    };
+  };
+
   # Use the GRUB 2 boot loader.
+  # FIXME: Can we update LibreBoot instead?
   boot = {
     loader.grub = {
       enable  = true;
@@ -17,6 +32,7 @@ rec {
       device  = "/dev/sda";
     };
 
+    # FIXME: Are these needed? They might be artefacts of using QEMU to install.
     kernelModules = [ "kvm-intel" "tun" "virtio" ];
     kernel.sysctl."net.ipv4.tcp_sack" = 0;
   };
@@ -34,6 +50,7 @@ rec {
     enableIPv6            = false;
   };
 
+  # FIXME: This would be better when disconnecting the network
   powerManagement = {
     enable = true;
     powerDownCommands = ''
@@ -55,25 +72,43 @@ rec {
     samba st wpa_supplicant xfsprogs
 
     # KDE
-    kde4.kdemultimedia kde4.kdegraphics kde4.kdeutils kde4.applications
-    kde4.kdegames kde4.kdeedu kde4.kdebindings kde4.kdeaccessibility
-    kde4.kde_baseapps kde4.kactivities kde4.kdeadmin kde4.kdeartwork
-    kde4.kde_base_artwork kde4.kdenetwork kde4.kdepim kde4.kdepimlibs
-    kde4.kdeplasma_addons kde4.kdesdk kde4.kdetoys kde4.kde_wallpapers
-    kde4.kdewebdev kde4.oxygen_icons kde4.kdebase_workspace kde4.kdelibs
-    kde4.kdevelop kde4.kdevplatform kde4.kbibtex
+    # FIXME: We only want Basket, KBibTex and Okular. What's the minimum we can
+    # get away with, considering that KBibTex uses various KParts?
+    kde4.kdeutils kde4.applications kde4.kdebindings
+    kde4.kde_baseapps kde4.kactivities kde4.kdeadmin
+    kde4.kde_base_artwork kde4.kdenetwork
+    kde4.oxygen_icons kde4.kdebase_workspace kde4.kdelibs
+    kde4.kdelibs
+    kde4.kde_baseapps # Splitted kdebase
+    kde4.kde_workspace
+    kde4.kde_runtime
+    kde4.konsole
+    kde4.kate
+    kde4.kde_wallpapers # contains kdm's default background
+    kde4.oxygen_icons
+    virtuoso # to enable Nepomuk to find Virtuoso
+    kde4.polkit_kde_agent
+    kde4.qt4 # needed for qdbus
+    shared_mime_info
+    xorg.xmessage # so that startkde can show error messages
+    xorg.xset # used by startkde, non-essential
+    xorg.xauth # used by kdesu
+    shared_desktop_ontologies # used by nepomuk
+    strigi # used by nepomuk
+    kde4.akonadi
+    mysql # used by akonadi
+    kde4.kdepim_runtime
+    kde4.kbibtex
   ];
 
   # List services that you want to enable:
 
-  # Enable the OpenSSH daemon.
   services.openssh.enable = true;
 
+  # Works around some SSH errors
+  # FIXME: is this still necessary?
   environment.etc."ssh/ssh_config".source = /home/chris/ssh_config;
 
-  #environment.etc."mime.types".source = /home/chris/.dotfiles/mime.types;
-
-  # Enable the X11 windowing system.
   services.xserver = {
     enable         = true;
     layout         = "gb";
@@ -87,6 +122,7 @@ rec {
       };
     };
 
+    # Enable KDE, for KBibTex, but don't use it
     desktopManager = {
       default = "none";
       kde4 = {
@@ -94,10 +130,11 @@ rec {
       };
     };
 
+    # Log in automatically as "chris"
     displayManager = {
       auto = {
         enable = true;
-        user   = "chris"; # login as "chris"
+        user   = "chris";
       };
     };
   };
@@ -114,8 +151,16 @@ rec {
     drivers = [ pkgs.gutenprint ];
   };
 
-  services.atd = {
-    enable = true;
+  # Turn off power saving on WiFi to work around
+  # https://bugzilla.kernel.org/show_bug.cgi?id=56301 (or something similar)
+  systemd.services.wifiPower = {
+    wantedBy      = [ "multi-user.target" ];
+    before        = [ "network.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      User = "root";
+      ExecStart = ''${pkgs.iw}/bin/iw dev wlp2s0 set power_save off'';
+    };
   };
 
   # Locale, etc.
