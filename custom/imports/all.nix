@@ -62,6 +62,7 @@ buildEnv {
     unzip
     vlc
     w3m
+    warbo-utilities
     wget
     wmname
     xbindkeys
