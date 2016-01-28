@@ -35,6 +35,7 @@ buildEnv {
     git
     gnumake
     gtk_engines
+    kbibtex_full
     mplayer
     msmtp
     mupdf
@@ -52,6 +53,7 @@ buildEnv {
     psmisc
     arandr
     cifs_utils
+    silver-searcher
     skulpture
     sshfsFuse
     smbnetfs
