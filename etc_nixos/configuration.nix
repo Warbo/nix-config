@@ -70,35 +70,6 @@ rec {
   environment.systemPackages = with pkgs; [
     trayer networkmanagerapplet pmutils shared_mime_info cryptsetup lsof
     samba st wpa_supplicant xfsprogs
-
-    # KDE
-    # FIXME: We only want Basket, KBibTex and Okular. What's the minimum we can
-    # get away with, considering that KBibTex uses various KParts?
-    kde4.kdeutils kde4.applications kde4.kdebindings
-    kde4.kde_baseapps kde4.kactivities kde4.kdeadmin
-    kde4.kde_base_artwork kde4.kdenetwork
-    kde4.oxygen_icons kde4.kdebase_workspace kde4.kdelibs
-    kde4.kdelibs
-    kde4.kde_baseapps # Splitted kdebase
-    kde4.kde_workspace
-    kde4.kde_runtime
-    kde4.konsole
-    kde4.kate
-    kde4.kde_wallpapers # contains kdm's default background
-    kde4.oxygen_icons
-    virtuoso # to enable Nepomuk to find Virtuoso
-    kde4.polkit_kde_agent
-    kde4.qt4 # needed for qdbus
-    shared_mime_info
-    xorg.xmessage # so that startkde can show error messages
-    xorg.xset # used by startkde, non-essential
-    xorg.xauth # used by kdesu
-    shared_desktop_ontologies # used by nepomuk
-    strigi # used by nepomuk
-    kde4.akonadi
-    mysql # used by akonadi
-    kde4.kdepim_runtime
-    kde4.kbibtex
   ];
 
   # List services that you want to enable:
@@ -122,13 +93,7 @@ rec {
       };
     };
 
-    # Enable KDE, for KBibTex, but don't use it
-    desktopManager = {
-      default = "none";
-      kde4 = {
-        enable = true;
-      };
-    };
+    desktopManager.default = "none";
 
     # Log in automatically as "chris"
     displayManager = {
