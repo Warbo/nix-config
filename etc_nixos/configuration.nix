@@ -144,4 +144,9 @@ rec {
     home        = "/home/chris";
     shell       = "/run/current-system/sw/bin/bash";
   };
+
+  services.cron.systemCronJobs = [
+    "*/30 * * * * chris /home/chris/warbo-utilities/web/imm -u"
+    "*/5  * * * * chris ${pkgs.isync}/bin/mbsync gmail dundee"
+  ];
 }
