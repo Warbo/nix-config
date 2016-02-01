@@ -40,7 +40,7 @@ buildEnv {
     msmtp
     mupdf
 
-    # Networking GUI
+    # Networking GUI, requires keyring
     networkmanagerapplet
     gnome3.gcr
 
@@ -61,6 +61,7 @@ buildEnv {
     st
     imagemagick
     trayer
+    ts
     unzip
     vlc
     w3m
