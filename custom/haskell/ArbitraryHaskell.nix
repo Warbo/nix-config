@@ -1,2 +1,3 @@
-(import <nixpkgs> {}).haskellGit
-  http://chriswarbo.net/git/arbitrary-haskell.git
+(import <nixpkgs> {}).haskellGit {
+  url = http://chriswarbo.net/git/arbitrary-haskell.git;
+}
