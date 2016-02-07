@@ -1,3 +1,4 @@
-{ haskellPackages }:
+{ haskellPackages, nixFromCabal }:
 
-haskellPackages.callPackage /home/chris/Programming/Haskell/QuickSpecMeasure {}
+haskellPackages.callPackage
+  (nixFromCabal /home/chris/Programming/Haskell/QuickSpecMeasure) {}
