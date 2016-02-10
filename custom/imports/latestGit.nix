@@ -20,6 +20,11 @@ with builtins;
 
 let
 
+  hUrl   = builtins.hashString "sha256" url;
+  hRef   = builtins.hashString "sha256" ref;
+  key    = "${hUrl}_${hRef}";
+  envRev = builtins.getEnv "nix_git_rev_${key}";
+
   # Get the commit ID for the given ref in the given repo. Use currentTime as a
   # version to avoid caching. This is a cheap operation and needs to be
   # up-to-date.
@@ -41,14 +46,16 @@ let
 
   # Extract the commit ID as a string. Ignore how we got it, to avoid cache
   # misses (unlike commit IDs, git repos are expensive).
-  rev = unsafeDiscardStringContext (readFile "${getHeadRev}");
+  newRev = unsafeDiscardStringContext (readFile "${getHeadRev}");
+
+  rev = if envRev == "" then newRev else envRev;
 
   # fetchgit does all of the hard work, but it requires a hash. Make one up.
   fg = fetchgit {
     inherit url rev;
 
     # Dummy hash
-    sha256 = hashString "sha256" url;
+    sha256 = hUrl;
   };
 
 # Use the result of fetchgit, but throw away all of the made up hashes; Nix will
