@@ -1,3 +1,4 @@
-{ latestGit }:
+{ withLatestGit }:
 
-import (latestGit { url = http://chriswarbo.net/git/warbo-utilities.git; })
+withLatestGit { url = http://chriswarbo.net/git/warbo-utilities.git; }
+              (x: import "${x}")
