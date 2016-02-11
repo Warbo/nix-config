@@ -13,8 +13,6 @@
 # Plugins optional build time dependencies
 , gdk_pixbuf, imagemagick
 , libgpod
-, qt_gstreamer1 /*qt_soap, <https://github.com/commontk/QtSOAP>  herqq <http://www.herqq.org> -> is missing its av part.*/
-  /*qt_koauth <http://gitorious.org/kqoauth>*/
 
 # Supplementary packages required only by the wrapper.
 , bash, makeWrapper
@@ -54,7 +52,6 @@ let
       # Plugins optional build time dependencies
       gdk_pixbuf imagemagick libgpod
       libkvkontakte
-      qt_gstreamer1
     ];
 
     patchPhase = ''
