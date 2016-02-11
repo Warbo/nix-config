@@ -1,4 +1,4 @@
 { haskellPackages, nixFromCabal }:
 
 haskellPackages.callPackage
-  (nixFromCabal /home/chris/Programming/Haskell/PanPipe) {}
+  (nixFromCabal "/home/chris/Programming/Haskell/PanPipe" null) {}
