@@ -45,7 +45,7 @@ let pkgs  = import <nixpkgs> {};
         chmod +w default.nix
 
         echo "Generating package definition"
-        cabal2nix ./. > default.nix
+        ${pkgs.cabal2nix}/bin/cabal2nix ./. > default.nix
       '';
     };
     result = import "${nixed}";
