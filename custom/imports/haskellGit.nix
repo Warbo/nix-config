@@ -2,6 +2,7 @@
 # Uses cabal2nix on the repo's HEAD.
 { url, ref ? "HEAD" }:
 
+with builtins;
 let nixpkgs = import <nixpkgs> {};
 in
 
