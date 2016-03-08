@@ -20,9 +20,11 @@ assert f == null || isFunction f;
 
 let pkgs  = import <nixpkgs> {};
     hsVer = pkgs.haskellPackages.ghc.version;
+    inGit     = elem ".git" (builtins.attrNames (builtins.readDir ./..));
+    extraHash = if inGit then readFile ../.git/refs/heads/master else "";
     nixed = pkgs.stdenv.mkDerivation {
       inherit dir;
-      name         = "nixFromCabal-${hsVer}";
+      name         = "nixFromCabal-${hsVer}${extraHash}";
       buildInputs  = [ pkgs.haskellPackages.cabal2nix ];
       buildCommand = ''
         source $stdenv/setup
