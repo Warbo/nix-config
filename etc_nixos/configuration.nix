@@ -148,5 +148,6 @@ rec {
   services.cron.systemCronJobs = [
     "*/30 * * * * chris /home/chris/warbo-utilities/web/imm -u"
     "*/5  * * * * chris ${pkgs.isync}/bin/mbsync gmail dundee"
+    "2    * * * * chris ${pkgs.isync}/bin/mbsync gmail-backup"
   ];
 }
