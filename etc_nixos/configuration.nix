@@ -69,7 +69,7 @@ rec {
   # To see if there are any such packages, do `nix-env -q` as root.
   environment.systemPackages = with pkgs; [
     trayer networkmanagerapplet pmutils shared_mime_info cryptsetup lsof
-    samba st wpa_supplicant xfsprogs
+    samba st wpa_supplicant xfsprogs cifs_utils
   ];
 
   # List services that you want to enable:
