@@ -1,3 +1,5 @@
 (import <nixpkgs> {}).haskellGit {
-  url = http://chriswarbo.net/git/tree-features.git;
+  url = if (import <nixpkgs> {}).localOnly
+           then /home/chris/Programming/repos/tree-features.git
+           else http://chriswarbo.net/git/tree-features.git;
 }

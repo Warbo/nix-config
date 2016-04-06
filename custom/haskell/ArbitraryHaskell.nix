@@ -1,3 +1,5 @@
 (import <nixpkgs> {}).haskellGit {
-  url = http://chriswarbo.net/git/arbitrary-haskell.git;
+  url = if (import <nixpkgs> {}).localOnly
+           then /home/chris/Programming/repos/arbitrary-haskell.git
+           else http://chriswarbo.net/git/arbitrary-haskell.git;
 }

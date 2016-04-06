@@ -1,6 +1,8 @@
 { latestGit, callPackage }:
 
 callPackage (latestGit {
-  url = http://chriswarbo.net/git/cabal2db.git;
+  url = if (import <nixpkgs> {}).localOnly
+           then /home/chris/Programming/repos/cabal2db.git
+           else http://chriswarbo.net/git/cabal2db.git;
   ref = "master";
 }) {}

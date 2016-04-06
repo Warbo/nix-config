@@ -1,3 +1,5 @@
 (import <nixpkgs> {}).haskellGit {
-  url = http://chriswarbo.net/git/panpipe.git;
+  url = if (import <nixpkgs> {}).localOnly
+           then /home/chris/Programming/repos/panpipe.git
+           else http://chriswarbo.net/git/panpipe.git;
 }
