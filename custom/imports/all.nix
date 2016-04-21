@@ -46,6 +46,9 @@ buildEnv {
 
     nix-repl
     openssh
+    pamixer
+    paprefs
+    pavucontrol
     pidgin
     poppler_utils
     xorg.xkill
