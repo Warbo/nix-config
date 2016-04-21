@@ -1,4 +1,4 @@
 (import <nixpkgs> {}).haskellGit {
-  url = https://github.com/Warbo/ifcxt.git;
+  url = http://chriswarbo.net/git/ifcxt.git;
   ref = "constraints";
 }
