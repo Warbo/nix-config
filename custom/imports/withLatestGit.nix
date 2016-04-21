@@ -1,18 +1,25 @@
-# Use latestGit as src for a derivation, then store the commit ID the derivation
-{ url, ref ? "HEAD", srcToPkg ? null, resultComposes ? false }:
+# Use latestGit as src for a derivation, cache the commit ID in the environment
+{ url, ref ? "HEAD", refIsRev ? false, srcToPkg, resultComposes ? false }:
 with builtins;
-assert srcToPkg == null || isFunction srcToPkg;
+
+assert isFunction srcToPkg;
 assert isString url;
 assert isString ref;
+assert isBool refIsRev;
 assert isBool resultComposes;
-assert resultComposes -> isFunction srcToPkg;
+assert refIsRev -> ref != "HEAD";
 
-let pkgs    = import <nixpkgs> {};
-    source  = pkgs.latestGit { inherit url ref; };
-    result  = srcToPkg source;
-    hUrl    = builtins.hashString "sha256" url;
-    hRef    = builtins.hashString "sha256" ref;
-    rev     = source.rev;
+let pkgs      = import <nixpkgs> {};
+    rawSource = pkgs.latestGit { inherit url;
+                                 ref = if refIsRev then "" else ref; };
+    source    = if refIsRev then pkgs.stdenv.lib.overrideDerivation
+                                   rawSource
+                                   (old: { rev = ref; })
+                            else rawSource;
+    result    = srcToPkg source;
+    hUrl      = builtins.hashString "sha256" url;
+    hRef      = builtins.hashString "sha256" ref;
+    rev       = if refIsRev then ref else source.rev;
 in
 
 assert isAttrs source;
