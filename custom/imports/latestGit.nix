@@ -29,8 +29,7 @@ let
   # version to avoid caching. This is a cheap operation and needs to be
   # up-to-date.
   getHeadRev = stdenv.mkDerivation {
-    inherit url ref;
-    name    = "repo-head-${hashString "sha256" url}";
+    name    = "repo-head-${hUrl}";
     version = toString currentTime;
 
     # Required for SSL
@@ -40,7 +39,9 @@ let
     buildCommand = ''
       source $stdenv/setup
       # printf is an ugly way to avoid trailing newlines
-      printf "%s" $(git ls-remote "$url" "$ref" | head -n1 | sed -e 's/\s.*//g') > "$out"
+      printf "%s" $(git ls-remote "${url}" "${ref}" |
+                    head -n1                        |
+                    sed -e 's/\s.*//g'              ) > "$out"
     '';
   };
 
