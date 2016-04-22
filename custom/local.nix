@@ -4,11 +4,10 @@ pkgs:
 with pkgs; with lib;
 
 let mkPkg = x: old:
-    let n = removeSuffix ".nix" x;
-     in old // builtins.listToAttrs [{
-                 name  = n;
-                 value = callPackage (./local + "/${n}.nix") {};
-               }];
+    old // builtins.listToAttrs [{
+             name  = removeSuffix ".nix" x;
+             value = callPackage (./local + "/${x}") {};
+           }];
  in fold mkPkg
          {}
          (filter (hasSuffix ".nix")
