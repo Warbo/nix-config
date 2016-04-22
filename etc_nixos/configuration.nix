@@ -37,6 +37,12 @@ rec {
     kernel.sysctl."net.ipv4.tcp_sack" = 0;
   };
 
+  hardware.pulseaudio = {
+    systemWide = true;
+    enable = true;
+    package = pkgs.pulseaudioFull;
+  };
+
   networking = {
     hostName                = "nixos";
     interfaceMonitor.enable = false; # Watch for plugged cable.
@@ -138,7 +144,7 @@ rec {
   users.extraUsers.chris = {
     name        = "chris";
     group       = "users";
-    extraGroups = [ "wheel" "voice" "networkmanager" "fuse" "dialout" "atd" ];
+    extraGroups = [ "wheel" "voice" "networkmanager" "fuse" "dialout" "atd" "audio" ];
     uid         = 1000;
     createHome  = true;
     home        = "/home/chris";
