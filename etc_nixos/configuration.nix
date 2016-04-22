@@ -45,7 +45,6 @@ rec {
 
   networking = {
     hostName                = "nixos";
-    interfaceMonitor.enable = false; # Watch for plugged cable.
     firewall.enable         = false;
 
     # Block time wasters
