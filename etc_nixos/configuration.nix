@@ -110,10 +110,30 @@ rec {
   };
 
   # Enable updatedb for the locate command. Run as chris to access /home/chris
-  services.locate = {
-    enable    = true;
-    localuser = "chris";
-    extraFlags = ["--prunepaths='/home/chris/Public /home/chris/Uni'"];
+  #services.locate = {
+  #  enable    = true;
+  #  localuser = "chris";
+  #  extraFlags = ["--prunepaths='/home/chris/Public /home/chris/Uni'"];
+  #};
+  # FIXME: Once https://github.com/NixOS/nixpkgs/pull/14686/files has reached
+  # the channels, we can stop forcing this override and go back to the above
+  systemd.services.fixedLocate = {
+    description = "Update Locate Database";
+    path   = [ pkgs.su ];
+    script = ''
+      mkdir -m 0755 -p $(dirname "/var/cache/locatedb")
+      exec updatedb \
+           --localuser=chris \
+           --output="/var/cache/locatedb" \
+           --prunepaths='/home/chris/Public /home/chris/Uni'
+    '';
+    serviceConfig.Nice = 19;
+    serviceConfig.IOSchedulingClass = "idle";
+    serviceConfig.PrivateTmp = "yes";
+    serviceConfig.PrivateNetwork = "yes";
+    serviceConfig.NoNewPrivileges = "yes";
+    serviceConfig.ReadOnlyDirectories = "/";
+    serviceConfig.ReadWriteDirectories = "/var/cache";
   };
 
   services.printing = {
