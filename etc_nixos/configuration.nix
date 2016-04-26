@@ -138,7 +138,7 @@ rec {
 
   services.printing = {
     enable  = true;
-    drivers = [ pkgs.gutenprint ];
+    drivers = [ pkgs.hplip pkgs.gutenprint ];
   };
 
   # Turn off power saving on WiFi to work around
