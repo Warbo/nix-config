@@ -1,3 +1,3 @@
-{ haskellPackages }:
+{ nixFromCabal }:
 
-haskellPackages.callPackage /home/chris/Programming/Haskell/pan-handler {}
+nixFromCabal /home/chris/Programming/Haskell/pan-handler
