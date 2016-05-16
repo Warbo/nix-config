@@ -1,4 +1,4 @@
-{ stdenv, fetchFromGitHub, ncurses, pkgconfig, libopus
+{ stdenv, fetchFromGitHub, ncurses, pkgconfig, libopus, faad2
 
 , alsaSupport ? stdenv.isLinux, alsaLib ? null
 # simple fallback for everyone else
@@ -30,7 +30,7 @@
 , wavpackSupport ? true, wavpack ? null
 
 # can't make these work, something is broken
-#, aacSupport ? true, faac ? null
+, aacSupport ? true, faac ? null
 #, mp4Support ? true, mp4v2 ? null
 , opusSupport ? true, opusfile ? null
 
@@ -84,7 +84,7 @@ let
 
     (mkFlag opusSupport   "CONFIG_OPUS=y"    opusfile)
     #(mkFlag mp4Support    "CONFIG_MP4=y"     mp4v2)
-    #(mkFlag aacSupport    "CONFIG_AAC=y"     faac)
+    (mkFlag aacSupport    "CONFIG_AAC=y"     faac)
 
     #(mkFlag vtxSupport    "CONFIG_VTX=y"     libayemu)
   ];
@@ -104,12 +104,15 @@ stdenv.mkDerivation rec {
 
   patches = [ /home/chris/System/Programs/nixpkgs-2/pkgs/applications/audio/cmus/option-debugging.patch ];
 
-  C_INCLUDE_PATH="${libopus}/include/opus";
-
-  configurePhase = "./configure " + concatStringsSep " " ([
-    "prefix=$out"
-    "CONFIG_WAV=y"
-  ] ++ concatMap (a: a.flags) opts);
+  configurePhase = ''
+    export C_INCLUDE_PATH="$C_INCLUDE_PATH:${libopus}/include/opus:${faad2}/include"
+    export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:${faad2}/lib"
+    export LIBRARY_PATH="$LIBRARY_PATH:${faad2}/lib"
+    ./configure ${concatStringsSep " " ([
+        "prefix=$out"
+        "CONFIG_WAV=y"
+      ] ++ concatMap (a: a.flags) opts)}
+  '';
 
   buildInputs = [ ncurses pkgconfig libopus ] ++ concatMap (a: a.deps) opts;
 
