@@ -47,6 +47,8 @@ buildEnv {
     nix-repl
     openssh
     pamixer
+    panhandle
+    panpipe
     paprefs
     pavucontrol
     pidgin
