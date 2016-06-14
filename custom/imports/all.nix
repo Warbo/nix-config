@@ -7,6 +7,7 @@ with import <nixpkgs> {};
 buildEnv {
   name = "all";
   paths = [
+    acpi
     aspell
     aspellDicts.en
     kde4.basket

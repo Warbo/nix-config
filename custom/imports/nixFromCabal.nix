@@ -1,4 +1,5 @@
-with builtins;
+let pkgs = import <nixpkgs> {}; in
+with builtins; with pkgs.lib;
 
 # Make a Nix package definition from a Cabal project. The result is a function,
 # accepting its dependencies as named arguments, returning a derivation. This
@@ -18,11 +19,22 @@ dir: f:
 assert typeOf dir == "path" || isString dir;
 assert f == null || isFunction f;
 
-let pkgs  = import <nixpkgs> {};
-    hsVer = pkgs.haskellPackages.ghc.version;
+let hsVer    = pkgs.haskellPackages.ghc.version;
+    getField = f: replaceStrings [f (toLower f)] ["" ""]
+                                 (head (filter (l: hasPrefix          f  l ||
+                                                   hasPrefix (toLower f) l)
+                                               cabalC));
+    cabalC   = map (replaceStrings [" " "\t"] ["" ""])
+                   (splitString "\n" (readFile (dir + "/${cabalF}")));
+    cabalF   = head (filter (x: hasSuffix ".cabal" x)
+                            (attrNames (readDir dir)));
+
+    pkgName = getField "Name:";
+    pkgV    = getField "Version:";
+
     nixed = pkgs.stdenv.mkDerivation {
       inherit dir;
-      name         = "nixFromCabal-${hsVer}";
+      name         = "nixFromCabal-${hsVer}-${pkgName}-${pkgV}";
       buildInputs  = [ pkgs.haskellPackages.cabal2nix ];
       buildCommand = ''
         source $stdenv/setup
@@ -32,7 +44,7 @@ let pkgs  = import <nixpkgs> {};
         cd "$out"
 
         echo "Setting permissions"
-        chmod +w . # We need this if dir has come from the store
+        chmod -R +w . # We need this if dir has come from the store
 
         echo "Cleaning up unnecessary files"
         rm -rf ".git" || true
@@ -40,6 +52,13 @@ let pkgs  = import <nixpkgs> {};
         echo "Creating '$out/default.nix'"
         touch default.nix
         chmod +w default.nix
+
+        echo "Stripping unicode from .cabal"
+        for F in *.cabal
+        do
+          CONTENT=$(iconv -c -f utf-8 -t ascii "$F")
+          echo "$CONTENT" > "$F"
+        done
 
         echo "Generating package definition"
         cabal2nix ./. > default.nix
