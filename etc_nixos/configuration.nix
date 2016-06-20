@@ -33,7 +33,7 @@ rec {
     };
 
     # FIXME: Are these needed? They might be artefacts of using QEMU to install.
-    kernelModules = [ "kvm-intel" "tun" "virtio" ];
+    kernelModules = [ "kvm-intel" "tun" "virtio" "coretemp" ];
     kernel.sysctl."net.ipv4.tcp_sack" = 0;
   };
 
@@ -111,14 +111,29 @@ rec {
 
   # Enable updatedb for the locate command. Run as chris to access /home/chris
   services.locate = {
-    enable    = true;
-    localuser = "chris";
-    extraFlags = ["--prunepaths='/home/chris/Public /home/chris/Uni'"];
+    enable     = true;
+    localuser  = "chris";
+    extraFlags = [
+      "--prunepaths='/home/chris/Public /home/chris/Uni /nix/store'"
+      "--localpaths='/home/chris'"
+    ];
   };
 
   services.printing = {
     enable  = true;
     drivers = [ pkgs.hplip pkgs.gutenprint ];
+  };
+
+  services.avahi = {
+    enable  = true;
+    nssmdns = true;
+  };
+
+  services.synergy = {
+    server = {
+      enable     = true;
+      configFile = "/home/chris/.synergy.conf";
+    };
   };
 
   # Turn off power saving on WiFi to work around
@@ -133,6 +148,10 @@ rec {
     };
   };
 
+  virtualisation.docker = {
+    enable = true;
+  };
+
   # Locale, etc.
   i18n = {
     defaultLocale = "en_GB.UTF-8";
@@ -143,7 +162,7 @@ rec {
   users.extraUsers.chris = {
     name        = "chris";
     group       = "users";
-    extraGroups = [ "wheel" "voice" "networkmanager" "fuse" "dialout" "atd" "audio" ];
+    extraGroups = [ "wheel" "voice" "networkmanager" "fuse" "dialout" "atd" "audio" "docker" ];
     uid         = 1000;
     createHome  = true;
     home        = "/home/chris";
