@@ -50,7 +50,7 @@ buildEnv {
     openssh
     pamixer
     panhandle
-    stable.panpipe
+    panpipe
     paprefs
     pavucontrol
     pidgin
@@ -63,6 +63,7 @@ buildEnv {
     silver-searcher
     skulpture
     sshfsFuse
+    sshuttle
     smbnetfs
     sox
     st
