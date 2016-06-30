@@ -8,6 +8,7 @@ buildEnv {
   name = "all";
   paths = [
     acpi
+    anonymous-pro-font
     aspell
     aspellDicts.en
     kde4.basket
@@ -49,7 +50,7 @@ buildEnv {
     openssh
     pamixer
     panhandle
-    panpipe
+    stable.panpipe
     paprefs
     pavucontrol
     pidgin
@@ -66,6 +67,7 @@ buildEnv {
     sox
     st
     imagemagick
+    tightvnc
     trayer
     ts
     unzip
