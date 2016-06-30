@@ -30,4 +30,6 @@ in {
       ghc784 = overrideHaskellPkgs pkgs.haskell.packages.ghc784;
     };
   };
+
+  stableHaskellPackages = overrideHaskellPkgs stable.haskellPackages;
 }
