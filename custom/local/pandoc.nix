@@ -1,0 +1,1 @@
+{ stable }: stable.pandoc
