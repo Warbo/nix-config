@@ -1,1 +1,3 @@
-{ stable }: stable.haskellPackages.panpipe
+{ stableHaskellPackages }:
+
+stableHaskellPackages.panpipe

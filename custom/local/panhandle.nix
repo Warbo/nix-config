@@ -1,1 +1,3 @@
-{ stable }: stable.haskellPackages.panhandle
+{ stableHaskellPackages }:
+
+stableHaskellPackages.panhandle

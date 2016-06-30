@@ -31,5 +31,7 @@ in {
     };
   };
 
+  # The haskellPackages from stable, but augmented with our overrides. Useful if
+  # the unstable haskellPackages are broken through no fault of ours.
   stableHaskellPackages = overrideHaskellPkgs stable.haskellPackages;
 }
