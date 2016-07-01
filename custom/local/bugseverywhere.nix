@@ -1,6 +1,6 @@
-{ latestGit, pythonPackages, buildPythonPackage, bash, git }:
+{ latestGit, localOnly, pythonPackages, buildPythonPackage, bash, git }:
 
-let repo = if (import <nixpkgs> {}).localOnly
+let repo = if localOnly
               then "/home/chris/Programming/repos/bugseverywhere.git"
               else http://chriswarbo.net/git/bugseverywhere.git;
  in buildPythonPackage {

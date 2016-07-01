@@ -1,7 +1,7 @@
 # Stable nixpkgs
-pkgs:
+self: super:
 
-let repo = pkgs.fetchFromGitHub {
+let repo = super.fetchFromGitHub {
              owner  = "NixOS";
              repo   = "nixpkgs";
              rev    = "16.03";

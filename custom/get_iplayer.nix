@@ -1,10 +1,10 @@
 # Updated get_iplayer
-pkgs:
+self: super:
 
-with import <nixpkgs> {};
+with self;
 
 {
-  get_iplayer = stdenv.lib.overrideDerivation pkgs.get_iplayer (oldAttrs : {
+  get_iplayer = stdenv.lib.overrideDerivation super.get_iplayer (oldAttrs : {
     name = "get_iplayer";
     src  = fetchurl {
       url    = ftp://ftp.infradead.org/pub/get_iplayer/get_iplayer-2.94.tar.gz;

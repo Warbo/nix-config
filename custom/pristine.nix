@@ -1,4 +1,4 @@
 # Doesn't contain any overrides
-pkgs:
+self: super:
 
-{ pristine = pkgs; }
+{ pristine = super; }

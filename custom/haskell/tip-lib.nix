@@ -26,4 +26,4 @@ let tipSrc = fetchgit {
         RESULT=$(nix-store --add tip)
         printf "%s" "$RESULT" > "$out"
       '');
- in nixFromCabal "${withParser}/tip-lib" null
+ in import ../imports/nixFromCabal.nix "${withParser}/tip-lib" null

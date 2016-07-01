@@ -1,7 +1,7 @@
 # Turn files of the form "./local/foo.nix" into packages "foo" using callPackage
-pkgs:
+self: super:
 
-with pkgs; with lib;
+with super; with lib;
 
 let mkPkg = x: old:
     old // builtins.listToAttrs [{

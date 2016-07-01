@@ -3,10 +3,8 @@
 args@{ url, ref ? "HEAD", ... }:
 
 with builtins;
-let nixpkgs = import <nixpkgs> {};
-in
 
-nixpkgs.withLatestGit (args // {
-  srcToPkg = x: nixpkgs.nixFromCabal "${x}";
+import ./withLatestGit.nix (args // {
+  srcToPkg = x: import ./nixFromCabal.nix "${x}";
   resultComposes = true;
 })

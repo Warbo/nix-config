@@ -1,5 +1,5 @@
-(import <nixpkgs> {}).haskellGit {
-  url = if (import <nixpkgs> {}).localOnly
+import ../imports/haskellGit.nix {
+  url = if import ../imports/localOnly.nix
            then "/home/chris/Programming/repos/get-deps.git"
            else http://chriswarbo.net/git/get-deps.git;
 }

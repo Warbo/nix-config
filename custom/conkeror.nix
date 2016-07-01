@@ -1,6 +1,6 @@
-pkgs:
+self: super:
 
-with import <nixpkgs> {};
+with self;
 
 {
   conkeror = stdenv.mkDerivation rec {

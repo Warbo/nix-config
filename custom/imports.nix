@@ -1,7 +1,7 @@
 # Import files of the form "./imports/foo.nix" into attributes "foo"
-pkgs:
+self: super:
 
-with pkgs; with lib;
+with super; with lib;
 let mkPkg = x: old:
     let n = removeSuffix ".nix" x;
      in old // builtins.listToAttrs [{

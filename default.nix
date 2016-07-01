@@ -15,8 +15,10 @@
 # <nixpkgs>; since this file will be loaded by default, we can use a checkout of
 # this git repository as <nixpkgs> (e.g. via a Hydra build input).
 
-import <original> {
+args:
+
+import <original> ({
   config = {
     packageOverrides = import ./custom.nix;
   };
-}
+} // args)

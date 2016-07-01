@@ -1,19 +1,19 @@
 # Override Haskell packages using haskell/*.nix
-with import <nixpkgs> {};
+self: super:
 
-pkgs:
+with self;
 
 # Add everything from haskell/ to haskellPackages
 let haskellOverrides = hsPkgs:
     let mkPkg = x: old:
-        let n = pkgs.lib.removeSuffix ".nix" x;
+        let n = super.lib.removeSuffix ".nix" x;
          in old // builtins.listToAttrs [{
                      name  = n;
                      value = hsPkgs.callPackage (./haskell + "/${n}.nix") {};
                    }];
-     in pkgs.lib.fold mkPkg
+     in super.lib.fold mkPkg
                       {}
-                      (builtins.filter (pkgs.lib.hasSuffix ".nix")
+                      (builtins.filter (super.lib.hasSuffix ".nix")
                                        (builtins.attrNames (builtins.readDir ./haskell)));
 
   overrideHaskellPkgs = hsPkgs:
@@ -22,12 +22,12 @@ let haskellOverrides = hsPkgs:
       };
 in {
   # Latest
-  haskellPackages = overrideHaskellPkgs pkgs.haskellPackages;
+  haskellPackages = overrideHaskellPkgs super.haskellPackages;
 
   # GHC 7.8.4
-  haskell = pkgs.haskell // {
-    packages = pkgs.haskell.packages // {
-      ghc784 = overrideHaskellPkgs pkgs.haskell.packages.ghc784;
+  haskell = super.haskell // {
+    packages = super.haskell.packages // {
+      ghc784 = overrideHaskellPkgs super.haskell.packages.ghc784;
     };
   };
 
