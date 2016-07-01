@@ -3,7 +3,7 @@ self: super:
 
 with super.lib; with builtins;
 
-let callPkg = super.newScope self;
+let callPkg = trace "FIXME: Can callPkg go into imports?" (super.newScope self);
     mkPkg   = x: old:
       old // listToAttrs [{
                name  = removeSuffix ".nix" x;
