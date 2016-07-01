@@ -1,4 +1,2 @@
-# Used for testing, e.g. via Hydra. See ./default.nix for a description of
-# <original>
-
-import ./custom.nix (import <original> {})
+# Used for testing, e.g. via Hydra
+import ./custom.nix (import <nixpkgs> { config = {}; })
