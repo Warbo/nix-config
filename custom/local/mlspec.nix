@@ -1,1 +1,3 @@
-{ haskellPackages }: haskellPackages.mlspec
+{ haskellPackages }:
+
+haskellPackages.mlspec

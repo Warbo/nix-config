@@ -1,1 +1,3 @@
-{ haskellPackages }: haskellPackages.AstPlugin
+{ haskellPackages }:
+
+haskellPackages.AstPlugin

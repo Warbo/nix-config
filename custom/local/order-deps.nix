@@ -1,1 +1,3 @@
-{ haskellPackages }: haskellPackages.order-deps
+{ haskellPackages }:
+
+haskellPackages.order-deps

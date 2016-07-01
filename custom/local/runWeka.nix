@@ -1,6 +1,5 @@
-let pkgs = import <nixpkgs> {};
- in import (pkgs.latestGit {
-      url = if pkgs.localOnly
-               then "/home/chris/Programming/repos/run-weka.git"
-               else http://chriswarbo.net/git/run-weka.git;
-    })
+import (import ../imports/latestGit.nix {
+  url = if import ../imports/localOnly.nix
+           then "/home/chris/Programming/repos/run-weka.git"
+           else http://chriswarbo.net/git/run-weka.git;
+})

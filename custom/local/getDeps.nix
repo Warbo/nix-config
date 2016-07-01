@@ -1,1 +1,3 @@
-{ haskellPackages }: haskellPackages.getDeps
+{ haskellPackages }:
+
+haskellPackages.getDeps

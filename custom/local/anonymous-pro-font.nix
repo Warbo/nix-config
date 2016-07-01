@@ -1,4 +1,4 @@
-{stdenv, fetchurl, unzip, utillinux }:
+{stdenv, fetchurl, unzip, utillinux}:
 
 stdenv.mkDerivation {
   name = "anonymous-pro-font";

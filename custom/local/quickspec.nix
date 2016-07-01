@@ -1,2 +1,4 @@
-# FIXME: Not needed by anything?
-{ haskellPackages }: haskellPackages.quickspec
+{ haskellPackages }:
+
+builtins.trace "FIXME: Is quickspec needed by anything?"
+  haskellPackages.quickspec

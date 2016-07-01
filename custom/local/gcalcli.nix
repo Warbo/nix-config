@@ -1,4 +1,4 @@
-{ fetchurl, pythonPackages, buildPythonPackage, google-api-python-client }:
+{ fetchurl, pythonPackages, buildPythonPackage, google-api-python-client}:
 
 buildPythonPackage {
   name = "gcalcli";

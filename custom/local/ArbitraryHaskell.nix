@@ -1,1 +1,3 @@
-{ haskellPackages }: haskellPackages.ArbitraryHaskell
+{ haskellPackages }:
+
+haskellPackages.ArbitraryHaskell

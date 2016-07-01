@@ -1,1 +1,3 @@
-{ haskellPackages }: haskellPackages.ML4HSFE
+{ haskellPackages }:
+
+haskellPackages.ML4HSFE

@@ -1,22 +1,22 @@
 # Override Haskell packages using haskell/*.nix
 self: super:
 
-with self;
+with super;
+with super.lib;
+with builtins;
 
 # Add everything from haskell/ to haskellPackages
 let haskellOverrides = hsPkgs:
-    let mkPkg = x: old:
-        let n = super.lib.removeSuffix ".nix" x;
-         in old // builtins.listToAttrs [{
-                     name  = n;
-                     value = hsPkgs.callPackage (./haskell + "/${n}.nix") {};
+      let mkPkg = x: old:
+            old // listToAttrs [{
+                     name  = removeSuffix ".nix" x;
+                     value = hsPkgs.callPackage (./haskell + "/${x}") {};
                    }];
-     in super.lib.fold mkPkg
-                      {}
-                      (builtins.filter (super.lib.hasSuffix ".nix")
-                                       (builtins.attrNames (builtins.readDir ./haskell)));
+          files = filter (hasSuffix ".nix")
+                         (attrNames (readDir ./haskell));
+       in fold mkPkg {} files;
 
-  overrideHaskellPkgs = hsPkgs:
+    overrideHaskellPkgs = hsPkgs:
       hsPkgs.override {
         overrides = self: super: haskellOverrides self;
       };
@@ -33,5 +33,5 @@ in {
 
   # The haskellPackages from stable, but augmented with our overrides. Useful if
   # the unstable haskellPackages are broken through no fault of ours.
-  stableHaskellPackages = overrideHaskellPkgs stable.haskellPackages;
+  stableHaskellPackages = overrideHaskellPkgs self.stable.haskellPackages;
 }
