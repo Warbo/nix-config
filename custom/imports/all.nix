@@ -11,6 +11,7 @@ buildEnv {
     anonymous-pro-font
     aspell
     aspellDicts.en
+    autossh
     kde4.basket
     binutils
     haskellPackages.cabal-install
