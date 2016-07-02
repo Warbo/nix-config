@@ -102,7 +102,7 @@ stdenv.mkDerivation rec {
     sha256 = "18w9mznb843nzkrcqvshfha51mlpdl92zlvb5wfc5dpgrbf37728";
   };
 
-  patches = [ /home/chris/System/Programs/nixpkgs-2/pkgs/applications/audio/cmus/option-debugging.patch ];
+  patches = [ (<nixpkgs> + "/pkgs/applications/audio/cmus/option-debugging.patch") ];
 
   configurePhase = ''
     export C_INCLUDE_PATH="$C_INCLUDE_PATH:${libopus}/include/opus:${faad2}/include"
