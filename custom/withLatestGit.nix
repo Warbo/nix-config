@@ -1,5 +1,9 @@
+self: super:
+
+{
+
 # Use latestGit as src for a derivation, cache the commit ID in the environment
-{ url, ref ? "HEAD", refIsRev ? false, srcToPkg, resultComposes ? false }:
+withLatestGit = { url, ref ? "HEAD", refIsRev ? false, srcToPkg, resultComposes ? false }:
 with builtins;
 
 assert isFunction srcToPkg;
@@ -9,10 +13,9 @@ assert isBool refIsRev;
 assert isBool resultComposes;
 assert refIsRev -> ref != "HEAD";
 
-let pkgs      = import <nixpkgs> {};
-    rawSource = pkgs.latestGit { inherit url;
+let rawSource = self.latestGit { inherit url;
                                  ref = if refIsRev then "" else ref; };
-    source    = if refIsRev then pkgs.stdenv.lib.overrideDerivation
+    source    = if refIsRev then self.stdenv.lib.overrideDerivation
                                    rawSource
                                    (old: { rev = ref; })
                             else rawSource;
@@ -29,8 +32,8 @@ assert resultComposes -> isFunction result;
 
 let cacheRev = p:
       assert isAttrs p;
-      pkgs.lib.overrideDerivation p (old: {
-        setupHook = pkgs.substituteAll {
+      self.lib.overrideDerivation p (old: {
+        setupHook = self.substituteAll {
           src = ./nixGitRefs.sh;
           key = "${hUrl}_${hRef}";
           val = rev;
@@ -46,4 +49,6 @@ in
 assert isFunction result -> isFunction drv;
 assert isAttrs    result -> isAttrs    drv;
 
-drv
+drv;
+
+}

@@ -12,11 +12,15 @@
 # TODO: This duplicates some functionality of fetchgitrevision; wait for that
 # API to settle down, then use it here.
 
-with import <nixpkgs> {};
+self: super:
+
+with self;
 with builtins;
 
+{
+
 # We need the url, but ref is optional (e.g. if we want a particular branch)
-{ url, ref ? "HEAD" }:
+latestGit = { url, ref ? "HEAD" }:
 
 let
 
@@ -66,4 +70,6 @@ in stdenv.lib.overrideDerivation fg (old: {
     outputHashAlgo = null;
     outputHashMode = null;
     sha256         = null;
-  })
+  });
+
+}

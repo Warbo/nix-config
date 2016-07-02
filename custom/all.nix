@@ -2,9 +2,13 @@
 # so we don't need to keep track of everything separately. Use commands like
 # `nix-env -i all`, etc. to get the equivalent of a per-user `nixos-rebuild`
 
-with import <nixpkgs> {};
+self: super:
 
-buildEnv {
+with self;
+
+{
+
+all = buildEnv {
   name = "all";
   paths = [
     acpi
@@ -90,4 +94,6 @@ buildEnv {
     youtube-dl
     zip
   ];
+};
+
 }
