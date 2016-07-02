@@ -42,10 +42,19 @@ let
     buildInputs  = [ git gnused ];
     buildCommand = ''
       source $stdenv/setup
+
+      if GIT=$(git ls-remote "${url}" "${ref}")
+      then
+        OUTPUT=$(echo "$GIT"       |
+                 head -n1          |
+                 sed -e 's/\s.*//g')
+      else
+        echo "Couldn't git ls-remote '${url}' '${ref}', using HEAD" 1>&2
+        OUTPUT="HEAD"
+      fi
+
       # printf is an ugly way to avoid trailing newlines
-      printf "%s" $(git ls-remote "${url}" "${ref}" |
-                    head -n1                        |
-                    sed -e 's/\s.*//g'              ) > "$out"
+      printf "%s" "$OUTPUT" > "$out"
     '';
   };
 
