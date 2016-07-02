@@ -22,16 +22,12 @@ let haskellOverrides = hsPkgs:
       };
 in {
   # Latest
-  haskellPackages = overrideHaskellPkgs super.haskellPackages;
+  haskellPackages = overrideHaskellPkgs self.stable.haskellPackages;
 
   # GHC 7.8.4
   haskell = super.haskell // {
     packages = super.haskell.packages // {
-      ghc784 = overrideHaskellPkgs super.haskell.packages.ghc784;
+      ghc784 = overrideHaskellPkgs self.stable.haskell.packages.ghc784;
     };
   };
-
-  # The haskellPackages from stable, but augmented with our overrides. Useful if
-  # the unstable haskellPackages are broken through no fault of ours.
-  stableHaskellPackages = overrideHaskellPkgs self.stable.haskellPackages;
 }
