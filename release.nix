@@ -1,2 +1,2 @@
 # Used for testing, e.g. via Hydra
-import ./custom.nix (import <nixpkgs> { config = {}; })
+import ./custom.nix (import <nixpkgs> { config = import ./other.nix; })
