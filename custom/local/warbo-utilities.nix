@@ -1,8 +1,7 @@
-{ localOnly, withLatestGit }:
+{ onOff, withLatestGit }:
 
 withLatestGit {
-  url      =  if import ../imports/localOnly.nix
-                 then "/home/chris/Programming/repos/warbo-utilities.git"
-                 else http://chriswarbo.net/git/warbo-utilities.git;
+  url      =  onOff http://chriswarbo.net/git/warbo-utilities.git
+                    "/home/chris/Programming/repos/warbo-utilities.git";
   srcToPkg = (x: import "${x}");
 }

@@ -10,7 +10,8 @@ let haskellOverrides = hsPkgs:
       let mkPkg = x: old:
             old // listToAttrs [{
                      name  = removeSuffix ".nix" x;
-                     value = hsPkgs.callPackage (./haskell + "/${x}") {};
+                     value = let pkg = import (./haskell + "/${x}") self super;
+                              in hsPkgs.callPackage pkg {};
                    }];
           files = filter (hasSuffix ".nix")
                          (attrNames (readDir ./haskell));

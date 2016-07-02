@@ -8,8 +8,8 @@ self: super:
 haskellGit = args@{ url, ref ? "HEAD", ... }:
   with builtins;
 
-  import ./withLatestGit.nix (args // {
-    srcToPkg = x: import ./nixFromCabal.nix "${x}";
+  self.withLatestGit (args // {
+    srcToPkg = x: self.nixFromCabal "${x}";
     resultComposes = true;
   });
 

@@ -1,4 +1,6 @@
-with import <nixpkgs> {};
+self: super:
+
+with self;
 with builtins;
 
 let tipSrc = fetchgit {
@@ -26,4 +28,4 @@ let tipSrc = fetchgit {
         RESULT=$(nix-store --add tip)
         printf "%s" "$RESULT" > "$out"
       '');
- in import ../imports/nixFromCabal.nix "${withParser}/tip-lib" null
+ in nixFromCabal "${withParser}/tip-lib" null

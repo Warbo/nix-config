@@ -1,5 +1,6 @@
-import ../imports/haskellGit.nix {
-  url = if import ../imports/localOnly.nix
-           then "/home/chris/Programming/repos/mlspec.git"
-           else http://chriswarbo.net/git/mlspec.git;
+self: super: with self;
+
+haskellGit {
+  url = onOff http://chriswarbo.net/git/mlspec.git
+              "/home/chris/Programming/repos/mlspec.git";
 }
