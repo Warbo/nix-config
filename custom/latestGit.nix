@@ -39,7 +39,11 @@ let
     # Required for SSL
     GIT_SSL_CAINFO = "${cacert}/etc/ssl/certs/ca-bundle.crt";
 
-    __noChroot   = true;
+    outputHash     = null;
+    outputHashAlgo = null;
+    outputHashMode = null;
+    sha256         = null;
+
     buildInputs  = [ git gnused ];
     buildCommand = ''
       source $stdenv/setup
