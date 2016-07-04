@@ -13,7 +13,7 @@ let callPkg = trace "FIXME: Can callPkg go into imports?" (super.newScope self);
                                                         else {}) //
                                   (if builtins.elem "super" deps then { inherit super; }
                                                         else {});
-                        in trace "Local ${x}" (callPkg path {});
+                        in callPkg path {};
              }];
  in fold mkPkg
          {}
