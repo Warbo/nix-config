@@ -18,32 +18,40 @@ with builtins; with self.lib;
 
 {
 
-nixFromCabal = dir_: f:
+nixFromCabal = src_: f:
 
-assert typeOf dir_ == "path" || isString dir_;
+assert typeOf src_ == "path" || isString src_ || isAttrs src_;
+assert isAttrs src_ || pathExists (if hasPrefix storeDir (unsafeDiscardStringContext src_)
+                                      then src_
+                                      else "${src_}");
 assert f == null || isFunction f;
 
-let dir      = unsafeDiscardStringContext dir_;
+let dir      = if isAttrs src_ then src_ else unsafeDiscardStringContext src_;
     hsVer    = self.haskellPackages.ghc.version;
 
-    # Find the .cabal file and read properties from it
-    getField = f: replaceStrings [f (toLower f)] ["" ""]
-                                 (head (filter (l: hasPrefix          f  l ||
-                                                   hasPrefix (toLower f) l)
-                                               cabalC));
-    cabalC   = map (replaceStrings [" " "\t"] ["" ""])
-                   (splitString "\n" (readFile (dir + "/${cabalF}")));
-    cabalF   = head (filter (x: hasSuffix ".cabal" x)
-                            (attrNames (readDir dir)));
+    fields   = let
+      # Find the .cabal file and read properties from it
+      getField = f: replaceStrings [f (toLower f)] ["" ""]
+                                   (head (filter (l: hasPrefix          f  l ||
+                                                     hasPrefix (toLower f) l)
+                                                 cabalC));
+      cabalC   = map (replaceStrings [" " "\t"] ["" ""])
+                     (splitString "\n" (readFile (dir + "/${cabalF}")));
+      cabalF   = head (filter (x: hasSuffix ".cabal" x)
+                              (attrNames (readDir dir)));
 
-    pkgName = unsafeDiscardStringContext (getField "Name:");
-    pkgV    = unsafeDiscardStringContext (getField "Version:");
+      pkgName = unsafeDiscardStringContext (getField "Name:");
+      pkgV    = unsafeDiscardStringContext (getField "Version:");
+
+      # Read properties from derivation
+      #drvName = dir
+      in { name = pkgName; version = pkgV; };
 
     # Produces a copy of the dir contents, along with a default.nix file
     nixed = trace "FIXME: Use runCommand in nixFromCabal"
                   self.stdenv.mkDerivation {
       inherit dir;
-      name             = "nixFromCabal-${hsVer}-${pkgName}-${pkgV}";
+      name             = "nixFromCabal-${hsVer}-${fields.name}-${fields.version}";
       preferLocalBuild = true; # We need dir to exist
       buildInputs  = [ self.haskellPackages.cabal2nix ];
       buildCommand = ''

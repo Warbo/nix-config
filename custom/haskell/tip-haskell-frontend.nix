@@ -1,5 +1,3 @@
-{ haskellPackages }:
+self: super:
 
-with import <nixpkgs> {};
-
-haskell.lib.doJailbreak haskellPackages.tip-haskell-frontend-main
+self.haskell.lib.doJailbreak self.haskellPackages.tip-haskell-frontend-main
