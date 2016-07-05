@@ -9,7 +9,7 @@ haskellGit = args@{ url, ref ? "HEAD", ... }:
   with builtins;
 
   self.withLatestGit (args // {
-    srcToPkg = x: self.nixFromCabal "${x}";
+    srcToPkg = self.nixFromCabal;
     resultComposes = true;
   });
 
