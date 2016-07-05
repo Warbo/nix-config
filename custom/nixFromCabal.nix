@@ -18,12 +18,13 @@ with builtins; with self.lib;
 
 {
 
-nixFromCabal = dir: f:
+nixFromCabal = dir_: f:
 
-assert typeOf dir == "path" || isString dir;
+assert typeOf dir_ == "path" || isString dir_;
 assert f == null || isFunction f;
 
-let hsVer    = self.haskellPackages.ghc.version;
+let dir      = unsafeDiscardStringContext dir_;
+    hsVer    = self.haskellPackages.ghc.version;
     getField = f: replaceStrings [f (toLower f)] ["" ""]
                                  (head (filter (l: hasPrefix          f  l ||
                                                    hasPrefix (toLower f) l)
@@ -33,8 +34,8 @@ let hsVer    = self.haskellPackages.ghc.version;
     cabalF   = head (filter (x: hasSuffix ".cabal" x)
                             (attrNames (readDir dir)));
 
-    pkgName = getField "Name:";
-    pkgV    = getField "Version:";
+    pkgName = unsafeDiscardStringContext (getField "Name:");
+    pkgV    = unsafeDiscardStringContext (getField "Version:");
 
     nixed = self.stdenv.mkDerivation {
       inherit dir;
