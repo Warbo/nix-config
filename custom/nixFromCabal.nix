@@ -23,8 +23,10 @@ nixFromCabal = dir_: f:
 assert typeOf dir_ == "path" || isString dir_;
 assert f == null || isFunction f;
 
-let dir      = unsafeDiscardStringContext dir_;
+let dir      = copyPathToStore (unsafeDiscardStringContext dir_);
     hsVer    = self.haskellPackages.ghc.version;
+
+    # Find the .cabal file and read properties from it
     getField = f: replaceStrings [f (toLower f)] ["" ""]
                                  (head (filter (l: hasPrefix          f  l ||
                                                    hasPrefix (toLower f) l)
@@ -37,6 +39,7 @@ let dir      = unsafeDiscardStringContext dir_;
     pkgName = unsafeDiscardStringContext (getField "Name:");
     pkgV    = unsafeDiscardStringContext (getField "Version:");
 
+    # Produces a copy of the dir contents, along with a default.nix file
     nixed = trace "FIXME: Use runCommand in nixFromCabal"
                   self.stdenv.mkDerivation {
       inherit dir;
