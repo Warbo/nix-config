@@ -40,7 +40,7 @@ let dir      = unsafeDiscardStringContext dir_;
     nixed = self.stdenv.mkDerivation {
       inherit dir;
       name         = "nixFromCabal-${hsVer}-${pkgName}-${pkgV}";
-      buildInputs  = [ self.haskellPackages.cabal2nix ];
+      buildInputs  = [ self.haskellPackages.cabal2nix dir_ ];
       buildCommand = ''
         source $stdenv/setup
 
