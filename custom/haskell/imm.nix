@@ -1,5 +1,5 @@
 self: super:
 
-haskellGit {
+self.haskellGit {
   url = https://github.com/Warbo/imm.git;
 }
