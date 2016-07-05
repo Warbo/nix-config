@@ -37,10 +37,12 @@ let dir      = unsafeDiscardStringContext dir_;
     pkgName = unsafeDiscardStringContext (getField "Name:");
     pkgV    = unsafeDiscardStringContext (getField "Version:");
 
-    nixed = self.stdenv.mkDerivation {
+    nixed = trace "FIXME: Use runCommand in nixFromCabal"
+                  self.stdenv.mkDerivation {
       inherit dir;
-      name         = "nixFromCabal-${hsVer}-${pkgName}-${pkgV}";
-      buildInputs  = [ self.haskellPackages.cabal2nix dir_ ];
+      name             = "nixFromCabal-${hsVer}-${pkgName}-${pkgV}";
+      preferLocalBuild = true; # We need dir to exist
+      buildInputs  = [ self.haskellPackages.cabal2nix ];
       buildCommand = ''
         source $stdenv/setup
 
