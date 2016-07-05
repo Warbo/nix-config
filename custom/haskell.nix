@@ -13,22 +13,34 @@ let haskellOverrides = hsPkgs:
                      value = let pkg = import (./haskell + "/${x}") self super;
                               in hsPkgs.callPackage pkg {};
                    }];
-          files = filter (hasSuffix ".nix")
-                         (attrNames (readDir ./haskell));
-       in fold mkPkg {} files;
+
+       in fold mkPkg {} hsFiles;
 
     overrideHaskellPkgs = hsPkgs:
       hsPkgs.override {
         overrides = self: super: haskellOverrides self;
       };
+
+    hsFiles = filter (hasSuffix ".nix")
+                     (attrNames (readDir ./haskell));
 in {
+  # Lets us know which packages we've overriden
+  haskellNames = map (removeSuffix ".nix") hsFiles;
+
   # Latest
   haskellPackages = overrideHaskellPkgs self.stable.haskellPackages;
 
   # GHC 7.8.4
   haskell = super.haskell // {
-    packages = super.haskell.packages // {
-      ghc784 = overrideHaskellPkgs self.stable.haskell.packages.ghc784;
-    };
+    packages = super.haskell.packages //
+                 mapAttrs (n: v: overrideHaskellPkgs v)
+                          self.stable.haskell.packages;
+    #{
+    #  ghc783  = overrideHaskellPkgs self.stable.haskell.packages.ghc783;
+    #  ghc784  = overrideHaskellPkgs self.stable.haskell.packages.ghc784;
+    #  ghc7102 = overrideHaskellPkgs self.stable.haskell.packages.ghc7102;
+    #  ghc7103 = overrideHaskellPkgs self.stable.haskell.packages.ghc7103;
+    #  ghc801  = overrideHaskellPkgs self.stable.haskell.packages.ghc801;
+    #};
   };
 }
