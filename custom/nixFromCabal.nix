@@ -23,7 +23,7 @@ nixFromCabal = dir_: f:
 assert typeOf dir_ == "path" || isString dir_;
 assert f == null || isFunction f;
 
-let dir      = copyPathToStore (unsafeDiscardStringContext dir_);
+let dir      = self.copyPathToStore (unsafeDiscardStringContext dir_);
     hsVer    = self.haskellPackages.ghc.version;
 
     # Find the .cabal file and read properties from it
