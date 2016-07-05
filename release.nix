@@ -5,28 +5,24 @@ in with builtins;
    with (pkgs // overrides);
    with lib;
 
-let haskell = let broken  = [ "ghc6123" ];
-                  toUse   = [ "ghc784"  ];
-                  working = filterAttrs (n: _: elem n toUse)
-                                        overrides.haskell.packages;
-                  all = mapAttrs
+let haskell = let all = mapAttrs
                           (version: pkgs:
                              listToAttrs (map (p: {
                                                 name  = "${p}-${version}";
-                                                value = trace "Version ${version}" pkgs."${p}";
+                                                value = pkgs."${p}";
                                               })
                                               overrides.haskellNames))
-                          working;
-                  lst = fold (version: rest:
-                         fold (pkg: rest:
-                                rest ++ [{
-                                           name  = "haskell-${pkg}";
-                                           value = all."${version}"."${pkg}";
-                                        }])
-                              rest
-                              (attrNames all."${version}"))
-                       []
-                       (attrNames all);
-               in listToAttrs lst;
+                          (filterAttrs (n: _: elem n [ "ghc784" ])
+                                       overrides.haskell.packages);
+               in listToAttrs (fold (version: rest:
+                                      fold (pkg: rest:
+                                             rest ++ [{
+                                               name  = "haskell-${pkg}";
+                                               value = all."${version}"."${pkg}";
+                                             }])
+                                           rest
+                                      (attrNames all."${version}"))
+                                    []
+                                    (attrNames all));
 
 in haskell
