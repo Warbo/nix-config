@@ -28,4 +28,13 @@ let tipSrc = fetchgit {
         RESULT=$(nix-store --add tip)
         printf "%s" "$RESULT" > "$out"
       '');
- in nixFromCabal "${withParser}/tip-lib" null
+    parserSrc = stdenv.mkDerivation {
+      name = "tip-lib-with-parser";
+      src  = withParser;
+      buildCommand = ''
+        source $stdenv/setup
+
+        cp -ar "$src/tip-lib" "$out"
+      '';
+    };
+ in nixFromCabal parserSrc null
