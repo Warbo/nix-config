@@ -6,7 +6,8 @@ in with builtins;
    with lib;
 
 let haskell = let broken  = [ "ghc6123" ];
-                  working = filterAttrs (n: _: !(elem n broken))
+                  toUse   = [ "ghc784"  ];
+                  working = filterAttrs (n: _: elem n toUse)
                                         overrides.haskell.packages;
                   all = mapAttrs
                           (version: pkgs:
