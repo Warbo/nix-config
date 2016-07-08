@@ -1,28 +1,24 @@
-# Used for testing and building via Hydra of "nix-build"
+# Used for testing and building via Hydra or "nix-build"
 let pkgs      = import <nixpkgs> { config = import ./other.nix; };
     overrides = import ./custom.nix pkgs;
 in with builtins;
    with (pkgs // overrides);
    with lib;
 
-let haskell = let all = mapAttrs
-                          (version: pkgs:
-                             listToAttrs (map (p: {
-                                                name  = "${p}-${version}";
-                                                value = pkgs."${p}";
-                                              })
-                                              overrides.haskellNames))
-                          (filterAttrs (n: _: elem n [ "ghc784" ])
-                                       overrides.haskell.packages);
-               in listToAttrs (fold (version: rest:
-                                      fold (pkg: rest:
-                                             rest ++ [{
-                                               name  = "haskell-${pkg}";
-                                               value = all."${version}"."${pkg}";
-                                             }])
-                                           rest
-                                      (attrNames all."${version}"))
-                                    []
-                                    (attrNames all));
+let dbg     = x: trace (toJSON x) x;
+    haskell = let selectedVersions = filterAttrs (n: _: elem n [ "ghc784" ])
+                                                 overrides.haskell.packages;
+                  selectedPkgs     = mapAttrs (version:
+                                                filterAttrs (name: _:
+                                                              elem name overrides.haskellNames))
+                                              selectedVersions;
+
+                  prefixed         = mapAttrs (version: hsPkgs:
+                                                mapAttrs' (name: pkg:
+                                                            nameValuePair ("haskell-${name}-${version}")
+                                                                          pkg)
+                                                          hsPkgs)
+                                              selectedPkgs;
+               in fold (x: y: x // y) {} (attrValues prefixed);
 
 in haskell
