@@ -1,5 +1,7 @@
-{ stdenv, git2html-real }:
+{ stdenv, git2html-real, onOff }:
 
 stdenv.lib.overrideDerivation git2html-real (old: {
-  src = /home/chris/Programming/git2html;
+  src = latestGit {
+    url = onOff http://chriswarbo.net/git/git2html.git
+                /home/chris/Programming/git2html;
 })
