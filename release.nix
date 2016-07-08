@@ -5,6 +5,22 @@ with lib;
 
 let
 
+# Select our custom packages/overrides, except for those which are buried in
+# larger sets
+customNames = filter (n: !(elem n [
+                                    "stable"          # A whole copy of nixpkgs
+                                    "original"        # Ditto
+                                    "pristine"        # Ditto
+                                    "haskell"         # Mostly *not* ours
+                                    "haskellPackages" # Ditto
+
+                                  ]))
+                     customPkgNames;
+
+topLevel = fold (name: rest: rest // { "${name}" = pkgs."${name}"; })
+                {}
+                customNames;
+
 # Select our custom Haskell packages from the various sets of Haskell packages
 # provided by nixpkgs (e.g. for different compiler versions)
 haskellPkgs = let
@@ -26,4 +42,4 @@ haskellPkgs = let
   # Combine all of the selected packages for all of the selected sets
   in fold (x: y: x // y) {} (attrValues suffixed);
 
-in haskellPkgs
+in topLevel // haskellPkgs
