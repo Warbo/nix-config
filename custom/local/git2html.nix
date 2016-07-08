@@ -1,4 +1,4 @@
-{ stdenv, git2html-real, onOff }:
+{ git2html-real, latestGit, onOff, stdenv }:
 
 stdenv.lib.overrideDerivation git2html-real (old: {
   src = latestGit {
