@@ -24,6 +24,6 @@ haskellPkgs = let
                                                    hsPkgs))
                           selectedSets;
   # Combine all of the selected packages for all of the selected sets
-  in fold (x: y: x // y) {} (attrValues prefixed);
+  in fold (x: y: x // y) {} (attrValues suffixed);
 
 in haskellPkgs
