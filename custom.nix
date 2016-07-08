@@ -2,7 +2,12 @@ pkgs:
 
 with builtins; with pkgs.lib;
 
-let mkPkg      = x: old: old // import x overridden pkgs;
+let mkPkg      = x: oldPkgs:
+                   let newPkgs = oldPkgs // import x overridden pkgs;
+                    in newPkgs // {
+                         # Keep a record of which packages are custom
+                         customPkgNames = attrNames newPkgs;
+                       };
 
     nixFiles   = let dir = ./custom;
                   in map (f: dir + "/${f}")
@@ -11,5 +16,5 @@ let mkPkg      = x: old: old // import x overridden pkgs;
 
     overridden = pkgs // overrides;
 
-    overrides = fold mkPkg {} nixFiles;
+    overrides = fold mkPkg { original = pkgs; } nixFiles;
  in overrides
