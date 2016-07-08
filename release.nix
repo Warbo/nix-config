@@ -6,17 +6,16 @@ in with builtins;
    with lib;
 
 let dbg     = x: trace (toJSON x) x;
-    haskell = let selectedVersions = filterAttrs (version: _: elem version [ "ghc784" ])
+    haskell = let selectedVersions = filterAttrs (version: _: !(hasPrefix "lts" version))
                                                  overrides.haskell.packages;
-                  selectedPkgs     = mapAttrs (version:
-                                                filterAttrs (name: _:
-                                                              elem name overrides.haskellNames))
-                                              selectedVersions;
 
-                  prefixed         = mapAttrs (version:
+                  prefixed         = mapAttrs (version: hsPkgs:
                                                 mapAttrs' (name:
-                                                            nameValuePair ("haskell-${name}-${version}")))
-                                              selectedPkgs;
+                                                            nameValuePair ("haskell-${name}-${version}"))
+                                                          (filterAttrs (name: _:
+                                                                         elem name overrides.haskellNames)
+                                                                       hsPkgs))
+                                              selectedVersions;
                in fold (x: y: x // y) {} (attrValues prefixed);
 
 in haskell
