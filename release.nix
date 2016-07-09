@@ -14,7 +14,8 @@ customNames = filter (n: !(elem n [
                                     "haskell"         # Mostly *not* ours
                                     "haskellPackages" # Ditto
 
-                                  ]))
+                                  ]) &&
+                                  typeOf pkgs."${n}" == "set")
                      customPkgNames;
 
 topLevel = fold (name: rest: rest // { "${name}" = pkgs."${name}"; })
