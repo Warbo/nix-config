@@ -1,6 +1,7 @@
 # Edit this configuration file to define what should be installed on
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
+with builtins;
 
 { config, pkgs, ... }:
 rec {
@@ -9,31 +10,16 @@ rec {
       ./hardware-configuration.nix
     ];
 
-  nixpkgs.config = {
-    packageOverrides = super: let self = super.pkgs; in {
-      # Workaround for https://github.com/NixOS/nixpkgs/issues/11467
-      # Build mesa_drivers with llvm_36.
-      # The r600 driver doesn't work with llvm_37.
-      #mesa_drivers = self.mesaDarwinOr (
-      #  let mo = self.mesa_noglu.override {
-      #    llvmPackages = self.llvmPackages_36;
-      #  };
-      #   in mo.drivers
-      #);
-    };
-  };
-
   # Use the GRUB 2 boot loader.
-  # FIXME: Can we update LibreBoot instead?
-  boot = {
+  boot = trace "FIXME: Can we update LibreBoot?" {
     loader.grub = {
       enable  = true;
       version = 2;
       device  = "/dev/sda";
     };
 
-    # FIXME: Are these needed? They might be artefacts of using QEMU to install.
-    kernelModules = [ "kvm-intel" "tun" "virtio" "coretemp" ];
+    kernelModules = trace "FIXME: Which modules are artefacts of using QEMU to install?"
+                          [ "kvm-intel" "tun" "virtio" "coretemp" ];
     kernel.sysctl."net.ipv4.tcp_sack" = 0;
   };
 
@@ -48,17 +34,16 @@ rec {
     firewall.enable         = false;
 
     # Block time wasters
-    extraHosts = builtins.readFile "/home/chris/.dotfiles/hosts";
+    extraHosts = readFile "/home/chris/.dotfiles/hosts";
 
     # NetworkManager
     networkmanager.enable = true;
     enableIPv6            = false;
   };
 
-  # FIXME: This would be better when disconnecting the network
   powerManagement = {
     enable = true;
-    powerDownCommands = ''
+    powerDownCommands = trace "FIXME: Better unmounting when disconnecting" ''
       umount -at cifs
       killall sshfs || true
     '';
@@ -81,9 +66,12 @@ rec {
 
   services.openssh.enable = true;
 
-  # Works around some SSH errors
-  # FIXME: is this still necessary?
-  environment.etc."ssh/ssh_config".source = /home/chris/ssh_config;
+  environment.etc = trace "FIXME: Add dispatcher.d scripts" [
+
+    #{ source = ipUpScript;
+    #  target = "NetworkManager/dispatcher.d/01nixos-ip-up"; }
+
+  ];
 
   services.xserver = {
     enable         = true;
@@ -144,12 +132,8 @@ rec {
     serviceConfig = {
       Type = "oneshot";
       User = "root";
-      ExecStart = ''${pkgs.iw}/bin/iw dev wlp2s0 set power_save off'';
+      ExecStart = "${pkgs.iw}/bin/iw dev wlp2s0 set power_save off";
     };
-  };
-
-  virtualisation.docker = {
-    enable = true;
   };
 
   # Locale, etc.
