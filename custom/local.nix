@@ -3,7 +3,7 @@ self: super:
 
 with super.lib; with builtins;
 
-let callPkg = trace "FIXME: Can callPkg go into imports?" (super.newScope self);
+let #callPkg = trace "FIXME: Can callPkg go into imports?" (super.newScope self);
     mkPkg   = x: old:
       old // listToAttrs [{
                name  = removeSuffix ".nix" x;
@@ -13,7 +13,7 @@ let callPkg = trace "FIXME: Can callPkg go into imports?" (super.newScope self);
                                                         else {}) //
                                   (if builtins.elem "super" deps then { inherit super; }
                                                         else {});
-                        in callPkg path {};
+                        in self.callPackage path {};
              }];
  in fold mkPkg
          {}

@@ -34,6 +34,9 @@ all = buildEnv {
     gcalcli
     gensgs
     get_iplayer
+      # FIXME: These two should be dependencies of get_iplayer
+      perlPackages.XMLSimple
+      ffmpeg
     ghc
     ghostscript
     git
