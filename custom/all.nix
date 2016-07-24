@@ -43,6 +43,7 @@ all = buildEnv {
     gnumake
     gtk_engines
     kbibtex_full
+    md2pdf
     mplayer
     msmtp
     mupdf
