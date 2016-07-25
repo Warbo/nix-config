@@ -6,7 +6,8 @@ self: super:
 
 with self;
 
-{
+let haskellPackages = haskell.packages.ghc7103;
+ in {
 
 all = buildEnv {
   name = "all";
@@ -19,7 +20,7 @@ all = buildEnv {
     kde4.basket
     binutils
     haskellPackages.cabal-install
-    cabal2nix
+    haskellPackages.cabal2nix
     cmus
     compton
     conkeror
