@@ -8,11 +8,10 @@ let
 # Select our custom packages/overrides, except for those which are buried in
 # larger sets
 customNames = filter (n: !(elem n [
-                                    "stable"          # A whole copy of nixpkgs
-                                    "original"        # Ditto
-                                    "pristine"        # Ditto
-                                    "haskell"         # Mostly *not* ours
-                                    "haskellPackages" # Ditto
+                                    "stable"                  # Copy of nixpkgs
+                                    "haskell"                 # Mostly not ours
+                                    "haskellPackages"         # Ditto
+                                    "profiledHaskellPackages" # Ditto
 
                                   ])                          &&
                                   typeOf pkgs."${n}" == "set" &&
@@ -34,8 +33,9 @@ haskellPkgs = let
                  ] ++ filter (set: hasPrefix "lts" set)
                              (attrNames haskell.packages);
 
-  selectedSets = filterAttrs (set: _: !(elem set ignore))
-                                   haskell.packages;
+  selectedSets = (filterAttrs (set: _: !(elem set ignore))
+                                   haskell.packages) //
+                 { inherit profiledHaskellPackages; };
 
   # Give our packages unique names, so different sets won't overlap
   suffixed     = mapAttrs (set: hsPkgs:

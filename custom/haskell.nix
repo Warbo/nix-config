@@ -23,12 +23,21 @@ let haskellOverrides = hsPkgs:
 
     hsFiles = filter (hasSuffix ".nix")
                      (attrNames (readDir ./haskell));
-in {
+in rec {
   # Lets us know which packages we've overriden
   haskellNames = map (removeSuffix ".nix") hsFiles;
 
   # Latest
   haskellPackages = overrideHaskellPkgs self.stable.haskellPackages;
+
+  # Profiling
+  profiledHaskellPackages = haskellPackages.override {
+    overrides = self: super: haskellOverrides self // {
+      mkDerivation = args: super.mkDerivation (args // {
+        enableLibraryProfiling = true;
+      });
+    };
+  };
 
   # GHC 7.8.4
   haskell = super.haskell // {
