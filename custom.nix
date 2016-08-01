@@ -16,5 +16,5 @@ let mkPkg      = x: oldPkgs:
 
     overridden = pkgs // overrides;
 
-    overrides = fold mkPkg { original = pkgs; } nixFiles;
+    overrides = fold mkPkg {} nixFiles;
  in overrides
