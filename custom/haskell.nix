@@ -24,11 +24,11 @@ let haskellOverrides = hsPkgs:
     hsFiles = filter (hasSuffix ".nix")
                      (attrNames (readDir ./haskell));
 in rec {
-  # Lets us know which packages we've overriden
+  # Lets us know which packages we've overridden
   haskellNames = map (removeSuffix ".nix") hsFiles;
 
-  # Latest
-  haskellPackages = overrideHaskellPkgs self.stable.haskellPackages;
+  # Too many breakages on 8.x
+  haskellPackages = overrideHaskellPkgs haskell.packages.ghc7103;
 
   # Profiling
   profiledHaskellPackages = haskellPackages.override {
@@ -43,7 +43,7 @@ in rec {
   haskell = super.haskell // {
     packages = super.haskell.packages //
                  mapAttrs (n: v: overrideHaskellPkgs v)
-                          self.stable.haskell.packages;
+                          super.haskell.packages;
     #{
     #  ghc783  = overrideHaskellPkgs self.stable.haskell.packages.ghc783;
     #  ghc784  = overrideHaskellPkgs self.stable.haskell.packages.ghc784;
