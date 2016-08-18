@@ -12,11 +12,10 @@ customNames = filter (n: !(elem n [
                                     "haskell"                 # Mostly not ours
                                     "haskellPackages"         # Ditto
                                     "profiledHaskellPackages" # Ditto
-
                                   ])                          &&
-                                  typeOf pkgs."${n}" == "set" &&
-                                  pkgs."${n}" ? type          &&
-                                  pkgs."${n}".type == "derivation")
+                         typeOf pkgs."${n}" == "set"          &&
+                         pkgs."${n}" ? type                   &&
+                         pkgs."${n}".type == "derivation")
                      customPkgNames;
 
 topLevel = fold (name: rest: rest // { "${name}" = pkgs."${name}"; })
@@ -28,7 +27,7 @@ topLevel = fold (name: rest: rest // { "${name}" = pkgs."${name}"; })
 haskellPkgs = let
   selectedSets = {
                    inherit profiledHaskellPackages;
-                   inherit (haskell.packages) lts; # Fewer breakages than latest
+                   inherit (haskell.packages) ghc7103 ghc801 lts;
                  };
 
   # Give our packages unique names, so different sets won't overlap
