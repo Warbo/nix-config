@@ -26,16 +26,10 @@ topLevel = fold (name: rest: rest // { "${name}" = pkgs."${name}"; })
 # Select our custom Haskell packages from the various sets of Haskell packages
 # provided by nixpkgs (e.g. for different compiler versions)
 haskellPkgs = let
-  # Ignore less interesting package sets, e.g. "long-term support" ones
-  ignore       = [
-                   "ghc6123" "ghc704" "ghc722" "ghc742" "ghc763" "ghc783"
-                   "ghcjs" "ghcNokinds"
-                 ] ++ filter (set: hasPrefix "lts" set)
-                             (attrNames haskell.packages);
-
-  selectedSets = (filterAttrs (set: _: !(elem set ignore))
-                                   haskell.packages) //
-                 { inherit profiledHaskellPackages; };
+  selectedSets = {
+                   inherit profiledHaskellPackages;
+                   inherit (haskell.packages) lts; # Fewer breakages than latest
+                 };
 
   # Give our packages unique names, so different sets won't overlap
   suffixed     = mapAttrs (set: hsPkgs:
