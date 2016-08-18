@@ -28,7 +28,7 @@ in rec {
   haskellNames = map (removeSuffix ".nix") hsFiles;
 
   # Too many breakages on 8.x
-  haskellPackages = overrideHaskellPkgs haskell.packages.ghc7103;
+  haskellPackages = overrideHaskellPkgs haskell.packages.lts;
 
   # Profiling
   profiledHaskellPackages = haskellPackages.override {
