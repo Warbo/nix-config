@@ -53,7 +53,7 @@ let dir      = if isAttrs src_ then src_ else unsafeDiscardStringContext src_;
       inherit dir;
       name             = "nixFromCabal-${hsVer}-${fields.name}-${fields.version}";
       preferLocalBuild = true; # We need dir to exist
-      buildInputs  = [ self.haskellPackages.cabal2nix ];
+      buildInputs  = [ self.cabal2nix ];
       buildCommand = ''
         source $stdenv/setup
 
