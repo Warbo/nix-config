@@ -27,8 +27,8 @@ in rec {
   # Lets us know which packages we've overridden
   haskellNames = map (removeSuffix ".nix") hsFiles;
 
-  # Too many breakages on 8.x
-  haskellPackages = overrideHaskellPkgs haskell.packages.lts;
+  # Too many breakages on unstable and 8.x
+  haskellPackages = haskell.packages.stable.ghc7103;
 
   # Profiling
   profiledHaskellPackages = haskellPackages.override {
@@ -39,17 +39,10 @@ in rec {
     };
   };
 
-  # GHC 7.8.4
   haskell = super.haskell // {
-    packages = super.haskell.packages //
-                 mapAttrs (n: v: overrideHaskellPkgs v)
-                          super.haskell.packages;
-    #{
-    #  ghc783  = overrideHaskellPkgs self.stable.haskell.packages.ghc783;
-    #  ghc784  = overrideHaskellPkgs self.stable.haskell.packages.ghc784;
-    #  ghc7102 = overrideHaskellPkgs self.stable.haskell.packages.ghc7102;
-    #  ghc7103 = overrideHaskellPkgs self.stable.haskell.packages.ghc7103;
-    #  ghc801  = overrideHaskellPkgs self.stable.haskell.packages.ghc801;
-    #};
+    packages = let override = mapAttrs (n: v: overrideHaskellPkgs v);
+                   unstable = override       super.haskell.packages;
+                     stable = override self.stable.haskell.packages;
+                in unstable // stable // { inherit unstable stable; };
   };
 }
