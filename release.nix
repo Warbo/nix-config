@@ -26,8 +26,9 @@ topLevel = fold (name: rest: rest // { "${name}" = pkgs."${name}"; })
 # provided by nixpkgs (e.g. for different compiler versions)
 haskellPkgs = let
   selectedSets = {
-                   inherit profiledHaskellPackages;
+                   inherit haskellPackages profiledHaskellPackages;
                    inherit (haskell.packages) ghc7103 ghc801 lts;
+                   stable = stable.haskellPackages;
                  };
 
   # Give our packages unique names, so different sets won't overlap
