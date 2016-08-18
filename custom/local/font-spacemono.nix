@@ -1,4 +1,4 @@
-{ latestGit }:
+{ latestGit, stdenv }:
 stdenv.mkDerivation {
   name = "font-spacemono";
   src  = latestGit {
