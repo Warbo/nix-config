@@ -26,13 +26,16 @@ topLevel = listToAttrs (map (name: {
 
 # Select our custom Haskell packages from the various sets of Haskell packages
 # provided by nixpkgs (e.g. for different compiler versions)
-haskellPkgs = mapAttrs (set: hsPkgs:
-                         filterAttrs (name: _: elem name haskellNames) hsPkgs)
-                       {
-                         inherit haskellPackages profiledHaskellPackages;
-                         inherit (haskell.packages) ghc7103 ghc801 lts;
-                         unstable = { inherit (haskell.packages.unstable)
-                                              lts ghc7103 ghc801; };
-                       };
+haskellPkgs = let keepOurs = mapAttrs (_: filterAttrs (name: _:
+                                                        elem name haskellNames));
+                  top      = keepOurs {
+                               inherit haskellPackages profiledHaskellPackages;
+                               inherit (haskell.packages) ghc7103 ghc801 lts;
+                             };
+                  unstable = keepOurs {
+                               inherit (haskell.packages.unstable) lts ghc7103
+                                       ghc801;
+                             };
+               in top // { inherit unstable; };
 
 in topLevel // { haskell = haskellPkgs; }

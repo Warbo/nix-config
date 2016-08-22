@@ -5,10 +5,29 @@ with builtins;
 
 let check = self.runCommand "nix-eval-test"
               {
+                # Use known-good Haskell version
+                NIX_EVAL_HASKELL_PKGS = self.writeScript "haskellPkgs" ''
+                  with import <nixpkgs> {};
+                  let repo = fetchFromGitHub {
+                               owner  = "NixOS";
+                               repo   = "nixpkgs";
+                               rev    = "16.03";
+                               sha256 = "0m2b5ignccc5i5cyydhgcgbyl8bqip4dz32gw0c6761pd4kgw56v";
+                             };
+                      newPkgs = import repo { config = {}; };
+                   in newPkgs.haskellPackages
+                '';
+
+                # Required to make Perl and Haskell accept Unicode
+                LANG="en_US.UTF-8";
+                LOCALE_ARCHIVE="${self.glibcLocales}/lib/locale/locale-archive";
+
+                # Required to make Nix work recursively
                 NIX_REMOTE  = "daemon";
                 NIX_PATH    = self.lib.concatStringsSep ":"
                                 (map ({path, prefix}: prefix + "=" + path)
                                      builtins.nixPath);
+
                 buildInputs = [ (self.haskellPackages.ghcWithPackages (h: [
                                    h.cabal-install
                                    h.nix-eval
@@ -37,6 +56,6 @@ let check = self.runCommand "nix-eval-test"
                 echo "Testing" 1>&2
                 ./test.sh
 
-                echo "passed" > "$out"
+                touch "$out"
               '';
  in check

@@ -27,8 +27,12 @@ in rec {
   # Lets us know which packages we've overridden
   haskellNames = map (removeSuffix ".nix") hsFiles;
 
+  #callHackage  = { inherit (super.haskell.packages.ghc7103) callHackage; };
+
   # Too many breakages on unstable and 8.x
-  haskellPackages = haskell.packages.stable.ghc7103;
+  haskellPackages = haskell.packages.stable.ghc7103 // { inherit (super.haskell.packages.ghc7103) callHackage; };
+
+  #haskellPackages.callHackage = super.haskell.packages.ghc7103.callHackage;
 
   # Profiling
   profiledHaskellPackages = haskellPackages.override {
