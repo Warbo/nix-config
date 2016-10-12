@@ -14,87 +14,45 @@ all = buildEnv {
   paths = [
     acpi
     anonymous-pro-font
+    arandr
     aspell
     aspellDicts.en
-    autossh
+    basic
     kde4.basket
-    binutils
-    haskellPackages.cabal-install
-    haskellPackages.cabal2nix
     cmus
     compton
     conkeror
     dillo
     dmenu
     droid-fonts
-    dtach
-    dvtm
     emacs
-    file
     firefox
     gcalcli
     gensgs
-    get_iplayer
-      # FIXME: These two should be dependencies of get_iplayer
-      perlPackages.XMLSimple
-      ffmpeg
     ghc
-    ghostscript
-    git
-    gnumake
     gtk_engines
+    haskellPackages.cabal-install
+    haskellPackages.cabal2nix
+    haskellPackages.stack
     kbibtex_full
-    md2pdf
     mplayer
-    msmtp
     mupdf
 
     # Networking GUI, requires keyring
     networkmanagerapplet
     gnome3.gcr
-
-    nix-repl
-    openssh
-    pamixer
-    panhandle
-    panpipe
     paprefs
     pavucontrol
     pidgin
-    poppler_utils
     xorg.xkill
-    pmutils
-    psmisc
-    arandr
-    cifs_utils
-    silver-searcher
     skulpture
-    sshfsFuse
-    sshuttle
-    smbnetfs
-    sox
-    st
-    imagemagick
-    tightvnc
     trayer
-    ts
-    unzip
     vlc
     w3m
-    warbo-utilities
-    wget
-    wmname
-    xbindkeys
-    xcalib
-    xcape
     xfce.exo
     xfce.gtk_xfce_engine
     xfce.xfce4notifyd
-    xorg.xmodmap
     haskellPackages.xmobar
-    xorg.xproto
-    youtube-dl
-    zip
   ];
 };
 
