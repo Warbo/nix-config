@@ -11,7 +11,7 @@ rec {
     ];
 
   # Use the GRUB 2 boot loader.
-  boot = trace "FIXME: Can we update LibreBoot?" {
+  boot = trace "FIXME: Use system.activationScripts to make /boot/grub/libreboot_grub.cfg" {
     loader.grub = {
       enable  = true;
       version = 2;
@@ -22,6 +22,33 @@ rec {
                           [ "kvm-intel" "tun" "virtio" "coretemp" ];
     kernel.sysctl."net.ipv4.tcp_sack" = 0;
   };
+
+  # S6 daemon supervisor; far simpler than systemd
+  systemd.services.s6 =
+    let dir = "/home/chris/.service";
+     in {
+      enable      = true;
+      description = "s6 daemon supervisor";
+      wantedBy    = [ "default.target" ];
+      after       = [ "local-fs.target"   ];
+      path        = [ pkgs.s6 pkgs.bash pkgs.nix.out ];
+      environment = listToAttrs
+                      (map (name: { inherit name;
+                                    value = builtins.getEnv name; })
+                           [ "NIX_PATH" "NIX_REMOTE" ]);
+      serviceConfig = {
+        Type      = "simple";
+        User      = "root";
+        ExecStart = pkgs.writeScript "s6-start" ''
+          #!/usr/bin/env bash
+          s6-svscan "${dir}"
+        '';
+        ExecStop  = pkgs.writeScript "s6-stop"  ''
+          #!/usr/bin/env bash
+          s6-svscanctl -q "${dir}"
+        '';
+      };
+    };
 
   hardware.pulseaudio = {
     systemWide = true;
@@ -49,6 +76,11 @@ rec {
     '';
   };
 
+  programs = {
+    light.enable = true;
+    mosh.enable  = true;
+  };
+
   time = {
     timeZone = "Europe/London";
   };
@@ -59,19 +91,30 @@ rec {
   # To see if there are any such packages, do `nix-env -q` as root.
   environment.systemPackages = with pkgs; [
     trayer networkmanagerapplet pmutils shared_mime_info cryptsetup lsof
-    samba st wpa_supplicant xfsprogs cifs_utils
+    s6 samba st wpa_supplicant xfsprogs cifs_utils xlibs.xbacklight
   ];
 
   # List services that you want to enable:
 
   services.openssh.enable = true;
 
-  environment.etc = trace "FIXME: Add dispatcher.d scripts" [
-
-    #{ source = ipUpScript;
-    #  target = "NetworkManager/dispatcher.d/01nixos-ip-up"; }
-
-  ];
+  services.acpid = {
+    enable = true;
+    handlers = {
+      mute = {
+        event = "button/mute.*";
+        action = "amixer set Master toggle";
+      };
+      /*brighten = {
+        event  = "video/brightnessup";
+        action = "";
+      }
+      darken = {
+        event  = "video/brightnessdown";
+        action = "";
+      };*/
+    };
+  };
 
   services.xserver = {
     enable         = true;
@@ -120,9 +163,12 @@ rec {
   services.synergy = {
     server = {
       enable     = true;
+      autoStart  = true;
       configFile = "/home/chris/.synergy.conf";
     };
   };
+
+  sound.enableMediaKeys = true;
 
   # Turn off power saving on WiFi to work around
   # https://bugzilla.kernel.org/show_bug.cgi?id=56301 (or something similar)
@@ -154,7 +200,6 @@ rec {
   };
 
   services.cron.systemCronJobs = [
-    "*/30 * * * * chris /home/chris/warbo-utilities/web/imm -u"
     "*/5  * * * * chris ${pkgs.coreutils}/bin/timeout 240 ${pkgs.isync}/bin/mbsync gmail dundee"
     "2    * * * * chris ${pkgs.coreutils}/bin/timeout 240 ${pkgs.isync}/bin/mbsync gmail-backup"
   ];
