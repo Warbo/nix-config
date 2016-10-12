@@ -48,13 +48,14 @@ let dir      = if isAttrs src_ then src_ else unsafeDiscardStringContext src_;
       in { name = pkgName; version = pkgV; };
 
     # Produces a copy of the dir contents, along with a default.nix file
-    nixed = trace "FIXME: Use runCommand in nixFromCabal"
-                  self.stdenv.mkDerivation {
-      inherit dir;
-      name             = "nixFromCabal-${hsVer}-${fields.name}-${fields.version}";
-      preferLocalBuild = true; # We need dir to exist
-      buildInputs  = [ self.cabal2nix ];
-      buildCommand = ''
+    nixed = self.runCommand "nix-haskell"
+      {
+        inherit dir;
+        name             = "nixFromCabal-${hsVer}-${fields.name}-${fields.version}";
+        preferLocalBuild = true; # We need dir to exist
+        buildInputs  = [ self.cabal2nix ];
+      }
+      ''
         source $stdenv/setup
 
         echo "Copying '$dir' to '$out'"
@@ -81,7 +82,6 @@ let dir      = if isAttrs src_ then src_ else unsafeDiscardStringContext src_;
         echo "Generating package definition"
         cabal2nix ./. > default.nix
       '';
-    };
     result = import "${nixed}";
 
     # Support an "inner-composition" of "f" and "result", which behaves like
