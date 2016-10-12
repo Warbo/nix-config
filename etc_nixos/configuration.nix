@@ -2,6 +2,11 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 with builtins;
+with {
+  mypkgs = import <nixpkgs> {
+             config = import /home/chris/.nixpkgs/config.nix;
+           };
+};
 
 { config, pkgs, ... }:
 rec {
@@ -23,38 +28,13 @@ rec {
     kernel.sysctl."net.ipv4.tcp_sack" = 0;
   };
 
-  # S6 daemon supervisor; far simpler than systemd
-  systemd.services.s6 =
-    let dir = "/home/chris/.service";
-     in {
-      enable      = true;
-      description = "s6 daemon supervisor";
-      wantedBy    = [ "default.target" ];
-      after       = [ "local-fs.target"   ];
-      path        = [ pkgs.s6 pkgs.bash pkgs.nix.out ];
-      environment = listToAttrs
-                      (map (name: { inherit name;
-                                    value = builtins.getEnv name; })
-                           [ "NIX_PATH" "NIX_REMOTE" ]);
-      serviceConfig = {
-        Type      = "simple";
-        User      = "root";
-        ExecStart = pkgs.writeScript "s6-start" ''
-          #!/usr/bin/env bash
-          s6-svscan "${dir}"
-        '';
-        ExecStop  = pkgs.writeScript "s6-stop"  ''
-          #!/usr/bin/env bash
-          s6-svscanctl -q "${dir}"
-        '';
-      };
-    };
-
   hardware.pulseaudio = {
     systemWide = true;
     enable = true;
     package = pkgs.pulseaudioFull;
   };
+
+  sound.enableMediaKeys = true;
 
   networking = {
     hostName                = "nixos";
@@ -90,7 +70,7 @@ rec {
   # those won't be updated by `nixos-rebuild` and aren't version controlled.
   # To see if there are any such packages, do `nix-env -q` as root.
   environment.systemPackages = with pkgs; [
-    trayer networkmanagerapplet pmutils shared_mime_info cryptsetup lsof
+    mypkgs.all trayer networkmanagerapplet pmutils shared_mime_info cryptsetup lsof
     s6 samba st wpa_supplicant xfsprogs cifs_utils xlibs.xbacklight
   ];
 
@@ -168,7 +148,32 @@ rec {
     };
   };
 
-  sound.enableMediaKeys = true;
+  # S6 daemon supervisor; far simpler than systemd
+  systemd.services.s6 =
+    let dir = "/home/chris/.service";
+     in {
+      enable      = true;
+      description = "s6 daemon supervisor";
+      wantedBy    = [ "default.target" ];
+      after       = [ "local-fs.target"   ];
+      path        = [ pkgs.s6 pkgs.bash pkgs.nix.out mypkgs.basic ];
+      environment = listToAttrs
+                      (map (name: { inherit name;
+                                    value = builtins.getEnv name; })
+                           [ "NIX_PATH" "NIX_REMOTE" ]);
+      serviceConfig = {
+        Type      = "simple";
+        User      = "root";
+        ExecStart = pkgs.writeScript "s6-start" ''
+          #!/usr/bin/env bash
+          s6-svscan "${dir}"
+        '';
+        ExecStop  = pkgs.writeScript "s6-stop"  ''
+          #!/usr/bin/env bash
+          s6-svscanctl -q "${dir}"
+        '';
+      };
+    };
 
   # Turn off power saving on WiFi to work around
   # https://bugzilla.kernel.org/show_bug.cgi?id=56301 (or something similar)
@@ -181,6 +186,11 @@ rec {
       ExecStart = "${pkgs.iw}/bin/iw dev wlp2s0 set power_save off";
     };
   };
+
+  services.cron.systemCronJobs = [
+    "*/5  * * * * chris ${pkgs.coreutils}/bin/timeout 240 ${pkgs.isync}/bin/mbsync gmail dundee"
+    "2    * * * * chris ${pkgs.coreutils}/bin/timeout 240 ${pkgs.isync}/bin/mbsync gmail-backup"
+  ];
 
   # Locale, etc.
   i18n = {
@@ -198,9 +208,4 @@ rec {
     home        = "/home/chris";
     shell       = "/run/current-system/sw/bin/bash";
   };
-
-  services.cron.systemCronJobs = [
-    "*/5  * * * * chris ${pkgs.coreutils}/bin/timeout 240 ${pkgs.isync}/bin/mbsync gmail dundee"
-    "2    * * * * chris ${pkgs.coreutils}/bin/timeout 240 ${pkgs.isync}/bin/mbsync gmail-backup"
-  ];
 }
