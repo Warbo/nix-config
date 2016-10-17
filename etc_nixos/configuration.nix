@@ -140,57 +140,17 @@ rec {
     nssmdns = true;
   };
 
-  services.synergy = {
-    server = {
-      enable     = true;
-      autoStart  = true;
-      configFile = "/home/chris/.synergy.conf";
-    };
+  #services.synergy = {
+  #  server = {
+  #    enable     = true;
+  #    autoStart  = true;
+  #    configFile = "/home/chris/.synergy.conf";
+  #  };
+  #};
+
+  systemd = {
+    services = import ./services.nix (pkgs // mypkgs);
   };
-
-  # S6 daemon supervisor; far simpler than systemd
-  systemd.services.s6 =
-    let dir = "/home/chris/.service";
-     in {
-      enable      = true;
-      description = "s6 daemon supervisor";
-      wantedBy    = [ "default.target" ];
-      after       = [ "local-fs.target"   ];
-      path        = [ pkgs.s6 pkgs.bash pkgs.nix.out mypkgs.basic ];
-      environment = listToAttrs
-                      (map (name: { inherit name;
-                                    value = builtins.getEnv name; })
-                           [ "NIX_PATH" "NIX_REMOTE" ]);
-      serviceConfig = {
-        Type      = "simple";
-        User      = "root";
-        ExecStart = pkgs.writeScript "s6-start" ''
-          #!/usr/bin/env bash
-          s6-svscan "${dir}"
-        '';
-        ExecStop  = pkgs.writeScript "s6-stop"  ''
-          #!/usr/bin/env bash
-          s6-svscanctl -q "${dir}"
-        '';
-      };
-    };
-
-  # Turn off power saving on WiFi to work around
-  # https://bugzilla.kernel.org/show_bug.cgi?id=56301 (or something similar)
-  systemd.services.wifiPower = {
-    wantedBy      = [ "multi-user.target" ];
-    before        = [ "network.target" ];
-    serviceConfig = {
-      Type = "oneshot";
-      User = "root";
-      ExecStart = "${pkgs.iw}/bin/iw dev wlp2s0 set power_save off";
-    };
-  };
-
-  services.cron.systemCronJobs = [
-    "*/5  * * * * chris ${pkgs.coreutils}/bin/timeout 240 ${pkgs.isync}/bin/mbsync gmail dundee"
-    "2    * * * * chris ${pkgs.coreutils}/bin/timeout 240 ${pkgs.isync}/bin/mbsync gmail-backup"
-  ];
 
   # Locale, etc.
   i18n = {
