@@ -69,10 +69,12 @@ rec {
   # NOTE: You *could* install these individually via `nix-env -i` as root, but
   # those won't be updated by `nixos-rebuild` and aren't version controlled.
   # To see if there are any such packages, do `nix-env -q` as root.
-  environment.systemPackages = with pkgs; [
-    mypkgs.all trayer networkmanagerapplet pmutils shared_mime_info cryptsetup lsof
-    s6 samba st wpa_supplicant xfsprogs cifs_utils xlibs.xbacklight
-  ];
+  environment.systemPackages = [ mypkgs.all ];
+
+  # For SSHFS
+  environment.etc."fuse.conf".text = ''
+    user_allow_other
+  '';
 
   # List services that you want to enable:
 
