@@ -12,6 +12,27 @@ let mkService = opts: {
           } // opts.serviceConfig;
         };
 in {
+  emacs =
+    let sudoWrapper = pkgs.stdenv.mkDerivation {
+          name = "sudo-wrapper";
+          buildCommand = ''
+            mkdir -p "$out/bin"
+            ln -s /var/setuid-wrappers/sudo "$out/bin/sudo"
+          '';
+        };
+     in mkService {
+          description = "Emacs daemon";
+          path        = [ pkgs.all sudoWrapper ];
+          environment = { SSH_AUTH_SOCK = "%t/ssh-agent"; };
+          serviceConfig = {
+            User      = "chris";
+            Type      = "forking";
+            Restart   = "always";
+            ExecStart = ''"${pkgs.emacs}/bin/emacs" --daemon'';
+            ExecStop  = ''"${pkgs.emacs}/bin/emacsclient" --eval "(kill-emacs)"'';
+          };
+        };
+
   inboxen = mkService {
     description   = "Fetch mail inboxes";
     path          = with pkgs; [ bash iputils isync ];
@@ -27,10 +48,11 @@ in {
   };
 
   news = mkService {
+    enable = false;
     description   = "Fetch news";
     path          = with pkgs; [
                       bash iputils warbo-utilities nix.out
-                      python libxslt xmlstarlet xidel
+                      python libxslt xmlstarlet xidel wget
                       (haskellPackages.ghcWithPackages (h: [ h.imm ]))
                     ];
     environment   = { LANG = "en_GB.UTF-8"; };
@@ -39,7 +61,7 @@ in {
       Restart    = "always";
       RestartSec = 1800;
       ExecStart  =
-        let iplayer = writeScript "iplayer_to_rss" ''
+        let iplayer = pkgs.writeScript "iplayer_to_rss" ''
               #!${pkgs.bash}/bin/bash
               set -e
 
@@ -132,7 +154,7 @@ in {
                 else
                     HASH=$(echo "$1" | md5sum | cut -d ' ' -f 1)
                     NAME=$(echo "$2" | tr '[:upper:]' '[:lower:]' | tr -dc '[:lower:]')
-                    FILE="${HASH}_${NAME}.xml"
+                    FILE="$HASH"_"$NAME".xml
                     writeItemReal "$1" "$2" | tee "$CACHEDIR/$FILE"
                 fi
               }
@@ -172,7 +194,7 @@ in {
 
               listToFeed "iPlayer Sci/Nat" "http://www.bbc.co.uk/iplayer/categories/science-and-nature/all?sort=dateavailable" > "$CACHEDIR/scinat.rss"
             '';
-            rss = writeScript "pull_down_rss" ''
+            rss = pkgs.writeScript "pull_down_rss" ''
               #!${pkgs.bash}/bin/bash
 
               # Grabs RSS feeds and dumps them in ~/.cache
@@ -302,10 +324,11 @@ in {
   keeptesting = mkService {
     description   = "Run tests";
     path          = with pkgs; [ basic nix.out ];
-    environment   = listToAttrs
+    environment   = { LOCATE_PATH = /var/cache/locatedb; } //
+                    (listToAttrs
                       (map (name: { inherit name;
                         value = builtins.getEnv name; })
-                        [ "LOCATE_PATH" "NIX_PATH" "NIX_REMOTE" ]);
+                        [ "NIX_PATH" "NIX_REMOTE" ]));
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
@@ -325,14 +348,17 @@ in {
 
         cd ~/System/Tests || exit 1
 
+        # Choose one successful script at random
+        S=$(find results/pass -type f | shuf | head -n1)
+
         # Choose one test at random
-        R=$(find results/pass -type f | shuf | head -n1)
+        #T=$(shuf | head -n1)
 
         # Choose the oldest test
-        T=$(ls -1tr results/pass | head -n1)
+        O=$(ls -1tr results/pass | head -n1)
 
         # Force chosen tests to be re-run
-        for TST in "$R" "$T"
+        for TST in "$S" "$O"
         do
           NAME=$(basename "$TST")
           touch results/pass/"$NAME"
@@ -359,7 +385,8 @@ in {
         then
           if ! mount | grep raspberrypi
           then
-            sshfs pi@raspberrypi:/opt/shared ~/Public -o follow_symlinks
+            sshfs pi@raspberrypi:/opt/shared ~/Public \
+                  -o follow_symlinks -o allow_other
           fi
         fi
       '';
@@ -376,14 +403,23 @@ in {
       ExecStart  = pkgs.writeScript "unmount-pi" ''
         #!${pkgs.bash}/bin/bash
         set -e
-        /var/setuid-wrappers/ping -c 1 raspberrypi || {
-          if mount | grep raspberrypi
-          then
-            killall -9 sshfs
-            fusermount -u /home/chris/Public
-            umount     -l /home/chris/Public
-          fi
+
+        function unmount {
+          killall -9 sshfs
+          fusermount -u /home/chris/Public
+          umount     -l /home/chris/Public
         }
+
+        if mount | grep raspberrypi
+        then
+          if ! /var/setuid-wrappers/ping -c 1 raspberrypi
+          then
+            unmount
+          elif ! ls /home/chris/Public
+          then
+            unmount
+          fi
+        fi
       '';
     };
   };
