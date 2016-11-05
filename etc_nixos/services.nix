@@ -1,6 +1,6 @@
 with builtins;
 
-pkgs:
+pkgs: with pkgs;
 
 let mkService = opts: {
         enable   = true;
@@ -13,7 +13,7 @@ let mkService = opts: {
         };
 in {
   emacs =
-    let sudoWrapper = pkgs.stdenv.mkDerivation {
+    let sudoWrapper = stdenv.mkDerivation {
           name = "sudo-wrapper";
           buildCommand = ''
             mkdir -p "$out/bin"
@@ -21,17 +21,117 @@ in {
           '';
         };
      in mkService {
-          description = "Emacs daemon";
-          path        = [ pkgs.all sudoWrapper ];
-          environment = { SSH_AUTH_SOCK = "%t/ssh-agent"; };
-          serviceConfig = {
-            User      = "chris";
-            Type      = "forking";
-            Restart   = "always";
-            ExecStart = ''"${pkgs.emacs}/bin/emacs" --daemon'';
-            ExecStop  = ''"${pkgs.emacs}/bin/emacsclient" --eval "(kill-emacs)"'';
+          description     = "Emacs daemon";
+          path            = [ all sudoWrapper ];
+          environment     = { SSH_AUTH_SOCK = "/run/user/1000/ssh-agent"; };
+          reloadIfChanged = true;  # As opposed to restarting
+          serviceConfig   = {
+            User       = "chris";
+            Type       = "forking";
+            Restart    = "always";
+            ExecStart  = ''"${emacs}/bin/emacs" --daemon'';
+            ExecStop   = ''"${emacs}/bin/emacsclient" --eval "(kill-emacs)"'';
+            ExecReload = ''"${emacs}/bin/emacsclient" --eval "(load-file \"~/.emacs.d/init.el\")"'';
           };
         };
+
+  shell = mkService {
+    description     = "Long-running terminal multiplexer";
+    path            = [ dvtm dtach ];
+    environment     = {
+      DISPLAY = ":0";
+      TERM    = "xterm";
+    };
+    reloadIfChanged = true;  # As opposed to restarting
+    serviceConfig   = {
+      User      = "chris";
+      Restart   = "always";
+      ExecStart =
+        let session = writeScript "session" ''
+              #!${bash}/bin/bash
+              exec dvtm -M -m ^b
+            '';
+         in writeScript "shell-start" ''
+              #!${bash}/bin/bash
+              cd
+              exec dtach -A ~/.sesh -r winch "${session}"
+            '';
+      ExecStop   = ''"${coreutils}/bin/true"'';
+      ExecReload = ''"${coreutils}/bin/true"'';
+      StandardInput  = "tty";
+      StandardOutput = "tty";
+      TTYPath        = "/dev/tty6";
+    };
+  };
+
+  hometime = mkService {
+    description = "Count down to the end of the work day";
+    path        = with pkgs; [ gksu libnotify iputils networkmanager pmutils ];
+    environment = {
+      DISPLAY    = ":0";
+      XAUTHORITY = "/home/chris/.Xauthority";
+    };
+    serviceConfig = {
+      User       = "chris";
+      Restart    = "always";
+      RestartSec = 300;
+      ExecStart  =
+        let location = writeScript "location" ''
+              #!${bash}/bin/bash
+
+              # If we're not online, we can't tell where we are
+              /var/setuid-wrappers/ping -c 1 google.com 1>/dev/null 2>/dev/null || {
+                echo "unknown"
+                exit
+              }
+
+              # The WiFi network we're on should tell us where we are
+              NET=$(nmcli c | grep -v -- "--" | grep -v "DEVICE" | cut -d ' ' -f1)
+              if [[ "x$NET" = "xaa.net.uk" ]]
+              then
+                echo "home"
+              elif [[ "x$NET" = "xUoD_WiFi" ]] || [[ "x$NET" = "xeduroam" ]]
+              then
+                echo "uni"
+              else
+                echo "unknown"
+              fi
+            '';
+       in writeScript "hometime" ''
+            #!${bash}/bin/bash
+            set -e
+            set -x
+
+            # Set DBus variables to make notifications work
+            MID=$(cat /etc/machine-id)
+              D=$(echo "$DISPLAY" | cut -d '.' -f1 | tr -d :)
+            source ~/.dbus/session-bus/"$MID"-"$D"
+            export DBUS_SESSION_BUS_ADDRESS
+
+            function notify {
+              notify-send -t 0 "Home Time" "$1"
+            }
+
+            LOC=$(${location})
+            if [[ "x$LOC" = "xuni" ]]
+            then
+              HOUR=$(date "+%H")
+              if [[ "$HOUR" -gt "16" ]]
+              then
+                notify "Past 5pm; half an hour until suspend"
+                sleep 600
+                notify "20 minutes until suspend"
+                sleep 600
+                notify "10 minutes until suspend"
+                sleep 600
+                notify "Suspending"
+                sleep 60
+                gksudo -S pm-suspend
+              fi
+            fi
+          '';
+    };
+  };
 
   inboxen = mkService {
     description   = "Fetch mail inboxes";
@@ -40,270 +140,32 @@ in {
       User       = "chris";
       Restart    = "always";
       RestartSec = 600;
-      ExecStart  = pkgs.writeScript "inboxen-start" ''
-        #!/${pkgs.bash}/bin/bash
+      ExecStart  = writeScript "inboxen-start" ''
+        #!${bash}/bin/bash
         /var/setuid-wrappers/ping -c 1 google.com && mbsync gmail dundee
       '';
     };
   };
 
   news = mkService {
-    enable = false;
     description   = "Fetch news";
-    path          = with pkgs; [
-                      bash iputils warbo-utilities nix.out
-                      python libxslt xmlstarlet xidel wget
-                      (haskellPackages.ghcWithPackages (h: [ h.imm ]))
-                    ];
+    path          = [ findutils.out ];
     environment   = { LANG = "en_GB.UTF-8"; };
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
-      RestartSec = 1800;
-      ExecStart  =
-        let iplayer = pkgs.writeScript "iplayer_to_rss" ''
-              #!${pkgs.bash}/bin/bash
-              set -e
+      RestartSec = 3600;
+      ExecStart  = writeScript "get-news-start" ''
+                     #!${bash}/bin/bash
+                     "${warbo-utilities}/bin/get_news"
 
-              function fetchProgrammes {
-                # Fetch the URLs of programmes found at the given URL, followed by their
-                # titles. For example:
-                #
-                # http://programme-page-for-click
-                # http://programme-page-for-springwatch
-                #
-                # Click - 25th May 2016
-                # Springwatch 2016 Episode 3
-                echo "Fetching '$1'" 1>&2
-                xidel -q \
-                      -e '//li[contains(@class,"programme")]/div/a/resolve-uri(@href)' \
-                      -e '//li[contains(@class,"programme")]/div/a/@title' \
-                      "$1"
-              }
-
-              function formattedProgrammes {
-                # Fetch the URLs and titles of programmes on the given page. For example:
-                #
-                # http://programme-page-for-click	Click - 25th May 2016
-                # http://programme-page-for-springwatch 	Springwatch 2016 Episode 3
-
-                OUTPUT=$(fetchProgrammes "$1")
-                URLS=$(echo "$OUTPUT" | grep "^http")
-                TTLS=$(echo "$OUTPUT" | grep -v "^http" | grep "^.")
-
-                assertSameLength "$URLS" "$TTLS"
-
-                paste <(echo "$URLS") <(echo "$TTLS")
-              }
-
-              function assertSameLength {
-                # Assert that both arguments contain the same number of lines
-                COUNT1=$(echo "$1" | wc -l)
-                COUNT2=$(echo "$2" | wc -l)
-
-                echo "Got lists of '$COUNT1' and '$COUNT2' elements" 1>&2
-                [[ "$COUNT1" -eq "$COUNT2" ]] || {
-                    echo -e "Found different length lists. First:\n$1\n\nSecond:\n$2" 1>&2
-                    exit 2
-                }
-              }
-
-              function listToFeed {
-                listToFeed2 "$@" | tr -cd '[:print:]\n'
-              }
-
-              function listToFeed2 {
-                CHANNELURL=$(echo "$2" | xmlEscape)
-                echo '<rss version="2.0">'
-                echo   '<channel>'
-                echo     "<title>$1</title>"
-                echo     "<link>$CHANNELURL</link>"
-
-                while read -r LINE
-                do
-                    THISURL=$(echo "$LINE" | cut -f 1)
-                    THISTTL=$(echo "$LINE" | cut -f 2-)
-                    writeItem "$THISURL" "$THISTTL"
-                done < <(formattedProgrammes "$2")
-
-                echo   '</channel>'
-                echo '</rss>'
-              }
-
-              function xmlEscape {
-                # From http://daemonforums.org/showthread.php?t=4054
-                sed -e 's~&~\&amp;~g' -e 's~<~\&lt;~g' -e 's~>~\&gt;~g'
-              }
-
-              function firstShown {
-                sleep 1
-                xidel -e '//span[@class="release"]' "$1"
-              }
-
-              function findCached {
-                MATCHES=$(grep -rlF "$1" "$CACHEDIR")
-                FOUND=$(echo "$MATCHES" | grep -v "\.rss$" | head -n1)
-                echo "$FOUND"
-              }
-
-              function writeItem {
-                CACHED=$(findCached "$1")
-                if [[ -n "$CACHED" ]]
-                then
-                    cat "$CACHED"
-                else
-                    HASH=$(echo "$1" | md5sum | cut -d ' ' -f 1)
-                    NAME=$(echo "$2" | tr '[:upper:]' '[:lower:]' | tr -dc '[:lower:]')
-                    FILE="$HASH"_"$NAME".xml
-                    writeItemReal "$1" "$2" | tee "$CACHEDIR/$FILE"
-                fi
-              }
-
-              function writeItemReal {
-                echo "Writing item for '$1' '$2'" 1>&2
-                SAFEURL=$(echo "$1" | xmlEscape)
-                SAFETTL=$(echo "$2" | xmlEscape)
-                # Strip off "First shown:" and "HH:MMpm"
-                DATE=$(firstShown "$1" | cut -d : -f 2- |
-                                         sed -e 's/[0-9][0-9]*:[0-9][0-9].m//g' |
-                                         sed -e 's/^[ ]*//g')
-                echo "Got date '$DATE'" 1>&2
-                if PUBDATE=$(date --date="$DATE" --rfc-2822)
-                then
-                    # Looks like a complete date
-                    true
-                else
-                    # Probably just a year, e.g. for a film
-                    PUBDATE=$(date --date="1 Jan$DATE" --rfc-2822)
-                fi
-                echo '<item>'
-                echo   "<title>$SAFETTL</title>"
-                echo   "<link>$SAFEURL</link>"
-                echo   "<description><a href=\"$SAFEURL\">link</a></description>"
-                echo   "<guid isPermaLink=\"true\">$SAFEURL</guid>"
-                echo   "<pubDate>$PUBDATE</pubDate>"
-                echo "</item>"
-              }
-
-              CACHEDIR="$HOME/.cache/iplayer_feeds"
-              mkdir -p "$CACHEDIR"
-
-              listToFeed "iPlayer Comedy" "http://www.bbc.co.uk/iplayer/categories/comedy/all?sort=dateavailable" > "$CACHEDIR/comedy.rss"
-
-              listToFeed "iPlayer Films" "http://www.bbc.co.uk/iplayer/categories/films/all?sort=dateavailable" > "$CACHEDIR/films.rss"
-
-              listToFeed "iPlayer Sci/Nat" "http://www.bbc.co.uk/iplayer/categories/science-and-nature/all?sort=dateavailable" > "$CACHEDIR/scinat.rss"
-            '';
-            rss = pkgs.writeScript "pull_down_rss" ''
-              #!${pkgs.bash}/bin/bash
-
-              # Grabs RSS feeds and dumps them in ~/.cache
-              # Used to work around things imm doesn't support (e.g. HTTPS)
-
-              function stripNonAscii {
-                tr -cd '[:print:]\n'
-              }
-
-              function fixRss {
-                # Set the author to $1, to avoid newlines
-                xmlstarlet ed -u "//author" -v "$1" |
-
-                # Append today as the pubDate, then remove all but the first
-                # pubDate (i.e. append today as the pubDate, if none is given)
-                xmlstarlet ed -s //item -t elem -n pubDate             \
-                              -v "$(date -d "today 00:00" --rfc-2822)" \
-                              -d '//item/author[position() != 1]'
-              }
-
-              function atomToRss {
-                xsltproc ~/System/Programs/atom2rss-exslt.xsl "$1.atom" |
-                  fixRss "$1" > "$1.rss"
-              }
-
-              function get {
-                timeout 20 wget --no-check-certificate "$@"
-              }
-
-              function getAtom {
-                get -O - "$2" | stripNonAscii > "$1.atom"
-                atomToRss "$1"
-              }
-
-              function getYouTube {
-                get -O - "http://www.youtube.com/feeds/videos.xml?channel_id=$2" |
-                stripNonAscii > "$1.atom"
-                atomToRss "$1"
-              }
-
-              function getRss {
-                get -O - "$2" | stripNonAscii | fixRss "$1" > "$1.rss"
-              }
-
-              mkdir -p ~/.cache/rss
-              cd ~/.cache/rss || {
-                echo "Couldn't cd to ~/.cache/rss" 1>&2
-                exit 1
-              }
-
-              # Configurable feeds
-              while read -r FEED
-              do
-                TYPE=$(echo "$FEED" | cut -f1)
-                NAME=$(echo "$FEED" | cut -f2)
-                 URL=$(echo "$FEED" | cut -f3)
-
-                case "$TYPE" in
-                  rss)
-                    getRss "$NAME" "$URL"
-                    ;;
-                  atom)
-                    getAtom "$NAME" "$URL"
-                    ;;
-                  youtube)
-                    getYouTube "$NAME" "$URL"
-                    ;;
-                  *)
-                    echo "Can't handle '$FEED'" 1>&2
-                    ;;
-                esac
-              done < ~/.feeds
-
-              # Scrape BBC iPlayer
-              "${iplayer}"
-
-              # Scrape the Dundee Courier
-              # Edit URL http://feed43.com/feed.html?name=dundee_courier
-              COURIER="$HOME/.cache/rss/DundeeCourier.rss"
-              if [[ -e "$COURIER" ]]
-              then
-                # Feed43 don't like polling more than every 6 hours
-                if test "$(find "$COURIER" -mmin +360)"
-                then
-                  getRss "DundeeCourier" "http://feed43.com/dundee_courier.xml"
-                fi
-              else
-                getRss "DundeeCourier" "http://feed43.com/dundee_courier.xml"
-              fi
-            '';
-        in pkgs.writeScript "get-news-start" ''
-             #!${pkgs.bash}/bin/bash
-
-             if /var/setuid-wrappers/ping -c 1 google.com
-             then
-               # Run any RSS-generating scripts we might have
-               "${rss}"
-
-               pushd ~/.cache
-               python -m SimpleHTTPServer 8888 &
-               SERVER_PID="$!"
-               popd
-
-               # Run imm to send RSS to mailbox
-               imm -u
-
-               kill "$SERVER_PID"
-             fi
-           '';
+                     # Extra delay if there's a bunch of stuff unread
+                     UNREAD=$(find Mail/feeds -path "*/new/*" -type f | wc -l)
+                     if [[ "$UNREAD" -gt 100 ]]
+                     then
+                       sleep $(( 60 * UNREAD ))
+                     fi
+                   '';
     };
   };
 
@@ -314,8 +176,8 @@ in {
       User       = "chris";
       Restart    = "always";
       RestartSec = 3600;
-      ExecStart  = pkgs.writeScript "mail-backup" ''
-        #!${pkgs.bash}/bin/bash
+      ExecStart  = writeScript "mail-backup" ''
+        #!${bash}/bin/bash
         /var/setuid-wrappers/ping -c 1 google.com && mbsync gmail-backup
       '';
     };
@@ -323,6 +185,7 @@ in {
 
   keeptesting = mkService {
     description   = "Run tests";
+    enable        = false;
     path          = with pkgs; [ basic nix.out ];
     environment   = { LOCATE_PATH = /var/cache/locatedb; } //
                     (listToAttrs
@@ -333,8 +196,8 @@ in {
       User       = "chris";
       Restart    = "always";
       RestartSec = 300;
-      ExecStart  = pkgs.writeScript "keep-testing" ''
-        #!${pkgs.bash}/bin/bash
+      ExecStart  = writeScript "keep-testing" ''
+        #!${bash}/bin/bash
         set -e
         if ! plugged_in
         then
@@ -371,55 +234,142 @@ in {
     };
   };
 
-  mountpi = mkService {
-    description   = "Mount raspberrypi when available";
-    path          = with pkgs; [ iputils basic ];
+  inherit (rec {
+    opts = extra: concatStringsSep " " (extra ++ [
+      "-o follow_symlinks"
+      "-o allow_other"
+      "-o IdentityFile=/home/chris/.ssh/id_rsa"
+      "-o debug"
+      "-o sshfs_debug"
+      "-o reconnect"
+      "-o ServerAliveInterval=15"
+    ]);
+
+    path = [ sshfsFuse utillinux.bin openssh procps ];
+
+    environment = {
+      DISPLAY       = ":0"; # For potential ssh passphrase dialogues
+      SSH_AUTH_SOCK = "/run/user/1000/ssh-agent";
+    };
+
+    mkCfg = addr: dir: extraOptions: {
+      User       = "chris";
+      Restart    = "always";
+      RestartSec = 60;
+      ExecStart  = writeScript "sshfs-mount" ''
+        #!${bash}/bin/bash
+        sshfs -f ${opts extraOptions} ${addr} ${dir}
+      '';
+      ExecStop = writeScript "afuse-unmount" ''
+        #!${bash}/bin/bash
+        pkill -f -9 "sshfs.*${dir}"
+        /var/setuid-wrappers/fusermount -u -z "${dir}"
+      '';
+    };
+
+    pi-mount = mkService {
+      inherit path environment;
+      description   = "Raspberry pi";
+      requires      = [ "home-network.service" ];
+      after         = [ "network.target" ];
+      wantedBy      = [ "default.target" ];
+      serviceConfig = mkCfg "pi@raspberrypi:/opt/shared"
+                            "/home/chris/Public"
+                            [];
+    };
+
+    desktop-mount = mkService {
+      inherit path environment;
+      description   = "Desktop files";
+      requires      = [ "desktop-bind.service" ];
+      after         = [ "network.target" ];
+      wantedBy      = [ "default.target" ];
+      serviceConfig = mkCfg "user@localhost:/"
+                            "/home/chris/DesktopFiles"
+                            ["-p 22222"];
+    };
+  })
+  pi-mount desktop-mount;
+
+  home-network = mkService {
+    description   = "Home LAN";
+    path          = [ iputils ];
+    requires      = [ "network.target" ];
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
-      RestartSec = 600;
-      ExecStart  = pkgs.writeScript "mount-pi" ''
-        #!${pkgs.bash}/bin/bash
-        set -e
-        if /var/setuid-wrappers/ping -c 1 raspberrypi
-        then
-          if ! mount | grep raspberrypi
-          then
-            sshfs pi@raspberrypi:/opt/shared ~/Public \
-                  -o follow_symlinks -o allow_other
-          fi
-        fi
+      RestartSec = 60;  # Check interval when we're not at home
+      ExecStart  = writeScript "inboxen-start" ''
+        #!${bash}/bin/bash
+        while /var/setuid-wrappers/ping -c 1 raspberrypi
+        do
+          # We're home; poll to see when we're not
+          sleep 60
+        done
       '';
     };
   };
 
-  unmountpi = mkService {
-    description   = "Unmount raspberrypi when unavailable";
-    path          = with pkgs; [ basic ];
-    serviceConfig = {
-      User       = "root";
+  desktop-bind = mkService {
+    description   = "Bind desktop SSH";
+    path          = [ iputils openssh procps ];
+    environment   = { SSH_AUTH_SOCK = "/run/user/1000/ssh-agent"; };
+    requires      = [ "ssh-agent.service" "network.target" ];
+    serviceConfig = let kill = "pkill -f -9 'ssh.*22222:localhost:22222'"; in {
+      User       = "chris";
       Restart    = "always";
-      RestartSec = 600;
-      ExecStart  = pkgs.writeScript "unmount-pi" ''
-        #!${pkgs.bash}/bin/bash
-        set -e
+      RestartSec = 60;  # Check interval when we're not at home
+      ExecStart  = writeScript "desktop-bind" ''
+        #!${bash}/bin/bash
+        ${kill}
+        ssh -N -A -L 22222:localhost:22222 chriswarbo.net
+      '';
+      ExecStop = writeScript "desktop-unbind" ''
+        #!${bash}/bin/bash
+        ${kill}
+      '';
+    };
+  };
 
-        function unmount {
-          killall -9 sshfs
-          fusermount -u /home/chris/Public
-          umount     -l /home/chris/Public
-        }
-
-        if mount | grep raspberrypi
+  hydra-bind = mkService {
+    description   = "Bind desktop SSH";
+    path          = [ openssh iputils procps ];
+    environment   = { SSH_AUTH_SOCK = "/run/user/1000/ssh-agent"; };
+    requires      = [ "desktop-bind.service" ];
+    wantedBy      = [ "default.target" ];
+    serviceConfig = {
+      User       = "chris";
+      Restart    = "always";
+      RestartSec = 60;  # Check interval when we're not at home
+      ExecStart  = writeScript "desktop-bind" ''
+        #!${bash}/bin/bash
+        if ssh-add -L | grep "The agent has no identities"
         then
-          if ! /var/setuid-wrappers/ping -c 1 raspberrypi
-          then
-            unmount
-          elif ! ls /home/chris/Public
-          then
-            unmount
-          fi
+          ssh-add /home/chris/.ssh/id_rsa
         fi
+        ssh -N -A -L 3000:localhost:3000 user@localhost -p 22222
+      '';
+      ExecStop = writeScript "desktop-unbind" ''
+        #!${bash}/bin/bash
+        pkill -f -9 "ssh .*3000:localhost:3000"
+      '';
+    };
+  };
+
+  ssh-agent = mkService {
+    description = "Run ssh-agent";
+    path = [ openssh ];
+    serviceConfig = {
+      User       = "chris";
+      Restart    = "always";
+      RestartSec = 60;  # Check interval when we're not at home
+      ExecStart  = writeScript "ssh-agent-start" ''
+        #!${bash}/bin/bash
+        exec ssh-agent -D -a /run/user/1000/ssh-agent
+      '';
+      ExecStop   = writeScript "ssh-agent-stop" ''
+        #!${bash}/bin/bash
+        SSH_AUTH_SOCK=/run/user/1000/ssh-agent ssh-agent -k
       '';
     };
   };
@@ -435,8 +385,8 @@ in {
       User       = "root";
       Restart    = "always";
       RestartSec = 600;
-      ExecStart  = pkgs.writeScript "wifipower" ''
-        #!${pkgs.bash}/bin/bash
+      ExecStart  = writeScript "wifipower" ''
+        #!${bash}/bin/bash
         iw dev wlp2s0 set power_save off
       '';
     };
