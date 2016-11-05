@@ -69,7 +69,7 @@ rec {
   # NOTE: You *could* install these individually via `nix-env -i` as root, but
   # those won't be updated by `nixos-rebuild` and aren't version controlled.
   # To see if there are any such packages, do `nix-env -q` as root.
-  environment.systemPackages = [ mypkgs.all ];
+  environment.systemPackages = [ mypkgs.all pkgs.sshfsFuse ];
 
   # For SSHFS
   environment.etc."fuse.conf".text = ''
