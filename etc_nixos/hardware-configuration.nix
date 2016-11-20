@@ -9,7 +9,18 @@
     ];
 
   boot = {
-    initrd.availableKernelModules = [ "uhci_hcd" "ehci_hcd" "ata_piix" "ahci" "firewire_ohci" ];
+    initrd.availableKernelModules = [
+      "uhci_hcd"
+      "ehci_hcd"
+      "ata_piix"
+      "ahci"
+      "firewire_ohci"
+      "usbcore"
+      "sd_mod"
+      "ohci_hcd"
+      "usb_storage"
+      "scsi_mod"
+    ];
     kernelModules = [ "kvm-intel" ];
     extraModulePackages = [ ];
     extraModprobeConfig = ''
