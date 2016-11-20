@@ -10,6 +10,9 @@ with {
 
 { config, pkgs, ... }:
 rec {
+
+  # Low level/hardware stuff
+
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
@@ -25,13 +28,48 @@ rec {
 
     kernelModules = trace "FIXME: Which modules are artefacts of using QEMU to install?"
                           [ "kvm-intel" "tun" "virtio" "coretemp" ];
+
     kernel.sysctl."net.ipv4.tcp_sack" = 0;
+
+    #extraModprobeConfig = ''
+    #  # thinkpad acpi
+    #  options thinkpad_acpi
+    #  # experimental=1 fan_control=1 brightness_enable=1 hotkey=enable,0xffffff
+    #'';
+
+    extraModulePackages = [ config.boot.kernelPackages.tp_smapi ];
+
+    kernelParams = [
+      "acpi_osi="
+      "video.use_native_backlight=1"
+      "clocksource=acpi_pm pci=use_crs"
+      "consoleblank=0"
+    ];
   };
 
+  hardware.bluetooth.enable = true;
+
+  hardware.cpu.intel.updateMicrocode = true;
+
   hardware.pulseaudio = {
-    systemWide = true;
-    enable = true;
-    package = pkgs.pulseaudioFull;
+    #systemWide = true;
+    enable     = true;
+    package    = pkgs.pulseaudioFull;
+    configFile = pkgs.writeText "default.pa" ''
+      load-module module-udev-detect
+      load-module module-jackdbus-detect channels=2
+      load-module module-bluetooth-policy
+      load-module module-bluetooth-discover
+      load-module module-esound-protocol-unix
+      load-module module-native-protocol-unix
+      load-module module-always-sink
+      load-module module-console-kit
+      load-module module-systemd-login
+      load-module module-intended-roles
+      load-module module-position-event-sounds
+      load-module module-filter-heuristics
+      load-module module-filter-apply
+    '';
   };
 
   sound.enableMediaKeys = true;
@@ -71,6 +109,15 @@ rec {
   # To see if there are any such packages, do `nix-env -q` as root.
   environment.systemPackages = [ mypkgs.all pkgs.sshfsFuse ];
 
+  nixpkgs.config = {
+    packageOverrides = pkgs: {
+      # Required for PulseAudio headsets
+      bluez = pkgs.bluez5;
+    };
+  };
+
+  nix.trustedBinaryCaches = [ "http://hydra.nixos.org/" ];
+
   # For SSHFS
   environment.etc."fuse.conf".text = ''
     user_allow_other
@@ -96,6 +143,14 @@ rec {
         action = "";
       };*/
     };
+  };
+
+  # Limit the size of our logs, to prevent ridiculous space usage and slowdown
+  services.journald = {
+    extraConfig = ''
+      SystemMaxUse=10M
+      RuntimeMaxUse=10M
+    '';
   };
 
   services.xserver = {
@@ -141,14 +196,6 @@ rec {
     enable  = true;
     nssmdns = true;
   };
-
-  #services.synergy = {
-  #  server = {
-  #    enable     = true;
-  #    autoStart  = true;
-  #    configFile = "/home/chris/.synergy.conf";
-  #  };
-  #};
 
   systemd = {
     services = import ./services.nix (pkgs // mypkgs);
