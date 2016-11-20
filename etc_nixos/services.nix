@@ -183,6 +183,32 @@ in {
     };
   };
 
+  inherit (rec {
+    xmobar = description: RestartSec: mkService {
+      inherit description;
+      serviceConfig = {
+        inherit RestartSec;
+        User       = "chris";
+        Restart    = "always";
+        ExecStart  =
+          let disk = writeScript "disk" ''
+                #!${bash}/bin/bash
+                df -h | grep /dev/disk/by-label/nixos |
+                        sed -e 's/ [ ]*/ /g'          |
+                        cut -d ' ' -f 5
+              '';
+           in writeScript "xmobar-stats" ''
+                #!${bash}/bin/bash
+                cd /home/chris/.cache/xmobar
+                agenda head         > agenda
+              '';
+      };
+    };
+
+    agenda = xmobar "Agenda " 900;
+  })
+  agenda;
+
   keeptesting = mkService {
     description   = "Run tests";
     enable        = false;
@@ -318,11 +344,16 @@ in {
     serviceConfig = let kill = "pkill -f -9 'ssh.*22222:localhost:22222'"; in {
       User       = "chris";
       Restart    = "always";
-      RestartSec = 60;  # Check interval when we're not at home
+      RestartSec = 60;
       ExecStart  = writeScript "desktop-bind" ''
         #!${bash}/bin/bash
+        echo "Killing other port users"
         ${kill}
+        echo "Binding port"
         ssh -N -A -L 22222:localhost:22222 chriswarbo.net
+        CODE="$?"
+        echo "Bind exited with code '$CODE'"
+        exit "$CODE"
       '';
       ExecStop = writeScript "desktop-unbind" ''
         #!${bash}/bin/bash
@@ -365,6 +396,14 @@ in {
       RestartSec = 60;  # Check interval when we're not at home
       ExecStart  = writeScript "ssh-agent-start" ''
         #!${bash}/bin/bash
+        if [[ -e /run/user/1000/ssh-agent ]]
+        then
+          echo "Socket exists, sleeping"
+          while [[ -e /run/user/1000/ssh-agent ]]
+          do
+            sleep 60
+          done
+        fi
         exec ssh-agent -D -a /run/user/1000/ssh-agent
       '';
       ExecStop   = writeScript "ssh-agent-stop" ''
