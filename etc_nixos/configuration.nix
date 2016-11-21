@@ -52,7 +52,7 @@ rec {
   hardware.cpu.intel.updateMicrocode = true;
 
   hardware.pulseaudio = {
-    #systemWide = true;
+    systemWide = true;
     enable     = true;
     package    = pkgs.pulseaudioFull;
     configFile = pkgs.writeText "default.pa" ''
@@ -182,6 +182,7 @@ rec {
     enable     = true;
     localuser  = "chris";
     extraFlags = [
+      "--prunefs='fuse.sshfs'"
       "--prunepaths='/home/chris/Public /home/chris/Uni /nix/store'"
       "--localpaths='/home/chris'"
     ];
@@ -211,7 +212,7 @@ rec {
   users.extraUsers.chris = {
     name        = "chris";
     group       = "users";
-    extraGroups = [ "wheel" "voice" "networkmanager" "fuse" "dialout" "atd" "audio" "docker" ];
+    extraGroups = [ "wheel" "voice" "networkmanager" "fuse" "dialout" "atd" "audio" "docker" "pulse" ];
     uid         = 1000;
     createHome  = true;
     home        = "/home/chris";
