@@ -30,7 +30,7 @@
   };
 
   fileSystems."/" =
-    { device = "/dev/disk/by-label/nixos";
+    { device = "/dev/disk/by-label/internal";
       fsType = "ext4";
     };
 
