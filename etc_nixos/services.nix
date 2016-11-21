@@ -22,7 +22,7 @@ in {
         };
      in mkService {
           description     = "Emacs daemon";
-          path            = [ all sudoWrapper ];
+          path            = [ all sudoWrapper mu ];
           environment     = { SSH_AUTH_SOCK = "/run/user/1000/ssh-agent"; };
           reloadIfChanged = true;  # As opposed to restarting
           serviceConfig   = {
