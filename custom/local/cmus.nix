@@ -1,4 +1,12 @@
-{ stdenv, fetchFromGitHub, ncurses, pkgconfig, libopus, faad2
+{ stableRepo }:
+
+# We use "stable" as there are build errors for newer versions
+with (import stableRepo {
+  # faac requires allUnfree
+  config = { allowUnfree = true; };
+});
+
+let f = { stdenv, fetchFromGitHub, ncurses, pkgconfig, libopus, faad2
 
 , alsaSupport ? stdenv.isLinux, alsaLib ? null
 # simple fallback for everyone else
@@ -122,4 +130,6 @@ stdenv.mkDerivation rec {
     license = stdenv.lib.licenses.gpl2;
     maintainers = [ stdenv.lib.maintainers.oxij ];
   };
-}
+};
+
+in callPackage f {}

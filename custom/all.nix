@@ -36,6 +36,7 @@ all = buildEnv {
     haskellPackages.stack
     kbibtex_full
     mplayer
+    mu
     mupdf
 
     # Networking GUI, requires keyring
