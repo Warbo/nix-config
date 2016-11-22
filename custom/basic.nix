@@ -19,6 +19,7 @@ with self;
       ghostscript
       git
       gnumake
+      jq
       md2pdf
       msmtp
       nix-repl
