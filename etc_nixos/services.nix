@@ -398,9 +398,34 @@ in {
     };
   };
 
+  hydra-monitor = mkService {
+    description   = "Force hydra-bind to restart when down";
+    path          = [ curl ];
+    requires      = [ "hydra-bind.service" ];
+    wantedBy      = [ "default.target" ];
+    serviceConfig = {
+      User       = "chris";
+      Restart    = "always";
+      RestartSec = 120;
+      ExecStart  = writeScript "hydra-monitor" ''
+        #!${bash}/bin/bash
+        echo "Checking for Hydra server"
+        if curl http://localhost:3000
+        then
+          echo "OK, server is up"
+          sleep 60
+        else
+          echo "Server is down, killing any hydra ssh bindings"
+          pkill -f -9 'ssh.*3000:localhost:3000'
+        fi
+        exit 0
+      '';
+    };
+  };
+
   ssh-agent = mkService {
-    description = "Run ssh-agent";
-    path = [ openssh ];
+    description   = "Run ssh-agent";
+    path          = [ openssh ];
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
@@ -434,7 +459,7 @@ in {
       Type       = "simple";
       User       = "root";
       Restart    = "always";
-      RestartSec = 600;
+      RestartSec = 60;
       ExecStart  = writeScript "wifipower" ''
         #!${bash}/bin/bash
         iw dev wlp2s0 set power_save off
