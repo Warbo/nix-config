@@ -52,7 +52,7 @@ rec {
   hardware.cpu.intel.updateMicrocode = true;
 
   hardware.pulseaudio = {
-    systemWide = true;
+    systemWide = false;
     enable     = true;
     package    = pkgs.pulseaudioFull;
     configFile = pkgs.writeText "default.pa" ''
