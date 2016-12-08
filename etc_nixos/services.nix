@@ -368,21 +368,32 @@ in {
     environment   = { SSH_AUTH_SOCK = "/run/user/1000/ssh-agent"; };
     requires      = [ "desktop-bind.service" ];
     wantedBy      = [ "default.target" ];
-    serviceConfig = {
+    serviceConfig = let kill = "pkill -f -9 'ssh.*3000:localhost:3000'"; in {
       User       = "chris";
       Restart    = "always";
-      RestartSec = 60;  # Check interval when we're not at home
-      ExecStart  = writeScript "desktop-bind" ''
+      RestartSec = 60;
+      ExecStart  = writeScript "hydra-bind" ''
         #!${bash}/bin/bash
+        echo "Killing other port users"
+        ${kill}
+
+        echo "Checking for identity"
         if ssh-add -L | grep "The agent has no identities"
         then
+          echo "No identity found, adding"
           ssh-add /home/chris/.ssh/id_rsa
         fi
+
+        echo "Binding port"
         ssh -N -A -L 3000:localhost:3000 user@localhost -p 22222
+        CODE="$?"
+
+        echo "Bind exited with code '$CODE'"
+        exit "$CODE"
       '';
-      ExecStop = writeScript "desktop-unbind" ''
+      ExecStop = writeScript "hydra-unbind" ''
         #!${bash}/bin/bash
-        pkill -f -9 "ssh .*3000:localhost:3000"
+        ${kill}
       '';
     };
   };
