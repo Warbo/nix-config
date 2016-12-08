@@ -82,7 +82,7 @@ in {
               # If we're not online, we can't tell where we are
               /var/setuid-wrappers/ping -c 1 google.com 1>/dev/null 2>/dev/null || {
                 echo "unknown"
-                exit
+                exit 0
               }
 
               # The WiFi network we're on should tell us where we are
@@ -353,7 +353,9 @@ in {
         ssh -N -A -L 22222:localhost:22222 chriswarbo.net
         CODE="$?"
         echo "Bind exited with code '$CODE'"
-        exit "$CODE"
+
+        # Don't tell systemd that we failed, or it might not restart!
+        exit 0
       '';
       ExecStop = writeScript "desktop-unbind" ''
         #!${bash}/bin/bash
@@ -389,7 +391,9 @@ in {
         CODE="$?"
 
         echo "Bind exited with code '$CODE'"
-        exit "$CODE"
+
+        # Tell systemd we were successful, so it keeps restarting us
+        exit 0
       '';
       ExecStop = writeScript "hydra-unbind" ''
         #!${bash}/bin/bash
