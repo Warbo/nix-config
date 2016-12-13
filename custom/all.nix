@@ -35,6 +35,7 @@ all = buildEnv {
     haskellPackages.cabal2nix
     haskellPackages.stack
     kbibtex_full
+    keepassx
     mplayer
     mu
     mupdf
