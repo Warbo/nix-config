@@ -296,7 +296,6 @@ in {
     pi-mount = mkService {
       inherit path environment;
       description   = "Raspberry pi";
-      requires      = [ "home-network.service" ];
       after         = [ "network.target" ];
       wantedBy      = [ "default.target" ];
       serviceConfig = mkCfg "pi@raspberrypi:/opt/shared"
@@ -307,7 +306,6 @@ in {
     desktop-mount = mkService {
       inherit path environment;
       description   = "Desktop files";
-      requires      = [ "desktop-bind.service" ];
       after         = [ "network.target" ];
       wantedBy      = [ "default.target" ];
       serviceConfig = mkCfg "user@localhost:/"
@@ -317,21 +315,29 @@ in {
   })
   pi-mount desktop-mount;
 
-  home-network = mkService {
-    description   = "Home LAN";
-    path          = [ iputils ];
-    requires      = [ "network.target" ];
+  pi-monitor = mkService {
+    description = "Unmount raspberrypi when unreachable";
+    path = [ iputils ];
     serviceConfig = {
-      User       = "chris";
-      Restart    = "always";
-      RestartSec = 60;  # Check interval when we're not at home
-      ExecStart  = writeScript "inboxen-start" ''
+      User = "root";
+      Restart = "always";
+      RestartSec = 20;
+      ExecStart = writeScript "pi-monitor" ''
         #!${bash}/bin/bash
-        while /var/setuid-wrappers/ping -c 1 raspberrypi
-        do
-          # We're home; poll to see when we're not
-          sleep 60
+        if /var/setuid-wrappers/ping -c 1 raspberrypi
+        then
+          # We're home
+          exit 0
         done
+
+        # We're not home; check if raspberrypi is mounted
+        if mount | grep raspberrypi
+        then
+          # Anything trying to access the mount will hang, making KILL the
+          # only reliable way to un-hang processes
+
+          echo "TODO"
+        fi
       '';
     };
   };
@@ -340,26 +346,53 @@ in {
     description   = "Bind desktop SSH";
     path          = [ iputils openssh procps ];
     environment   = { SSH_AUTH_SOCK = "/run/user/1000/ssh-agent"; };
-    requires      = [ "ssh-agent.service" "network.target" ];
-    serviceConfig = let kill = "pkill -f -9 'ssh.*22222:localhost:22222'"; in {
+    requires      = [ "network.target" ];
+    serviceConfig = {
       User       = "chris";
       Restart    = "always";
-      RestartSec = 60;
+      RestartSec = 20;
       ExecStart  = writeScript "desktop-bind" ''
         #!${bash}/bin/bash
-        echo "Killing other port users"
-        ${kill}
-        echo "Binding port"
-        ssh -N -A -L 22222:localhost:22222 chriswarbo.net
-        CODE="$?"
-        echo "Bind exited with code '$CODE'"
 
-        # Don't tell systemd that we failed, or it might not restart!
-        exit 0
+        echo "Checking for existing bind"
+        if pgrep -f 'ssh.*22222:localhost:22222'
+        then
+          echo "Existing bind found, sleeping"
+          exit 0
+        fi
+
+        echo "No existing binds found, binding port"
+        ssh -N -A -L 22222:localhost:22222 chriswarbo.net
+
+        echo "Bind exited"
       '';
-      ExecStop = writeScript "desktop-unbind" ''
+    };
+  };
+
+  desktop-monitor = mkService {
+    description   = "Kill desktop-bind if it's hung";
+    path          = [ iputils openssh procps ];
+    environment   = { SSH_AUTH_SOCK = "/run/user/1000/ssh-agent"; };
+    serviceConfig = {
+      User       = "root";
+      Restart    = "always";
+      RestartSec = 20;
+      ExecStart  = writeScript "desktop-monitor" ''
         #!${bash}/bin/bash
-        ${kill}
+        PAT='ssh.*22222:localhost:22222'
+
+        if pgrep -f "$PAT"
+        then
+          # Bind is running, make sure it's working
+          if ssh -A localhost -p 22222
+          then
+            # Seems to be working
+            true
+          else
+            # Can't access bound port, kill the bind
+            pkill -f -9 "$PAT"
+          fi
+        fi
       '';
     };
   };
@@ -368,16 +401,19 @@ in {
     description   = "Bind desktop SSH";
     path          = [ openssh iputils procps ];
     environment   = { SSH_AUTH_SOCK = "/run/user/1000/ssh-agent"; };
-    requires      = [ "desktop-bind.service" ];
     wantedBy      = [ "default.target" ];
-    serviceConfig = let kill = "pkill -f -9 'ssh.*3000:localhost:3000'"; in {
+    serviceConfig = {
       User       = "chris";
       Restart    = "always";
-      RestartSec = 60;
+      RestartSec = 20;
       ExecStart  = writeScript "hydra-bind" ''
         #!${bash}/bin/bash
-        echo "Killing other port users"
-        ${kill}
+        echo "Checking for existing binds"
+        if pgrep -f 'ssh.*3000:localhost:3000'
+        then
+          echo "Existing bind found, sleeping"
+          exit 0
+        fi
 
         echo "Checking for identity"
         if ssh-add -L | grep "The agent has no identities"
@@ -388,16 +424,8 @@ in {
 
         echo "Binding port"
         ssh -N -A -L 3000:localhost:3000 user@localhost -p 22222
-        CODE="$?"
 
-        echo "Bind exited with code '$CODE'"
-
-        # Tell systemd we were successful, so it keeps restarting us
-        exit 0
-      '';
-      ExecStop = writeScript "hydra-unbind" ''
-        #!${bash}/bin/bash
-        ${kill}
+        echo "Bind exited"
       '';
     };
   };
@@ -405,23 +433,22 @@ in {
   hydra-monitor = mkService {
     description   = "Force hydra-bind to restart when down";
     path          = [ curl ];
-    requires      = [ "hydra-bind.service" ];
     wantedBy      = [ "default.target" ];
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
-      RestartSec = 120;
+      RestartSec = 20;
       ExecStart  = writeScript "hydra-monitor" ''
         #!${bash}/bin/bash
         echo "Checking for Hydra server"
         if curl http://localhost:3000
         then
           echo "OK, server is up"
-          sleep 60
-        else
-          echo "Server is down, killing any hydra ssh bindings"
-          pkill -f -9 'ssh.*3000:localhost:3000'
+          exit 0
         fi
+
+        echo "Server is down, killing any hydra ssh bindings"
+        pkill -f -9 'ssh.*3000:localhost:3000'
         exit 0
       '';
     };
@@ -433,16 +460,13 @@ in {
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
-      RestartSec = 60;  # Check interval when we're not at home
+      RestartSec = 20;
       ExecStart  = writeScript "ssh-agent-start" ''
         #!${bash}/bin/bash
         if [[ -e /run/user/1000/ssh-agent ]]
         then
           echo "Socket exists, sleeping"
-          while [[ -e /run/user/1000/ssh-agent ]]
-          do
-            sleep 60
-          done
+          exit 0
         fi
         exec ssh-agent -D -a /run/user/1000/ssh-agent
       '';
