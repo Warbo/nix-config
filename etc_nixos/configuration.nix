@@ -194,8 +194,9 @@ rec {
   };
 
   services.avahi = {
-    enable  = true;
-    nssmdns = true;
+    enable   = true;
+    nssmdns  = true;
+    hostName = "nixos";
   };
 
   systemd = {
