@@ -1,6 +1,8 @@
 # This one package depends on all of the packages we want in our user config
-# so we don't need to keep track of everything separately. Use commands like
-# `nix-env -i all`, etc. to get the equivalent of a per-user `nixos-rebuild`
+# so we don't need to keep track of everything separately. If you're on NixOS
+# you can make these available system-wide using /etc/nixos/configuration.nix
+# If you're using Nix standalone, or want per-user configuration, you can run
+# a command like `nix-env -iA all` to install into your profile.
 
 self: super:
 
@@ -17,7 +19,7 @@ all = buildEnv {
     arandr
     aspell
     aspellDicts.en
-    basic
+    basic # Anything useful for scripts should go in here
     kde4.basket
     cmus
     compton
@@ -33,7 +35,8 @@ all = buildEnv {
     gtk_engines
     haskellPackages.cabal-install
     haskellPackages.cabal2nix
-    haskellPackages.stack
+    haskellPackages.happy
+    unstableHaskellPackages.stack # Newer versions have more workarounds
     kbibtex_full
     keepassx
     mplayer
