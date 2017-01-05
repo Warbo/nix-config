@@ -83,31 +83,11 @@ let dir      = if isAttrs src_ then src_ else unsafeDiscardStringContext src_;
         cabal2nix ./. > default.nix
       '';
     result = import "${nixed}";
-
-    # Support an "inner-composition" of "f" and "result", which behaves like
-    # "args: f (result args)" but has explicit named arguments, to allow
-    # "functionArgs" to work (as used by "callPackage").
-    # TODO: Hopefully Nix will get a feature to set a function's argument names
-    # Build a string "a,b,c" for the arguments of "result" which don't have
-    # defaults
-    resultArgs = functionArgs result;
-    required   = filter (n: !resultArgs."${n}") (attrNames resultArgs);
-    arglist    = self.lib.concatStrings (self.lib.intersperse "," required);
-
-    # Strip the dependencies off our strings, so they can be embedded
-    arglistF   = unsafeDiscardStringContext arglist;
-    nixedF     = unsafeDiscardStringContext nixed;
-
-    # Write a special-purpose composition function to a file, accepting the same
-    # arguments ("arglistF") as "result".
-    compose = toFile "cabal-compose.nix" ''
-      f: g: args@{${arglistF}}: f (g args)
-    '';
 in
 
 # If we've been given a function "f", compose it with "result" using our
 # special-purpose function
 if f == null then result
-             else import compose f result;
+             else self.composeWithArgs f result;
 
 }
