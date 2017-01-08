@@ -33,7 +33,7 @@ all = buildEnv {
     gensgs
     ghc
     gtk_engines
-    haskellPackages.cabal-install
+    unstableHaskellPackages.cabal-install
     haskellPackages.cabal2nix
     haskellPackages.happy
     unstableHaskellPackages.stack # Newer versions have more workarounds
