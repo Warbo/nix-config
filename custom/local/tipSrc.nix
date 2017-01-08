@@ -1,8 +1,6 @@
-{ fetchFromGitHub }:
+{ fetchFromGitHub, stable ? true }:
 
 with rec {
-  stable  = true;
-
   version = if stable
                then {
                  rev    = "6ded3a8"; # Version 0.2.2
