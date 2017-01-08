@@ -3,9 +3,9 @@ self: super:
 with self;
 with builtins;
 with rec {
-  typesSrc = runCommand "mk-types-src" { inherit tipSrc; } ''
+  typesSrc = runCommand "mk-types-src" { inherit unstableTipSrc; } ''
     #!${bash}/bin/bash
-    cp -r "$tipSrc/tip-types" "$out"
+    cp -r "$unstableTipSrc/tip-types" "$out"
   '';
 };
 
