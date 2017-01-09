@@ -141,7 +141,7 @@ with rec {
 
   inboxen = mkService {
     description   = "Fetch mail inboxes";
-    path          = with pkgs; [ bash iputils isync ];
+    path          = [ bash iputils isync ];
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
@@ -162,22 +162,22 @@ with rec {
       Restart    = "always";
       RestartSec = 3600;
       ExecStart  = writeScript "get-news-start" ''
-                     #!${bash}/bin/bash
-                     "${warbo-utilities}/bin/get_news"
+        #!${bash}/bin/bash
+        "${warbo-utilities}/bin/get_news"
 
-                     # Extra delay if there's a bunch of stuff unread
-                     UNREAD=$(find Mail/feeds -path "*/new/*" -type f | wc -l)
-                     if [[ "$UNREAD" -gt 100 ]]
-                     then
-                       sleep $(( 60 * UNREAD ))
-                     fi
-                   '';
+        # Extra delay if there's a bunch of stuff unread
+        UNREAD=$(find Mail/feeds -path "*/new/*" -type f | wc -l)
+        if [[ "$UNREAD" -gt 100 ]]
+        then
+          sleep $(( 60 * UNREAD ))
+        fi
+      '';
     };
   };
 
   mailbackup = mkService {
     description   = "Fetch all mail";
-    path          = with pkgs; [ bash iputils isync ];
+    path          = [ bash iputils isync ];
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
@@ -483,6 +483,23 @@ with rec {
       ExecStop   = writeScript "ssh-agent-stop" ''
         #!${bash}/bin/bash
         SSH_AUTH_SOCK=/run/user/1000/ssh-agent ssh-agent -k
+      '';
+    };
+  };
+
+  kill-network-mounts = mkService {
+    description   = "Force kill network mounts after suspend/resume";
+    path          = [ psmisc];
+
+    # suspend.target causes this to be invoked, but only after (i.e. on resume)
+    after         = [ "suspend.target" ];
+    wantedBy      = [ "suspend.target" ];
+    serviceConfig = {
+      User      = "root";
+      Type      = "oneshot";
+      ExecStart = writeScript "kill-network-filesystems" ''
+        #!${bash}/bin/bash
+        killall -9 sshfs || true
       '';
     };
   };
