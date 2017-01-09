@@ -21,13 +21,7 @@ with rec {
     '';
   };
 
-  pingWrapper = stdenv.mkDerivation {
-    name = "ping-wrapper";
-    buildCommand = ''
-      mkdir -p "$out/bin"
-      ln -s /var/setuid-wrappers/ping "$out/bin/ping"
-    '';
-  };
+  pingOnce = "/var/setuid-wrappers/ping -c 1";
 };
 {
   emacs = mkService {
@@ -79,7 +73,7 @@ with rec {
 
   hometime = mkService {
     description = "Count down to the end of the work day";
-    path        = [ gksu libnotify iputils networkmanager pingWrapper pmutils ];
+    path        = [ gksu libnotify iputils networkmanager pmutils ];
     environment = {
       DISPLAY    = ":0";
       XAUTHORITY = "/home/chris/.Xauthority";
@@ -99,7 +93,7 @@ with rec {
           exit
         fi
 
-        if ping -c 1 google.com 1>/dev/null 2>/dev/null
+        if ${pingOnce} google.com 1>/dev/null 2>/dev/null
         then
           echo "We're online, getting location from WiFi network name"
         else
