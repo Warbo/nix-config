@@ -164,7 +164,7 @@ with rec {
         "${warbo-utilities}/bin/get_news"
 
         # Extra delay if there's a bunch of stuff unread
-        UNREAD=$(find Mail/feeds -path "*/new/*" -type f | wc -l)
+        UNREAD=$(find ~/Mail/feeds -path "*/new/*" -type f | wc -l)
         if [[ "$UNREAD" -gt 100 ]]
         then
           sleep $(( 60 * UNREAD ))
