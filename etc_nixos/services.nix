@@ -26,16 +26,19 @@ with rec {
 {
   emacs = mkService {
     description     = "Emacs daemon";
-    path            = [ all sudoWrapper mu ];
-    environment     = { SSH_AUTH_SOCK = "/run/user/1000/ssh-agent"; };
+    path            = [ all emacs mu sudoWrapper ];
+    environment     = {
+      COLUMNS       = 80;
+      SSH_AUTH_SOCK = "/run/user/1000/ssh-agent";
+    };
     reloadIfChanged = true;  # As opposed to restarting
     serviceConfig   = {
       User       = "chris";
       Type       = "forking";
       Restart    = "always";
-      ExecStart  = ''"${emacs}/bin/emacs" --daemon'';
-      ExecStop   = ''"${emacs}/bin/emacsclient" --eval "(kill-emacs)"'';
-      ExecReload = ''"${emacs}/bin/emacsclient" --eval "(load-file \"~/.emacs.d/init.el\")"'';
+      ExecStart  = ''emacs --daemon'';
+      ExecStop   = ''emacsclient --eval "(kill-emacs)"'';
+      ExecReload = ''emacsclient --eval "(load-file \"~/.emacs.d/init.el\")"'';
     };
   };
 
@@ -135,14 +138,15 @@ with rec {
 
   inboxen = mkService {
     description   = "Fetch mail inboxes";
-    path          = [ bash iputils isync ];
+    path          = [ bash coreutils iputils isync ];
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
       RestartSec = 600;
       ExecStart  = writeScript "inboxen-start" ''
         #!${bash}/bin/bash
-        /var/setuid-wrappers/ping -c 1 google.com && mbsync gmail dundee
+        /var/setuid-wrappers/ping -c 1 google.com || exit
+        timeout -s 9 3600 mbsync gmail dundee
       '';
     };
   };
@@ -171,14 +175,15 @@ with rec {
 
   mailbackup = mkService {
     description   = "Fetch all mail";
-    path          = [ bash iputils isync ];
+    path          = [ bash coreutils iputils isync ];
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
       RestartSec = 3600;
       ExecStart  = writeScript "mail-backup" ''
         #!${bash}/bin/bash
-        /var/setuid-wrappers/ping -c 1 google.com && mbsync gmail-backup
+        /var/setuid-wrappers/ping -c 1 google.com || exit
+        timeout -s 9 3600 mbsync gmail-backup
       '';
     };
   };
