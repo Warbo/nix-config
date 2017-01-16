@@ -22,13 +22,36 @@ with rec {
   };
 
   pingOnce = "/var/setuid-wrappers/ping -c 1";
+
+  online   = "${pingOnce} google.com 1>/dev/null 2>/dev/null";
+
+  wifiName = '' ${networkmanager}/bin/nmcli c | grep -v -- "--" | grep -v "DEVICE" | cut -d ' ' -f1'';
+
+  atHome = writeScript "atHome" ''
+    #!${bash}/bin/bash
+    set -e
+
+    ${online}  || exit 1
+    ${wifiName} | grep "aa.net.uk" > /dev/null && exit 0
+    exit 1
+  '';
+
+  atWork = writeScript "atWork" ''
+    #!${bash}/bin/bash
+    set -e
+
+    ${online}  || exit 1
+    ${wifiName} | grep "UoD_WiFi" > /dev/null && exit 0
+    ${wifiName} | grep "eduroam"  > /dev/null && exit 0
+    exit 1
+  '';
 };
 {
   emacs = mkService {
     description     = "Emacs daemon";
     path            = [ all emacs mu sudoWrapper ];
     environment     = {
-      COLUMNS       = 80;
+      COLUMNS       = "80";
       SSH_AUTH_SOCK = "/run/user/1000/ssh-agent";
     };
     reloadIfChanged = true;  # As opposed to restarting
@@ -36,9 +59,18 @@ with rec {
       User       = "chris";
       Type       = "forking";
       Restart    = "always";
-      ExecStart  = ''emacs --daemon'';
-      ExecStop   = ''emacsclient --eval "(kill-emacs)"'';
-      ExecReload = ''emacsclient --eval "(load-file \"~/.emacs.d/init.el\")"'';
+      ExecStart  = writeScript "emacs-start" ''
+        #!${bash}/bin/bash
+        exec emacs --daemon
+      '';
+      ExecStop = writeScript "emacs-stop" ''
+        #!${bash}/bin/bash
+        exec emacsclient --eval "(kill-emacs)"
+      '';
+      ExecReload = writeScript "emacs-reload" ''
+        #!${bash}/bin/bash
+        emacsclient --eval "(load-file \"~/.emacs.d/init.el\")"
+      '';
     };
   };
 
@@ -90,28 +122,9 @@ with rec {
         set -e
 
         HOUR=$(date "+%H")
-        if [[ "$HOUR" -lt 17 ]]
-        then
-          echo "Too early to notify"
-          exit
-        fi
+        [[ "$HOUR" -gt 16 ]] || exit
 
-        if ${pingOnce} google.com 1>/dev/null 2>/dev/null
-        then
-          echo "We're online, getting location from WiFi network name"
-        else
-          echo "Can't get location from WiFi network (we're offline)"
-          exit
-        fi
-
-        NET=$(nmcli c | grep -v -- "--" | grep -v "DEVICE" | cut -d ' ' -f1)
-        if [[ "x$NET" = "xUoD_WiFi" ]] || [[ "x$NET" = "xeduroam" ]]
-        then
-          echo "We're at uni"
-        else
-          echo "Not at uni, so not notifying"
-          exit 1
-        fi
+        ${atWork} || exit
 
         # Set DBus variables to make notifications appear on X display
         MID=$(cat /etc/machine-id)
@@ -132,6 +145,41 @@ with rec {
         notify "Suspending"
         sleep 60
         gksudo -S pm-suspend
+      '';
+    };
+  };
+
+  joX2X = mkService {
+    description   = "Connect to X display when home";
+    path          = [ openssh warbo-utilities ];
+    environment   = {
+      DISPLAY = ":0";
+    };
+    serviceConfig = {
+      User       = "chris";
+      Restart    = "always";
+      RestartSec = 120;
+      ExecStart  = writeScript "jo-x2x" ''
+        #!${bash}/bin/bash
+        ${atHome} && ${warbo-utilities}/bin/jo
+      '';
+    };
+  };
+
+  workX2X = mkService {
+    description   = "Connect to X display when at work";
+    path          = [ openssh warbo-utilities ];
+    environment   = {
+      DISPLAY = ":0";
+    };
+    serviceConfig = {
+      User       = "chris";
+      Restart    = "always";
+      RestartSec = 120;
+      ExecStart  = writeScript "work-x2x" ''
+        #!${bash}/bin/bash
+        ${atWork} || exit
+        ssh -Y user@localhost -p 22222 "x2x -east -to :0"
       '';
     };
   };
@@ -161,14 +209,7 @@ with rec {
       RestartSec = 3600;
       ExecStart  = writeScript "get-news-start" ''
         #!${bash}/bin/bash
-        "${warbo-utilities}/bin/get_news"
-
-        # Extra delay if there's a bunch of stuff unread
-        UNREAD=$(find ~/Mail/feeds -path "*/new/*" -type f | wc -l)
-        if [[ "$UNREAD" -gt 100 ]]
-        then
-          sleep $(( 60 * UNREAD ))
-        fi
+        exec "${warbo-utilities}/bin/get_news"
       '';
     };
   };
