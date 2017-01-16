@@ -79,7 +79,10 @@ rec {
     firewall.enable         = false;
 
     # Block time wasters
-    extraHosts = readFile "/home/chris/.dotfiles/hosts";
+    extraHosts = ''
+      127.0.0.1 nixos
+      ${readFile "/home/chris/.dotfiles/hosts"}
+    '';
 
     # NetworkManager
     networkmanager.enable = true;
@@ -125,7 +128,10 @@ rec {
 
   # List services that you want to enable:
 
-  services.openssh.enable = true;
+  services.openssh = {
+    enable     = true;
+    forwardX11 = true;
+  };
 
   services.acpid = {
     enable = true;
@@ -148,8 +154,8 @@ rec {
   # Limit the size of our logs, to prevent ridiculous space usage and slowdown
   services.journald = {
     extraConfig = ''
-      SystemMaxUse=10M
-      RuntimeMaxUse=10M
+      SystemMaxUse=100M
+      RuntimeMaxUse=100M
     '';
   };
 
@@ -197,6 +203,9 @@ rec {
     enable   = true;
     nssmdns  = true;
     hostName = "nixos";
+    publish.enable      = true;
+    publish.addresses   = true;
+    publish.workstation = true;
   };
 
   systemd = {
