@@ -1,5 +1,6 @@
 self: super:
 
+with builtins;
 with self;
 with {
   stable   = {
@@ -21,7 +22,11 @@ with {
 };
 
 {
-  tipSrc = get stable;
+  tipSrc = if builtins.getEnv "TIP_VERSION" == "latest"
+              then latestGit {
+                     url = "https://github.com/tip-org/tools.git";
+                   }
+              else get stable;
 
   unstableTipSrc = get unstable;
 }
