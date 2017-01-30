@@ -1,8 +1,8 @@
 self: super:
-{}
-/*
+
 with self;
-qt5.callPackage ({full, qtbase, qttools }: rec {
+with qt5;
+rec {
 
 cpputilities = stdenv.mkDerivation {
   name = "cpp-utilities";
@@ -48,5 +48,4 @@ tageditor = stdenv.mkDerivation {
   };
 };
 
-})
-*/
+}
