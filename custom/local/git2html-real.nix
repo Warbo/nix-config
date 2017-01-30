@@ -3,7 +3,7 @@
 stdenv.mkDerivation {
   name = "git2html";
 
-  src = latestGit { url = http://hssl.cs.jhu.edu/~neal/git2html.git; };
+  src = latestGit { url = https://github.com/Hypercubed/git2html.git; };
 
   installPhase = ''
     mkdir -p "$out/bin"
