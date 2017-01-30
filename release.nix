@@ -30,10 +30,10 @@ haskellPkgs = let keepOurs = mapAttrs (_: filterAttrs (name: _:
                                                         elem name haskellNames));
                   top      = keepOurs {
                                inherit haskellPackages profiledHaskellPackages;
-                               inherit (haskell.packages) ghc7103 ghc801 lts;
+                               inherit (haskell.packages) ghc7103 ghc801;
                              };
                   unstable = keepOurs {
-                               inherit (haskell.packages.unstable) lts ghc7103
+                               inherit (haskell.packages.unstable) ghc7103
                                        ghc801;
                              };
                in top // { inherit unstable; };
