@@ -47,10 +47,12 @@ let
     buildInputs  = [ git gnused ];
     buildCommand = ''
       source $stdenv/setup
+      set -e
+      REV=$(git ls-remote "${url}" "${ref}") || exit 1
       # printf is an ugly way to avoid trailing newlines
-      printf "%s" $(git ls-remote "${url}" "${ref}" |
-                    head -n1                        |
-                    sed -e 's/\s.*//g'              ) > "$out"
+      printf "%s" $(echo "$REV         |
+                    head -n1           |
+                    sed -e 's/\s.*//g' ) > "$out"
     '';
   };
 
