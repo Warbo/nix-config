@@ -42,12 +42,13 @@ load it separately, e.g. via an `import`.
    `super`.
  - `packageOverrides` is a function taking `super` as an argument. The result is
    a set of attributes which Nix will *add to* `super` for our user (replacing,
-   in the case of overlaps). For this reason, the contents of `super` *should
-   not* appear in the result; doing so will effectively override *everything*,
-   and cause the whole system to be recompiled from scratch! Note that these
-   attributes don't need to be "packages" per se, for example they might be
-   helper functions which we want to make available globally.
- - `self` is the complete set of Nix packages, including out overrides. Thanks
+   in the case of overlaps), i.e. `self = super // packageOverrides super`. For
+   this reason, the `packageOverrides` should only contain new or overridden
+   packages; copying from `super` to `packageOverrides` serves no purpose other
+   than invalidating the binary cache. Note that these attributes don't need to
+   be "packages" per se, for example they might be helper functions which we
+   want to make available globally.
+ - `self` is the complete set of Nix packages, including our overrides. Thanks
    to laziness, we can use `self` to define some overrides in terms of others;
    although care should be taken to avoid circular dependencies (i.e. infinite
    loops).
