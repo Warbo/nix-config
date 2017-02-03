@@ -38,9 +38,14 @@ rec {
   #callHackage  = { inherit (super.haskell.packages.ghc7103) callHackage; };
 
   # Too many breakages on unstable and 8.x
-  haskellPackages = haskell.packages.stable.ghc7103 // {
+  unprofiledHaskellPackages = haskell.packages.stable.ghc7103 // {
     inherit (super.haskell.packages.ghc7103) callHackage;
   };
+
+  # Turn profiling on/off via environment variable, to make life easier
+  haskellPackages = if getEnv "HASKELL_PROFILE" == "1"
+                       then profilesHaskellPackages
+                       else unprofiledHaskellPackages;
 
   # Default unstable version
   unstableHaskellPackages = super.haskellPackages;
@@ -48,10 +53,16 @@ rec {
   #haskellPackages.callHackage = super.haskell.packages.ghc7103.callHackage;
 
   # Profiling
-  profiledHaskellPackages = haskellPackages.override {
+  profiledHaskellPackages = unprofiledHaskellPackages.override {
     overrides = self: super: haskellOverrides self // {
       mkDerivation = args: super.mkDerivation (args // {
-        enableLibraryProfiling = true;
+        enableLibraryProfiling    = true;
+        enableExecutableProfiling = true;
+        doHaddock                 = false;  # Because it can fail
+        configureFlags = [
+          "--ghc-option=-fprof-auto-exported"
+          "--ghc-option=-rtsopts"
+        ];
       });
     };
   };
