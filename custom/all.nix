@@ -36,7 +36,6 @@ all = buildEnv {
     unstableHaskellPackages.cabal-install
     haskellPackages.cabal2nix
     haskellPackages.happy
-    unstableHaskellPackages.stack # Newer versions have more workarounds
     kbibtex_full
     keepassx
     mplayer
