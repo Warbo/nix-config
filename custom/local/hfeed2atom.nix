@@ -1,4 +1,5 @@
-{ fetchFromGitHub, mf2py, pythonPackages, buildPythonPackage }:
+{ beautifulsoup-custom, buildPythonPackage, fetchFromGitHub, fetchurl, mf2py,
+  pythonPackages }:
 
 buildPythonPackage {
   name = "hfeed2atom";
@@ -12,6 +13,7 @@ buildPythonPackage {
 
   propagatedBuildInputs = [
     pythonPackages.python
+    beautifulsoup-custom
     mf2py
   ];
 }

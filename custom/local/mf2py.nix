@@ -1,4 +1,5 @@
-{ fetchurl, fetchFromGitHub, pythonPackages, buildPythonPackage }:
+{ beautifulsoup-custom, buildPythonPackage, fetchurl, fetchFromGitHub,
+  pythonPackages }:
 
 let name    = "mf2py";
     version = "1.0.5";
@@ -12,15 +13,11 @@ let name    = "mf2py";
     rev    = "c133581";
     sha256 = "1agz7fbpplv719l0hfwflzbsahsyhrx904gf8azy6gxwzay3hf2h";
   };
-  /*
-  src = fetchurl {
-    url = "https://pypi.python.org/packages/82/55/${hash}/mf2py-1.0.5.tar.gz";
-    md5 = "e8d8977fbc31b99778ef3e64385c9d07";
-  };
-  */
+
   propagatedBuildInputs =
     (map (n: pythonPackages."${n}")
-         [ "python" "html5lib" "beautifulsoup4" ]) ++ [
+         [ "python" "html5lib" ]) ++ [
+      beautifulsoup-custom
       (buildPythonPackage {
         name = "requests";
         doCheck = false;
