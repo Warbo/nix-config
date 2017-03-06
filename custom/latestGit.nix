@@ -50,15 +50,15 @@ let
       set -e
       REV=$(git ls-remote "${url}" "${ref}") || exit 1
       # printf is an ugly way to avoid trailing newlines
-      printf "%s" $(echo "$REV"        |
-                    head -n1           |
-                    sed -e 's/\s.*//g' ) > "$out"
+      printf '"%s"' $(echo "$REV"        |
+                      head -n1           |
+                      sed -e 's/\s.*//g' ) > "$out"
     '';
   };
 
   # Extract the commit ID as a string. Ignore how we got it, to avoid cache
   # misses (unlike commit IDs, git repos are expensive).
-  newRev = unsafeDiscardStringContext (readFile "${getHeadRev}");
+  newRev = import getHeadRev;
 
   rev = if envRev == "" then newRev else envRev;
 
