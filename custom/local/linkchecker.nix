@@ -1,13 +1,29 @@
-{ fetchurl, pythonPackages, buildPythonPackage }:
+{ buildPythonPackage, fetchFromGitHub, pythonPackages, runCommand }:
 
 buildPythonPackage {
   name = "linkchecker";
   version = "2014-11-28";
 
-  src = fetchurl {
-    url = https://pypi.python.org/packages/source/L/LinkChecker/LinkChecker-9.3.tar.gz;
-    sha256 = "0v8pavf0bx33xnz1kwflv0r7lxxwj7vg3syxhy2wzza0wh6sc2pf";
-  };
+  # Works around ridiculous hand-rolled lexicographical version-checking
+  # nonsense, as per https://github.com/wummel/linkchecker/issues/649
+  src = runCommand "linkchecker-patched"
+    {
+      pristine = fetchFromGitHub {
+        owner  = "wummel";
+        repo   = "linkchecker";
+        rev    = "c2ce810c3fb00b895a841a7be6b2e78c64e7b042";
+        sha256 = "1mbisgk57jdhshzizyh5izpqb537zjq19m5kym6apiwg0z3a8x9k";
+      };
+    }
+    ''
+      cp -r "$pristine" "$out"
+      chmod +w -R "$out"
+      mkdir -p "$out/doc/html"
+      for F in lccollection.qhc lcdoc.qch
+      do
+        touch "$out/doc/html/$F"
+      done
+    '';
 
   propagatedBuildInputs = [
     pythonPackages.python
