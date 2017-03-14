@@ -81,6 +81,10 @@ with {
       done
     '';
 
+    reverse = lst: if lst == []
+                      then []
+                      else reverse (tail lst) ++ [(head lst)];
+
     # Remove disallowed characters from a string, for use as a name
     sanitiseName = str:
       stringAsChars (c: if elem c (lowerChars ++ upperChars)
