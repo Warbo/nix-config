@@ -87,6 +87,15 @@ with {
                            then c
                            else "")
                     str;
+
+    # Augment the environment for a derivation by allowing Nix commands to be
+    # called inside the build process
+    withNix = attrs:
+      attrs // {
+        buildInputs = (attrs.buildInputs or []) ++ [ nix ];
+        NIX_PATH    = getEnv "NIX_PATH";
+        NIX_REMOTE  = getEnv "NIX_REMOTE";
+      };
   };
 };
 
