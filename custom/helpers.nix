@@ -3,6 +3,10 @@ self: super:
 with builtins;
 with self.lib;
 with {
+  inherit (self)
+    nix runCommand;
+};
+with {
   helpers = rec {
 
     # Builds a directory whose entries/content correspond to the names/values of
