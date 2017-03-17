@@ -158,7 +158,7 @@ with rec {
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
-      RestartSec = 120;
+      RestartSec = 10;
       ExecStart  = writeScript "jo-x2x" ''
         #!${bash}/bin/bash
         ${atHome} && ${warbo-utilities}/bin/jo
@@ -175,11 +175,61 @@ with rec {
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
-      RestartSec = 120;
+      RestartSec = 10;
       ExecStart  = writeScript "work-x2x" ''
         #!${bash}/bin/bash
         ${atWork} || exit
         ssh -Y user@localhost -p 22222 "x2x -east -to :0"
+      '';
+    };
+  };
+
+  workScreen = mkService {
+    description = "Turn on VGA screen";
+    path = [ nettools psmisc warbo-utilities xorg.xrandr ];
+    environment = {
+      DISPLAY = ":0";
+    };
+    serviceConfig = {
+      User       = "chris";
+      Restart    = "always";
+      RestartSec = 10;
+      ExecStart  = writeScript "display-on" ''
+        #!${bash}/bin/bash
+        # "connected" means plugged in; "(" indicates it's not active
+        if xrandr | grep "VGA1 connected ("
+        then
+          # Enable external monitor
+          on
+
+          # Force any X2X sessions to restart, since we've messed up X
+          pkill -f 'x2x -east' || true
+        fi
+      '';
+    };
+  };
+
+  screenOff = mkService {
+    description = "Turn Off VGA screen";
+    path = [ bash nettools psmisc warbo-utilities xorg.xrandr ];
+    environment = {
+      DISPLAY = ":0";
+    };
+    serviceConfig = {
+      User       = "chris";
+      Restart    = "always";
+      RestartSec = 10;
+      ExecStart  = writeScript "display-off" ''
+        #!${bash}/bin/bash
+        # "1080" means active; "disconnected" means not plugged in
+        if xrandr | grep "VGA1 disconnected 1080"
+        then
+          # Disable external monitor
+          off
+
+          # Force any X2X sessions to restart, since we've messed up X
+          pkill -f 'x2x -east' || true
+        fi
       '';
     };
   };
@@ -419,7 +469,7 @@ with rec {
 
   desktop-monitor = mkService {
     description   = "Kill desktop-bind if it's hung";
-    path          = [ iputils openssh procps su.su ];
+    path          = [ coreutils iputils openssh procps su.su ];
     environment   = { SSH_AUTH_SOCK = "/run/user/1000/ssh-agent"; };
     serviceConfig = {
       User       = "root";
@@ -432,7 +482,7 @@ with rec {
         if pgrep -f "$PAT"
         then
           # Bind is running, make sure it's working
-          if su -c 'ssh -A user@localhost -p 22222 true' - chris
+          if timeout 10 su -c 'ssh -A user@localhost -p 22222 true' - chris
           then
             # Seems to be working
             true
@@ -491,7 +541,7 @@ with rec {
       ExecStart  = writeScript "hydra-monitor" ''
         #!${bash}/bin/bash
         echo "Checking for Hydra server"
-        if curl http://localhost:3000
+        if timeout 10 curl http://localhost:3000
         then
           echo "OK, server is up"
           exit 0
