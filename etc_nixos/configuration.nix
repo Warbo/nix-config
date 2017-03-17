@@ -2,10 +2,16 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
 with builtins;
-with {
-  mypkgs = import <nixpkgs> {
-             config = import /home/chris/.nixpkgs/config.nix;
-           };
+with rec {
+  mypkgs  = import <nixpkgs> {
+              config = import /home/chris/.nixpkgs/config.nix;
+            };
+  ipfsPkgs = mypkgs.fetchFromGitHub {
+    owner  = "NixOS";
+    repo   = "nixpkgs";
+    rev    = "aa429e6";
+    sha256 = "1y7j59zg2zhmqqk9srh8qmi69ar2bidir4bjyhy0h0370kfvnkrg";
+  };
 };
 
 { config, pkgs, ... }:
@@ -16,6 +22,9 @@ rec {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+
+      # Remove this once IPFS service is in stable
+      "${ipfsPkgs}/nixos/modules/services/network-filesystems/ipfs.nix"
     ];
 
   # Use the GRUB 2 boot loader.
@@ -116,6 +125,9 @@ rec {
     packageOverrides = pkgs: {
       # Required for PulseAudio headsets
       bluez = pkgs.bluez5;
+
+      # IPFS package is broken in 16.09
+      ipfs = (import "${ipfsPkgs}" {}).ipfs;
     };
   };
 
@@ -127,11 +139,6 @@ rec {
   '';
 
   # List services that you want to enable:
-
-  services.openssh = {
-    enable     = true;
-    forwardX11 = true;
-  };
 
   services.acpid = {
     enable = true;
@@ -151,12 +158,22 @@ rec {
     };
   };
 
+  services.ipfs = {
+    enable   = true;
+    enableGC = true; # Laptop, limited storage
+  };
+
   # Limit the size of our logs, to prevent ridiculous space usage and slowdown
   services.journald = {
     extraConfig = ''
       SystemMaxUse=100M
       RuntimeMaxUse=100M
     '';
+  };
+
+  services.openssh = {
+    enable     = true;
+    forwardX11 = true;
   };
 
   services.xserver = {
@@ -228,4 +245,8 @@ rec {
     home        = "/home/chris";
     shell       = "/run/current-system/sw/bin/bash";
   };
+
+  # Remove these when IPFS service is in stable
+  ids.uids.ipfs = 261;
+  ids.gids.ipfs = 261;
 }
