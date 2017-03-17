@@ -4,11 +4,10 @@ with {
   newpkgs = self.fetchFromGitHub {
     owner  = "NixOS";
     repo   = "nixpkgs";
-    rev    = "123dd9f";
-    sha256 = "18qa6d7ms7nj90fqhz4gqfrb8qhq0q9s381n1zgbspdbhvn9lms9";
+    rev    = "aa429e6";
+    sha256 = "1y7j59zg2zhmqqk9srh8qmi69ar2bidir4bjyhy0h0370kfvnkrg";
   };
 };
 {
-  inherit (import "${newpkgs}" { config = {}; })
-    ipfs;
+  inherit (import "${newpkgs}" { config = {}; }) ipfs;
 }
