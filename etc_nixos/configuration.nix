@@ -100,7 +100,7 @@ rec {
 
   powerManagement = {
     enable = true;
-    powerDownCommands = trace "FIXME: Better unmounting when disconnecting" ''
+    powerDownCommands = ''
       umount -at cifs
       killall sshfs || true
     '';
