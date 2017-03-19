@@ -33,7 +33,7 @@ let
   # version to avoid caching. This is a cheap operation and needs to be
   # up-to-date.
   getHeadRev = stdenv.mkDerivation {
-    name    = "repo-head-${hUrl}";
+    name    = "repo-${sanitiseName ref}-${sanitiseName url}";
     version = toString currentTime;
 
     # Required for SSL
