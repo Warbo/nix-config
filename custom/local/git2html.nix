@@ -2,6 +2,6 @@
 
 stdenv.lib.overrideDerivation git2html-real (old: {
   src = latestGit {
-    url = /home/chris/Programming/git2html;
+    url = "file:///home/chris/Programming/git2html";
   };
 })
