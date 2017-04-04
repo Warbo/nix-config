@@ -1,6 +1,3 @@
 self: super: with self;
 
-haskellGit {
-  url = onOff http://chriswarbo.net/git/mlspec.git
-              "/home/chris/Programming/repos/mlspec.git";
-}
+haskellGit { url = "${repoSource}/mlspec.git"; }

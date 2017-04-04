@@ -9,6 +9,10 @@ with {
 with {
   helpers = rec {
 
+    repoSource = if getEnv "GIT_REPO_DIR" == ""
+                    then "http://chriswarbo.net/git"
+                    else getEnv "GIT_REPO_DIR";
+
     # Builds a directory whose entries/content correspond to the names/values of
     # the given attrset. When a value is an attrset, the corresponding entry is
     # a directory, whose contents is generated with attrsToDirs on that value.

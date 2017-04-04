@@ -1,9 +1,7 @@
-{ latestGit, pkgs }:
+{ latestGit, repoSource, pkgs }:
 
 with rec {
-  src = latestGit {
-    url = http://chriswarbo.net/git/feed2maildir.git;
-  };
+  src = latestGit { url = "${repoSource}/feed2maildir.git"; };
 };
 
 import "${src}" { inherit pkgs; }

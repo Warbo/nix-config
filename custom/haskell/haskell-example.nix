@@ -1,17 +1,12 @@
 self: super: with self;
 
-let remote = latestGit {
-               url = http://chriswarbo.net/git/writing.git;
-             };
-    online = stdenv.mkDerivation {
-               name = "haskell-example-src";
-               src  = remote;
-               buildCommand = ''
-                 source $stdenv/setup
+let example = stdenv.mkDerivation {
+                name = "haskell-example-src";
+                src  = latestGit { url = "${repoSource}/writing.git"; };
+                buildCommand = ''
+                  source $stdenv/setup
 
-                 cp -ar "$src/TransferReport/haskell_example" "$out"
-               '';
-             };
-    local  = "/home/chris/Writing/TransferReport/haskell_example";
-    src    = onOff online local;
- in nixFromCabal src null
+                  cp -ar "$src/TransferReport/haskell_example" "$out"
+                '';
+              };
+ in nixFromCabal example null

@@ -1,13 +1,12 @@
-{ latestGit, localOnly, pythonPackages, buildPythonPackage, bash, git }:
+{ bash, buildPythonPackage, latestGit, git, pythonPackages, repoSource }:
 
-let repo = if localOnly
-              then "/home/chris/Programming/repos/bugseverywhere.git"
-              else http://chriswarbo.net/git/bugseverywhere.git;
+let repo = "${repoSource}/bugseverywhere.git";
  in buildPythonPackage {
   name = "bugseverywhere";
   version = "2014-11-28";
 
-  # README says git://gitorious.org/be/be.git, but it's down
+  # README says git://gitorious.org/be/be.git, but don't rely on that since
+  # gitorious is no more
   src = latestGit { url = repo; };
 
   preConfigure = ''

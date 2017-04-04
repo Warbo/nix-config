@@ -1,6 +1,6 @@
 self: super: with self;
 
 haskellGit {
-  url = http://chriswarbo.net/git/ifcxt.git;
+  url = "${repoSource}/ifcxt.git";
   ref = "constraints";
 }

@@ -1,7 +1,6 @@
-{ callPackage, onOff, withLatestGit }:
+{ callPackage, repoSource, withLatestGit }:
 
 withLatestGit {
-  url      =  onOff http://chriswarbo.net/git/warbo-utilities.git
-                    "/home/chris/Programming/repos/warbo-utilities.git";
+  url      = "${repoSource}/warbo-utilities.git";
   srcToPkg = (x: callPackage "${x}" {});
 }
