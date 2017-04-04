@@ -104,6 +104,26 @@ with {
         NIX_PATH    = getEnv "NIX_PATH";
         NIX_REMOTE  = getEnv "NIX_REMOTE";
       };
+
+    repo2npm = repo:
+      with rec {
+        inherit (self)
+          callPackage nodePackages runCommand;
+
+        converted = runCommand "convert-npm"
+          {
+            inherit repo;
+            buildInputs = [ nodePackages.node2nix ];
+          }
+          ''
+            cp -r "$repo" "$out"
+            chmod +w -R "$out"
+            cd "$out"
+            node2nix
+          '';
+        generatedPackages = callPackage "${converted}" {};
+      };
+      generatedPackages.package;
   };
 };
 
