@@ -20,7 +20,7 @@ with builtins;
 {
 
 # We need the url, but ref is optional (e.g. if we want a particular branch)
-latestGit = { url, ref ? "HEAD" }:
+latestGit = { url, ref ? "HEAD", fetchgitArgs ? {} }:
 
 let
 
@@ -63,12 +63,12 @@ let
   rev = if envRev == "" then newRev else envRev;
 
   # fetchgit does all of the hard work, but it requires a hash. Make one up.
-  fg = fetchgit {
+  fg = fetchgit ({
     inherit url rev;
 
     # Dummy hash
     sha256 = hUrl;
-  };
+  } // fetchgitArgs);
 
 # Use the result of fetchgit, but throw away all of the made up hashes; Nix will
 # calculate fresh ones, rather than complaining.
