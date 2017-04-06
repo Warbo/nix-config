@@ -4,7 +4,7 @@ with builtins;
 with self.lib;
 with {
   inherit (self)
-    nix runCommand;
+    fetchgit nix runCommand stdenv;
 };
 with {
   helpers = rec {
