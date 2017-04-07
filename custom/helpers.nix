@@ -9,6 +9,8 @@ with {
 with {
   helpers = rec {
 
+    isPath = x: typeOf x == "path";
+
     repoSource = if getEnv "GIT_REPO_DIR" == ""
                     then "http://chriswarbo.net/git"
                     else getEnv "GIT_REPO_DIR";
@@ -17,19 +19,25 @@ with {
     # the given attrset. When a value is an attrset, the corresponding entry is
     # a directory, whose contents is generated with attrsToDirs on that value.
     attrsToDirs =
-      with {
-        inDir = d: content: runCommand "in-dir-${d}" { inherit d content; } ''
-          mkdir -p "$out"
-          cp -r "$content" "$out/$d"
-        '';
+      with rec {
+        toPaths = prefix: val:
+          if isPath val || isDerivation val
+             then [{ name  = prefix;
+                     value = val; }]
+             else concatMap (entry: toPaths (prefix + "/" + entry)
+                                            val."${entry}")
+                            (attrNames val);
+
+        toCmds = attrs:
+          concatStringsSep "\n"
+            ([''mkdir -p "$out"''] ++
+             (map (entry: ''
+                    mkdir -p "$(dirname "${entry.name}")"
+                    cp -r "${entry.value}" "${entry.name}"
+                  '')
+                  (toPaths "$out" attrs)));
       };
-      attrs: mergeDirs (map (name: let val = attrs."${name}";
-                                    in inDir name (if isAttrs val
-                                                      then if val ? builder
-                                                              then val
-                                                              else attrsToDirs val
-                                                      else val))
-                            (attrNames attrs));
+      attrs: runCommand "merged" {} (toCmds attrs);
 
     # Create a directory containing 'files'; the directory structure will be
     # relative to 'base', for example:
