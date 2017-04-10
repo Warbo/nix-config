@@ -33,7 +33,7 @@ with {
             ([''mkdir -p "$out"''] ++
              (map (entry: ''
                     mkdir -p "$(dirname "${entry.name}")"
-                    cp -r "${entry.value}" "${entry.name}"
+                    ln -s "${entry.value}" "${entry.name}"
                   '')
                   (toPaths "$out" attrs)));
       };
@@ -55,7 +55,7 @@ with {
                              REL=$(echo "$file" | sed -e "s@$base/@@g")
                              DIR=$(dirname "$REL")
                              mkdir -p "$out/$DIR"
-                             cp -r "$file" "$out/$REL"
+                             ln -s "$file" "$out/$REL"
                            '')
                      files);
 
@@ -91,7 +91,7 @@ with {
       do
         for F in "$D"/*
         do
-          cp -r "$F" "$out"/
+          cp -as "$F" "$out"/
         done
         chmod +w -R "$out"
       done
