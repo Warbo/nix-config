@@ -24,10 +24,10 @@ latestGit = { url, ref ? "HEAD", fetchgitArgs ? {} }:
 
 let
 
-  hUrl   = builtins.hashString "sha256" url;
-  hRef   = builtins.hashString "sha256" ref;
+  hUrl   = hashString "sha256" url;
+  hRef   = hashString "sha256" ref;
   key    = "${hUrl}_${hRef}";
-  envRev = builtins.getEnv "nix_git_rev_${key}";
+  envRev = getEnv "nix_git_rev_${key}";
 
   # Get the commit ID for the given ref in the given repo. Use currentTime as a
   # version to avoid caching. This is a cheap operation and needs to be

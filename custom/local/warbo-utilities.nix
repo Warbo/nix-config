@@ -2,5 +2,5 @@
 
 withLatestGit {
   url      = "${repoSource}/warbo-utilities.git";
-  srcToPkg = (x: callPackage "${x}" {});
+  srcToPkg = x: callPackage "${x}" {};
 }

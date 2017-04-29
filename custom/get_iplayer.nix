@@ -7,8 +7,8 @@ with self;
   get_iplayer = stdenv.lib.overrideDerivation super.get_iplayer (oldAttrs : {
     name = "get_iplayer";
     src  = fetchurl {
-      url    = ftp://ftp.infradead.org/pub/get_iplayer/get_iplayer-2.94.tar.gz;
-      sha256 = "16p0bw879fl8cs6rp37g1hgrcai771z6rcqk2nvm49kk39dx1zi4";
+      url    = https://github.com/get-iplayer/get_iplayer/archive/v2.99.tar.gz;
+      sha256 = "1kvbs9d13qhnd3dzx36a699r6aqwjsg4yprjj6fwa7hmqsxaab8q";
     };
     propagatedBuildInputs = oldAttrs.propagatedBuildInputs ++ [
                               perlPackages.XMLSimple

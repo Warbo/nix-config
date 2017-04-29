@@ -11,23 +11,24 @@ with rec {
 
   # Package definitions loaded from hsFiles
   hsFileDefs = mapAttrs' (name: _: nameValuePair
-                           (removeSuffix ".nix" name)
-                           (import (./haskell + "/${name}") self super))
-                         hsFiles;
+                                     (removeSuffix ".nix" name)
+                                     (import (./haskell + "/${name}")
+                                             self super))
+                                   hsFiles;
 
-  # Packages loaded from elsewhere
+  # Packages loaded from elsewhere, e.g. hackage, github, ...
   hsExternal = mapAttrs (_: self.runCabal2nix) {
 
   };
 
   # Adds haskell/ contents to a Haskell package set
-  haskellOverrides = hsPkgs: mapAttrs (_: def: hsPkgs.callPackage def {})
-                                      (hsFileDefs // hsExternal);
+  haskellOverrides = mapAttrs (_: def: self.callPackage def {})
+                              (hsFileDefs // hsExternal);
 
   # Overrides a Haskell package set
   overrideHaskellPkgs = hsPkgs:
     hsPkgs.override {
-      overrides = self: super: haskellOverrides self;
+      overrides = haskellOverrides;
     };
 };
 
