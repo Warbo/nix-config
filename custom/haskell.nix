@@ -55,7 +55,7 @@ rec {
 
   # Profiling
   profiledHaskellPackages = unprofiledHaskellPackages.override {
-    overrides = self: super: haskellOverrides self // {
+    overrides = self: super: haskellOverrides self super // {
       mkDerivation = args: super.mkDerivation (args // {
         enableLibraryProfiling    = true;
         enableExecutableProfiling = true;
