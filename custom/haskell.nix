@@ -22,8 +22,8 @@ with rec {
   };
 
   # Adds haskell/ contents to a Haskell package set
-  haskellOverrides = mapAttrs (_: def: self.callPackage def {})
-                              (hsFileDefs // hsExternal);
+  haskellOverrides = self: super: mapAttrs (_: def: self.callPackage def {})
+                                           (hsFileDefs // hsExternal);
 
   # Overrides a Haskell package set
   overrideHaskellPkgs = hsPkgs:
@@ -69,7 +69,7 @@ rec {
   };
 
   haskell = super.haskell // {
-    packages = let override = mapAttrs (n: v: overrideHaskellPkgs v);
+    packages = let override = mapAttrs (n: overrideHaskellPkgs);
                    unstable = override       super.haskell.packages;
                      stable = override self.stable.haskell.packages;
                 in unstable // stable // {
