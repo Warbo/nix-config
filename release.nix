@@ -2,8 +2,7 @@
 with import <nixpkgs> { config = import ./config.nix; };
 with builtins;
 with lib;
-
-let
+with rec {
 
 # Select our custom packages/overrides, except for those which are buried in
 # larger sets
@@ -13,9 +12,7 @@ customNames = filter (n: !(elem n [
                                     "haskellPackages"         # Ditto
                                     "profiledHaskellPackages" # Ditto
                                   ])                          &&
-                         typeOf pkgs."${n}" == "set"          &&
-                         pkgs."${n}" ? type                   &&
-                         pkgs."${n}".type == "derivation")
+                         isDerivation pkgs."${n}")
                      customPkgNames;
 
 topLevel = listToAttrs (map (name: {
@@ -26,16 +23,16 @@ topLevel = listToAttrs (map (name: {
 
 # Select our custom Haskell packages from the various sets of Haskell packages
 # provided by nixpkgs (e.g. for different compiler versions)
-haskellPkgs = let keepOurs = mapAttrs (_: filterAttrs (name: _:
-                                                        elem name haskellNames));
-                  top      = keepOurs {
-                               inherit haskellPackages profiledHaskellPackages;
-                               inherit (haskell.packages) ghc7103 ghc801;
-                             };
-                  unstable = keepOurs {
-                               inherit (haskell.packages.unstable) ghc7103
-                                       ghc801;
-                             };
-               in top // { inherit unstable; };
+haskellPkgs = with rec {
+  keepOurs = filterAttrs (name: _: elem name haskellNames);
 
-in topLevel // { haskell = haskellPkgs; }
+  versions = { inherit haskellPackages profiledHaskellPackages; } //
+             haskell.packages;
+
+  ours = mapAttrs (n: if n == "stable" || n == "unstable"
+                         then mapAttrs (_: keepOurs)
+                         else keepOurs)
+                  versions;
+}; ours;
+
+}; topLevel // { haskell = haskellPkgs; }

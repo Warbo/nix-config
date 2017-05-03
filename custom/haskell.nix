@@ -45,7 +45,7 @@ rec {
 
   # Turn profiling on/off via environment variable, to make life easier
   haskellPackages = if getEnv "HASKELL_PROFILE" == "1"
-                       then profilesHaskellPackages
+                       then profiledHaskellPackages
                        else unprofiledHaskellPackages;
 
   # Default unstable version
@@ -72,12 +72,9 @@ rec {
     packages = let override = mapAttrs (n: overrideHaskellPkgs);
                    unstable = override       super.haskell.packages;
                      stable = override self.stable.haskell.packages;
-                in unstable // stable // {
+                in unstable // {
                      # Direct access to old/new if needed
                      inherit unstable stable;
-
-                     # Use unstable GHC 8.0.1 rather than 'stable' prerelease
-                     inherit (unstable) ghc801;
                    };
   };
 }
