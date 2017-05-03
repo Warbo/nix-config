@@ -54,7 +54,8 @@ haskellPkgs = with rec {
 
   # There are loads of LTS versions, which take resources to process. We prefer
   # to check compiler versions rather than particular package sets.
-  stripLTS = filterAttrs (n: _: !(hasPrefix "lts" n));
+  # GHC 6.12.3 is marked as broken, but for some reason is still included...
+  stripLTS = filterAttrs (n: _: !(hasPrefix "lts" n) && n != "ghc6123");
 
   noLTS = stripLTS withoutBroken // mapAttrs (_: stripLTS) {
                                       inherit (withoutBroken) stable unstable;
