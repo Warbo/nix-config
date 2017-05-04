@@ -12,4 +12,6 @@ rec {
   # Explicitly pass an empty config, to avoid loading ~/.nixpkgs/config.nix and
   # causing an infinite loop
   stable = import stableRepo { config = {}; };
+
+  origPkgs = super;
 }
