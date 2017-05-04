@@ -17,9 +17,7 @@ with rec {
                                    hsFiles;
 
   # Packages loaded from elsewhere, e.g. hackage, github, ...
-  hsExternal = mapAttrs (_: self.runCabal2nix) {
-
-  };
+  hsExternal = mapAttrs (_: self.runCabal2nix) {};
 
   # Adds haskell/ contents to a Haskell package set
   haskellOverrides = self: super: mapAttrs (_: def: self.callPackage def {})
