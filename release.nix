@@ -87,8 +87,8 @@ haskellPkgs = with rec {
   # GHC 6.12.3 is marked as broken, but for some reason is still included...
   stripLTS = filterAttrs (n: _: !(hasPrefix "lts" n) && n != "ghc6123");
 
-  noLTS = stripLTS withoutBroken // mapAttrs (_: stripLTS) {
-                                      inherit (withoutBroken) stable unstable;
+  noLTS = stripLTS checkBroken // mapAttrs (_: stripLTS) {
+                                      inherit (checkBroken) stable unstable;
                                     };
 }; noLTS;
 
