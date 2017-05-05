@@ -72,10 +72,13 @@ haskellPkgs = with rec {
 
   noNulls = filterAttrsRecursive (_: v: v != null);
 
-  withoutBroken = noNulls (mapAttrsRecursiveCond
+  # If a package is known to break, check that it does (otherwise we might be
+  # ignoring perfectly valid targets!). Note that this will only check that the
+  # package itself is broken; not whether or not it has working dependencies.
+  checkBroken = noNulls (mapAttrsRecursiveCond
     (x: !(isDerivation x))
     (path: value: if elem path broken
-                     then null
+                     then isBroken value
                      else value)
     ours);
 
