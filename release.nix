@@ -34,14 +34,41 @@ haskellPkgs = with rec {
                          else keepOurs)
                   versions;
 
-  breakages = {
-    lazysmallcheck2012 = ghc: compareVersions ghc "7.0" == -1;
-  };
-
   # Paths to WontFix packages, e.g. those which require newer GHC features
-  broken = [
-    [ "ghc6123" "lazysmallcheck2012" ]
-  ];
+  broken = with rec {
+    # Remove GHC versions prior to some release
+    post74 = name: [
+      [ "ghc704" name ]
+      [ "ghc722" name ]
+    ];
+    post76 = name: post74 name ++ [
+      [ "ghc742" name ]
+    ];
+    post78 = name: post76 name ++ [
+      [ "ghc763" name ]
+    ];
+    post710 = name: base47 name ++ [
+      [ "ghc783" name ]
+      [ "ghc784" name ]
+    ];
+
+    # base >= 4.7 requires GHC >= 7.8
+    base47 = post78;
+
+    # base >= 4.8 requires GHC >= 7.10
+    base48 = post710;
+
+    # template-haskell >= 2.9 requires GHC >= 7.6.3
+    th29 = post76;
+  };
+  base48  "ifcxt"              ++
+  base48  "ghc-dup"            ++
+  base48  "haskell-example"    ++
+  base47  "weigh"              ++
+  post710 "tip-types"          ++
+  th29    "lazysmallcheck2012" ++
+  post78  "ghc-simple"         ++
+  post74  "tip-lib";
 
   noNulls = filterAttrsRecursive (_: v: v != null);
 
