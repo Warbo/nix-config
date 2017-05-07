@@ -1,6 +1,6 @@
-{ fetchurl, pythonPackages, buildPythonPackage }:
+{ fetchurl, pythonPackages }:
 
-buildPythonPackage {
+pythonPackages.buildPythonPackage {
   name = "uritemplate";
   version = "0.6";
 

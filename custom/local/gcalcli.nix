@@ -1,6 +1,6 @@
-{ fetchurl, pythonPackages, buildPythonPackage, google-api-python-client}:
+{ fetchurl, pythonPackages, google-api-python-client}:
 
-buildPythonPackage {
+pythonPackages.buildPythonPackage {
   name = "gcalcli";
   version = "3.3.2";
 

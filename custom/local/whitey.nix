@@ -1,6 +1,6 @@
-{ latestGit, pythonPackages, buildPythonPackage }:
+{ latestGit, pythonPackages }:
 
-buildPythonPackage {
+pythonPackages.buildPythonPackage {
   name = "whitey";
   version = "0.4";
 

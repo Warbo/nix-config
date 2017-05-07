@@ -1,6 +1,6 @@
-{ latestGit, fetchurl, pythonPackages, buildPythonPackage }:
+{ latestGit, fetchurl, pythonPackages }:
 
-buildPythonPackage {
+pythonPackages.buildPythonPackage {
   name = "PyPdf2";
 
   src = latestGit {

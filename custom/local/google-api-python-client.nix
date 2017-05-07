@@ -1,6 +1,6 @@
-{ fetchurl, pythonPackages, buildPythonPackage, uritemplate }:
+{ fetchurl, pythonPackages, uritemplate }:
 
-buildPythonPackage {
+pythonPackages.buildPythonPackage {
   name = "google-api-python-client";
   version = "1.4.2";
 

@@ -1,6 +1,6 @@
-{ buildPythonPackage, fetchFromGitHub, pythonPackages, runCommand }:
+{ fetchFromGitHub, pythonPackages, runCommand }:
 
-buildPythonPackage {
+pythonPackages.buildPythonPackage {
   name = "linkchecker";
   version = "2014-11-28";
 

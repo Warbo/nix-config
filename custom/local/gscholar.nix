@@ -1,6 +1,6 @@
-{ fetchurl, pythonPackages, buildPythonPackage, poppler_utils }:
+{ fetchurl, pythonPackages, poppler_utils }:
 
-buildPythonPackage {
+pythonPackages.buildPythonPackage {
   name = "gscholar";
   version = "2015-10-27";
 

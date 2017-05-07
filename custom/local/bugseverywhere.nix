@@ -1,7 +1,7 @@
-{ bash, buildPythonPackage, latestGit, git, pythonPackages, repoSource }:
+{ bash, latestGit, git, pythonPackages, repoSource }:
 
 let repo = "${repoSource}/bugseverywhere.git";
- in buildPythonPackage {
+ in pythonPackages.buildPythonPackage {
   name = "bugseverywhere";
   version = "2014-11-28";
 

@@ -1,6 +1,6 @@
-{ fetchurl, pythonPackages, buildPythonPackage }:
+{ fetchurl, pythonPackages }:
 
-buildPythonPackage {
+pythonPackages.buildPythonPackage {
   name = "python-lhafile";
   version = "0.2.1";
 

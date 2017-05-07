@@ -1,7 +1,6 @@
-{ beautifulsoup-custom, buildPythonPackage, fetchFromGitHub, fetchurl, mf2py,
-  pythonPackages }:
+{ beautifulsoup-custom, fetchFromGitHub, fetchurl, mf2py, pythonPackages }:
 
-buildPythonPackage {
+pythonPackages.buildPythonPackage {
   name = "hfeed2atom";
 
   src = fetchFromGitHub {

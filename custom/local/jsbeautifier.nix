@@ -1,6 +1,6 @@
-{ fetchurl, pythonPackages, buildPythonPackage }:
+{ fetchurl, pythonPackages }:
 
-buildPythonPackage {
+pythonPackages.buildPythonPackage {
   name = "jsbeautifier";
   version = "1.5.10";
 

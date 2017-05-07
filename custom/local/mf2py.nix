@@ -1,10 +1,9 @@
-{ beautifulsoup-custom, buildPythonPackage, fetchurl, fetchFromGitHub,
-  pythonPackages }:
+{ beautifulsoup-custom, fetchurl, fetchFromGitHub, pythonPackages }:
 
 let name    = "mf2py";
     version = "1.0.5";
     hash    = "a76217ac51453913fb3b7db1f719c8b25a5cf4b1e9f6b9a9cd1acf934486";
- in buildPythonPackage {
+ in pythonPackages.buildPythonPackage {
   inherit name version;
 
   src = fetchFromGitHub {
@@ -18,7 +17,7 @@ let name    = "mf2py";
     (map (n: pythonPackages."${n}")
          [ "python" "html5lib" ]) ++ [
       beautifulsoup-custom
-      (buildPythonPackage {
+      (pythonPackages.buildPythonPackage {
         name = "requests";
         doCheck = false;
         src  = fetchurl {
@@ -26,7 +25,7 @@ let name    = "mf2py";
           md5 = "ad5f9c47b5c5dfdb28363ad7546b0763";
         };
       })
-      (buildPythonPackage {
+      (pythonPackages.buildPythonPackage {
         name = "mf2util";
         src  = fetchurl {
           url    = "https://pypi.python.org/packages/6c/54/6ff9c7b888bcc1e61da1a4b8cb5165f977660efb6b2faa5e229b73bd10a3/mf2util-0.4.3.tar.gz";
