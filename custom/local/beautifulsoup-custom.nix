@@ -1,6 +1,6 @@
-{ buildPythonPackage, fetchurl }:
+{ pythonPackages, fetchurl }:
 
-buildPythonPackage {
+pythonPackages.buildPythonPackage {
   name = "beautiful-soup";
   src  = fetchurl {
     url    = "https://www.crummy.com/software/BeautifulSoup/bs4/download/4.5/beautifulsoup4-4.5.1.tar.gz";
