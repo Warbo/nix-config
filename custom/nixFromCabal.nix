@@ -53,7 +53,10 @@ let dir      = if isAttrs src_ then src_ else unsafeDiscardStringContext src_;
         inherit dir;
         name             = "nixFromCabal-${hsVer}-${fields.name}-${fields.version}";
         preferLocalBuild = true; # We need dir to exist
-        buildInputs  = [ self.cabal2nix ];
+        buildInputs      = [
+          self.cabal2nix
+          self.glibc  # For iconv
+        ];
       }
       ''
         source $stdenv/setup
