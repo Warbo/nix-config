@@ -60,9 +60,9 @@ haskellPkgs = with rec {
   # callPackage so we get a .override attribute
   checkBroken = mapAttrsRecursiveCond
     (x: !(isDerivation x))
-    (path: value: callPackage ({}: if elem path broken
-                                      then isBroken value
-                                      else value) {});
+    (path: value: if elem path broken
+                     then isBroken value
+                     else value);
 
   stableUnstableFrom = sets:
     fold (name: result: if hasAttr name sets

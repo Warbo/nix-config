@@ -23,9 +23,10 @@ with self;
         echo "$pth is broken" > "$out"
       '';
     };
-    lib.overrideDerivation drv (old: {
+    # As per https://github.com/NixOS/nixpkgs/issues/4017
+    lib.makeOverridable (args: lib.overrideDerivation drv (old: {
       name    = "isBroken-${drv.name}";
       builder = "${bash}/bin/bash";
       args    = [ "-e" newBuildScript ];
-    });
+    })) {};
 }
