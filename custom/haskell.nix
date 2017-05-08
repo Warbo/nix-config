@@ -37,9 +37,7 @@ rec {
   #callHackage  = { inherit (super.haskell.packages.ghc7103) callHackage; };
 
   # Too many breakages on unstable and 8.x
-  unprofiledHaskellPackages = haskell.packages.stable.ghc7103 // {
-    inherit (super.haskell.packages.ghc7103) callHackage;
-  };
+  unprofiledHaskellPackages = haskell.packages.ghc7103;
 
   # Turn profiling on/off via environment variable, to make life easier
   haskellPackages = if getEnv "HASKELL_PROFILE" == "1"
