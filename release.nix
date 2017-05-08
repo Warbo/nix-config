@@ -56,12 +56,13 @@ haskellPkgs = with rec {
   post78  "ghc-simple"         ++
   post74  "tip-lib";
 
-  # Check that known breakages are, in fact, broken. Leave others as-is
+  # Check that known breakages are, in fact, broken. Leave others as-is. Use
+  # callPackage so we get a .override attribute
   checkBroken = mapAttrsRecursiveCond
     (x: !(isDerivation x))
-    (path: value: if elem path broken
-                     then callPackage ({}: isBroken value) {}  # For .override
-                     else value);
+    (path: value: callPackage ({}: if elem path broken
+                                      then isBroken value
+                                      else value) {});
 
   stableUnstableFrom = sets:
     fold (name: result: if hasAttr name sets
