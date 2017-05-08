@@ -26,6 +26,6 @@ with self;
     lib.overrideDerivation drv (old: {
       name    = "isBroken-${drv.name}";
       builder = "${bash}/bin/bash";
-      args    = [ "-e" newBuildScript];
+      args    = [ "-e" newBuildScript ];
     });
 }

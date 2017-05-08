@@ -60,7 +60,7 @@ haskellPkgs = with rec {
   checkBroken = mapAttrsRecursiveCond
     (x: !(isDerivation x))
     (path: value: if elem path broken
-                     then isBroken value
+                     then callPackage ({}: isBroken value) {}  # For .override
                      else value);
 
   stableUnstableFrom = sets:
