@@ -128,7 +128,10 @@ with {
       attrs // {
         buildInputs = (attrs.buildInputs or []) ++ [ nix ];
         NIX_PATH    = getEnv "NIX_PATH";
-        NIX_REMOTE  = getEnv "NIX_REMOTE";
+        NIX_REMOTE  = trace "NIX_REMOTE: ${getEnv "NIX_REMOTE"}"
+                            (if getEnv "NIX_REMOTE" == ""
+                                then "daemon"
+                                else getEnv "NIX_REMOTE");
       };
 
     repo2npm = repo:
