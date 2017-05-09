@@ -1,3 +1,6 @@
-{ haskellPackages }:
+{ haskellPackages, tincify }:
 
-haskellPackages.panpipe
+tincify {
+  inherit haskellPackages;
+  inherit (haskellPackages.panpipe) name src;
+}
