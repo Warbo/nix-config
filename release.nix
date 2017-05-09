@@ -56,8 +56,7 @@ haskellPkgs = with rec {
   post78  "ghc-simple"         ++
   post74  "tip-lib";
 
-  # Check that known breakages are, in fact, broken. Leave others as-is. Use
-  # callPackage so we get a .override attribute
+  # Check that known breakages are, in fact, broken. Leave others as-is.
   checkBroken = mapAttrsRecursiveCond
     (x: !(isDerivation x))
     (path: value: if elem path broken
@@ -75,23 +74,66 @@ haskellPkgs = with rec {
 
   # There are loads of LTS versions, which take resources to process. We prefer
   # to check compiler versions rather than particular package sets.
-  # GHC 6.12.3 is marked as broken, so refuses to evaluate at all.
+  # GHC 6.12.3 and GHCJS are marked as broken, so refuse to evaluate at all.
   stripLTS = sets:
-    filterAttrs (n: _: !(hasPrefix "lts" n) && n != "ghc6123") sets //
+    filterAttrs (n: _: !(hasPrefix "lts" n) &&
+                       !(elem n [ "ghc6123" "ghcjs" ]))
+                sets //
     mapAttrs (_: stripLTS) (stableUnstableFrom sets);
 
+  # The dependencies of these can't be satisfied by Cabal
+  unsatisfiable = [
+  ];
+
+  # If 'go' is false, returns a derivation whose builder will run nix with 'go'
+  # as true. This lets us verify that a package fails to evaluate, whilst
+  # isBroken only verifies that it refuses to build.
+  unsatisfied = path: pkg:
+    with rec {
+      e       = "NIX_RUN_UNSATISFIED";
+
+      go      = getEnv e != "";
+
+      ePath   = concatStringsSep "." (["haskell"] ++ path);
+
+      expr    = "(import ${./release.nix}).${ePath}";
+
+      recurse = runCommand "unsatisfied-${pkg.name}"
+                  (withNix { "${e}" = "TRUE"; })
+                  ''
+                    if nix-build -E '${expr}'
+                    then
+                      echo "Should have failed" 1>&2
+                      exit 1
+                    fi
+                    touch "$out"
+                  '';
+    };
+    if go
+       then pkg
+       else recurse;
+
   # Use tinc for dependencies. This gives us per-package dependencies, chosen
-  # from hackage by cabal, written in the form of Nix expressions.
-  tincified =
+  # from hackage by cabal, written in the form of Nix expressions. Unfortunately
+  # unsatisfiable dependencies will cause an uncatchable evaluation error rather
+  # than a build error; we use 'unsatisfied' to turn these into build errors, to
+  # prevent disrupting the building of everything else.
+  checkDependencies = prefix:
     mapAttrs (version: pkgs:
                if elem version [ "stable" "unstable" ]
-                  then tincified pkgs
-                  else mapAttrs (name: pkg: tincify {
-                                              inherit (pkg) src;
-                                              name = "${name}-${version}";
-                                              haskellPackages = pkgs;
-                                            })
+                  then checkDependencies (prefix ++ [version]) pkgs
+                  else mapAttrs (name: pkg:
+                                  with {
+                                    path = prefix ++ [name];
+                                  };
+                                  if elem path unsatisfiable
+                                     then unsatisfied path pkg
+                                     else tincify {
+                                            inherit (pkg) src;
+                                            name = "${name}-${version}";
+                                            haskellPackages = pkgs;
+                                          })
                                 pkgs);
-}; keepOurs (checkBroken (tincified (stripLTS versions)));
+}; keepOurs (checkBroken (checkDependencies [] (stripLTS versions)));
 
 }; topLevel // { haskell = haskellPkgs; }
