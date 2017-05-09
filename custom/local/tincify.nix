@@ -1,5 +1,4 @@
-{ cabal-install, cabal2nix, hackageDb, haskellPackages, haskellTinc, runCommand,
-  withNix }:
+{ cabal2nix, hackageDb, haskellPackages, haskellTinc, runCommand, withNix }:
 
 with builtins;
 with rec {
@@ -12,9 +11,11 @@ with rec {
                (withNix {
                  inherit src hackageDb;
                  buildInputs = [
-                   cabal-install
                    haskellTinc
-                   (haskellPackages.ghcWithPackages (h: [ h.ghc ]))
+                   (haskellPackages.ghcWithPackages (h: [
+                     h.ghc
+                     h.cabal-install
+                   ]))
                    cabal2nix
                  ];
                  TINC_USE_NIX = "yes";
