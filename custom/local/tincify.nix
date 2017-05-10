@@ -4,10 +4,43 @@
 with builtins;
 with rec {
   defHPkg = haskellPackages;
+/*
+  nixMangler = runCommand "nix-mangler"
+    {
+      buildInputs = [ (defHPkg.ghcWithPackages (p: [
+        p.hnix
+        p.lens
+      ])) ];
+      raw = writeScript "Main.hs" ''
+        module Main
 
-  tincify = { src, name ? "pkg", haskellPackages ? defHPkg,
-              pkgs ? import <nixpkgs> {} }@args:
+        import Control.Lens
+        import Nix.Parser
+
+        transformExpr = id
+
+        transformStr = show . transformExpr . succ . parseNixString
+          where succ (Success x) = x
+                succ (Failure e) = error (show e)
+
+        main = interact transformStr
+      '';
+    }
+    ''
+      mkdir -p "$out/bin"
+      ghc "$raw" -o "$out/bin/nixMangler"
+    '';
+*/
+  tincify = args:
+    assert isAttrs args || abort "tincify args should be attrs";
+    assert args ? src   || abort "tincify args should contain src";
     with rec {
+      inherit (args) src;
+      name            = args.name            or "pkg";
+      haskellPackages = args.haskellPackages or defHPkg;
+      pkgs            = args.pkgs            or import <nixpkgs> {};
+      extras          = args.extras          or [];
+
       # By default, tinc runs Cabal in a Nix shell with the following available:
       #
       #   haskellPackages.ghcWithPackages (p: [ p.cabal-install ])'
@@ -24,7 +57,8 @@ with rec {
       # nix-shell invocation uses the derivation we built. Phew!
       toUse = buildEnv {
         name  = "tinc-env";
-        paths = [ (haskellPackages.ghcWithPackages (p: [ p.cabal-install ])) ];
+        paths = [ (haskellPackages.ghcWithPackages (p:
+                    map (name: p."${name}") ([ "cabal-install" ] ++ extras))) ];
       };
 
       env = runCommand "tinc-env"
@@ -70,7 +104,15 @@ with rec {
                  chmod +w -R ./home
                  export HOME="$PWD/home"
 
-                 cp -r "$src" ./src
+                 if [[ -d "$src" ]]
+                 then
+                   cp -r "$src" ./src
+                 else
+                   echo "Assuming $src is a tarball" 1>&2
+                   mkdir ./src
+                   # Extract top-level directory (whatever it's called) to ./src
+                   tar xf "$src" -C ./src --strip-components 1
+                 fi
                  chmod +w -R ./src
 
                  pushd ./src; tinc; popd
@@ -84,4 +126,4 @@ with rec {
     };
     deps.resolver.callPackage "${defs}/package.nix" {};
 };
-tincify
+/*nixMangler #*/ tincify
