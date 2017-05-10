@@ -125,15 +125,14 @@ haskellPkgs = with rec {
                   then checkDependencies (prefix ++ [version]) pkgs
                   else mapAttrs (name: pkg:
                                   with {
-                                    path = prefix ++ [name];
+                                    path      = prefix ++ [name];
+                                    tincified = tincify (pkg // {
+                                      haskellPackages = pkgs;
+                                    })
                                   };
-                                  if elem path unsatisfiable
-                                     then unsatisfied path pkg
-                                     else tincify {
-                                            inherit (pkg) src;
-                                            name = "${name}-${version}";
-                                            haskellPackages = pkgs;
-                                          })
+                                  if true /*elem path unsatisfiable*/
+                                     then unsatisfied path tincified
+                                     else tincified
                                 pkgs);
 }; keepOurs (checkBroken (checkDependencies [] (stripLTS versions)));
 
