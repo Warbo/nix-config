@@ -1,3 +1,3 @@
-{ haskellPackages, tincify }:
+{ latestCabal, tincify }:
 
-tincify haskellPackages.pandoc
+tincify (latestCabal "pandoc")
