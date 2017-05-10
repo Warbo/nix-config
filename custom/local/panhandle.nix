@@ -1,3 +1,3 @@
-{ haskellPackages }:
+{ haskellPackages, tincify }:
 
-haskellPackages.panhandle
+tincify haskellPackages.panhandle

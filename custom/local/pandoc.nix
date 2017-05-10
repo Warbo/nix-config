@@ -1,1 +1,3 @@
-{ stable }: stable.pandoc
+{ haskellPackages, tincify }:
+
+tincify haskellPackages.pandoc

@@ -83,6 +83,7 @@ haskellPkgs = with rec {
 
   # The dependencies of these can't be satisfied by Cabal
   unsatisfiable = [
+    [ "ghc704" "ifcxt" ]
   ];
 
   # If 'go' is false, returns a derivation whose builder will run nix with 'go'
