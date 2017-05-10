@@ -6,7 +6,7 @@ with rec {
   defHPkg = haskellPackages;
 
   tincify = { src, name ? "pkg", haskellPackages ? defHPkg,
-              pkgs ? import <nixpkgs> {} }:
+              pkgs ? import <nixpkgs> {} }@args:
     with rec {
       # By default, tinc runs Cabal in a Nix shell with the following available:
       #
@@ -64,8 +64,7 @@ with rec {
                    cabal2nix
                  ];
                  TINC_USE_NIX = "yes";
-               } // {
-                 inherit NIX_PATH; })
+               } // { inherit NIX_PATH; })
                ''
                  cp -r "$hackageDb" ./home
                  chmod +w -R ./home
