@@ -128,11 +128,11 @@ haskellPkgs = with rec {
                                     path      = prefix ++ [name];
                                     tincified = tincify (pkg // {
                                       haskellPackages = pkgs;
-                                    })
+                                    });
                                   };
                                   if true /*elem path unsatisfiable*/
                                      then unsatisfied path tincified
-                                     else tincified
+                                     else tincified)
                                 pkgs);
 }; keepOurs (checkBroken (checkDependencies [] (stripLTS versions)));
 
