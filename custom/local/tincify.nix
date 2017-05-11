@@ -5,28 +5,6 @@ with builtins;
 with rec {
   defHPkg = haskellPackages;
 
-  nixMangler = runCommand "nix-mangler"
-    {
-      buildInputs = [ (defHPkg.ghcWithPackages (p: [ p.hnix ])) ];
-      raw = writeScript "Main.hs" ''
-        module Main
-
-        import Nix.Parser
-
-        transformExpr = id
-
-        transformStr = show . transformExpr . succ . parseNixString
-          where succ (Success x) = x
-                succ (Failure e) = error (show e)
-
-        main = interact transformStr
-      '';
-    }
-    ''
-      mkdir -p "$out/bin"
-      ghc "$raw" -o "$out/bin/nixMangler"
-    '';
-
   tincify = args:
     assert isAttrs args || abort "tincify args should be attrs";
     assert args ? src   || abort "tincify args should contain src";
@@ -36,6 +14,11 @@ with rec {
       haskellPackages = args.haskellPackages or defHPkg;
       pkgs            = args.pkgs            or import <nixpkgs> {};
       extras          = args.extras          or [];
+
+      cache           = args.cache           or {
+                                                  global = true;
+                                                  path   = "/tmp/tincify-home";
+                                                };
 
       # By default, tinc runs Cabal in a Nix shell with the following available:
       #
@@ -82,23 +65,23 @@ with rec {
                               nixPath)).path}"
       ];
 
+      hackageUpdate = path: runCommand "hackage-update"
+        {
+          inherit hackageDb;
+          buildInputs = [ cabal-install ];
+          HOME        = path;
+        }
+        ''
+          # Whenever hackageDb expires, update HOME too
+          [[ -d "$HOME" ]] || mkdir -p "$HOME"
+          cabal update
+          chmod +w -R "$HOME"
+          date > "$out"  # Maybe help debugging by knowing when we updated
+        '';
+
       defs = runCommand "tinc-of-${name}"
                (withNix {
                  inherit src;
-
-                 hackageUpdate = runCommand "hackage-update"
-                   {
-                     inherit hackageDb;
-                     buildInputs = [ cabal-install ];
-                   }
-                   ''
-                     # Whenever hackageDb expires, update /tmp too
-                     export HOME=/tmp/tincify-home
-                     [[ -d "$HOME" ]] || mkdir -p "$HOME"
-                     cabal update
-                     chmod +w -R "$HOME"
-                     date > "$out"
-                   '';
 
                  buildInputs = [
                    haskellTinc
@@ -110,13 +93,40 @@ with rec {
                  ];
 
                  TINC_USE_NIX = "yes";
+
+                 # If we're using a global cache, forces it to be updated at the
+                 # same rate as hackageDb. If we're not, this does nothing.
+                 cacheDep = if cache.global
+                               then hackageUpdate cache.path
+                               else runCommand "nothing" {} ''mkdir "$out"'';
+
+                 # Should we share an impure cache with prior/subsequent calls?
+                 GLOBALCACHE = if cache.global then "true" else "false";
+
+                 # Where to find cached data; when global this should be a
+                 # string like "/tmp/foo". Non-global might be e.g. a path, or a
+                 # derivation.
+                 CACHEPATH = assert cache.global -> isString cache.path ||
+                             abort ''Global cache path should be a string, to
+                                     prevent Nix copying it to the store.'';
+                             cache.path;
+
                } // { inherit NIX_PATH; /*Overrides withNix */ })
                ''
-                 # Speed things up by storing cache in /tmp
-                 export HOME=/tmp/tincify-home
+                 if $GLOBALCACHE
+                 then
+                   # Use the cache in-place
+                   export HOME="$CACHEPATH"
+                 else
+                   # Use a mutable copy of the given cache
+                   cp -r "$CACHEPATH" ./cache
+                   chmod +w -R ./cache
+                   export HOME="$PWD/cache"
+                 fi
 
-                 # Force creation, e.g. if it's been deleted since hackageUpdate
+                 # Force cache creation, e.g. if a global cache has been deleted
                  [[ -d "$HOME" ]] || {
+                   echo "Cache dir '$HOME' not found, initialising" 1>&2
                    mkdir -p "$HOME"
                    cabal update
                    chmod +w -R "$HOME"
@@ -144,4 +154,4 @@ with rec {
     };
     deps.resolver.callPackage "${defs}/package.nix" {};
 };
-/*runCommand "x" { f = runCabal2nix { url = "cabal://pandoc"; }; buildInputs = [ nixMangler ]; } ''nixMangler < "$f"'' #*/ tincify
+tincify
