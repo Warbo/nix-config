@@ -1,20 +1,16 @@
-{ buildEnv, cabal2nix, hackageDb, haskellPackages, haskellTinc, runCommand,
-  withNix, writeScript }:
+{ buildEnv, cabal-install, cabal2nix, hackageDb, haskellPackages, haskellTinc,
+  runCommand, withNix, writeScript, runCabal2nix }:
 
 with builtins;
 with rec {
   defHPkg = haskellPackages;
-/*
+
   nixMangler = runCommand "nix-mangler"
     {
-      buildInputs = [ (defHPkg.ghcWithPackages (p: [
-        p.hnix
-        p.lens
-      ])) ];
+      buildInputs = [ (defHPkg.ghcWithPackages (p: [ p.hnix ])) ];
       raw = writeScript "Main.hs" ''
         module Main
 
-        import Control.Lens
         import Nix.Parser
 
         transformExpr = id
@@ -30,7 +26,7 @@ with rec {
       mkdir -p "$out/bin"
       ghc "$raw" -o "$out/bin/nixMangler"
     '';
-*/
+
   tincify = args:
     assert isAttrs args || abort "tincify args should be attrs";
     assert args ? src   || abort "tincify args should contain src";
@@ -88,7 +84,22 @@ with rec {
 
       defs = runCommand "tinc-of-${name}"
                (withNix {
-                 inherit src hackageDb;
+                 inherit src;
+
+                 hackageUpdate = runCommand "hackage-update"
+                   {
+                     inherit hackageDb;
+                     buildInputs = [ cabal-install ];
+                   }
+                   ''
+                     # Whenever hackageDb expires, update /tmp too
+                     export HOME=/tmp/tincify-home
+                     [[ -d "$HOME" ]] || mkdir -p "$HOME"
+                     cabal update
+                     chmod +w -R "$HOME"
+                     date > "$out"
+                   '';
+
                  buildInputs = [
                    haskellTinc
                    (haskellPackages.ghcWithPackages (h: [
@@ -97,12 +108,19 @@ with rec {
                    ]))
                    cabal2nix
                  ];
+
                  TINC_USE_NIX = "yes";
-               } // { inherit NIX_PATH; })
+               } // { inherit NIX_PATH; /*Overrides withNix */ })
                ''
-                 cp -r "$hackageDb" ./home
-                 chmod +w -R ./home
-                 export HOME="$PWD/home"
+                 # Speed things up by storing cache in /tmp
+                 export HOME=/tmp/tincify-home
+
+                 # Force creation, e.g. if it's been deleted since hackageUpdate
+                 [[ -d "$HOME" ]] || {
+                   mkdir -p "$HOME"
+                   cabal update
+                   chmod +w -R "$HOME"
+                 }
 
                  if [[ -d "$src" ]]
                  then
@@ -126,4 +144,4 @@ with rec {
     };
     deps.resolver.callPackage "${defs}/package.nix" {};
 };
-/*nixMangler #*/ tincify
+/*runCommand "x" { f = runCabal2nix { url = "cabal://pandoc"; }; buildInputs = [ nixMangler ]; } ''nixMangler < "$f"'' #*/ tincify
