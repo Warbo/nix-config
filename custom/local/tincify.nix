@@ -1,5 +1,6 @@
 { buildEnv, cabal-install, cabal2nix, hackageDb, haskell, haskellPackages,
-  haskellTinc, latestGit, lib, runCommand, withNix, writeScript, runCabal2nix }:
+  haskellTinc, latestGit, lib, runCommand, stdenv, withNix, writeScript,
+  runCabal2nix }:
 
 with builtins;
 with lib;
@@ -78,7 +79,7 @@ with rec {
           # Allow access to subsequent builders. Existing stuff may be owned by
           # others, which causes a bunch of errors. This is non-critical so we
           # ignore them all.
-          chmod 777 -R "$HOME" 1>&2 || true
+          chmod 777 -R "$HOME" 2>/dev/null || true
 
           # Maybe help debugging by knowing when we updated
           date > "$out"
@@ -127,7 +128,7 @@ with rec {
                    # Allows subsequent users to read/write our cached values
                    # Note that we ignore errors because we may not own some of
                    # the existing files.
-                   chmod 777 -R "$HOME" 1>&2 || true
+                   chmod 777 -R "$HOME" 2>/dev/null || true
                  }
 
                  if $GLOBALCACHE
@@ -171,14 +172,15 @@ with rec {
         nixpkgs = pkgs;
       };
 
-      overrides = self: super:
-        mapAttrs (_: { func, args }: self.callPackage func args)
-        (deps.packages // extras);
+      overrides = self: super: deps.packages {
+        callPackage = stdenv.lib.callPackageWith
+          (pkgs // pkgs.xorg // pkgs.gnome2 // self // extras);
+      };
 
       resolver = haskellPackages.override { inherit overrides; };
 
       result = resolver.callPackage "${defs}/package.nix" {};
     };
-    trace "DEFS: ${defs}" result;
+    result;
 };
 tincify
