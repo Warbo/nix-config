@@ -1,7 +1,8 @@
-{ buildEnv, cabal-install, cabal2nix, hackageDb, haskellPackages, haskellTinc,
-  runCommand, withNix, writeScript, runCabal2nix }:
+{ buildEnv, cabal-install, cabal2nix, hackageDb, haskell, haskellPackages,
+  haskellTinc, latestGit, lib, runCommand, withNix, writeScript, runCabal2nix }:
 
 with builtins;
+with lib;
 with rec {
   defHPkg = haskellPackages;
 
@@ -13,8 +14,7 @@ with rec {
       name            = args.name            or "pkg";
       haskellPackages = args.haskellPackages or defHPkg;
       pkgs            = args.pkgs            or import <nixpkgs> {};
-      extras          = args.extras          or [];
-
+      extras          = args.extras          or {};
       cache           = args.cache           or {
                                                   global = true;
                                                   path   = "/tmp/tincify-home";
@@ -36,8 +36,7 @@ with rec {
       # nix-shell invocation uses the derivation we built. Phew!
       toUse = buildEnv {
         name  = "tinc-env";
-        paths = [ (haskellPackages.ghcWithPackages (p:
-                    map (name: p."${name}") ([ "cabal-install" ] ++ extras))) ];
+        paths = [ (haskellPackages.ghcWithPackages (p: [ p.cabal-install ])) ];
       };
 
       env = runCommand "tinc-env"
@@ -75,8 +74,14 @@ with rec {
           # Whenever hackageDb expires, update HOME too
           [[ -d "$HOME" ]] || mkdir -p "$HOME"
           cabal update
-          chmod +w -R "$HOME"
-          date > "$out"  # Maybe help debugging by knowing when we updated
+
+          # Allow access to subsequent builders. Existing stuff may be owned by
+          # others, which causes a bunch of errors. This is non-critical so we
+          # ignore them all.
+          chmod 777 -R "$HOME" 1>&2 || true
+
+          # Maybe help debugging by knowing when we updated
+          date > "$out"
         '';
 
       defs = runCommand "tinc-of-${name}"
@@ -84,7 +89,12 @@ with rec {
                  inherit src;
 
                  buildInputs = [
-                   haskellTinc
+                   (haskell.packages.ghc802.callPackage (runCabal2nix {
+                     url = latestGit {
+                       url = "http://chriswarbo.net/git/tinc.git";
+                     };
+                   }) {})
+                   #haskellTinc
                    (haskellPackages.ghcWithPackages (h: [
                      h.ghc
                      h.cabal-install
@@ -113,6 +123,13 @@ with rec {
 
                } // { inherit NIX_PATH; /*Overrides withNix */ })
                ''
+                 function allow {
+                   # Allows subsequent users to read/write our cached values
+                   # Note that we ignore errors because we may not own some of
+                   # the existing files.
+                   chmod 777 -R "$HOME" 1>&2 || true
+                 }
+
                  if $GLOBALCACHE
                  then
                    # Use the cache in-place
@@ -120,7 +137,7 @@ with rec {
                  else
                    # Use a mutable copy of the given cache
                    cp -r "$CACHEPATH" ./cache
-                   chmod +w -R ./cache
+                   allow
                    export HOME="$PWD/cache"
                  fi
 
@@ -129,7 +146,7 @@ with rec {
                    echo "Cache dir '$HOME' not found, initialising" 1>&2
                    mkdir -p "$HOME"
                    cabal update
-                   chmod +w -R "$HOME"
+                   allow
                  }
 
                  if [[ -d "$src" ]]
@@ -144,14 +161,24 @@ with rec {
                  chmod +w -R ./src
 
                  pushd ./src; tinc; popd
+                 allow
 
                  cp -r ./src "$out"
                '';
 
       deps = import "${defs}/tinc.nix" {
-        nixpkgs = pkgs // { inherit haskellPackages; };
+        inherit haskellPackages;
+        nixpkgs = pkgs;
       };
+
+      overrides = self: super:
+        mapAttrs (_: { func, args }: self.callPackage func args)
+        (deps.packages // extras);
+
+      resolver = haskellPackages.override { inherit overrides; };
+
+      result = resolver.callPackage "${defs}/package.nix" {};
     };
-    deps.resolver.callPackage "${defs}/package.nix" {};
+    trace "DEFS: ${defs}" result;
 };
 tincify
