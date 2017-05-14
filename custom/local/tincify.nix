@@ -15,7 +15,7 @@ with rec {
       name            = args.name            or "pkg";
       haskellPackages = args.haskellPackages or defHPkg;
       pkgs            = args.pkgs            or import <nixpkgs> {};
-      extras          = args.extras          or {};
+      extras          = args.extras          or [];#{};
       cache           = args.cache           or {
                                                   global = true;
                                                   path   = "/tmp/tincify-home";
@@ -37,7 +37,7 @@ with rec {
       # nix-shell invocation uses the derivation we built. Phew!
       toUse = buildEnv {
         name  = "tinc-env";
-        paths = [ (haskellPackages.ghcWithPackages (p: [ p.cabal-install ])) ];
+        paths = [ (haskellPackages.ghcWithPackages (p: map (n: p."${n}") ([ "cabal-install" ] ++ extras))) ];
       };
 
       env = runCommand "tinc-env"
@@ -174,12 +174,15 @@ with rec {
 
       overrides = self: super: deps.packages {
         callPackage = stdenv.lib.callPackageWith
-          (pkgs // pkgs.xorg // pkgs.gnome2 // self // extras);
+          (pkgs // pkgs.xorg // pkgs.gnome2 // self //
+           genAttrs extras (n: haskellPackages."${n}"));
       };
 
       resolver = haskellPackages.override { inherit overrides; };
 
-      result = resolver.callPackage "${defs}/package.nix" {};
+      result = resolver.callPackage "${defs}/package.nix"
+                                    (genAttrs extras
+                                              (n: haskellPackages."${n}"));
     };
     result;
 };

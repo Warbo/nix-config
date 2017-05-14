@@ -1,3 +1,5 @@
 { haskellPackages, tincify }:
 
-tincify (haskellPackages.panhandle // { extras = [ "lazysmallcheck2012" ]; })
+tincify (haskellPackages.panhandle // {
+  extras = [/*{ inherit (haskellPackages) */"lazysmallcheck2012"]/*; }*/;
+})
