@@ -56,7 +56,7 @@ with rec {
     checkBroken = mapAttrsRecursiveCond
       (x: !(isDerivation x))
       (path: value: if elem path broken
-                       then isBroken value
+                       then null #isBroken value
                        else value);
 
     stableUnstableFrom = sets:
