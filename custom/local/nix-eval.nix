@@ -1,3 +1,0 @@
-{ haskellPackages }:
-
-haskellPackages.nix-eval
