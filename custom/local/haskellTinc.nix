@@ -1,7 +1,3 @@
-{ haskell, latestGit, runCabal2nix }:
+{ haskell }:
 
-haskell.packages.ghc802.callPackage (runCabal2nix {
-  url = latestGit {
-    url = "http://chriswarbo.net/git/tinc.git";
-  };
-}) {}
+haskell.packages.ghc802.tinc

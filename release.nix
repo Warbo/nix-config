@@ -81,7 +81,7 @@ with rec {
     stripLTS = sets:
       filterAttrs (n: _: !(hasPrefix "lts"   n) &&
                          !(hasPrefix "ghcjs" n) &&
-                         !(elem n [ "ghc6123" ]))
+                         !(elem n [ "ghc6123" "ghcCross" ]))
                   sets //
       mapAttrs (_: stripLTS) (stableUnstableFrom sets);
 
