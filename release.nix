@@ -13,7 +13,7 @@ with rec {
                     "haskellPackages"         # Ditto
                     "profiledHaskellPackages" # Ditto
                   ]
-                  then "Ignore"
+                  then null
                   else let pkg = pkgs."${name}";
                         in if isDerivation pkg
                               then pkg
@@ -21,7 +21,7 @@ with rec {
 
   # Select our custom Haskell packages from the various sets of Haskell packages
   # provided by nixpkgs (e.g. for different compiler versions)
-  haskellPkgs = with rec {
+  haskell = with rec {
     keepOurs = pkgs:
       with rec { go = filterAttrs (name: _: elem name haskellNames); };
       mapAttrs (_: go) pkgs // mapAttrs (_: keepOurs) (stableUnstableFrom pkgs);
@@ -68,12 +68,13 @@ with rec {
            {}
            [ "stable" "unstable" ];
 
-    # There are loads of LTS versions, which take resources to process. We prefer
-    # to check compiler versions rather than particular package sets.
-    # GHC 6.12.3 and GHCJS are marked as broken, so refuse to evaluate at all.
+    # There are loads of LTS versions, which take resources to process. We
+    # prefer to check compiler versions rather than particular package sets.
+    # GHC 6.12.3 and GHCJS* are broken, but we don't really care.
     stripLTS = sets:
-      filterAttrs (n: _: !(hasPrefix "lts" n) &&
-                         !(elem n [ "ghc6123" "ghcjs" ]))
+      filterAttrs (n: _: !(hasPrefix "lts"   n) &&
+                         !(hasPrefix "ghcjs" n) &&
+                         !(elem n [ "ghc6123" ]))
                   sets //
       mapAttrs (_: stripLTS) (stableUnstableFrom sets);
 
