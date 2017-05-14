@@ -95,11 +95,7 @@ with { defHPkg = haskellPackages; };
           export HOME="$PWD/cache"
         fi
 
-        # Die if we have no cache
-        [[ -d "$HOME" ]] || {
-          echo "Cache dir '$HOME' not found" 1>&2
-          exit 1
-        }
+        [[ -d "$HOME" ]] || { echo "Cache dir '$HOME' not found" 1>&2; exit 1 }
 
         cp -r "$src" ./src
         chmod +w -R ./src
