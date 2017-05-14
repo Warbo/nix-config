@@ -38,19 +38,26 @@ with rec {
       post710 = name: base47 name ++ [ [ "ghc783" name ] [ "ghc784" name ] ];
 
       # Flags GHC versions without some feature
+      base45 = post74;   # base >= 4.5 requires GHC >= 7.4
       base47 = post78;   # base >= 4.7 requires GHC >= 7.8
       base48 = post710;  # base >= 4.8 requires GHC >= 7.10
       th29   = post76;   # template-haskell >= 2.9 requires GHC >= 7.6.3
     };
+
     # Packages which depend on recent GHC versions
-    base48  "ifcxt"              ++
-    base48  "ghc-dup"            ++
-    base48  "haskell-example"    ++
-    base47  "weigh"              ++
-    post710 "tip-types"          ++
-    th29    "lazysmallcheck2012" ++
-    post78  "ghc-simple"         ++
-    post74  "tip-lib";
+    concatMap base45 [ "ArbitraryHaskell" "AstPlugin" "HS2AST" "ML4HSFE"
+      "genifunctors" "geniplate" "getDeps" "mlspec" "mlspec-helper" "nix-eval"
+      "panhandle" "panpipe" "runtime-arbitrary" "runtime-arbitrary-tests"
+      "structural-induction" "tinc" "tip-haskell-frontend"
+      "tip-haskell-frontend-main" ] ++
+    base47  "weigh"            ++
+    base48  "ifcxt"            ++
+    base48  "ghc-dup"          ++
+    base48  "haskell-example"  ++
+    post710 "tip-types"        ++
+    post78  "ghc-simple"       ++
+    post74  "tip-lib"          ++
+    th29    "lazysmallcheck2012";
 
     # Check that known breakages are, in fact, broken. Leave others as-is.
     checkBroken = mapAttrsRecursiveCond
