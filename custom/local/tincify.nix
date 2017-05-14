@@ -4,9 +4,7 @@
 
 with builtins;
 with lib;
-with rec {
-  defHPkg = haskellPackages;
-};
+with { defHPkg = haskellPackages; };
 
 { cache           ? { global = true; path = "/tmp/tincify-home"; },
   extras          ? [],
@@ -97,12 +95,10 @@ with rec {
           export HOME="$PWD/cache"
         fi
 
-        # Force cache creation, e.g. if a global cache has been deleted
+        # Die if we have no cache
         [[ -d "$HOME" ]] || {
-          echo "Cache dir '$HOME' not found, initialising" 1>&2
-          mkdir -p "$HOME"
-          cabal update
-          allow
+          echo "Cache dir '$HOME' not found" 1>&2
+          exit 1
         }
 
         cp -r "$src" ./src
