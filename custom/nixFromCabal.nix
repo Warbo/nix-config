@@ -62,7 +62,7 @@ let dir      = if isAttrs src_ then src_ else unsafeDiscardStringContext src_;
         source $stdenv/setup
 
         echo "Copying '$dir' to '$out'"
-        cp -vr "$dir" "$out"
+        cp -r "$dir" "$out"
         cd "$out"
 
         echo "Setting permissions"
