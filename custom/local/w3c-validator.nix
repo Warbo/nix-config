@@ -5,8 +5,8 @@ in stdenv.mkDerivation {
   name = "w3c-validator";
   inherit version;
   src = fetchurl {
-    url = "https://github.com/validator/validator/releases/download/${version}/vnu.jar_${version}.zip";
-    md5 = "08ef39a72f723b020c08a8728bc92b6f";
+    url    = "https://github.com/validator/validator/releases/download/${version}/vnu.jar_${version}.zip";
+    sha256 = "01gyrp5fic4n95f8fvlk0b4npx762nj49w42nz3qacl11rq29r57";
   };
 
   buildInputs = [ unzip ];
