@@ -172,17 +172,17 @@ with rec {
         nixpkgs = pkgs;
       };
 
-      overrides = self: super: deps.packages {
-        callPackage = stdenv.lib.callPackageWith
-          (pkgs // pkgs.xorg // pkgs.gnome2 // self //
-           genAttrs extras (n: haskellPackages."${n}"));
+      # Definitions in tinc.nix reference each other directly, so callPackage
+      # only has to provide the extras, which haskellPackages.callPackage can do
+      resolver = haskellPackages.override {
+        overrides = self: super:
+          with {
+            newPkgs = deps.packages { inherit (haskellPackages) callPackage; };
+          };
+          genAttrs extras (name: haskellPackages."${name}") // newPkgs;
       };
 
-      resolver = haskellPackages.override { inherit overrides; };
-
-      result = resolver.callPackage "${defs}/package.nix"
-                                    (genAttrs extras
-                                              (n: haskellPackages."${n}"));
+      result = resolver.callPackage "${defs}/package.nix" {};
     };
     result;
 };
