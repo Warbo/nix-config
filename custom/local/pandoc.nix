@@ -1,3 +1,3 @@
-{ latestCabal, tincify }:
+{ latestCabal, isoTincify }:
 
-tincify (latestCabal "pandoc")
+isoTincify (latestCabal "pandoc")

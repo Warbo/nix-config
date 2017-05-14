@@ -130,11 +130,11 @@ with rec {
                     else mapAttrs (name: pkg:
                                     with {
                                       path      = prefix ++ [name];
-                                      tincified = tincify (pkg // {
+                                      tincified = isoTincify (pkg // {
                                         haskellPackages = pkgs;
                                       });
                                     };
-                                    if true /*elem path unsatisfiable*/
+                                    if elem path unsatisfiable
                                        then unsatisfied path tincified
                                        else tincified)
                                   pkgs);
