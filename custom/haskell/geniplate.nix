@@ -2,8 +2,11 @@ self: super:
 
 with self;
 with rec {
-  gpSrc = latestGit {
-    url = "https://github.com/danr/geniplate";
+  gpSrc = fetchFromGitHub {
+    owner  = "danr";
+    repo   = "geniplate";
+    rev    = "961a732";
+    sha256 = "1ws5v1md552amcs7hhg4cla1sbq9lh3imqjiz8byvsp8bgrn4xvf";
   };
 
   patched = runCommand "patch-geniplate" { inherit gpSrc; } ''
