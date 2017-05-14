@@ -34,7 +34,7 @@ with rec {
         {
           expr = writeScript "force-tinc-env.nix" ''
             _:
-              import <real> {} // {
+              import <real> { config = import "${./..}/config.nix"; } // {
               haskellPackages = {
                 ghcWithPackages = _:
                   ${ghcPackageEnv haskellPackages
@@ -104,7 +104,7 @@ with rec {
           cp -r "$src" ./src
           chmod +w -R ./src
 
-          pushd ./src; find .; tinc; popd
+          pushd ./src; tinc; popd
           allow
 
           cp -r ./src "$out"
