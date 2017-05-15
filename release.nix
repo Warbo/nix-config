@@ -6,7 +6,7 @@ with rec {
 
   # Select our custom packages/overrides, except for those which are buried in
   # larger sets
-  topLevel = genAttrs customPkgNames (name:
+  topLevel = /*filterAttrs (_: x: x != null)*/ (genAttrs customPkgNames (name:
                if elem name [
                     "stable"                  # Copy of nixpkgs
                     "haskell"                 # Mostly not ours
@@ -14,10 +14,24 @@ with rec {
                     "profiledHaskellPackages" # Ditto
                   ]
                   then null
-                  else let pkg = pkgs."${name}";
-                        in if isDerivation pkg
-                              then pkg
-                              else null);
+                  else if elem name isolate
+                          then buildInDrv name
+                          else let pkg = pkgs."${name}";
+                                in if isDerivation pkg
+                                      then pkg
+                                      else null));
+
+  # Packages which may cause evaluation to fail
+  isolate = [ "pandoc" "panpipe" "panhandle" ];
+
+  # Build the package with the given name, but do so by invoking nix-build from
+  # a derivation's build script. This way, if the package causes Nix's evaluator
+  # to abort, only that package's build will be affected, and not e.g. an entire
+  # Hydra jobset.
+  buildInDrv = name: runCommand "drv-${sanitiseName name}" (withNix {}) ''
+    nix-build -E 'with import <nixpkgs> {}; ${name}'
+    echo "BUILDS" > "$out"
+  '';
 
   # Select our custom Haskell packages from the various sets of Haskell packages
   # provided by nixpkgs (e.g. for different compiler versions)
