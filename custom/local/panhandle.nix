@@ -1,5 +1,5 @@
-{ haskellPackages, isoTincify }:
+{ haskellPackages, tincify }:
 
-isoTincify (haskellPackages.panhandle // {
+tincify (haskellPackages.panhandle // {
   extras = [ "lazysmallcheck2012" ];
 })

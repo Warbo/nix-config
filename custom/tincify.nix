@@ -4,15 +4,15 @@ with self;
 with builtins;
 with lib;
 with { defHPkg = haskellPackages; };
-with rec {
-  tincifyMain = {
+rec {
+  tincify = {
     cache           ? { global = true; path = "/tmp/tincify-home"; },
     extras          ? [],
     haskellPackages ? defHPkg,
     name            ? "pkg",
     nixpkgs         ? import <nixpkgs> {},
     ... }@args:
-    rec {
+    with rec {
       inherit (args) src;
       inherit extras haskellPackages nixpkgs;
 
@@ -34,7 +34,7 @@ with rec {
         {
           expr = writeScript "force-tinc-env.nix" ''
             _:
-              import <real> { config = import "${./..}/config.nix"; } // {
+              import <real> {} // {
               haskellPackages = {
                 ghcWithPackages = _:
                   ${ghcPackageEnv haskellPackages
@@ -110,30 +110,5 @@ with rec {
           cp -r ./src "$out"
         '';
     };
-
-  tincify = args:
-    with (tincifyMain args);
     withTincDeps { inherit extras haskellPackages nixpkgs tincified; };
-
-  isoTincify = args:
-    with (tincifyMain args);
-    runCommand "iso-tincify"
-      (newNixpkgsEnv env (withNix {
-        inherit tincified;
-        extrasJson = toJSON extras;
-        expr       = writeScript "iso-tincify.nix" ''
-          with builtins;
-          with import <nixpkgs> {};
-          with rec {
-            extras = fromJSON (getEnv "extrasJson");
-          };
-          withTincDeps { inherit extras haskellPackages; }
-        '';
-      }))
-      ''
-        nix-build --show-trace -o "$out" "$expr"
-      '';
-};
-{
-  inherit tincify isoTincify;
 }
