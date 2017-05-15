@@ -3,6 +3,8 @@ with import <nixpkgs> { config = import ./config.nix; };
 with builtins;
 with lib;
 with rec {
+  # Needed by recursive builds inside derivations (used to isolate errors)
+  cfg = latestGit { url = "http://chriswarbo.net/git/nix-config.git"; };
 
   # Select our custom packages/overrides, except for those which are buried in
   # larger sets
@@ -28,10 +30,17 @@ with rec {
   # a derivation's build script. This way, if the package causes Nix's evaluator
   # to abort, only that package's build will be affected, and not e.g. an entire
   # Hydra jobset.
-  buildInDrv = name: runCommand "drv-${sanitiseName name}" (withNix {}) ''
-    nix-build -E 'with import <nixpkgs> {}; ${name}'
-    echo "BUILDS" > "$out"
-  '';
+  buildInDrv = name: runCommand "drv-${sanitiseName name}"
+    (withNix {
+      expr = ''
+        with import <nixpkgs> { config = import "${cfg}/config.nix"; };
+        ${name}
+      '';
+    })
+    ''
+      nix-build -E "$expr"
+      echo "BUILDS" > "$out"
+    '';
 
   # Select our custom Haskell packages from the various sets of Haskell packages
   # provided by nixpkgs (e.g. for different compiler versions)
@@ -94,19 +103,11 @@ with rec {
       with rec {
         dotted = concatStringsSep ".";
 
-        mkExpr = path:
-          with {
-            cfg = latestGit {
-              url = "http://chriswarbo.net/git/nix-config.git";
-            };
-            set = dotted (init path);
-          };
-          ''
-            with import <nixpkgs> { config = import "${cfg}/config.nix"; };
-            tincify (${dotted path} // {
-              haskellPackages = ${set};
-            })
-          '';
+        mkExpr = path: buildInDrv ''
+          tincify (${dotted path} // {
+            haskellPackages = ${dotted (init path)};
+          })
+        '';
 
         toAttr = path: {
           inherit path;
