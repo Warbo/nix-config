@@ -25,7 +25,7 @@ with rec {
 
   # Packages which may cause evaluation to fail
   isolate = [
-    "all" "basic" "getDeps" "ML4HSFE" "pandoc" "panpipe" "panhandle"
+    "all" "basic" "getDeps" "ML4HSFE" "mlspec" "pandoc" "panpipe" "panhandle"
   ];
 
   innerNixpkgs = ''with import <nixpkgs> {
