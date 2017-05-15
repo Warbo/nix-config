@@ -10,10 +10,13 @@ with rec {
   # larger sets
   topLevel = /*filterAttrs (_: x: x != null)*/ (genAttrs customPkgNames (name:
                if elem name [
-                    "stable"                  # Copy of nixpkgs
-                    "haskell"                 # Mostly not ours
-                    "haskellPackages"         # Ditto
-                    "profiledHaskellPackages" # Ditto
+                    "stable"                    # Copy of nixpkgs
+                    "stableRepo"                # Ditto
+                    "haskell"                   # Mostly not ours
+                    "haskellPackages"           # Ditto
+                    "profiledHaskellPackages"   # Ditto
+                    "unprofiledHaskellPackages" # Ditto
+                    "unstableHaskellPackages"   # Ditto
                   ]
                   then null
                   else if elem name isolate
@@ -25,7 +28,8 @@ with rec {
 
   # Packages which may cause evaluation to fail
   isolate = [
-    "all" "basic" "getDeps" "ML4HSFE" "mlspec" "pandoc" "panpipe" "panhandle"
+    "all" "basic" "getDeps" "ghcast" "ML4HSFE" "mlspec" "pandoc" "panpipe"
+    "panhandle"
   ];
 
   innerNixpkgs = ''with import <nixpkgs> {
