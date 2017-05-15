@@ -5,15 +5,32 @@ with builtins;
 with lib;
 with { defHPkg = haskellPackages; };
 {
+  # Where to find cached tinc/cabal data; we'll update/overwrite it if global.
   cache           ? { global = true; path = "/tmp/tincify-home"; },
+
+  # Names of extra dependencies to include in the resulting Haskell package set;
+  # useful for things which are in your Nix haskellPackages but not in Hackage.
   extras          ? [],
+
+  # Whether to include the given 'extras' in the result using ghcWithPackages.
+  includeExtras   ? false,
+
+  # Haskell package set to use as a base. 'extras' names should appear in here.
   haskellPackages ? defHPkg,
+
+  # Name to use for the resulting package
   name            ? "pkg",
+
+  # A nixpkgs set, used for non-haskell dependencies (e.g. zlib)
   nixpkgs         ? import <nixpkgs> {},
+
+  # We allow other attributes, so Haskell package derivations can be passed in
+  # (giving us 'name' and 'src')
   ... }@args:
   with rec {
+    # The Haskell package source to run tinc against. Seems to behave funny when
+    # specified in the arguments above, so we inherit it here instead.
     inherit (args) src;
-    inherit extras haskellPackages nixpkgs;
 
     # By default, tinc runs Cabal in a Nix shell with the following available:
     #
@@ -109,4 +126,6 @@ with { defHPkg = haskellPackages; };
         cp -r ./src "$out"
       '';
   };
-  withTincDeps { inherit extras haskellPackages nixpkgs tincified; }
+  withTincDeps {
+    inherit extras haskellPackages includeExtras nixpkgs tincified;
+  }
