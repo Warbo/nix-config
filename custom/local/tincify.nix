@@ -1,5 +1,6 @@
-{ cabal2nix, ghcPackageEnv, hackageUpdate, haskellPackages, haskellTinc, lib,
-  newNixpkgsEnv, runCommand, unpack, withNix, withTincDeps, writeScript }:
+{ cabal2nix, ghcPackageEnv, hackageUpdate, haskellPackages, haskellTinc, jq,
+  lib, newNixpkgsEnv, runCommand, unpack, withNix, withTincDeps, writeScript,
+  yq }:
 
 with builtins;
 with lib;
@@ -53,8 +54,7 @@ with { defHPkg = haskellPackages; };
             import <real> {} // {
             haskellPackages = {
               ghcWithPackages = _:
-                ${ghcPackageEnv haskellPackages
-                                ([ "cabal-install" ] ++ extras)};
+                ${ghcPackageEnv haskellPackages [ "cabal-install" ]};
             };
           }
         '';
@@ -74,6 +74,8 @@ with { defHPkg = haskellPackages; };
           cabal2nix
           (haskellPackages.ghcWithPackages (h: [ h.ghc h.cabal-install ]))
           haskellTinc
+          yq
+          jq
         ];
 
         TINC_USE_NIX = "yes";
@@ -92,6 +94,14 @@ with { defHPkg = haskellPackages; };
                     abort ''Global cache path should be a string, to
                             prevent Nix copying it to the store.'';
                     cache.path;
+
+        addSources = writeScript "tinc.json" (toJSON {
+          dependencies = map (name: {
+                               inherit name;
+                               path = unpack haskellPackages."${name}".src;
+                             })
+                             extras;
+        });
       }))
       ''
         function allow {
@@ -119,10 +129,26 @@ with { defHPkg = haskellPackages; };
 
         cp -r "$src" ./src
         chmod +w -R ./src
+        pushd ./src
 
-        pushd ./src; tinc; popd
+        if ${if extras != [] then "true" else "false"}
+        then
+          echo "Adding extra sources" 1>&2
+          if [[ -f tinc.yaml ]]
+          then
+            echo "Merging dependencies into tinc.yaml"
+            mv tinc.yaml tinc.yaml.orig
+            yq --yaml-output '. * $deps' --argfile deps "$addSources" \
+               < tinc.yaml.orig > tinc.yaml
+          else
+            yq --yaml-output '$deps' --argfile deps "$addSources" > tinc.yaml
+          fi
+        fi
+
+        tinc
+
+        popd
         allow
-
         cp -r ./src "$out"
       '';
   };
