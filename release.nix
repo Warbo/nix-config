@@ -24,7 +24,7 @@ with rec {
                                       else null));
 
   # Packages which may cause evaluation to fail
-  isolate = [ "pandoc" "panpipe" "panhandle" ];
+  isolate = [ "all" "basic" "pandoc" "panpipe" "panhandle" ];
 
   innerNixpkgs = ''with import <nixpkgs> {
                      config = import "${cfg}/config.nix";
