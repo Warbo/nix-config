@@ -1,4 +1,5 @@
-{ cabal2nix, haskellPackages, lib, newNixpkgsEnv, runCommand, unpack, withNix, withTincDeps }:
+{ cabal2nix, ghcPackageEnv, hackageUpdate, haskellPackages, haskellTinc, lib,
+  newNixpkgsEnv, runCommand, unpack, withNix, withTincDeps, writeScript }:
 
 with builtins;
 with lib;
