@@ -1,6 +1,6 @@
-{ cabal2nix, ghcPackageEnv, hackageUpdate, haskellPackages, haskellTinc, jq,
-  lib, newNixpkgsEnv, runCommand, unpack, withNix, withTincDeps, writeScript,
-  yq }:
+{ cabal2nix, ghcPackageEnv, glibcLocales, hackageUpdate, haskellPackages,
+  haskellTinc, jq, lib, newNixpkgsEnv, runCommand, unpack, withNix,
+  withTincDeps, writeScript, yq }:
 
 with builtins;
 with lib;
@@ -94,6 +94,10 @@ with { defHPkg = haskellPackages; };
                     abort ''Global cache path should be a string, to
                             prevent Nix copying it to the store.'';
                     cache.path;
+
+        # Otherwise cabal2nix dies for accented characters
+        LANG           = "en_US.UTF-8";
+        LOCALE_ARCHIVE = "${glibcLocales}/lib/locale/locale-archive";
 
         addSources = writeScript "tinc.json" (toJSON {
           dependencies = map (name: {
