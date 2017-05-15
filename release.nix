@@ -54,7 +54,7 @@ with rec {
   haskell = with rec {
     oursFrom = concatMap (path: map (name: path ++ [ name ]) haskellNames);
 
-    # Paths to Haskell package sets, starting from import <nixpkgs> {}
+    # Paths to Haskell package sets, starting from 'import <nixpkgs> {}'
     versions = concatLists [
       [ [ "haskellPackages" ] [ "profiledHaskellPackages" ] ]
 
@@ -106,16 +106,27 @@ with rec {
                                   !(hasPrefix "ghcjs" name) &&
                                   !(elem name [ "ghc6123" "ghcCross" ]));
 
+    # Non-Hackage dependencies needed by various packages
+    extras  = {
+      AstPlugin = [ "HS2AST" ];
+    };
+
     drvsFor =
       with rec {
         dotted = concatStringsSep ".";
 
-        mkExpr = path: ''
-          ${innerNixpkgs};
-          tincify (${dotted path} // {
-            haskellPackages = ${dotted (init path)};
-          })
-        '';
+        mkExpr = path:
+          with {
+            extra = writeScript "extras.json"
+                                (toJSON (extras."${last path}" or []));
+          };
+          ''
+            ${innerNixpkgs};
+            tincify (${dotted path} // {
+              haskellPackages = ${dotted (init path)};
+              extras = with builtins; fromJSON (readFile "${extra}");
+            })
+          '';
 
         toAttr = path: {
           inherit path;
