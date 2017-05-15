@@ -1,3 +1,3 @@
-{ haskellPackages }:
+{ haskellPackages, tincify }:
 
-haskellPackages.mlspec
+tincify haskellPackages.mlspec

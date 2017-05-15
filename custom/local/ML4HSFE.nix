@@ -1,3 +1,3 @@
-{ haskellPackages }:
+{ haskellPackages, tincify }:
 
-haskellPackages.ML4HSFE
+tincify haskellPackages.ML4HSFE

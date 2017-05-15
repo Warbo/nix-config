@@ -1,3 +1,3 @@
-{ haskellPackages }:
+{ haskellPackages, tincify }:
 
-haskellPackages.getDeps
+tincify haskellPackages.getDeps
