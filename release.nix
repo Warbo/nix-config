@@ -26,16 +26,17 @@ with rec {
   # Packages which may cause evaluation to fail
   isolate = [ "pandoc" "panpipe" "panhandle" ];
 
+  innerNixpkgs = ''with import <nixpkgs> {
+                     config = import "${cfg}/config.nix";
+                   }'';
+
   # Build the package with the given name, but do so by invoking nix-build from
   # a derivation's build script. This way, if the package causes Nix's evaluator
   # to abort, only that package's build will be affected, and not e.g. an entire
   # Hydra jobset.
   buildInDrv = name: runCommand "drv-${sanitiseName name}"
     (withNix {
-      expr = ''
-        with import <nixpkgs> { config = import "${cfg}/config.nix"; };
-        ${name}
-      '';
+      expr = "${innerNixpkgs}; ${name}";
     })
     ''
       nix-build -E "$expr"
@@ -103,7 +104,8 @@ with rec {
       with rec {
         dotted = concatStringsSep ".";
 
-        mkExpr = path: buildInDrv ''
+        mkExpr = path: ''
+          ${innerNixpkgs};
           tincify (${dotted path} // {
             haskellPackages = ${dotted (init path)};
           })
@@ -154,4 +156,4 @@ with rec {
   };
   collectUp (drvsFor (oursFrom (stripLTS versions)));
 };
-topLevel // { inherit haskell; }
+topLevel // haskell
