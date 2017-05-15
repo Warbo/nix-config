@@ -42,12 +42,15 @@ with rec {
     versions = concatLists [
       [ [ "haskellPackages" ] [ "profiledHaskellPackages" ] ]
 
-      (map (x: [ x ]) (filter (n: !(elem n [ "stable" "unstable" ]))
-                              (attrNames pkgs.haskell.packages)))
+      (map (x: [ "haskell" "packages" x ])
+           (filter (n: !(elem n [ "stable" "unstable" ]))
+                   (attrNames pkgs.haskell.packages)))
 
-      (map (x: [ "stable"   x ]) (attrNames pkgs.haskell.packages.stable))
+      (map (x: [ "haskell" "packages" "stable"   x ])
+           (attrNames pkgs.haskell.packages.stable))
 
-      (map (x: [ "unstable" x ]) (attrNames pkgs.haskell.packages.unstable))
+      (map (x: [ "haskell" "packages" "unstable" x ])
+           (attrNames pkgs.haskell.packages.unstable))
     ];
 
     # Paths to WontFix packages, e.g. those which require newer GHC features
@@ -92,7 +95,18 @@ with rec {
         dotted = concatStringsSep ".";
 
         mkExpr = path:
-          "with import <nixpkgs> {}; tincify (haskell.packages.${dotted path})";
+          with {
+            cfg = latestGit {
+              url = "http://chriswarbo.net/git/nix-config.git";
+            };
+            set = dotted (init path);
+          };
+          ''
+            with import <nixpkgs> { config = import "${cfg}/config.nix"; };
+            tincify (${dotted path} // {
+              haskellPackages = ${set};
+            })
+          '';
 
         toAttr = path: {
           inherit path;
