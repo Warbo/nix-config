@@ -22,12 +22,19 @@ with rec {
   # Select our custom Haskell packages from the various sets of Haskell packages
   # provided by nixpkgs (e.g. for different compiler versions)
   haskell = with rec {
-    keepOurs = pkgs:
-      with rec { go = filterAttrs (name: _: elem name haskellNames); };
-      mapAttrs (_: go) pkgs // mapAttrs (_: keepOurs) (stableUnstableFrom pkgs);
+    oursFrom = concatMap (path: map (name: path ++ [ name ]) haskellNames);
 
-    versions = { inherit haskellPackages profiledHaskellPackages; } //
-               pkgs.haskell.packages;
+    # Paths to Haskell package sets, starting from import <nixpkgs> {}
+    versions = concatLists [
+      [ [ "haskellPackages" ] [ "profiledHaskellPackages" ] ]
+
+      (map (x: [ x ]) (filter (n: !(elem n [ "stable" "unstable" ]))
+                              (attrNames pkgs.haskell.packages)))
+
+      (map (x: [ "stable"   x ]) (attrNames pkgs.haskell.packages.stable))
+
+      (map (x: [ "unstable" x ]) (attrNames pkgs.haskell.packages.unstable))
+    ];
 
     # Paths to WontFix packages, e.g. those which require newer GHC features
     broken = with rec {
@@ -43,11 +50,10 @@ with rec {
       base48 = post710;  # base >= 4.8 requires GHC >= 7.10
       th29   = post76;   # template-haskell >= 2.9 requires GHC >= 7.6.3
     };
-
-    # Packages which depend on recent GHC versions
-    concatMap base45 [ "ArbitraryHaskell" "AstPlugin" "HS2AST" "ML4HSFE"
-      "genifunctors" "geniplate" "getDeps" "mlspec" "mlspec-helper" "nix-eval"
-      "panhandle" "panpipe" "runtime-arbitrary" "runtime-arbitrary-tests"
+    concatMap base45 [
+      "ArbitraryHaskell" "AstPlugin" "HS2AST" "ML4HSFE" "genifunctors"
+      "geniplate" "getDeps" "mlspec" "mlspec-helper" "nix-eval" "panhandle"
+      "panpipe" "runtime-arbitrary" "runtime-arbitrary-tests"
       "structural-induction" "tinc" "tip-haskell-frontend"
       "tip-haskell-frontend-main" ] ++
     base47  "weigh"            ++
@@ -59,98 +65,64 @@ with rec {
     post74  "tip-lib"          ++
     th29    "lazysmallcheck2012";
 
-    # Check that known breakages are, in fact, broken. Leave others as-is.
-    checkBroken = mapAttrsRecursiveCond
-      (x: !(isDerivation x))
-      (path: value: if elem path broken
-                       then null #isBroken value
-                       else value);
-
-    stableUnstableFrom = sets:
-      fold (name: result: if hasAttr name sets
-                             then result // {
-                                    "${name}" = sets."${name}";
-                                  }
-                             else result)
-           {}
-           [ "stable" "unstable" ];
-
     # There are loads of LTS versions, which take resources to process. We
     # prefer to check compiler versions rather than particular package sets.
     # GHC 6.12.3 and GHCJS* are broken, but we don't really care.
-    stripLTS = sets:
-      filterAttrs (n: _: !(hasPrefix "lts"   n) &&
-                         !(hasPrefix "ghcjs" n) &&
-                         !(elem n [ "ghc6123" "ghcCross" ]))
-                  sets //
-      mapAttrs (_: stripLTS) (stableUnstableFrom sets);
+    stripLTS =  filter (path: let name = last path;
+                               in !(hasPrefix "lts"   name) &&
+                                  !(hasPrefix "ghcjs" name) &&
+                                  !(elem name [ "ghc6123" "ghcCross" ]));
 
-    # The dependencies of these can't be satisfied by Cabal
-    unsatisfiable = [
-      [ "ghc704" "ifcxt" ]
-    ];
-
-    # If 'go' is false, returns a derivation whose builder will run nix with 'go'
-    # as true. This lets us verify that a package fails to evaluate, whilst
-    # isBroken only verifies that it refuses to build.
-    unsatisfied = path: pkg:
+    drvsFor =
       with rec {
-        e       = "NIX_RUN_UNSATISFIED";
+        dotted = concatStringsSep ".";
 
-        go      = getEnv e != "";
+        mkExpr = path:
+          "with import <nixpkgs> {}; tincify (haskell.packages.${dotted path})";
 
-        ePath   = concatStringsSep "." (["haskell"] ++ path);
+        toAttr = path: {
+          inherit path;
+          value = runCommand (sanitiseName (toJSON path))
+            (withNix {
+              expr   = mkExpr path;
+              broken = if elem path broken then "true" else "false";
+            })
+            ''
+              function go {
+                nix-build --show-trace -E "$expr"
+              }
 
-        expr    = "(import ${./release.nix}).${ePath}";
-
-        recurse = runCommand "unsatisfied-${pkg.name}"
-                    (withNix { "${e}" = "TRUE"; })
-                    ''
-                      if nix-build -E '${expr}'
-                      then
-                        echo "Should have failed" 1>&2
-                        exit 1
-                      fi
-                      touch "$out"
-                    '';
+              if $broken
+              then
+                echo "Ensuring that '$expr' is broken" 1>&2
+                if go
+                then
+                  echo "Error: expected '$expr' to fail!" 1>&2
+                  exit 1
+                fi
+                echo "Success: '$expr' is broken, as we expected" 1>&2
+                echo "BROKEN" > "$out"
+              else
+                echo "Ensuring that '$expr' builds" 1>&2
+                go || exit 1
+                echo "BUILDS" > "$out"
+              fi
+            '';
+        };
       };
-      if go
-         then pkg
-         else recurse;
+      map toAttr;
 
-    # Use tinc for dependencies. This gives us per-package dependencies, chosen
-    # from hackage by cabal, written in the form of Nix expressions. Unfortunately
-    # unsatisfiable dependencies will cause an uncatchable evaluation error rather
-    # than a build error; we use 'unsatisfied' to turn these into build errors, to
-    # prevent disrupting the building of everything else.
-    checkDependencies = prefix:
-      mapAttrs (version: pkgs:
-                 if elem version [ "stable" "unstable" ]
-                    then checkDependencies (prefix ++ [version]) pkgs
-                    else mapAttrs (name: pkg:
-                                    with {
-                                      path      = prefix ++ [name];
-                                      tincified = isoTincify (pkg // {
-                                        haskellPackages = pkgs;
-                                      });
-                                    };
-                                    if elem path unsatisfiable
-                                       then unsatisfied path tincified
-                                       else tincified)
-                                  pkgs);
-  }; keepOurs (checkBroken (checkDependencies [] (stripLTS versions)));
+    setIn = path: value: set:
+      with rec {
+        name = head path;
+        new  = if length path == 1
+                  then value
+                  else setIn (tail path) value (set."${name}" or {});
+      };
+      set // { "${name}" = new; };
 
-  # Force some packages to be evaluated inside a derivation, since they can kill
-  # the evaluator and prevent everything else working. This is fine for globally
-  # defined packages, since we can just reference them in the shell by name.
-  isolated = mapAttrs (n: v: if elem n [ "panhandle" ]
-                                then runCommand "isolated-${n}" (withNix {}) ''
-                                       set -e
-                                       R=$(nix-build -E \
-                                             '(import <nixpkgs> {}).${n}')
-                                       ln -s "$R" "$out"
-                                     ''
-                                else v)
-                      topLevel;
+    collectUp = fold ({ path, value }: setIn path value) {};
+  };
+  collectUp (drvsFor (oursFrom (stripLTS versions)));
 };
-isolated // { inherit haskell; }
+topLevel // { inherit haskell; }
