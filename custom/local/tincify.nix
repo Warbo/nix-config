@@ -83,7 +83,7 @@ with { defHPkg = haskellPackages; };
 
         # If we're using a global cache, update it based on cache settings. If
         # we're not, this does nothing.
-        cacheDep = if cache.global then hackageUpdate cache.path else nothing;
+        cacheDep = if cache.global then hackageUpdate cache.path else "nothing";
 
         # Should we share an impure cache with prior/subsequent calls?
         GLOBALCACHE = if cache.global then "true" else "false";
