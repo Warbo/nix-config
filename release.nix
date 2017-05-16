@@ -110,11 +110,10 @@ with rec {
 
     drvsFor = map (path:
       with rec {
-        pkg         = getAttrFromPath       path  pkgs;
-        hPkgs       = getAttrFromPath (init path) pkgs;
         shouldBreak = any (suffMatch path) broken;
         extras      = nonHackageDeps."${last path}" or [];
         dotted      = concatStringsSep ".";
+        failIf      = c: if c then "exit 1" else "true";
         expr        = ''
           ${innerNixpkgs};
           tincify (${dotted path} // {
@@ -127,20 +126,17 @@ with rec {
       };
       {
         inherit path;
-        value = if shouldBreak
-                   then runCommand "broken-${concatStringsSep "_" path}"
-                          (withNix { inherit expr; })
-                          ''
-                            if nix-build --show-trace -E "$expr"
-                            then
-                              exit 1
-                            fi
-                            echo "BROKEN AS EXPECTED" | tee "$out"
-                          ''
-                   else tincify (pkg // cache // {
-                          inherit extras;
-                          haskellPackages = hPkgs;
-                        });
+        value = runCommand "${concatStringsSep "_" path}"
+          (withNix { inherit expr; })
+          ''
+            if nix-build --show-trace -E "$expr"
+            then
+              ${failIf  shouldBreak}
+            else
+              ${failIf !shouldBreak}
+            fi
+            echo "PASS" | tee "$out"
+          '';
       });
 
     setIn = path: value: set:
