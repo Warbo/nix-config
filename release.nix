@@ -128,34 +128,47 @@ with rec {
             })
           '';
 
-        toAttr = path: {
-          inherit path;
-          value = runCommand (sanitiseName (toJSON path))
-            (withNix {
-              expr   = mkExpr path;
-              broken = if elem path broken then "true" else "false";
-            })
-            ''
-              function go {
-                nix-build --show-trace -E "$expr"
-              }
+        suffMatch = xs: ys:
+          with rec {
+            lx     = length xs;
+            ly     = length ys;
+            minlen = if lx < ly then lx else ly;
+          };
+          take minlen (reverse xs) == take minlen (reverse ys);
 
-              if $broken
-              then
-                echo "Ensuring that '$expr' is broken" 1>&2
-                if go
+        toAttr = path:
+          with rec {
+            shouldBreak = any (suffMatch path) broken;
+            pre         = if shouldBreak then "broken" else "working";
+          };
+          {
+            inherit path;
+            value = runCommand "${pre}-${concatStringSep "_" path}"
+              (withNix {
+                expr   = mkExpr path;
+                broken = if shouldBreak then "true" else "false";
+              })
+              ''
+                function go {
+                  nix-build --show-trace -E "$expr"
+                }
+
+                if $broken
                 then
-                  echo "Error: expected '$expr' to fail!" 1>&2
-                  exit 1
+                  echo "Ensuring that '$expr' is broken" 1>&2
+                  if go
+                  then
+                    echo "Error: expected '$expr' to fail!" 1>&2
+                    exit 1
+                  fi
+                  echo "Success: '$expr' is broken, as we expected" 1>&2
+                  echo "BROKEN" > "$out"
+                else
+                  echo "Ensuring that '$expr' builds" 1>&2
+                  go || exit 1
+                  echo "BUILDS" > "$out"
                 fi
-                echo "Success: '$expr' is broken, as we expected" 1>&2
-                echo "BROKEN" > "$out"
-              else
-                echo "Ensuring that '$expr' builds" 1>&2
-                go || exit 1
-                echo "BUILDS" > "$out"
-              fi
-            '';
+              '';
         };
       };
       map toAttr;
