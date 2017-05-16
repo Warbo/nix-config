@@ -52,126 +52,96 @@ with rec {
   # Select our custom Haskell packages from the various sets of Haskell packages
   # provided by nixpkgs (e.g. for different compiler versions)
   haskell = with rec {
+    # The oldest version of GHC we care about
+    minVersion = "7.8";
+
     oursFrom = concatMap (path: map (name: path ++ [ name ]) haskellNames);
-
-    # Paths to Haskell package sets, starting from 'import <nixpkgs> {}'
-    versions = concatLists [
-      [ [ "haskellPackages" ] [ "profiledHaskellPackages" ] ]
-
-      (map (x: [ "haskell" "packages" x ])
-           (filter (n: !(elem n [ "stable" "unstable" ]))
-                   (attrNames pkgs.haskell.packages)))
-
-      (map (x: [ "haskell" "packages" "stable"   x ])
-           (attrNames pkgs.haskell.packages.stable))
-
-      (map (x: [ "haskell" "packages" "unstable" x ])
-           (attrNames pkgs.haskell.packages.unstable))
-    ];
-
-    # Paths to WontFix packages, e.g. those which require newer GHC features
-    broken = with rec {
-      # Flags GHC versions older than some release
-      post74  = name:                [ [ "ghc704" name ] [ "ghc722" name ] ];
-      post76  = name: post74 name ++ [ [ "ghc742" name ]                   ];
-      post78  = name: post76 name ++ [ [ "ghc763" name ]                   ];
-      post710 = name: base47 name ++ [ [ "ghc783" name ] [ "ghc784" name ] ];
-
-      # Flags GHC versions without some feature
-      base45 = post74;   # base >= 4.5 requires GHC >= 7.4
-      base47 = post78;   # base >= 4.7 requires GHC >= 7.8
-      base48 = post710;  # base >= 4.8 requires GHC >= 7.10
-      th29   = post76;   # template-haskell >= 2.9 requires GHC >= 7.6.3
-    };
-    concatMap base45 [
-      "ArbitraryHaskell" "AstPlugin" "HS2AST" "ML4HSFE" "genifunctors"
-      "geniplate" "getDeps" "mlspec" "mlspec-helper" "nix-eval" "panhandle"
-      "panpipe" "runtime-arbitrary" "runtime-arbitrary-tests"
-      "structural-induction" "tinc" "tip-haskell-frontend"
-      "tip-haskell-frontend-main" ] ++
-    base47  "weigh"            ++
-    base48  "ifcxt"            ++
-    base48  "ghc-dup"          ++
-    base48  "haskell-example"  ++
-    post710 "tip-types"        ++
-    post78  "ghc-simple"       ++
-    post74  "tip-lib"          ++
-    th29    "lazysmallcheck2012";
 
     # There are loads of LTS versions, which take resources to process. We
     # prefer to check compiler versions rather than particular package sets.
     # GHC 6.12.3 and GHCJS* are broken, but we don't really care.
-    stripLTS =  filter (path: let name = last path;
-                               in !(hasPrefix "lts"   name) &&
-                                  !(hasPrefix "ghcjs" name) &&
-                                  !(elem name [ "ghc6123" "ghcCross" ]));
+    rejectVersion = path: any (f: f path) [
+      (path: hasPrefix "lts"   (last path))
+      (path: hasPrefix "ghcjs" (last path))
+      (path: elem (last path) [ "ghc6123" "ghcCross" "stable" "unstable" ])
+      (path: 1 > compareVersions (getAttrFromPath path pkgs).ghc.version
+                                 minVersion)
+    ];
 
-    # Non-Hackage dependencies needed by various packages
-    extras  = {
+    # Paths to Haskell package sets, starting from 'import <nixpkgs> {}'
+    versions = [ [ "haskellPackages" ] [ "profiledHaskellPackages" ] ] ++
+      filter (path: !(rejectVersion path))
+             (concatLists [
+               (map (x: [ "haskell" "packages"            x ])
+                    (attrNames pkgs.haskell.packages))
+
+               (map (x: [ "haskell" "packages" "stable"   x ])
+                    (attrNames pkgs.haskell.packages.stable))
+
+               (map (x: [ "haskell" "packages" "unstable" x ])
+                    (attrNames pkgs.haskell.packages.unstable))
+             ]);
+
+    # Paths to WontFix packages, e.g. those which require newer GHC features
+    broken = with rec {
+      # Mark as broken for old GHC versions
+      post710 = name: [ [ "ghc783" name ] [ "ghc784" name ] ];
+
+      # Mark as broken for old language features
+      base48 = post710;  # base >= 4.8
+    };
+    base48  "ifcxt"            ++
+    base48  "ghc-dup"          ++
+    base48  "haskell-example"  ++
+    post710 "tip-types";
+
+    nonHackageDeps = {
       AstPlugin = [ "HS2AST" ];
     };
 
-    drvsFor =
+    # Choose cache for Cabal and Tinc
+    cache = if getEnv "NIX_REMOTE" == ""
+               then trace ''info: No NIX_REMOTE set; assuming we are in
+                                  restricted mode. Tincifying with a local
+                                  cache. This is pure, but slower than a
+                                  global cache.''
+                          { cache = { global = false; path = hackageDb; }; }
+               else {};  # Use default, global, settings
+
+    drvsFor = map (path:
       with rec {
-        dotted = concatStringsSep ".";
-
-        mkExpr = path:
-          with {
-            extra = writeScript "extras.json"
-                                (toJSON (extras."${last path}" or []));
-          };
-          ''
-            ${innerNixpkgs};
-            tincify (${dotted path} // {
-              haskellPackages = ${dotted (init path)};
-              extras = with builtins; fromJSON (readFile "${extra}");
-            })
-          '';
-
-        suffMatch = xs: ys:
-          with rec {
-            lx     = length xs;
-            ly     = length ys;
-            minlen = if lx < ly then lx else ly;
-          };
-          take minlen (reverse xs) == take minlen (reverse ys);
-
-        toAttr = path:
-          with rec {
-            shouldBreak = any (suffMatch path) broken;
-            pre         = if shouldBreak then "broken" else "working";
-          };
-          {
-            inherit path;
-            value = runCommand "${pre}-${concatStringSep "_" path}"
-              (withNix {
-                expr   = mkExpr path;
-                broken = if shouldBreak then "true" else "false";
-              })
-              ''
-                function go {
-                  nix-build --show-trace -E "$expr"
-                }
-
-                if $broken
-                then
-                  echo "Ensuring that '$expr' is broken" 1>&2
-                  if go
-                  then
-                    echo "Error: expected '$expr' to fail!" 1>&2
-                    exit 1
-                  fi
-                  echo "Success: '$expr' is broken, as we expected" 1>&2
-                  echo "BROKEN" > "$out"
-                else
-                  echo "Ensuring that '$expr' builds" 1>&2
-                  go || exit 1
-                  echo "BUILDS" > "$out"
-                fi
-              '';
-        };
+        pkg         = getAttrFromPath       path  pkgs;
+        hPkgs       = getAttrFromPath (init path) pkgs;
+        shouldBreak = any (suffMatch path) broken;
+        extras      = nonHackageDeps."${last path}" or [];
+        dotted      = concatStringsSep ".";
+        expr        = ''
+          ${innerNixpkgs};
+          tincify (${dotted path} // {
+            haskellPackages = ${dotted (init path)};
+            extras = with builtins;
+                     fromJSON (readFile "${writeScript "extras.json"
+                                                       (toJSON extras)}");
+          })
+        '';
       };
-      map toAttr;
+      {
+        inherit path;
+        value = if shouldBreak
+                   then runCommand "broken-${concatStringSep "_" path}"
+                          (withNix { inherit expr; })
+                          ''
+                            if nix-build --show-trace -E "$expr"
+                            then
+                              exit 1
+                            fi
+                            echo "BROKEN AS EXPECTED" | tee "$out"
+                          ''
+                   else tincify (pkg // cache // {
+                          inherit extras;
+                          haskellPackages = hPkgs;
+                        });
+      });
 
     setIn = path: value: set:
       with rec {
@@ -184,6 +154,6 @@ with rec {
 
     collectUp = fold ({ path, value }: setIn path value) {};
   };
-  collectUp (drvsFor (oursFrom (stripLTS versions)));
+  collectUp (drvsFor (oursFrom versions));
 };
 topLevel // haskell

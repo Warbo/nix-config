@@ -6,7 +6,8 @@ with builtins;
 with lib;
 with { defHPkg = haskellPackages; };
 {
-  # Where to find cached tinc/cabal data; we'll update/overwrite it if global.
+  # Where to find cached tinc/cabal data. If global, we'll use it in place and
+  # potentially update/overwrite it; otherwise we'll use a copy.
   cache           ? { global = true; path = "/tmp/tincify-home"; },
 
   # Names of extra dependencies to include in the resulting Haskell package set;
