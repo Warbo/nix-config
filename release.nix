@@ -128,7 +128,7 @@ with rec {
       {
         inherit path;
         value = if shouldBreak
-                   then runCommand "broken-${concatStringSep "_" path}"
+                   then runCommand "broken-${concatStringsSep "_" path}"
                           (withNix { inherit expr; })
                           ''
                             if nix-build --show-trace -E "$expr"
