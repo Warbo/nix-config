@@ -55,7 +55,12 @@ with rec {
     # The oldest version of GHC we care about
     minVersion = "7.8";
 
-    oursFrom = concatMap (path: map (name: path ++ [ name ]) haskellNames);
+    oursFrom = concatMap (path: concatMap (name: let full = path ++ [ name ];
+                                                  in if any (suffMatch full)
+                                                            broken
+                                                        then []
+                                                        else [ full ])
+                                          haskellNames);
 
     # There are loads of LTS versions, which take resources to process. We
     # prefer to check compiler versions rather than particular package sets.
@@ -90,10 +95,12 @@ with rec {
       # Mark as broken for old language features
       base48 = post710;  # base >= 4.8
     };
-    base48  "ifcxt"            ++
-    base48  "ghc-dup"          ++
-    base48  "haskell-example"  ++
-    post710 "tip-types";
+    concatLists [
+      (base48  "ifcxt")
+      (base48  "ghc-dup")
+      (base48  "haskell-example")
+      (post710 "tip-types")
+    ];
 
     nonHackageDeps = {
       AstPlugin = [ "HS2AST" ];
@@ -108,34 +115,30 @@ with rec {
                           { cache = { global = false; path = hackageDb; }; }
                else {};  # Use default, global, settings
 
+    passJSON = name: data: ''
+      (with builtins; fromJSON (readFile "${writeScript "${name}.json"
+                                                        (toJSON data)}"))
+    '';
+
     drvsFor = map (path:
       with rec {
-        shouldBreak = any (suffMatch path) broken;
-        extras      = nonHackageDeps."${last path}" or [];
-        dotted      = concatStringsSep ".";
-        failIf      = c: if c then "exit 1" else "true";
-        expr        = ''
+        extras = nonHackageDeps."${last path}" or [];
+        dotted = concatStringsSep ".";
+        expr   = ''
           ${innerNixpkgs};
+          with builtins;
           tincify (${dotted path} // {
-            haskellPackages = ${dotted (init path)};
-            extras = with builtins;
-                     fromJSON (readFile "${writeScript "extras.json"
-                                                       (toJSON extras)}");
-          })
+              haskellPackages = ${dotted (init path)};
+              extras = ${passJSON "extras" extras};
+            } // ${passJSON "tinc-cache" cache})
         '';
       };
       {
         inherit path;
-        value = runCommand "${concatStringsSep "_" path}"
+        value = runCommand "build-${dotted path}"
           (withNix { inherit expr; })
           ''
-            if nix-build --show-trace -E "$expr"
-            then
-              ${failIf   shouldBreak}
-            else
-              ${failIf (!shouldBreak)}
-            fi
-            echo "PASS" | tee "$out"
+            nix-build --show-trace -o "$out" -E "$expr"
           '';
       });
 
