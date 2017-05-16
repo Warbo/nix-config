@@ -131,9 +131,9 @@ with rec {
           ''
             if nix-build --show-trace -E "$expr"
             then
-              ${failIf  shouldBreak}
+              ${failIf   shouldBreak}
             else
-              ${failIf !shouldBreak}
+              ${failIf (!shouldBreak)}
             fi
             echo "PASS" | tee "$out"
           '';
