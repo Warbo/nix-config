@@ -1,5 +1,6 @@
 # Used for testing and building via Hydra or "nix-build"
-with import <nixpkgs> { config = import ./config.nix; };
+with { nixpkgs = import <nixpkgs> { config = import ./config.nix; }; };
+with nixpkgs;
 with builtins;
 with lib;
 with rec {
@@ -21,7 +22,7 @@ with rec {
                   then null
                   else if elem name isolate
                           then buildInDrv name
-                          else let pkg = pkgs."${name}";
+                          else let pkg = nixpkgs."${name}";
                                 in if isDerivation pkg
                                       then pkg
                                       else null));
@@ -66,9 +67,15 @@ with rec {
     # prefer to check compiler versions rather than particular package sets.
     # GHC 6.12.3 and GHCJS* are broken, but we don't really care.
     rejectVersion = path: any (f: f path) [
+      # Massively duplicated
       (path: hasPrefix "lts"   (last path))
-      (path: hasPrefix "ghcjs" (last path))
-      (path: elem (last path) [ "ghc6123" "ghcCross" "stable" "unstable" ])
+
+      # Some of these are broken, others are uninteresting. un/stable are sets.
+      (path: hasPrefix "ghcjs"          (last path))
+      (path: elem (last path)
+                  [ "ghc6123" "ghcCross" "integer-simple" "stable" "unstable" ])
+
+      # Too old. Do this last, to avoid forcing broken versions.
       (path: 1 > compareVersions (getAttrFromPath path pkgs).ghc.version
                                  minVersion)
     ];
@@ -78,13 +85,13 @@ with rec {
       filter (path: !(rejectVersion path))
              (concatLists [
                (map (x: [ "haskell" "packages"            x ])
-                    (attrNames pkgs.haskell.packages))
+                    (attrNames nixpkgs.haskell.packages))
 
                (map (x: [ "haskell" "packages" "stable"   x ])
-                    (attrNames pkgs.haskell.packages.stable))
+                    (attrNames nixpkgs.haskell.packages.stable))
 
                (map (x: [ "haskell" "packages" "unstable" x ])
-                    (attrNames pkgs.haskell.packages.unstable))
+                    (attrNames nixpkgs.haskell.packages.unstable))
              ]);
 
     # Paths to WontFix packages, e.g. those which require newer GHC features
