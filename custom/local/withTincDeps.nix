@@ -2,13 +2,13 @@
 # Nix by tinc/cabal2nix
 { withTincPackages }:
 
-{ extras ? [], haskellPackages, includeExtras, nixpkgs, tincified }:
+{ extras ? [], haskellPackages, includeExtras, nixpkgs, tincified }: args:
 with rec {
   resolver = withTincPackages {
     inherit extras haskellPackages nixpkgs tincified;
   };
 
-  pkg = resolver.callPackage "${tincified}/package.nix" {};
+  pkg = resolver.callPackage "${tincified}/package.nix" args;
 };
 
 if includeExtras

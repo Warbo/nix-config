@@ -8,7 +8,7 @@ with rec {
   pkg = haskellPackages.callPackage def {};
 
   # Use tinc for dependencies rather than those hardcoded in haskellPackages
-  withDeps = tincify pkg;
+  withDeps = tincify pkg {};
 
   # Writer tests fail since they can't access the disk, so we disable them all
   result = haskell.lib.dontCheck withDeps;

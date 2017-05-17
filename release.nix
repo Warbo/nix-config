@@ -137,7 +137,7 @@ with rec {
           tincify (${dotted path} // {
               haskellPackages = ${dotted (init path)};
               extras = ${passJSON "extras" extras};
-            } // ${passJSON "tinc-cache" cache})
+            } // ${passJSON "tinc-cache" cache}) {}
         '';
       };
       {

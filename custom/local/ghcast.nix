@@ -5,7 +5,7 @@ with rec {
   ghcWithPlugin = tincify (haskellPackages.AstPlugin // {
                             extras = [ "HS2AST" ];
                             includeExtras = true;
-                          });
+                          }) {};
 
   # The database used by ghcWithPlugin
   ghcDb = "${ghcWithPlugin}/lib/${haskellPackages.ghc.name}/package.conf.d";
