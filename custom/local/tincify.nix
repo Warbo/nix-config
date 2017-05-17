@@ -123,8 +123,8 @@ with { defHPkg = haskellPackages; };
         else
           # Use a mutable copy of the given cache
           cp -r "$CACHEPATH" ./cache
-          allow
           export HOME="$PWD/cache"
+          allow
         fi
 
         [[ -d "$HOME" ]] || {
@@ -134,25 +134,25 @@ with { defHPkg = haskellPackages; };
 
         cp -r "$src" ./src
         chmod +w -R ./src
+
         pushd ./src
-
-        if ${if extras != [] then "true" else "false"}
-        then
-          echo "Adding extra sources" 1>&2
-          if [[ -f tinc.yaml ]]
+          if ${if extras != [] then "true" else "false"}
           then
-            echo "Merging dependencies into tinc.yaml"
-            mv tinc.yaml tinc.yaml.orig
-            yq --yaml-output '. * $deps' --argfile deps "$addSources" \
-               < tinc.yaml.orig > tinc.yaml
-          else
-            yq --yaml-output '$deps' --argfile deps "$addSources" > tinc.yaml
+            echo "Adding extra sources" 1>&2
+            if [[ -f tinc.yaml ]]
+            then
+              echo "Merging dependencies into tinc.yaml"
+              mv tinc.yaml tinc.yaml.orig
+              yq --yaml-output '. * $deps' --argfile deps "$addSources" \
+                 < tinc.yaml.orig > tinc.yaml
+            else
+              yq --yaml-output '$deps' --argfile deps "$addSources" > tinc.yaml
+            fi
           fi
-        fi
 
-        tinc
-
+          tinc
         popd
+
         allow
         cp -r ./src "$out"
       '';
