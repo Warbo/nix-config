@@ -145,7 +145,7 @@ with rec {
         value = runCommand "build-${dotted path}"
           (withNix { inherit expr; })
           ''
-            nix-build --show-trace -o "$out" -E "$expr"
+            nix-build --show-trace -E "$expr" > "$out"
           '';
       });
 
