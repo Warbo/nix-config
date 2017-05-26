@@ -111,6 +111,7 @@ with rec {
 
     nonHackageDeps = {
       AstPlugin = [ "HS2AST" ];
+      ML4HSFE   = [ "HS2AST" ];
     };
 
     # Choose cache for Cabal and Tinc
@@ -145,7 +146,7 @@ with rec {
         value = runCommand "build-${dotted path}"
           (withNix { inherit expr; })
           ''
-            nix-build --show-trace -E "$expr" > "$out"
+            nix-build --show-trace -E "$expr" | tee "$out"
           '';
       });
 

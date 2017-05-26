@@ -34,7 +34,7 @@ all = buildEnv {
     ghc
     gtk_engines
     unstableHaskellPackages.cabal-install
-    haskellPackages.cabal2nix
+    (tincify haskellPackages.cabal2nix {})
     haskellPackages.happy
     kbibtex_full
     keepassx
