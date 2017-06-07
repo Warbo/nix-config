@@ -159,8 +159,9 @@ rec {
   };
 
   services.ipfs = {
-    enable   = true;
-    enableGC = true; # Laptop, limited storage
+    enable      = true;
+    enableGC    = true; # Laptop, limited storage
+    autoMigrate = true; # If the storage format changes
   };
 
   # Limit the size of our logs, to prevent ridiculous space usage and slowdown
@@ -174,6 +175,13 @@ rec {
   services.openssh = {
     enable     = true;
     forwardX11 = true;
+  };
+
+  # Because Tories
+  services.tor = {
+    client = {
+      enable = true;
+    };
   };
 
   services.xserver = {
