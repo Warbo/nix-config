@@ -228,7 +228,7 @@ with rec {
           off
 
           # Force any X2X sessions to restart, since we've messed up X
-          pkill -f 'x2x -east' || true
+          pkill -f 'x2x -' || true
         fi
       '';
     };
@@ -251,7 +251,7 @@ with rec {
 
   news = mkService {
     description   = "Fetch news";
-    path          = [ findutils.out ];
+    path          = [ findutils.out warbo-utilities ];
     environment   = { LANG = "en_GB.UTF-8"; };
     serviceConfig = {
       User       = "chris";
@@ -259,7 +259,7 @@ with rec {
       RestartSec = 3600;
       ExecStart  = writeScript "get-news-start" ''
         #!${bash}/bin/bash
-        exec "${warbo-utilities}/bin/get_news"
+        exec get_news
       '';
     };
   };
@@ -408,6 +408,29 @@ with rec {
                             "/home/chris/DesktopFiles"
                             ["-p 22222"];
     };
+
+    /*
+    desktop-laptop-mount = mkService {
+      inherit path environment;
+      description = "Laptop files on desktop";
+      after = [ "network.target" ];
+      wantedBy = [ "default.target" ];
+      serviceConfig = {
+        User       = "chris";
+        Restart    = "always";
+        RestartSec = 60;
+        ExecStart  = writeScript "sshfs-mount" ''
+          #!${bash}/bin/bash
+          ssh -f ${opts} sshfs -f ${opts extraOptions} ${addr} ${dir}
+        '';
+        ExecStop = writeScript "sshfuse-unmount" ''
+          #!${bash}/bin/bash
+          pkill -f -9 "sshfs.*${dir}"
+          /var/setuid-wrappers/fusermount -u -z "${dir}"
+        '';
+      };
+    };
+    */
   })
   pi-mount desktop-mount;
 
@@ -550,6 +573,57 @@ with rec {
         echo "Server is down, killing any hydra ssh bindings"
         pkill -f -9 'ssh.*3000:localhost:3000'
         exit 0
+      '';
+    };
+  };
+
+  ipfsRemoteOnLocal = {
+    wantedBy      = [ "default.target" ];
+    after         = [ "network.target" ];
+    environment   = { IPFS_PATH = "/var/lib/ipfs/.ipfs"; };
+    path          = with pkgs; [ ipfs openssh ];
+    serviceConfig = {
+      Type       = "simple";
+      User       = "chris";
+      Restart    = "always";
+      RestartSec = 60;
+      ExecStart  = writeScript "ipfs-remote-on-local" ''
+        #!${bash}/bin/bash
+
+        echo "Providing chriswarbo.net:4001 (IPFS swarm) as our port 6001" 1>&2
+        ssh -N -L "6001:localhost:4001" chriswarbo.net &
+        sleep 3
+
+        echo "Adding tunnelled port to IPFS swarm" 1>&2
+        ID=Qmf7fikDA5TB5RD3vUT7bF36mAn3NTBcbMbHRNcTo6WqVK
+        ipfs swarm connect "/ip4/127.0.0.1/tcp/6001/ipfs/$ID" || true
+
+        wait
+      '';
+    };
+  };
+
+  ipfsLocalOnRemote = {
+    wantedBy      = [ "default.target" ];
+    after         = [ "network.target" ];
+    path          = with pkgs; [ openssh ];
+    serviceConfig = {
+      Type       = "simple";
+      User       = "chris";
+      Restart    = "always";
+      RestartSec = 60;
+      ExecStart  = writeScript "ipfs-local-on-remote" ''
+        #!${bash}/bin/bash
+
+        echo "Providing our 4001 (IPFS swarm) as chriswarbo.net:6001" 1>&2
+        ssh -N -T -R6001:localhost:4001 chriswarbo.net &
+        sleep 3
+
+        echo "Adding tunnelled port to IPFS swarm" 1>&2
+        ID=QmVkjeUP5UCZjUJqo6KueCGu5hSi1KqWGWWpbg3NRL6mHZ
+        ssh chriswarbo.net ipfs swarm connect "/ip4/127.0.0.1/tcp/6001/ipfs/$ID" || true
+
+        wait
       '';
     };
   };
