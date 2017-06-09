@@ -8,6 +8,7 @@ with self;
     name  = "basic";
     paths = [
       autossh
+      artemis
       binutils
       dtach
       dvtm
