@@ -47,6 +47,20 @@ with rec {
   '';
 };
 {
+  coolDown = mkService {
+    description   = "Suspend common resource hogs when temperature's too hot";
+    path          = [ warbo-utilities ];
+    serviceConfig = {
+      User       = "root";
+      Restart    = "always";
+      RestartSec = 30;
+      ExecStart  = writeScript "cool-down" ''
+        #!${bash}/bin/bash
+        coolDown
+      '';
+    };
+  };
+
   emacs = mkService {
     description     = "Emacs daemon";
     path            = [ all emacs mu sudoWrapper ];
