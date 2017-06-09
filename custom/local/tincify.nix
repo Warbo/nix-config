@@ -1,5 +1,5 @@
-{ cabal2nix, ghcPackageEnv, glibcLocales, hackageUpdate, haskellPackages,
-  haskellTinc, jq, lib, newNixpkgsEnv, runCommand, unpack, withNix,
+{ cabal2nix, ghcPackageEnv, glibcLocales, haskellPackages, haskellTinc, jq,
+  lib, newNixpkgsEnv, runCommand, stableHackageDb, unpack, withNix,
   withTincDeps, writeScript, yq }:
 
 with builtins;
@@ -16,6 +16,13 @@ with { defHPkg = haskellPackages; };
 
   # Whether to include the given 'extras' in the result using ghcWithPackages.
   includeExtras   ? false,
+
+  # The Hackage DB for Cabal to use, if cache.global is true:
+  #  - stableHackageDb is built from a fixed revision of all-cabal-files. This
+  #    means it's a constant, deterministic value which Nix caches nicely.
+  #  - hackageDb runs 'cabal update' to get the latest versions. This doesn't
+  #    cache well, which causes a lot of extraneous rebuilding.
+  hackageContents ? stableHackageDb,
 
   # Haskell package set to use as a base. 'extras' names should appear in here.
   haskellPackages ? defHPkg,
@@ -69,6 +76,8 @@ with { defHPkg = haskellPackages; };
 
     tincified = runCommand "tinc-of-${name}"
       (newNixpkgsEnv env (withNix {
+        inherit hackageContents;
+
         src = unpack src;
 
         buildInputs = [
@@ -80,10 +89,6 @@ with { defHPkg = haskellPackages; };
         ];
 
         TINC_USE_NIX = "yes";
-
-        # If we're using a global cache, update it based on cache settings. If
-        # we're not, this does nothing.
-        cacheDep = if cache.global then hackageUpdate cache.path else "nothing";
 
         # Should we share an impure cache with prior/subsequent calls?
         GLOBALCACHE = if cache.global then "true" else "false";
@@ -120,6 +125,9 @@ with { defHPkg = haskellPackages; };
         then
           # Use the cache in-place
           export HOME="$CACHEPATH"
+
+          # (Re-)Initialise the cache's Hackage contents
+          cp -r "$hackageContents"/.cabal "$HOME"/
         else
           # Use a mutable copy of the given cache
           cp -r "$CACHEPATH" ./cache
