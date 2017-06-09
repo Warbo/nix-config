@@ -10,27 +10,31 @@ with self;
       autossh
       artemis
       binutils
+      unstableHaskellPackages.cabal-install
+      (tincify haskellPackages.cabal2nix {})
       dtach
       dvtm
       file
       get_iplayer
-        # FIXME: These two should be dependencies of get_iplayer
-        perlPackages.XMLSimple
-        ffmpeg
+      ghc
       ghostscript
       git
       gnumake
+      haskellPackages.happy
       jq
       md2pdf
       msmtp
       nix-repl
       openssh
+      p7zip
       pamixer
+      pandoc
       panhandle
       panpipe
       poppler_utils
       pmutils
       psmisc
+      python
       racket
       cifs_utils
       silver-searcher

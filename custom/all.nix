@@ -31,13 +31,10 @@ all = buildEnv {
     firefox
     gcalcli
     gensgs
-    ghc
     gtk_engines
-    unstableHaskellPackages.cabal-install
-    (tincify haskellPackages.cabal2nix {})
-    haskellPackages.happy
     kbibtex_full
     keepassx
+    leafpad
     mplayer
     mu
     mupdf
