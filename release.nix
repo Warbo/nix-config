@@ -120,7 +120,12 @@ with rec {
                                   restricted mode. Tincifying with a local
                                   cache. This is pure, but slower than a
                                   global cache.''
-                          { cache = { global = false; path = hackageDb; }; }
+                          {
+                            cache = {
+                              global = false;
+                              path = stableHackageDb;
+                            };
+                          }
                else {};  # Use default, global, settings
 
     passJSON = name: data: ''
