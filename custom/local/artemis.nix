@@ -15,13 +15,14 @@ with rec {
       sha256 = "182qh6d0srps2n5sydzy8n3gi78la6m0wi3846zpyyd0b8pmgmfp";
     };
   };
-
-  pyPkg = pythonPackages.buildPythonPackage {
-    inherit src;
-    name = "artemis";
-    propagatedBuildInputs = with pythonPackages; [
-      mercurial
-    ];
-  };
 };
-pyPkg
+
+pythonPackages.buildPythonPackage {
+  inherit src;
+  name = "artemis";
+  propagatedBuildInputs = [ mercurial ];
+
+  # setup.py doesn't include "packages", which is needed for the resulting
+  # scripts to refer to the "artemis" module.
+  prePatch = ''substituteInPlace setup.py --replace py_modules packages'';
+}
