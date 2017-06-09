@@ -1,0 +1,40 @@
+From: Chris Warburton
+Date: Fri, 09 Jun 2017 18:53:02 +0100
+State: new
+Subject: Re-enable tincified pandoc, panpipe, panhandle
+Message-Id: <b75369e7b25a650d-0-artemis@nixos>
+
+In "basic.nix", we would like to make pandoc, panpipe and panhandle available.
+The problem is, they're taking a long time to build, and they keep getting
+rebuilt due to cache misses.
+
+These cache misses are due to "tincify" using the latest Hackage index, which is
+fetched by "cabal update" in hackageDb.nix. Even if the same packages, versions,
+etc. are chosen by the dependency resolution of cabal/tinc, Nix will still
+rebuild the last package, since it's dependencies (the hash of hackageDb, which
+includes the hash of its dependency on currentTime) have changed.
+
+To avoid this, we've made stableHackageDb, which is built from a specific
+revision of the all-cabal-files git repo. This lets us build our index in a
+(mostly) deterministic way: the input (git revision) is deterministic and fixed,
+so that won't cause any rebuilds; the stableHackageDb builder may or may not be
+deterministic, but in any case its results won't meaningfully change across
+rebuilds, even if they turn out not to be bit-identical; since the git revision
+doesn't change, and stableHackageDb doesn't need to be rebuilt until the git
+revision gets bumped, we should only end up building each tincified Haskell
+package once (there's no usage of currentTime, etc.).
+
+Note that we're assuming that tincify and cabal will happily coexist, with
+subsequent bumps to stableHackageDb's git revision not causing any interference
+with e.g. dependency resolution. This assumption seems justified, since:
+
+ - Cabal only cares about globally installed packages, and the Hackage index.
+   We're not using cabal to instal packages globally, we're doing everything in
+   Nix or in sandboxes. Hence only the index should matter, and that's fixed and
+   deterministic.
+ - Tinc seems to be specifically engineered to be deterministic, i.e. allowing
+   multiple versions of cached files (e.g. cabal2nix outputs for packages) to
+   live side-by-side in its cache.
+
+This means we can use the "cache.global" mode of tincify in confidence, without
+rebuilding anything until we decide to bump the git revision of stableHackageDb.
