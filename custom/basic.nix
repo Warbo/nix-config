@@ -28,9 +28,9 @@ with self;
       openssh
       p7zip
       pamixer
-      #pandoc
-      #panhandle
-      #panpipe
+      pandoc
+      panhandle
+      panpipe
       poppler_utils
       pmutils
       psmisc

@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Fri, 09 Jun 2017 18:53:02 +0100
-State: new
+State: resolved
 Subject: Re-enable tincified pandoc, panpipe, panhandle
 Message-Id: <b75369e7b25a650d-0-artemis@nixos>
+resolution: fixed
 
 In "basic.nix", we would like to make pandoc, panpipe and panhandle available.
 The problem is, they're taking a long time to build, and they keep getting

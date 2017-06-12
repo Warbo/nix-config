@@ -1,0 +1,10 @@
+From: Chris Warburton
+Date: Mon, 12 Jun 2017 14:41:01 +0100
+Subject: Re: Re-enable tincified pandoc, panpipe, panhandle
+Message-Id: <b75369e7b25a650d-8e375d2c38c61072-artemis@nixos>
+References: <b75369e7b25a650d-0-artemis@nixos>
+In-Reply-To: <b75369e7b25a650d-0-artemis@nixos>
+
+Cached versions seem to be getting used, both for the packages
+themselves (good, since e.g. pandoc takes ages to build) and even for
+the tincify output (good, since it's run during evaluation)

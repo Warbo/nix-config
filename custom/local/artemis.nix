@@ -1,13 +1,6 @@
 { fetchFromGitHub, fetchurl, pythonPackages }:
 
 with rec {
-  src = fetchFromGitHub {
-    owner  = "mrzv";
-    repo   = "artemis";
-    rev    = "0744562";
-    sha256 = "0jz33hmqjwz7fbmfmsb4qmpskz4rhddc7i9pf6na9zslz5c7i3fq";
-  };
-
   mercurial = pythonPackages.buildPythonPackage {
     name = "mercurial";
     src  = fetchurl {
@@ -18,11 +11,12 @@ with rec {
 };
 
 pythonPackages.buildPythonPackage {
-  inherit src;
   name = "artemis";
+  src  = fetchFromGitHub {
+    owner  = "mrzv";
+    repo   = "artemis";
+    rev    = "6a3d496";
+    sha256 = "1xdd4ayb6jyk4w5hdq2dxbxzzk90lk21rvkhwcih8ydwwg6zrnqh";
+  };
   propagatedBuildInputs = [ mercurial ];
-
-  # setup.py doesn't include "packages", which is needed for the resulting
-  # scripts to refer to the "artemis" module.
-  prePatch = ''substituteInPlace setup.py --replace py_modules packages'';
 }
