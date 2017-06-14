@@ -114,20 +114,6 @@ with rec {
       ML4HSFE   = [ "HS2AST" ];
     };
 
-    # Choose cache for Cabal and Tinc
-    cache = if getEnv "NIX_REMOTE" == ""
-               then trace ''info: No NIX_REMOTE set; assuming we are in
-                                  restricted mode. Tincifying with a local
-                                  cache. This is pure, but slower than a
-                                  global cache.''
-                          {
-                            cache = {
-                              global = false;
-                              path = stableHackageDb;
-                            };
-                          }
-               else {};  # Use default, global, settings
-
     passJSON = name: data: ''
       (with builtins; fromJSON (readFile "${writeScript "${name}.json"
                                                         (toJSON data)}"))
@@ -142,8 +128,8 @@ with rec {
           with builtins;
           tincify (${dotted path} // {
               haskellPackages = ${dotted (init path)};
-              extras = ${passJSON "extras" extras};
-            } // ${passJSON "tinc-cache" cache}) {}
+              extras          = ${passJSON "extras" extras};
+            }) {}
         '';
       };
       {
