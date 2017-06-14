@@ -7,8 +7,11 @@ with lib;
 with { defHPkg = haskellPackages; };
 {
   # Where to find cached tinc/cabal data. If global, we'll use it in place and
-  # potentially update/overwrite it; otherwise we'll use a copy.
-  cache           ? { global = true; path = "/tmp/tincify-home"; },
+  # potentially update/overwrite it; otherwise we'll use a copy. We try to use a
+  # global cache by default, since it's faster; unless we're on Hydra.
+  cache           ? if getEnv "NIX_REMOTE" == ""
+                       then { global = false; path = stableHackageDb;     }
+                       else { global = true;  path = "/tmp/tincify-home"; },
 
   # Names of extra dependencies to include in the resulting Haskell package set;
   # useful for things which are in your Nix haskellPackages but not in Hackage.
