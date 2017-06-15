@@ -1,4 +1,16 @@
-{ perlPackages, stdenv }:
+{ perlPackages, stdenv, writeScript }:
 
-# Default pkg specifies a "devdoc" output then complains it wasn't made...
-stdenv.lib.overrideDerivation perlPackages.MHonArc (x: { outputs = [ "out" ]; })
+stdenv.lib.overrideDerivation perlPackages.MHonArc (x: {
+
+  # Fixes https://bugzilla.redhat.com/show_bug.cgi?id=1298904
+  postInstall = ''
+    while read -r F
+    do
+      echo "Stripping 'defined (%' from $F" 1>&2
+      perl -i -pe 's/defined ?\(%/\(%/' "$F"
+    done < <(find "$out" -type f -name "*.pl")
+  '';
+
+  # Don't include a "devdoc" output, since it's never made
+  outputs = [ "out" ];
+})
