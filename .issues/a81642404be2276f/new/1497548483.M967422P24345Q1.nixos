@@ -1,0 +1,30 @@
+From: Chris Warburton
+Date: Thu, 15 Jun 2017 18:34:33 +0100
+State: new
+Subject: Add shouldFail dependencies to overridden packages
+Message-Id: <a81642404be2276f-0-artemis@nixos>
+
+At the moment, our overrides are monotonically increasing: package 'foo'
+fails to build, so we provide 'foo.override ...' which builds
+successfully.
+
+Since we're shadowing such packages with overrides, there's no way to
+tell if they're actually needed anymore! Ideally the upstreams
+(developers or packagers) should be fixing bugs, making our overrides
+unnecessary. If this happens, we'll just carry on overriding, never
+noticing that the original now works.
+
+To prevent this, we can use the 'shouldFail' function. For each override
+we should:
+
+ - Capture the problem with a failing derivation. If the problem is that
+   the package fails to build, then use the package itself. If it's some
+   runtime symptom, e.g. trying to run the resulting binaries doesn't
+   work, then make a simple test derivation which depends on the
+   original package, runs the binary and dies due to the problem.
+ - Pass this failing derivation to 'shouldFail', and add as a dependency
+   of the overrides.
+
+This way, when the problem gets fixed upstream, our override will fail
+to build: the 'shouldFail x' dependency will fail, because 'x' will now
+work. The "fix" for these failures is to throw away the overrides :)
