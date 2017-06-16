@@ -47,17 +47,34 @@ with rec {
   '';
 };
 {
+  thermald-nocheck = {
+    description = "Thermal Daemon Service";
+    wantedBy    = [ "multi-user.target" ];
+    script      = "exec ${pkgs.thermald}/sbin/thermald --no-daemon --dbus-enable --ignore-cpuid-check";
+  };
+
   coolDown = mkService {
     description   = "Suspend common resource hogs when temperature's too hot";
-    path          = [ warbo-utilities ];
+    path          = [ procps warbo-utilities ];
     serviceConfig = {
       User       = "root";
       Restart    = "always";
       RestartSec = 30;
-      ExecStart  = writeScript "cool-down" ''
-        #!${bash}/bin/bash
-        coolDown
-      '';
+      ExecStart  =
+        with {
+          raw = writeScript "cool-now" ''
+            #!${bash}/bin/bash
+            coolDown
+          '';
+        };
+        runCommand "cool-now-wrapped"
+          {
+            inherit raw;
+            buildInputs = [ makeWrapper ];
+          }
+          ''
+            makeWrapper "$raw" "$out" --prefix PATH : "${warbo-utilities}/bin"
+          '';
     };
   };
 
