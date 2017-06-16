@@ -233,6 +233,10 @@ rec {
     publish.workstation = true;
   };
 
+  # Not sure which is better. Ubuntu uses thermald by default.
+  #services.thinkfan.enable = true;
+  #services.thermald.enable = true;  # Requires CPU check disabling on X60s
+
   systemd = {
     services = import ./services.nix (pkgs // mypkgs);
   };
