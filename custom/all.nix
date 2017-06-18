@@ -32,6 +32,7 @@ all = buildEnv {
     gcalcli
     gensgs
     gtk_engines
+    iotop
     kbibtex_full
     keepassx
     leafpad
