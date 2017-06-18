@@ -4,7 +4,7 @@ with builtins;
 with self.lib;
 with {
   inherit (self)
-    fetchgit nix runCommand stdenv;
+    fetchgit makeWrapper nix runCommand stdenv writeScript;
 };
 with {
   helpers = rec {
@@ -163,6 +163,24 @@ with {
         generatedPackages = callPackage "${converted}" {};
       };
       generatedPackages.package;
+
+    wrap = { paths ? [], vars ? {}, file ? null, script ? null, name ? "wrap" }:
+      assert file != null || script != null ||
+             abort "wrapWith needs 'file' or 'script' argument";
+      with rec {
+        f    = if file == null then writeScript name script else file;
+        args = (map (p: "--prefix PATH : ${p}/bin") paths) ++
+               (attrValues (mapAttrs (n: v: ''--set "${n}" "${v}"'') vars));
+      };
+      runCommand name
+        {
+          inherit f;
+          params      = concatStringsSep " " args;
+          buildInputs = [ makeWrapper ];
+        }
+        ''
+          makeWrapper "$f" "$out" $params
+        '';
   };
 };
 
