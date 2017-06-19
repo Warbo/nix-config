@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Sun, 18 Jun 2017 23:25:17 +0100
-State: new
+State: resolved
 Subject: Add Airspeed Velocity Python package
 Message-Id: <b3fda9c0c50a5d39-0-artemis@nixos>
+resolution: fixed
 
 Not quite a simple buildPythonPackage, since it uses virtualenv, etc. in
 its tests.
