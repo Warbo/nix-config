@@ -1,8 +1,8 @@
-{ latestGit }:
+self: super:
 
 rec {
   # The latest version of this repo
-  latestNixCfg = latestGit {
+  latestNixCfg = self.latestGit {
     url = "http://chriswarbo.net/git/nix-config.git";
   };
 
