@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Mon, 19 Jun 2017 11:30:14 +0100
+Subject: Re: Add Airspeed Velocity Python package
+Message-Id: <b3fda9c0c50a5d39-fca93cd956f1af9f-artemis@nixos>
+References: <b3fda9c0c50a5d39-0-artemis@nixos>
+In-Reply-To: <b3fda9c0c50a5d39-0-artemis@nixos>
+
+Done, although had to disable tests.

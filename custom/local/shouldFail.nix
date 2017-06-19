@@ -1,4 +1,4 @@
-{ bash, stdenv, writeScript }:
+{ bash, coreutils, stdenv, writeScript }:
 
 toFail: stdenv.lib.overrideDerivation toFail (old: {
   builder = writeScript "toFail-${old.name}" ''
@@ -11,6 +11,11 @@ toFail: stdenv.lib.overrideDerivation toFail (old: {
     fi
 
     echo "shouldFail: ${old.name} failed to build, as we expected" 1>&2
+    if [[ -e "$out" ]]
+    then
+      echo "Cleaning up after build" 1>&2
+      "${coreutils}/bin/rm" -r "$out"
+    fi
     echo "Failed as expected" > "$out"
   '';
 })
