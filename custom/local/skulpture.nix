@@ -1,5 +1,6 @@
-{ fetchurl, stdenv, cmake, kde4, findutils }:
+{ cmake, fetchurl, findutils, stable, stdenv }:
 
+with { inherit (stable) kde4; };
 stdenv.mkDerivation {
   name    = "skulpture";
   version = "0.2.4";
@@ -42,6 +43,4 @@ stdenv.mkDerivation {
     libskulpture.so	lib/qt4/plugins/styles
     EOF
   '';
-
-  # FIXME: What about 'kstyle_skulpture_config.so	lib/kde4'?
 }
