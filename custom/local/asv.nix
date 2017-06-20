@@ -3,20 +3,12 @@
 with {
   plain = pythonPackages.buildPythonPackage {
     name = "airspeed-velocity";
-    src  = fetchFromGitHub {
-      owner  = "spacetelescope";
+    src  = builtins.trace "FIXME: https://github.com/spacetelescope/asv/pull/521" fetchFromGitHub {
+      owner  = "Warbo";
       repo   = "asv";
-      rev    = "953c960";
-      sha256 = "10fissqb3fzqs94c9b0rzd9gk1kxccn13bfh22rjih4z9jdfh113";
+      rev    = "e22664e";
+      sha256 = "1x4vlgfa9rf6g4myrb5ps3dfxckalkvf8bb8byrls2xw6afvw7ll";
     };
-
-    postPatch = ''
-      substituteInPlace asv/commands/publish.py \
-        --replace 'shutil.copytree(template_dir, conf.html_dir)' \
-                  'shutil.copytree(template_dir, conf.html_dir)
-              os.chmod(conf.html_dir, 0755)
-              [[os.chmod(pre+"/"+x, 0755) for x in (fs+ds)] for (pre, ds, fs) in os.walk(conf.html_dir)]'
-    '';
 
     # For tests
     buildInputs = [
