@@ -20,7 +20,7 @@ all = buildEnv {
     aspell
     aspellDicts.en
     basic # Anything useful for scripts should go in here
-    kde4.basket
+    stable.kde4.basket
     cmus
     compton
     conkeror
