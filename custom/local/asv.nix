@@ -3,8 +3,12 @@
 with {
   plain = pythonPackages.buildPythonPackage {
     name = "airspeed-velocity";
-    src  = builtins.trace "FIXME: https://github.com/spacetelescope/asv/pull/521"
-             latestGit { url = "https://github.com/Warbo/asv.git"; };
+    src  = fetchFromGitHub {
+      owner  = "spacetelescope";
+      repo   = "asv";
+      rev    = "13559be";
+      sha256 = "1d4s1j08ky37wpa26r50cdkkw6k4szmfza7adwxi7r70rb3m3yk2";
+    };
 
     # For tests
     buildInputs = [
