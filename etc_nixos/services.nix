@@ -27,23 +27,48 @@ with rec {
 
   wifiName = '' ${networkmanager}/bin/nmcli c | grep -v -- "--" | grep -v "DEVICE" | cut -d ' ' -f1'';
 
+  setLocation = writeScript "setLocation" ''
+    #!${bash}/bin/bash
+    set -e
+
+    ${online} || {
+      echo "unknown" > /tmp/location
+      exit 0
+    }
+
+    WIFI=$(${wifiName})
+    if echo "$WIFI" | grep "aa.net.uk" > /dev/null
+    then
+      echo "home" > /tmp/location
+      exit 0
+    fi
+    if echo "$WIFI" | grep "UoD_WiFi" > /dev/null
+    then
+      echo "work" > /tmp/location
+      exit 0
+    fi
+    if echo "$WIFI" | grep "eduroam" > /dev/null
+    then
+      echo "work" > /tmp/location
+      exit 0
+    fi
+    echo "unknown" > /tmp/location
+  '';
+
   atHome = writeScript "atHome" ''
     #!${bash}/bin/bash
     set -e
 
-    ${online}  || exit 1
-    ${wifiName} | grep "aa.net.uk" > /dev/null && exit 0
-    exit 1
+    LOC=$(cat /tmp/location)
+    [[ "x$LOC" = "xhome" ]] || exit 1
   '';
 
   atWork = writeScript "atWork" ''
     #!${bash}/bin/bash
     set -e
 
-    ${online}  || exit 1
-    ${wifiName} | grep "UoD_WiFi" > /dev/null && exit 0
-    ${wifiName} | grep "eduroam"  > /dev/null && exit 0
-    exit 1
+    LOC=$(cat /tmp/location)
+    [[ "x$LOC" = "xwork" ]] || exit 1
   '';
 };
 {
@@ -176,6 +201,25 @@ with rec {
         notify "Suspending"
         sleep 60
         gksudo -S pm-suspend
+      '';
+    };
+  };
+
+  checkLocation = mkService {
+    description   = "Use WiFi name to check where we are";
+    path          = [ warbo-utilities ];
+    serviceConfig = {
+      User       = "chris";
+      Restart    = "always";
+      RestartSec = 10;
+      ExecStart  = writeScript "check-location" ''
+        #!${bash}/bin/bash
+        ${setLocation}
+        if ${atHome} || ${atWork}
+        then
+          # Unlikely to change for a while
+          sleep 300
+        fi
       '';
     };
   };
