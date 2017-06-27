@@ -331,7 +331,7 @@ with rec {
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
-      RestartSec = 3600;
+      RestartSec = 60 * 60 * 4;
       ExecStart  = writeScript "get-news-start" ''
         #!${bash}/bin/bash
         exec get_news
