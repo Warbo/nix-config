@@ -1,17 +1,48 @@
 # Stable nixpkgs
 self: super:
 
-rec {
-  stableRepo = super.fetchFromGitHub {
-    owner  = "NixOS";
-    repo   = "nixpkgs";
+with builtins;
+with {
+  version = { rev, sha256 }:
+    with {
+      name = replaceStrings ["."] [""] rev;
+      repo = super.fetchFromGitHub {
+        inherit rev sha256;
+        owner = "NixOS";
+        repo  = "nixpkgs";
+      };
+    };
+    {
+      "repo${name}" = repo;
+
+      # Explicitly pass an empty config, to avoid loading ~/.nixpkgs/config.nix
+      # and causing an infinite loop
+      "nixpkgs${name}" = import repo { config = {}; };
+    };
+};
+
+foldl' (x: y: x // y) {} [
+  (version {
     rev    = "16.03";
     sha256 = "0m2b5ignccc5i5cyydhgcgbyl8bqip4dz32gw0c6761pd4kgw56v";
-  };
+  })
 
-  # Explicitly pass an empty config, to avoid loading ~/.nixpkgs/config.nix and
-  # causing an infinite loop
-  stable = import stableRepo { config = {}; };
+  (version {
+    rev    = "16.09";
+    sha256 = "0m2b5ignccc5i5cyydhgcgbyl8bqip4dz32gw0c6761pd4kgw56v";
+  })
 
-  origPkgs = super;
-}
+  (version {
+    rev    = "17.03";
+    sha256 = "1fw9ryrz1qzbaxnjqqf91yxk1pb9hgci0z0pzw53f675almmv9q2";
+  })
+
+  {
+    # "Blessed" versions
+    stableRepo = self.repo1603;
+    stable     = self.nixpkgs1603;
+
+    # Unmodified package set
+    origPkgs = super;
+  }
+]
