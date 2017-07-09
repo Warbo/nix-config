@@ -220,7 +220,7 @@ rec {
   };
 
   services.printing = {
-    enable  = true;
+    enable  = false;  # Switch this to enable CUPS
     drivers = [ pkgs.hplip pkgs.gutenprint ];
   };
 
@@ -239,6 +239,9 @@ rec {
 
   systemd = {
     services = import ./services.nix (pkgs // mypkgs);
+
+    # Enables virtual terminal 1
+    units."getty@tty1".enable = true;
   };
 
   # Locale, etc.
