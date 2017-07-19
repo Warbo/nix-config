@@ -46,6 +46,7 @@ with self;
       imagemagick
       tightvnc
       ts
+      usbutils
       unzip
       warbo-utilities
       wget
