@@ -1,3 +1,3 @@
-{ callPackage, latestGit }:
+{ callPackage, latestGit, repoSource }:
 
-callPackage (latestGit { url = "http://chriswarbo.net/git/asv-nix.git"; }) {}
+callPackage (latestGit { url = "${repoSource}/asv-nix.git"; }) {}
