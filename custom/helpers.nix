@@ -170,7 +170,7 @@ with {
       with rec {
         f    = if file == null then writeScript name script else file;
         args = (map (p: "--prefix PATH : ${p}/bin") paths) ++
-               (attrValues (mapAttrs (n: v: trace "FIXME: Sort out quoting in wrap"
+               (attrValues (mapAttrs (n: v: trace "FIXME: Sort out quoting in wrap ( maybe https://github.com/NixOS/nixpkgs/pull/23511 helps?)"
                                                   ''--set "${n}" "${v}"'') vars));
       };
       runCommand name
