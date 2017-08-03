@@ -20,7 +20,7 @@ with self;
           echo "Derivation '${drv.name}' should have failed; didn't" 1>&2
           exit 1
         fi
-        echo "$pth is broken" > "$out"
+        echo "${drv.name} is broken" > "$out"
       '';
     };
     # As per https://github.com/NixOS/nixpkgs/issues/4017

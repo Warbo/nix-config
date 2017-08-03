@@ -18,65 +18,33 @@ with self;
 with builtins;
 
 {
+  # We need the url, but ref is optional (e.g. if we want a particular branch)
+  latestGit = { url, ref ? "HEAD" }@args:
+    with rec {
+      key    = "${hashString "sha256" url}_${hashString "sha256" ref}";
+      envRev = getEnv "nix_git_rev_${key}";
 
-# We need the url, but ref is optional (e.g. if we want a particular branch)
-latestGit = { url, ref ? "HEAD", fetchgitArgs ? {} }:
+      # Get the commit ID for the given ref in the given repo.
+      newRev = import (runCommand
+        "repo-${sanitiseName ref}-${sanitiseName url}"
+        {
+          # Avoids caching. This is a cheap operation and needs to be up-to-date
+          version = toString currentTime;
 
-let
+          # Required for SSL
+          GIT_SSL_CAINFO = "${cacert}/etc/ssl/certs/ca-bundle.crt";
 
-  hUrl   = hashString "sha256" url;
-  hRef   = hashString "sha256" ref;
-  key    = "${hUrl}_${hRef}";
-  envRev = getEnv "nix_git_rev_${key}";
+          buildInputs  = [ git gnused ];
+        }
+        ''
+          REV=$(git ls-remote "${url}" "${ref}") || exit 1
 
-  # Get the commit ID for the given ref in the given repo. Use currentTime as a
-  # version to avoid caching. This is a cheap operation and needs to be
-  # up-to-date.
-  getHeadRev = stdenv.mkDerivation {
-    name    = "repo-${sanitiseName ref}-${sanitiseName url}";
-    version = toString currentTime;
+          printf '"%s"' $(echo "$REV"        |
+                          head -n1           |
+                          sed -e 's/\s.*//g' ) > "$out"
+        '');
 
-    # Required for SSL
-    GIT_SSL_CAINFO = "${cacert}/etc/ssl/certs/ca-bundle.crt";
-
-    outputHash     = null;
-    outputHashAlgo = null;
-    outputHashMode = null;
-    sha256         = null;
-
-    buildInputs  = [ git gnused ];
-    buildCommand = ''
-      source $stdenv/setup
-      set -e
-      REV=$(git ls-remote "${url}" "${ref}") || exit 1
-      # printf is an ugly way to avoid trailing newlines
-      printf '"%s"' $(echo "$REV"        |
-                      head -n1           |
-                      sed -e 's/\s.*//g' ) > "$out"
-    '';
-  };
-
-  # Extract the commit ID as a string. Ignore how we got it, to avoid cache
-  # misses (unlike commit IDs, git repos are expensive).
-  newRev = import getHeadRev;
-
-  rev = if envRev == "" then newRev else envRev;
-
-  # fetchgit does all of the hard work, but it requires a hash. Make one up.
-  fg = fetchgit ({
-    inherit url rev;
-
-    # Dummy hash
-    sha256 = hUrl;
-  } // fetchgitArgs);
-
-# Use the result of fetchgit, but throw away all of the made up hashes; Nix will
-# calculate fresh ones, rather than complaining.
-in stdenv.lib.overrideDerivation fg (old: {
-    outputHash     = null;
-    outputHashAlgo = null;
-    outputHashMode = null;
-    sha256         = null;
-  });
-
+      rev = if envRev == "" then newRev else envRev;
+    };
+    fetchGitHashless (removeAttrs (args // { inherit rev; }) [ "ref" ]);
 }
