@@ -9,6 +9,9 @@ with {
 with {
   helpers = rec {
 
+    # Forces the given derivations to be built and returns true if they work
+    forceBuilds = drvs: import (withDeps drvs (writeScript "force" "true"));
+
     isPath = x: typeOf x == "path";
 
     repoSource = if getEnv "GIT_REPO_DIR" == ""
@@ -164,9 +167,15 @@ with {
       };
       generatedPackages.package;
 
+    # Add extra dependencies to a derivation; for example, if we only want a
+    # build to succeed if some external tests pass.
+    withDeps = deps: drv: overrideDerivation drv (old: {
+      extraDeps = (old.extraDeps or []) ++ deps;
+    });
+
     wrap = { paths ? [], vars ? {}, file ? null, script ? null, name ? "wrap" }:
       assert file != null || script != null ||
-             abort "wrapWith needs 'file' or 'script' argument";
+             abort "wrap needs 'file' or 'script' argument";
       with rec {
         f    = if file == null then writeScript name script else file;
         args = (map (p: "--prefix PATH : ${p}/bin") paths) ++
