@@ -3,21 +3,27 @@ self: super:
 
 with builtins;
 with {
-  version = { rev, sha256 }:
-    with {
-      name = replaceStrings ["."] [""] rev;
+  getNixpkgs = { rev, sha256 }:
+    rec {
+      # Explicitly pass an empty config, to avoid loading ~/.nixpkgs/config.nix
+      # and causing an infinite loop
+      pkgs = import repo { config = {}; };
+
       repo = super.fetchFromGitHub {
         inherit rev sha256;
         owner = "NixOS";
         repo  = "nixpkgs";
       };
     };
-    {
-      "repo${name}" = repo;
 
-      # Explicitly pass an empty config, to avoid loading ~/.nixpkgs/config.nix
-      # and causing an infinite loop
-      "nixpkgs${name}" = import repo { config = {}; };
+  version = args:
+    with {
+      name   = replaceStrings ["."] [""] args.rev;
+      result = getNixpkgs args;
+    };
+    {
+      "nixpkgs${name}" = result.pkgs;
+      "repo${name}"    = result.repo;
     };
 };
 
@@ -44,5 +50,8 @@ foldl' (x: y: x // y) {} [
 
     # Unmodified package set
     origPkgs = super;
+
+    # Allow other versions
+    inherit getNixpkgs;
   }
 ]
