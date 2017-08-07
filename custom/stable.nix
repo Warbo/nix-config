@@ -2,7 +2,7 @@
 self: super:
 
 with builtins;
-with {
+with rec {
   getNixpkgs = { rev, sha256 }:
     rec {
       # Explicitly pass an empty config, to avoid loading ~/.nixpkgs/config.nix
