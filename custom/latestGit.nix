@@ -21,8 +21,15 @@ with builtins;
   # We need the url, but ref is optional (e.g. if we want a particular branch)
   latestGit = { url, ref ? "HEAD" }@args:
     with rec {
+      # We allow refs to be given in two ways: as a standalone env var...
       key    = "${hashString "sha256" url}_${hashString "sha256" ref}";
-      envRev = getEnv "nix_git_rev_${key}";
+      keyRev = getEnv "nix_git_rev_${key}";
+
+      # Or as an entry in a JSON table
+      repoRefStr = getEnv "REPO_REFS";
+      repoRefs   = if repoRefStr == ""
+                      then {}
+                      else fromJSON repoRefStr;
 
       # Get the commit ID for the given ref in the given repo.
       newRev = import (runCommand
@@ -44,7 +51,11 @@ with builtins;
                           sed -e 's/\s.*//g' ) > "$out"
         '');
 
-      rev = if envRev == "" then newRev else envRev;
+      rev = if hasAttr url repoRefs
+               then getAttr url repoRefs
+               else if keyRev == ""
+                       then newRev
+                       else keyRev;
     };
     fetchGitHashless (removeAttrs (args // { inherit rev; }) [ "ref" ]);
 }
