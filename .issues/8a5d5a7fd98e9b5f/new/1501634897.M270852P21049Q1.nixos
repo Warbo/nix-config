@@ -1,7 +1,8 @@
 From: Chris Warburton
 Date: Wed, 02 Aug 2017 01:48:00 +0100
-State: new
+State: resolved
 Subject: Investigate dupes
 Message-Id: <8a5d5a7fd98e9b5f-0-artemis@nixos>
+resolution: fixed
 
 For example, shouldFail and isBroken

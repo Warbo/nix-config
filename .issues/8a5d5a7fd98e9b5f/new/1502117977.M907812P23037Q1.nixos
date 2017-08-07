@@ -1,0 +1,9 @@
+From: Chris Warburton
+Date: Mon, 07 Aug 2017 15:59:13 +0100
+Subject: Re: Investigate dupes
+Message-Id: <8a5d5a7fd98e9b5f-800c63be26e39735-artemis@nixos>
+References: <8a5d5a7fd98e9b5f-0-artemis@nixos>
+In-Reply-To: <8a5d5a7fd98e9b5f-0-artemis@nixos>
+
+Gah, isBroken doesn't actually work very well; keep the name, but use
+the definition of shouldFail!

@@ -1,4 +1,4 @@
-{ fetchFromGitHub, git, latestGit, pythonPackages, shouldFail }:
+{ fetchFromGitHub, git, isBroken, latestGit, pythonPackages }:
 
 with {
   plain = pythonPackages.buildPythonPackage {
@@ -23,6 +23,6 @@ with {
   };
 };
 plain.override (old: {
-  stillNeedToDisableTests = shouldFail plain;
+  stillNeedToDisableTests = isBroken plain;
   doCheck = false;
 })

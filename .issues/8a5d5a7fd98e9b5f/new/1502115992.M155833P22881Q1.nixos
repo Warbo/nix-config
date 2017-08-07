@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Mon, 07 Aug 2017 15:26:09 +0100
+Subject: Re: Investigate dupes
+Message-Id: <8a5d5a7fd98e9b5f-f3bf979e95f98ee7-artemis@nixos>
+References: <8a5d5a7fd98e9b5f-0-artemis@nixos>
+In-Reply-To: <8a5d5a7fd98e9b5f-0-artemis@nixos>
+
+Choose isBroken in favour of shouldFail
