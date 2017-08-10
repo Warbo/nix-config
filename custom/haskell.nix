@@ -31,6 +31,8 @@ with rec {
 };
 
 rec {
+  inherit haskellOverrides;
+
   # Lets us know which packages we've overridden
   haskellNames = attrNames hsFileDefs;
 
