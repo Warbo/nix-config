@@ -26,6 +26,7 @@ with self;
       msmtp
       nix-repl
       openssh
+      opusTools
       p7zip
       pamixer
       pandoc
