@@ -134,19 +134,6 @@ with rec {
       };
       take minlen (reverse xs) == take minlen (reverse ys);
 
-    # Augment the environment for a derivation by allowing Nix commands to be
-    # called inside the build process
-    withNix = attrs:
-      attrs // {
-        buildInputs = (attrs.buildInputs or []) ++ [ nix ];
-        NIX_PATH    = if getEnv "NIX_PATH" == ""
-                         then "nixpkgs=${<nixpkgs>}"
-                         else getEnv "NIX_PATH";
-        NIX_REMOTE  = if getEnv "NIX_REMOTE" == ""
-                         then "daemon"
-                         else getEnv "NIX_REMOTE";
-      };
-
     repo2npm = repo:
       with rec {
         inherit (self)
