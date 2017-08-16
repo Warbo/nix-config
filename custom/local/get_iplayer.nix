@@ -1,10 +1,9 @@
 # Updated get_iplayer
-self: super:
 
-with self;
+{ buildEnv, fetchurl, ffmpeg, origPkgs, perlPackages, stdenv }:
 
-rec {
-  get_iplayer_real = stdenv.lib.overrideDerivation super.get_iplayer
+with {
+  get_iplayer_real = stdenv.lib.overrideDerivation origPkgs.get_iplayer
     (oldAttrs : {
       name = "get_iplayer";
       src  = fetchurl {
@@ -16,10 +15,10 @@ rec {
                                 ffmpeg
                               ];
     });
+};
 
-  # Some dependencies seem to be missing, so bundle them in with get_iplayer
-  get_iplayer = buildEnv {
-    name  = "get_iplayer";
-    paths = [ get_iplayer_real ffmpeg perlPackages.XMLSimple ];
-  };
+# Some dependencies seem to be missing, so bundle them in with get_iplayer
+buildEnv {
+  name  = "get_iplayer";
+  paths = [ get_iplayer_real ffmpeg perlPackages.XMLSimple ];
 }

@@ -1,11 +1,10 @@
-self: super:
+{ emacs25 ? null, emacsPackagesNgGen, origPkgs }:
 
 with rec {
-  version = self.emacs25 or super.emacs;
+  version = if emacs25 == null
+               then origPkgs.emacs
+               else emacs25;
 };
-{
-  emacs = (self.emacsPackagesNgGen version).emacsWithPackages (epkgs:
-    (with epkgs.elpaPackages;  []) ++
-    (with epkgs.melpaPackages; [])
-  );
-}
+(emacsPackagesNgGen version).emacsWithPackages (epkgs:
+  (with epkgs.elpaPackages;  []) ++
+  (with epkgs.melpaPackages; []))
