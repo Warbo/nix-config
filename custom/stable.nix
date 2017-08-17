@@ -2,56 +2,53 @@
 self: super:
 
 with builtins;
+with super.lib;
 with rec {
-  getNixpkgs = { rev, sha256 }:
-    rec {
-      # Explicitly pass an empty config, to avoid loading ~/.nixpkgs/config.nix
-      # and causing an infinite loop
-      pkgs = import repo { config = {}; };
-
-      repo = super.fetchFromGitHub {
-        inherit rev sha256;
-        owner = "NixOS";
-        repo  = "nixpkgs";
-      };
+  nixpkgsRepo = { rev, sha256 }:
+    super.fetchFromGitHub {
+      inherit rev sha256;
+      owner = "NixOS";
+      repo  = "nixpkgs";
     };
 
-  version = args:
-    with {
-      name   = replaceStrings ["."] [""] args.rev;
-      result = getNixpkgs args;
+  # Explicitly pass an empty config, to avoid loading ~/.nixpkgs/config.nix
+  # and causing an infinite loop
+  importPkgs = repo: import repo { config = {}; };
+
+  repos = mapAttrs (_: nixpkgsRepo) {
+    repo1603 = {
+      rev    = "16.03";
+      sha256 = "0m2b5ignccc5i5cyydhgcgbyl8bqip4dz32gw0c6761pd4kgw56v";
     };
-    {
-      "nixpkgs${name}" = result.pkgs;
-      "repo${name}"    = result.repo;
+    repo1609 = {
+      rev    = "16.09";
+      sha256 = "0m2b5ignccc5i5cyydhgcgbyl8bqip4dz32gw0c6761pd4kgw56v";
     };
+    repo1703 = {
+      rev    = "17.03";
+      sha256 = "1fw9ryrz1qzbaxnjqqf91yxk1pb9hgci0z0pzw53f675almmv9q2";
+    };
+  };
+
+  loadRepo = n: v: {
+    name  = replaceStrings [ "repo" ] [ "nixpkgs" ] n;
+    value = importPkgs v;
+  };
+
+  pkgSets = mapAttrs' loadRepo repos;
 };
 
-foldl' (x: y: x // y) {} [
-  (version {
-    rev    = "16.03";
-    sha256 = "0m2b5ignccc5i5cyydhgcgbyl8bqip4dz32gw0c6761pd4kgw56v";
-  })
+repos // pkgSets // {
+  # "Blessed" versions
+  stableRepo = repos.repo1603;
+  stable     = pkgSets.nixpkgs1603;
 
-  (version {
-    rev    = "16.09";
-    sha256 = "0m2b5ignccc5i5cyydhgcgbyl8bqip4dz32gw0c6761pd4kgw56v";
-  })
+  # Unmodified package set
+  origPkgs = super;
 
-  (version {
-    rev    = "17.03";
-    sha256 = "1fw9ryrz1qzbaxnjqqf91yxk1pb9hgci0z0pzw53f675almmv9q2";
-  })
-
-  {
-    # "Blessed" versions
-    stableRepo = self.repo1603;
-    stable     = self.nixpkgs1603;
-
-    # Unmodified package set
-    origPkgs = super;
-
-    # Allow other versions
-    inherit getNixpkgs;
-  }
-]
+  # Allow other versions
+  getNixpkgs = args: rec {
+    repo = nixpkgsRepo args;
+    pkgs = importPkgs repo;
+  };
+}
