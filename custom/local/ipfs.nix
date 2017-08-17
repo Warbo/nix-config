@@ -1,16 +1,8 @@
-self: super:
+{ getNixpkgs }:
 
-with rec {
-  newpkgs-src = self.fetchFromGitHub {
-    owner  = "NixOS";
-    repo   = "nixpkgs";
-    rev    = "c44be81";
-    sha256 = "1ipsvwd8dflv7k9wagw1yaqcnwfx410bfp7lrvz8cbmj7q8whlaj";
-  };
-
-  newpkgs = import "${newpkgs-src}" { config = {}; };
+with getNixpkgs {
+  rev    = "c44be81";
+  sha256 = "1ipsvwd8dflv7k9wagw1yaqcnwfx410bfp7lrvz8cbmj7q8whlaj";
 };
 
-{
-  inherit (newpkgs) ipfs;
-}
+pkgs.ipfs
