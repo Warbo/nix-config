@@ -17,6 +17,4 @@ with rec {
   };
 };
 
-callPackage "${repo}/pkgs/tools/misc/youtube-dl" {
-  inherit pycryptodome;
-}
+callPackage "${repo}/pkgs/tools/misc/youtube-dl" args
