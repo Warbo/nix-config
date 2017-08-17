@@ -22,7 +22,7 @@ with rec {
     };
     repo1609 = {
       rev    = "16.09";
-      sha256 = "0m2b5ignccc5i5cyydhgcgbyl8bqip4dz32gw0c6761pd4kgw56v";
+      sha256 = "1cx5cfsp4iiwq8921c15chn1mhjgzydvhdcmrvjmqzinxyz71bzh";
     };
     repo1703 = {
       rev    = "17.03";
