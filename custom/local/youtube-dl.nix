@@ -1,4 +1,4 @@
-{ callPackage, getNixpkgs }:
+{ callPackage, getNixpkgs, pythonPackages }:
 
 with rec {
   repo = (getNixpkgs {
@@ -8,5 +8,15 @@ with rec {
 
   pycryptodome =
     callPackage "${repo}/pkgs/development/python-modules/pycryptodome" {};
+
+  args = {
+    inherit pycryptodome;
+    buildPythonApplication = pythonPackages.buildPythonApplication or
+                             (xs: pythonPackages.buildPythonPackage
+                                    ({ namePrefix = ""; } // xs));
+  };
 };
-callPackage "${repo}/pkgs/tools/misc/youtube-dl" { inherit pycryptodome; }
+
+callPackage "${repo}/pkgs/tools/misc/youtube-dl" {
+  inherit pycryptodome;
+}
