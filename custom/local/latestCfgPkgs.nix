@@ -1,0 +1,3 @@
+{ withLatestCfg }:
+
+withLatestCfg <nixpkgs>
