@@ -9,7 +9,7 @@ with rec {
 
   # Select our custom packages/overrides, except for those which are buried in
   # larger sets
-  topLevel = /*filterAttrs (_: x: x != null)*/ (genAttrs customPkgNames (name:
+  topLevel = genAttrs customPkgNames (name:
                if elem name [
                     "stable"                    # Copy of nixpkgs
                     "stableRepo"                # Ditto
@@ -22,10 +22,10 @@ with rec {
                   then null
                   else if elem name isolate
                           then buildInDrv name
-                          else let pkg = nixpkgs."${name}";
+                          else let pkg = getAttr name nixpkgs;
                                 in if isDerivation pkg
                                       then pkg
-                                      else null));
+                                      else null);
 
   # Packages which may cause evaluation to fail
   isolate = [
@@ -154,4 +154,5 @@ with rec {
   };
   collectUp (drvsFor (oursFrom versions));
 };
-topLevel // haskell
+filterAttrs (_: x: x != null)
+            (topLevel // haskell // { test = import ./test.nix; })
