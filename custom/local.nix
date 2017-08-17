@@ -1,21 +1,24 @@
 # Turn files of the form "./local/foo.nix" into packages "foo" using callPackage
 self: super:
 
-with super.lib; with builtins;
-
-let #callPkg = trace "FIXME: Can callPkg go into imports?" (super.newScope self);
-    mkPkg   = x: old:
-      old // listToAttrs [{
-               name  = removeSuffix ".nix" x;
-               value = let path = ./local + "/${x}";
-                           deps = attrNames (functionArgs (import path));
-                           args = (if builtins.elem "self"  deps then { inherit self;  }
-                                                        else {}) //
-                                  (if builtins.elem "super" deps then { inherit super; }
-                                                        else {});
-                        in self.callPackage path {};
-             }];
- in fold mkPkg
-         {}
-         (filter (hasSuffix ".nix")
-                 (attrNames (readDir ./local)))
+with builtins;
+with super.lib;
+with rec {
+  callPackage = super.newScope self;
+  extraArgs   = args: (if args ? self  then { inherit self;  }
+                                       else {}) //
+                      (if args ? super then { inherit super; }
+                                       else {});
+  mkPkg       = x: old:
+    with rec {
+      func = import (./local + "/${x}");
+    };
+    old // listToAttrs [{
+             name  = removeSuffix ".nix" x;
+             value = callPackage func (extraArgs (functionArgs func));
+           }];
+};
+fold mkPkg
+     { inherit callPackage; }
+     (filter (hasSuffix ".nix")
+             (attrNames (readDir ./local)))

@@ -43,9 +43,6 @@ repos // pkgSets // {
   stableRepo = repos.repo1603;
   stable     = pkgSets.nixpkgs1603;
 
-  # Unmodified package set
-  origPkgs = super;
-
   # Allow other versions
   getNixpkgs = args: rec {
     repo = nixpkgsRepo args;

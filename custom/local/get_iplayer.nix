@@ -1,9 +1,9 @@
 # Updated get_iplayer
 
-{ buildEnv, fetchurl, ffmpeg, origPkgs, perlPackages, stdenv }:
+{ buildEnv, fetchurl, ffmpeg, super, perlPackages, stdenv }:
 
 with {
-  get_iplayer_real = stdenv.lib.overrideDerivation origPkgs.get_iplayer
+  get_iplayer_real = stdenv.lib.overrideDerivation super.get_iplayer
     (oldAttrs : {
       name = "get_iplayer";
       src  = fetchurl {
