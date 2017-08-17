@@ -4,14 +4,13 @@
 # If you're using Nix standalone, or want per-user configuration, you can run
 # a command like `nix-env -iA all` to install into your profile.
 
-self: super:
+{ self }:
 
 with self;
-
-let haskellPackages = haskell.packages.ghc7103;
- in {
-
-all = buildEnv {
+with {
+  haskellPackages = haskell.packages.ghc7103;
+};
+buildEnv {
   name = "all";
   paths = [
     acpi
@@ -56,6 +55,4 @@ all = buildEnv {
     xfce.xfce4notifyd
     haskellPackages.xmobar
   ];
-};
-
 }
