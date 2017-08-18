@@ -19,9 +19,21 @@ with rec {
   # Packages loaded from elsewhere, e.g. hackage, github, ...
   hsExternal = mapAttrs (_: self.runCabal2nix) {};
 
+  # Packages to include only if they're not already present
+  hsFallbacks =
+    with {
+      unoverridden = (import <nixpkgs> { config = ""; }).haskellPackages;
+    };
+    filterAttrs (n: _: !(hasAttr n unoverridden)) {
+
+      # Isn't in older nixpkgs
+      weigh = self.runCabal2nix { url = "cabal://weigh"; };
+    };
+
   # Adds haskell/ contents to a Haskell package set
   haskellOverrides = self: super: mapAttrs (_: def: self.callPackage def {})
-                                           (hsFileDefs // hsExternal);
+                                           (hsFallbacks // hsFileDefs
+                                                        // hsExternal);
 
   # Overrides a Haskell package set
   overrideHaskellPkgs = hsPkgs:
