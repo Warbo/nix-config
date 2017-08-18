@@ -29,6 +29,7 @@ with rec {
     "cmus"
     "conkeror"
     "emacs"
+    "fail"
     "gcalcli"
     "get_iplayer"
     "git2html"
@@ -182,6 +183,14 @@ with rec {
                            (callPackage ({}: (x: abort "shouldn't force")) {})
                          then nothing
                          else runCommand "isCallable-fail" "exit 1";
+
+    nixListToBashArray =
+      with nixListToBashArray { name = "check"; args = [ "foo" ]; };
+      runCommand "check-NLTBA" env ''
+        ${code}
+        echo pass > "$out"
+      '';
+
 
     repo1603        = tryInEnv "repo1603" repo1603;
     repo1609        = tryInEnv "repo1609" repo1609;
