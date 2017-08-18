@@ -8,7 +8,7 @@ stdenv.mkDerivation rec {
   pkgname      = "conkeror";
   version      = "git";
   name         = "${pkgname}-${version}";
-  src          = latestGit { url = git://repo.or.cz/conkeror.git; };
+  src          = latestGit { url = https://github.com/retroj/conkeror.git; };
   buildInputs  = [ unzip makeWrapper ];
   installPhase = ''
     mkdir -p "$out/libexec/conkeror"
