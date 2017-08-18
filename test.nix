@@ -179,6 +179,8 @@ with rec {
                                                   ./custom/haskell.nix
                                                 ]);
 
+    gx              = tryInEnv "gx" gx;
+
     isCallable      = if isCallable
                            (callPackage ({}: (x: abort "shouldn't force")) {})
                          then nothing
