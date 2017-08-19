@@ -1,6 +1,6 @@
 { cabal2nix, ghcPackageEnv, glibcLocales, haskellPackages, haskellTinc, jq,
-  lib, newNixpkgsEnv, runCommand, stableHackageDb, unpack, withNix,
-  withTincDeps, writeScript, yq }:
+  lib, newNixpkgsEnv, nixListToBashArray, runCommand, stableHackageDb, unpack,
+  withNix, withTincDeps, writeScript, yq }:
 
 with builtins;
 with lib;
@@ -77,8 +77,19 @@ with { defHPkg = haskellPackages; };
            "$out/pkgs/build-support/fetchurl/mirrors.nix"
       '';
 
+    extraSrc = {
+      names = nixListToBashArray {
+        name = "extraSourceNames";
+        args = extras;
+      };
+      paths = nixListToBashArray {
+        name = "extraSourcePaths";
+        args = map (name: unpack (getAttr name haskellPackages).src) extras;
+      };
+    };
+
     tincified = runCommand "tinc-of-${name}"
-      (newNixpkgsEnv env (withNix {
+      (newNixpkgsEnv env (withNix (extraSrc.names.env // extraSrc.paths.env // {
         inherit hackageContents;
 
         src = unpack src;
@@ -107,22 +118,33 @@ with { defHPkg = haskellPackages; };
         # Otherwise cabal2nix dies for accented characters
         LANG           = "en_US.UTF-8";
         LOCALE_ARCHIVE = "${glibcLocales}/lib/locale/locale-archive";
-
-        addSources = writeScript "tinc.json" (toJSON {
-          dependencies = map (name: {
-                               inherit name;
-                               path = unpack haskellPackages."${name}".src;
-                             })
-                             extras;
-        });
-      }))
+      })))
       ''
+        ${extraSrc.names.code}
+        ${extraSrc.paths.code}
+
         function allow {
           # Allows subsequent users to read/write our cached values
           # Note that we ignore errors because we may not own some of
           # the existing files.
           chmod 777 -R "$HOME" 2>/dev/null || true
         }
+
+        function listExtraSources {
+          for NPLUSONE in $(seq 1 "''${#extraSourceNames[@]}")
+          do
+            N=$(( NPLUSONE - 1 ))
+
+            jq --arg name "''${extraSourceNames[$N]}" \
+               --arg path "''${extraSourcePaths[$N]}" \
+               -n '{"name": $name, "path": $path}'
+          done
+        }
+
+        addSources="$PWD/tinc.json"
+
+        jq -n --slurpfile deps <(listExtraSources) \
+              '{"dependencies": $deps}' > "$addSources"
 
         if $GLOBALCACHE
         then
@@ -147,7 +169,7 @@ with { defHPkg = haskellPackages; };
         chmod +w -R ./src
 
         pushd ./src
-          if ${if extras != [] then "true" else "false"}
+          if ${if extras == [] then "false" else "true"}
           then
             echo "Adding extra sources" 1>&2
             if [[ -f tinc.yaml ]]
