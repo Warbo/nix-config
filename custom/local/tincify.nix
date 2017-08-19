@@ -194,6 +194,6 @@ with { defHPkg = haskellPackages; };
   withTincDeps {
     inherit extras haskellPackages includeExtras nixpkgs;
     tincified = runCommand "tincified-src-of-${name}" { inherit tincified; } ''
-      ln -s "$tincified/src" "$out"
+      cp -rH "$tincified/src" "$out"
     '';
   }
