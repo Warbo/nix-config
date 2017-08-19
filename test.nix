@@ -51,7 +51,6 @@ with rec {
     artemis         = "git-artemis";
     asv-nix         = "asv";
     basic           = "ssh";
-    bugseverywhere  = "be";
     coq_mtac        = "coqc";
     ML4HSFE         = "ml4hsfe-outer-loop";
     stableHackage   = "makeCabalConfig";
