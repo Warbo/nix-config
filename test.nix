@@ -67,7 +67,6 @@ with rec {
   TODO = genAttrs [
     "anonymous-pro-font"
     "beautifulsoup-custom"
-    "cacheCabal2Nix"
     "citationstyles"
     "dirsToAttrs"
     "ditaaeps"
