@@ -22,7 +22,7 @@ with rec {
   # Packages to include only if they're not already present
   hsFallbacks =
     with {
-      unoverridden = (import <nixpkgs> { config = ""; }).haskellPackages;
+      unoverridden = (import <nixpkgs> { config = {}; }).haskellPackages;
     };
     filterAttrs (n: _: !(hasAttr n unoverridden)) {
 
