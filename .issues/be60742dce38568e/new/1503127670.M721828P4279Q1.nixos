@@ -1,0 +1,16 @@
+From: Chris Warburton
+Date: Sat, 19 Aug 2017 08:23:58 +0100
+State: new
+Subject: Do local tincification in $out
+Message-Id: <be60742dce38568e-0-artemis@nixos>
+
+In tincify we either use a "global" cache, which lives in /tmp and is
+shared by all runs but may cause permission problems on Hydra, or we use
+a "local" cache which lives in the package's build dir.
+
+It looks like we need to load the source of some packages (notably:
+any "extras" given to tincify), but if these were cached "locally" then
+the build dir they lived in is long gone, and hence so is their source.
+
+Instead, we should put the cache in some "$out" directory; maybe of a
+separate derivation, so that it persists.

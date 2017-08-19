@@ -146,6 +146,8 @@ with { defHPkg = haskellPackages; };
         jq -n --slurpfile deps <(listExtraSources) \
               '{"dependencies": $deps}' > "$addSources"
 
+        mkdir -p "$out"
+
         if $GLOBALCACHE
         then
           # Use the cache in-place
@@ -155,8 +157,8 @@ with { defHPkg = haskellPackages; };
           cp -r "$hackageContents"/.cabal "$HOME"/
         else
           # Use a mutable copy of the given cache
-          cp -r "$CACHEPATH" ./cache
-          export HOME="$PWD/cache"
+          cp -r "$CACHEPATH" "$out/cache"
+          export HOME="$out/cache"
           allow
         fi
 
@@ -165,10 +167,10 @@ with { defHPkg = haskellPackages; };
           exit 1
         }
 
-        cp -r "$src" ./src
-        chmod +w -R ./src
+        cp -r "$src" "$out/src"
+        chmod +w -R "$out/src"
 
-        pushd ./src
+        pushd "$out/src"
           if ${if extras == [] then "false" else "true"}
           then
             echo "Adding extra sources" 1>&2
@@ -187,9 +189,11 @@ with { defHPkg = haskellPackages; };
         popd
 
         allow
-        cp -r ./src "$out"
       '';
   };
   withTincDeps {
-    inherit extras haskellPackages includeExtras nixpkgs tincified;
+    inherit extras haskellPackages includeExtras nixpkgs;
+    tincified = runCommand "tincified-src-of-${name}" { inherit tincified; } ''
+      ln -s "$tincified/src" "$out"
+    '';
   }
