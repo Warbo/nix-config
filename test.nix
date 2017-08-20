@@ -67,7 +67,6 @@ with rec {
     "anonymous-pro-font"
     "beautifulsoup-custom"
     "citationstyles"
-    "dirsToAttrs"
     "ditaaeps"
     "droid-fonts"
     "elcid"
@@ -176,6 +175,16 @@ with rec {
                                                   ./custom/local.nix
                                                   ./custom/haskell.nix
                                                 ]);
+
+    dirsToAttrs     = runCommand "dirsToAttrs-test"
+                        (dirsToAttrs (attrsToDirs { x = ./test.nix; }))
+                        ''
+                          [[ -n "$x" ]]            || exit 1
+                          [[ -f "$x" ]]            || exit 2
+                          grep 'runCommand' < "$x" || exit 3
+
+                          echo "pass" > "$out"
+                        '';
 
     gx              = tryInEnv "gx" gx;
 
