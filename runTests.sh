@@ -10,7 +10,7 @@ export F="$BASE/test.nix"
     exit 1
 }
 
-if nix-build --show-trace --no-out-link -E 'import (builtins.getEnv "F")'
+if nix-build --show-trace --no-out-link -E '(import (builtins.getEnv "F")).all'
 then
     echo "ok - nix-config tests"
 else

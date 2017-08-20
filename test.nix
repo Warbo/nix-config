@@ -7,7 +7,7 @@
 with builtins;
 with import <nixpkgs> { config = import ./config.nix; };
 with lib;
-with rec {
+rec {
   # Check whether the given package provides the given binary
   hasBinary = pkg: bin: runCommand "have-binary-${bin}"
     {
@@ -232,6 +232,7 @@ with rec {
         echo pass > "$out"
       '';
   };
-};
-withDeps (attrValues testDrvs)
-         (runCommand "all-tests" {} ''echo pass > "$out"'')
+
+  all = withDeps (attrValues testDrvs)
+                 (runCommand "all-tests" {} ''echo pass > "$out"'');
+}
