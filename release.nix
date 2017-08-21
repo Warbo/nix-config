@@ -153,6 +153,8 @@ with rec {
     collectUp = fold ({ path, value }: setIn path value) {};
   };
   collectUp (drvsFor (oursFrom versions));
+
+  tests = import ./test.nix;
 };
 filterAttrs (_: x: x != null)
-            (topLevel // haskell // { test = import ./test.nix; })
+            (topLevel // haskell // { tests = tests.testDrvs; })
