@@ -52,6 +52,7 @@ rec {
     asv-nix         = "asv";
     basic           = "ssh";
     coq_mtac        = "coqc";
+    hydra           = "hydra-eval-jobs";
     ML4HSFE         = "ml4hsfe-outer-loop";
     stableHackage   = "makeCabalConfig";
     timeout         = "withTimeout";
