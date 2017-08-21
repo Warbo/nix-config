@@ -7,7 +7,9 @@ with rec {
   }).repo;
 
   pycryptodome =
-    callPackage "${repo}/pkgs/development/python-modules/pycryptodome" {};
+    callPackage "${repo}/pkgs/development/python-modules/pycryptodome" {
+      inherit (pythonPackages) buildPythonPackage;
+    };
 
   args = {
     inherit pycryptodome;
