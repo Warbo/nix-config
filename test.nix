@@ -64,6 +64,13 @@ rec {
   tryInEnv = name: x: runCommand "try-${name}-in-env" { inherit x; }
                         ''echo pass > "$out"'';
 
+  failDrv = name: runCommand name "exit 1";
+
+  ifDrv   = name: bool: runCommand name {} ''
+    mkdir "$out"
+    exit ${if bool then "0" else "1"}
+  '';
+
   TODO = genAttrs [
     "anonymous-pro-font"
     "beautifulsoup-custom"
@@ -98,7 +105,6 @@ rec {
     "hfeed2atom"
     "inNixedDir"
     "isBroken"
-    "isPath"
     "jsbeautifier"
     "kbibtex_full"
     "latestCabal"
@@ -189,10 +195,18 @@ rec {
 
     gx              = tryInEnv "gx" gx;
 
-    isCallable      = if isCallable
-                           (callPackage ({}: (x: abort "shouldn't force")) {})
-                         then nothing
-                         else runCommand "isCallable-fail" "exit 1";
+    isCallable      = ifDrv "isCallable-test"
+                            (isCallable (callPackage
+                                          ({}: (x: abort "shouldn't force"))
+                                          {}));
+
+    isPath          = withDeps [
+                        (ifDrv "relativePathIsPath" (isPath ./test.nix))
+                        (ifDrv "absolutePathIsPath" (isPath /tmp      ))
+                        (ifDrv "pathStringIsPath"   (isPath "/tmp"    ))
+                        (ifDrv "stringIsNotPath"  (!(isPath "foo"    )))
+                        (ifDrv "otherIsNotPath"   (!(isPath 42       )))
+                      ] nothing;
 
     nixListToBashArray =
       with nixListToBashArray { name = "check"; args = [ "foo" ]; };
