@@ -28,12 +28,16 @@ rec {
     "cabal2nix"
     "cmus"
     "conkeror"
+    "ditaaeps"
     "emacs"
     "fail"
     "gcalcli"
     "get_iplayer"
     "git2html"
+    "goat"
     "ipfs"
+    "linkchecker"
+    "mhonarc"
     "pandoc"
     "panhandle"
     "panpipe"
@@ -52,9 +56,13 @@ rec {
     asv-nix         = "asv";
     basic           = "ssh";
     coq_mtac        = "coqc";
+    git2html-real   = "git2html";
     hydra           = "hydra-eval-jobs";
+    kbibtex_full    = "kbibtex";
+    miller          = "mlr";
     ML4HSFE         = "ml4hsfe-outer-loop";
     stableHackage   = "makeCabalConfig";
+    tidy-html5      = "tidy";
     timeout         = "withTimeout";
     warbo-utilities = "jo";
   };
@@ -75,7 +83,6 @@ rec {
     "anonymous-pro-font"
     "beautifulsoup-custom"
     "citationstyles"
-    "ditaaeps"
     "droid-fonts"
     "elcid"
     "feed2maildirsimple"
@@ -89,8 +96,6 @@ rec {
     "ghcPackageEnv"
     "ghcTurtle"
     "ghcast"
-    "git2html-real"
-    "goat"
     "google-api-python-client"
     "gscholar"
     "hackageDb"
@@ -106,18 +111,14 @@ rec {
     "inNixedDir"
     "isBroken"
     "jsbeautifier"
-    "kbibtex_full"
     "latestCabal"
     "latestCfgPkgs"
     "latestGit"
     "latestNixCfg"
     "lhasa"
-    "linkchecker"
     "md2pdf"
     "mergeDirs"
     "mf2py"
-    "mhonarc"
-    "miller"
     "mk-python-lhafile"
     "ml4pg"
     "mlspec"
@@ -127,7 +128,6 @@ rec {
     "nixpkgs1603"
     "nixpkgs1609"
     "nixpkgs1703"
-    "nothing"
     "profiledHaskellPackages"
     "pypdf2"
     "python-lhafile"
@@ -142,7 +142,6 @@ rec {
     "skulpture"
     "stripOverrides"
     "suffMatch"
-    "tidy-html5"
     "tincify"
     "tipSrc"
     "translitcodec"
@@ -168,6 +167,21 @@ rec {
     attrsToDirs     = tryInEnv "attrsToDirs" (attrsToDirs {
                                                foo = { bar = ./test.nix; };
                                              });
+
+    backtrace       = runCommand "backtrace-test"
+                        { buildInputs = [ backtrace fail ]; }
+                        ''
+                          X=$(NOTRACE=1 backtrace)
+                          [[ -z "$X" ]] || fail "NOTRACE should suppress trace"
+
+                          Y=$(backtrace)
+                          for Z in "Backtrace" "End Backtrace" "bash"
+                          do
+                            echo "$Y" | grep -F "$Z" || fail "Didn't find '$Z'"
+                          done
+
+                          echo pass > "$out"
+                        '';
 
     callPackage     = tryInEnv "callPackage-val" (callPackage ({ bash }: "x")
                                                               {});
@@ -208,6 +222,22 @@ rec {
                         (ifDrv "otherIsNotPath"   (!(isPath 42       )))
                       ] nothing;
 
+    mkBin = runCommand "mkBin-test"
+              {
+                buildInputs = [ fail (mkBin {
+                  name   = "ping";
+                  script = ''
+                    #!/usr/bin/env bash
+                    echo "pong"
+                  '';
+                }) ];
+              }
+              ''
+                X=$(ping)
+                [[ "x$X" = "xpong" ]] || fail "Output was '$X'"
+                echo pass > "$out"
+              '';
+
     nixListToBashArray =
       with nixListToBashArray { name = "check"; args = [ "foo" ]; };
       runCommand "check-NLTBA" env ''
@@ -215,6 +245,23 @@ rec {
         echo pass > "$out"
       '';
 
+    nothing = runCommand "nothing-test"
+      {
+        inherit nothing;
+        buildInputs = [ fail ];
+      }
+      ''
+        [[ -e "$nothing" ]] || fail "Couldn't find '$nothing'"
+        if [[ -f "$nothing" ]]
+        then
+          fail "'$nothing' shouldn't be a file"
+        fi
+
+        COUNT=$(find "$nothing/" | wc -l)
+        [[ "$COUNT" -eq 1 ]] || fail "Found '$COUNT' things in '$nothing'"
+
+        echo pass > "$out"
+      '';
 
     repo1603        = tryInEnv "repo1603" repo1603;
     repo1609        = tryInEnv "repo1609" repo1609;
