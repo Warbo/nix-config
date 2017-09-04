@@ -67,17 +67,88 @@ rec {
     warbo-utilities = "jo";
   };
 
+  failDrv = name: runCommand name "exit 1";
+
   # Makes a derivation with the given value in its environment; checks whether
   # this causes the build to fail or not.
   tryInEnv = name: x: runCommand "try-${name}-in-env" { inherit x; }
-                        ''echo pass > "$out"'';
-
-  failDrv = name: runCommand name "exit 1";
+                                 ''echo pass > "$out"'';
 
   ifDrv   = name: bool: runCommand name {} ''
     mkdir "$out"
     exit ${if bool then "0" else "1"}
   '';
+
+  testWeHave = { label, wanted, have}: runCommand "have-${label}-tests"
+    {
+      inherit label;
+      missing = filter (n: !(elem n have)) wanted;
+    }
+    ''
+      for M in $missing
+      do
+        echo "Missing '$label' tests for $missing" 1>&2
+        exit 1
+      done
+      echo pass > "$out"
+    '';
+
+  tryHaskellPackage = n: getAttr n haskellPackages;
+
+  haskellTests =
+    with rec {
+      notMine = (genAttrs [
+        "genifunctors"
+        "structural-induction"
+        "lazysmallcheck2012"
+        "ifcxt"
+        "ghc-simple"
+        "ghc-dup"
+        "tip-lib"
+        "tip-haskell-frontend-main"
+        "tip-haskell-frontend"
+        "tasty-ant-xml"
+        "tasty"
+        "tip-types"
+        "geniplate"
+      ] tryHaskellPackage) // {
+        tinc = haskell.packages.ghc802.tinc;
+      };
+
+      mine = (genAttrs [
+        "ArbitraryHaskell"
+        "AstPlugin"
+        "HS2AST"
+        "getDeps"
+        "haskell-example"
+        "lazy-lambda-calculus"
+        "mlspec-helper"
+        "nix-eval"
+        "panhandle"
+        "panpipe"
+        "runtime-arbitrary"
+        "runtime-arbitrary-tests"
+      ] tryHaskellPackage) // {
+        ML4HSFE = withDeps
+          [ (isBroken haskellPackages.weigh) ]
+
+          (tincify (haskellPackages.ML4HSFE // { extras = [ "HS2AST" ]; }) {});
+
+        mlspec = withDeps
+          [ (isBroken haskellPackages.weigh) ]
+
+          (tincify haskellPackages.mlspec {});
+      };
+
+      pkgTests = mine // notMine // {
+        haveAllHaskellTests = testWeHave {
+          label  = "haskell";
+          wanted = haskellNames;
+          have   = attrNames pkgTests;
+        };
+      };
+    };
+    pkgTests;
 
   TODO = genAttrs [
     "anonymous-pro-font"
@@ -100,7 +171,6 @@ rec {
     "gscholar"
     "hackageDb"
     "hackageUpdate"
-    "haskell"
     "haskellGit"
     "haskellNames"
     "haskellOverrides"
@@ -164,9 +234,7 @@ rec {
 
   tests = TODO // selfNamedBinaries // binaryProviders // {
 
-    attrsToDirs     = tryInEnv "attrsToDirs" (attrsToDirs {
-                                               foo = { bar = ./test.nix; };
-                                             });
+    attrsToDirs     = attrsToDirs { foo = { bar = ./test.nix; }; };
 
     backtrace       = runCommand "backtrace-test"
                         { buildInputs = [ backtrace fail ]; }
@@ -183,31 +251,37 @@ rec {
                           echo pass > "$out"
                         '';
 
-    callPackage     = tryInEnv "callPackage-val" (callPackage ({ bash }: "x")
-                                                              {});
+    callPackage     = tryInEnv "callPackage" (callPackage ({ bash }: "x") {});
 
     composeWithArgs = tryInEnv "composeWithArgs"
-                        (callPackage (composeWithArgs (x: x)
-                                                      ({ hello }: hello)) {});
+                               (callPackage (composeWithArgs
+                                               (x: x)
+                                               ({ hello }: hello)) {});
 
     customPkgNames  = tryInEnv "customPkgNames" customPkgNames;
 
-    dirContaining   = tryInEnv "dirContaining"  (dirContaining ./custom [
-                                                  ./custom/local.nix
-                                                  ./custom/haskell.nix
-                                                ]);
+    dirContaining   = dirContaining ./custom [
+                        ./custom/local.nix
+                        ./custom/haskell.nix
+                      ];
 
     dirsToAttrs     = runCommand "dirsToAttrs-test"
-                        (dirsToAttrs (attrsToDirs { x = ./test.nix; }))
+                        (dirsToAttrs (attrsToDirs {
+                          x = ./custom/local/dirsToAttrs.nix; }))
                         ''
-                          [[ -n "$x" ]]            || exit 1
-                          [[ -f "$x" ]]            || exit 2
-                          grep 'runCommand' < "$x" || exit 3
+                          [[ -n "$x" ]]                      || exit 1
+                          [[ -f "$x" ]]                      || exit 2
+                          grep 'builtins' < "$x" > /dev/null || exit 3
 
                           echo "pass" > "$out"
                         '';
 
-    gx              = tryInEnv "gx" gx;
+    gx              = gx;
+
+    haskell         = withDeps (attrValues haskellTests)
+                               (runCommand "haskell-tests" {} ''
+                                 echo pass > "$out"
+                               '');
 
     isCallable      = ifDrv "isCallable-test"
                             (isCallable (callPackage
@@ -263,36 +337,29 @@ rec {
         echo pass > "$out"
       '';
 
-    repo1603        = tryInEnv "repo1603" repo1603;
-    repo1609        = tryInEnv "repo1609" repo1609;
-    repo1703        = tryInEnv "repo1703" repo1703;
-    stable          = tryInEnv "stable" stable.hello;
-    stableHackageDb = tryInEnv "stableHackageDb" stableHackageDb;
-    stableRepo      = tryInEnv "stableRepo" stableRepo;
+    repo1603        = repo1603;
+    repo1609        = repo1609;
+    repo1703        = repo1703;
+    stable          = stable.hello;
+    stableHackageDb = stableHackageDb;
+    stableRepo      = stableRepo;
 
-    wrap = tryInEnv "wrap" (wrap {
+    wrap = wrap {
       name   = "wrap-test";
       paths  = [ bash ];
       vars   = {
         MY_VAR = "MY VAL";
       };
-      script = ./test.nix;
-    });
+      script = ./custom/local/wrap.nix;
+    };
   };
 
   testDrvs = tests // {
-    haveAllTests = runCommand "have-all-tests"
-      {
-        missing = filter (n: !(elem n (attrNames tests))) customPkgNames;
-      }
-      ''
-        for M in $missing
-        do
-          echo "Missing tests for $missing" 1>&2
-          exit 1
-        done
-        echo pass > "$out"
-      '';
+    haveAllTests = testWeHave {
+      label  = "all";
+      wanted = customPkgNames;
+      have   = attrNames tests;
+    };
   };
 
   all = withDeps (attrValues testDrvs)
