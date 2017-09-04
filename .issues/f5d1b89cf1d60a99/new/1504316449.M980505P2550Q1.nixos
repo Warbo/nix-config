@@ -1,0 +1,26 @@
+From: Chris Warburton
+Date: Sat, 02 Sep 2017 02:34:56 +0100
+State: new
+Subject: Use faster version of Python 'checker' script
+Message-Id: <f5d1b89cf1d60a99-0-artemis@nixos>
+
+Nixpkgs runs a script after building a Python package, which seems to
+check for problems in the "$out" dir like duplicate module names and
+stuff. The problem is, this script gets added to the top-level directory
+of the Nix store, since it's referenced as ./the-script.py; this causes
+the Python interpreter to look through at every /nix/store/* entry to
+see if it's a Python module (for __init__.py and stuff like that). This
+is SLOW.
+
+There's a fix at:
+
+https://github.com/NixOS/nixpkgs/commit/249b34aadca7038207492f29142a3456d0cecec3
+
+We should (a) check whether <nixpkgs> has the fix (e.g. getting the path
+of the script somehow and seeing if it's in a directory); we should emit
+a warning (via trace) if the fix is found, since that indicates that the
+patch may now be obsolete (assuming, of course, that we're on our
+'normal' <nixpkgs>; we can ignore the warning if we're in some
+bleeding-edge environment; hence why it should be a warning rather than
+an assertion). Then we should (b) override the implementation in
+<nixpkgs> if necessary, to ensure the subdirectory patch is used.
