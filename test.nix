@@ -278,6 +278,11 @@ rec {
 
     gx              = gx;
 
+    hackagePackageNames = tryInEnv "hackagePackageNames"
+                                   (typeOf hackagePackageNames);
+
+    hackagePackageNamesDrv = hackagePackageNamesDrv;
+
     haskell         = withDeps (attrValues haskellTests)
                                (runCommand "haskell-tests" {} ''
                                  echo pass > "$out"
