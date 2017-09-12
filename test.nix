@@ -234,6 +234,8 @@ rec {
 
   tests = TODO // selfNamedBinaries // binaryProviders // {
 
+    allDrvsIn       = tryInEnv "allDrvsIn" (allDrvsIn { x = nothing; });
+
     attrsToDirs     = attrsToDirs { foo = { bar = ./test.nix; }; };
 
     backtrace       = runCommand "backtrace-test"
