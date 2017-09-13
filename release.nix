@@ -53,106 +53,83 @@ with rec {
   # Select our custom Haskell packages from the various sets of Haskell packages
   # provided by nixpkgs (e.g. for different compiler versions)
   haskell = with rec {
-    # The oldest version of GHC we care about
-    minVersion = "7.8";
+    # GHC version ranges
+    post710 = [ [ "haskell" "packages" "ghc7102" ]
+                [ "haskell" "packages" "ghc7103" ] ] ++ post8;
+    post8   = [ [ "haskell" "packages" "ghc801"  ]
+                [ "haskell" "packages" "ghc802"  ]
+                [ "haskellPackages"              ]
+                [ "profiledHaskellPackages"      ] ];
 
-    oursFrom = concatMap (path: concatMap (name: let full = path ++ [ name ];
-                                                  in if any (suffMatch full)
-                                                            broken
-                                                        then []
-                                                        else [ full ])
-                                          haskellNames);
+    # GHC versions with a particular feature set
+    base48 = post710;
 
-    # There are loads of LTS versions, which take resources to process. We
-    # prefer to check compiler versions rather than particular package sets.
-    # GHC 6.12.3 and GHCJS* are broken, but we don't really care.
-    rejectVersion = path: any (f: f path) [
-      # Massively duplicated
-      (path: hasPrefix "lts"   (last path))
+    # Which GHC versions a package should work under
+    pkgGhcVersions =
+      with rec {
+        versions = {
+          ArbitraryHaskell          = post710;
+          AstPlugin                 = post710;
+          genifunctors              = post710;
+          geniplate                 = post710;
+          getDeps                   = post710;
+          ghc-dup                   = base48;
+          ghc-simple                = post710;
+          haskell-example           = base48;
+          HS2AST                    = post710;
+          ifcxt                     = base48;
+          lazy-lambda-calculus      = post710;
+          lazysmallcheck2012        = post710;
+          ML4HSFE                   = post710;
+          mlspec                    = post710;
+          mlspec-helper             = post710;
+          nix-eval                  = post710;
+          panhandle                 = post710;
+          panpipe                   = post710;
+          runtime-arbitrary         = post710;
+          runtime-arbitrary-tests   = post710;
+          structural-induction      = post710;
+          tasty                     = post710;
+          tasty-ant-xml             = post710;
+          tinc                      = post710;
+          tip-haskell-frontend      = post710;
+          tip-haskell-frontend-main = post710;
+          tip-lib                   = post710;
+          tip-types                 = post710;
+        };
 
-      # Some of these are broken, others are uninteresting. un/stable are sets.
-      (path: hasPrefix "ghcjs"          (last path))
-      (path: elem (last path)
-                  [ "ghc6123" "ghcCross" "integer-simple" "stable" "unstable" ])
+        errorMessage = "pkgGhcVersions name not found";
+        debugInfo    = toJSON { inherit errorMessage haskellNames name; };
+        check        = name: elem name haskellNames || abort debugInfo;
+      };
+      assert all check (attrNames versions); versions;
 
-      # Too old. Do this last, to avoid forcing broken versions.
-      (path: 1 > compareVersions (getAttrFromPath path pkgs).ghc.version
-                                 minVersion)
-    ];
-
-    # Paths to Haskell package sets, starting from 'import <nixpkgs> {}'
-    versions = [ [ "haskellPackages" ] [ "profiledHaskellPackages" ] ] ++
-      filter (path: !(rejectVersion path))
-             (concatLists [
-               (map (x: [ "haskell" "packages"            x ])
-                    (attrNames nixpkgs.haskell.packages))
-
-               (map (x: [ "haskell" "packages" "stable"   x ])
-                    (attrNames nixpkgs.haskell.packages.stable))
-
-               (map (x: [ "haskell" "packages" "unstable" x ])
-                    (attrNames nixpkgs.haskell.packages.unstable))
-             ]);
-
-    # Paths to WontFix packages, e.g. those which require newer GHC features
-    broken = with rec {
-      # Mark as broken for old GHC versions
-      post710 = name: [ [ "ghc783" name ] [ "ghc784" name ] ];
-
-      # Mark as broken for old language features
-      base48 = post710;  # base >= 4.8
-    };
-    concatLists [
-      (base48  "ifcxt")
-      (base48  "ghc-dup")
-      (base48  "haskell-example")
-      (post710 "tip-types")
-    ];
-
-    nonHackageDeps = {
+    # Either because they're not on Hackage, or nixpkgs version doesn't match
+    extraDeps = {
       AstPlugin = [ "HS2AST" ];
       ML4HSFE   = [ "HS2AST" ];
     };
 
-    passJSON = name: data: ''
-      (with builtins; fromJSON (readFile "${writeScript "${name}.json"
-                                                        (toJSON data)}"))
-    '';
-
-    drvsFor = map (path:
-      with rec {
-        extras = nonHackageDeps."${last path}" or [];
-        dotted = concatStringsSep ".";
-        expr   = ''
-          ${innerNixpkgs};
-          with builtins;
-          tincify (${dotted path} // {
-              haskellPackages = ${dotted (init path)};
-              extras          = ${passJSON "extras" extras};
-            }) {}
-        '';
+    # Create attrset containing all working versions of the named Haskell pkg
+    getDrvs = name:
+      with {
+        versions = getAttr name pkgGhcVersions;
+        addDrv   = path: set: setIn {
+          inherit set;
+          path  = path ++ [ name ];
+          value = attrByPath (path ++ [ name ])
+                             (abort (toJSON {
+                               inherit name path;
+                               message = "Failed to find Haskell pkg";
+                             }))
+                             pkgs;
+        };
       };
-      {
-        inherit path;
-        value = runCommand "build-${dotted path}"
-          (withNix { inherit expr; })
-          ''
-            nix-build --show-trace -E "$expr" | tee "$out"
-          '';
-      });
+      fold addDrv {} (getAttr name pkgGhcVersions);
 
-    setIn = path: value: set:
-      with rec {
-        name = head path;
-        new  = if length path == 1
-                  then value
-                  else setIn (tail path) value (set."${name}" or {});
-      };
-      set // { "${name}" = new; };
-
-    collectUp = fold ({ path, value }: setIn path value) {};
+    ours = fold (name: recursiveUpdate (getDrvs name)) {} haskellNames;
   };
-  collectUp (drvsFor (oursFrom versions));
+  ours;
 
   tests = import ./test.nix;
 };
