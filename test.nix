@@ -347,6 +347,11 @@ rec {
     repo1603        = repo1603;
     repo1609        = repo1609;
     repo1703        = repo1703;
+    setIn           = tryInEnv "setIn" (toJSON (setIn {
+                        path  = [ "x" ];
+                        value = 1;
+                        set   = {};
+                      }));
     stable          = stable.hello;
     stableHackageDb = stableHackageDb;
     stableRepo      = stableRepo;
