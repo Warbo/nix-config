@@ -20,12 +20,10 @@ with rec {
                     "unstableHaskellPackages"   # Ditto
                   ]
                   then null
-                  else if elem name isolate
-                          then buildInDrv name
-                          else let pkg = getAttr name nixpkgs;
-                                in if isDerivation pkg
-                                      then pkg
-                                      else null);
+                  else let pkg = getAttr name nixpkgs;
+                        in if isDerivation pkg
+                              then pkg
+                              else null);
 
   # Packages which may cause evaluation to fail
   isolate = [
@@ -36,19 +34,6 @@ with rec {
   innerNixpkgs = ''with import <nixpkgs> {
                      config = import "${cfg}/config.nix";
                    }'';
-
-  # Build the package with the given name, but do so by invoking nix-build from
-  # a derivation's build script. This way, if the package causes Nix's evaluator
-  # to abort, only that package's build will be affected, and not e.g. an entire
-  # Hydra jobset.
-  buildInDrv = name: runCommand "drv-${sanitiseName name}"
-    (withNix {
-      expr = "${innerNixpkgs}; ${name}";
-    })
-    ''
-      nix-build -E "$expr"
-      echo "BUILDS" > "$out"
-    '';
 
   # Select our custom Haskell packages from the various sets of Haskell packages
   # provided by nixpkgs (e.g. for different compiler versions)
@@ -117,12 +102,20 @@ with rec {
         addDrv   = path: set: setIn {
           inherit set;
           path  = path ++ [ name ];
-          value = attrByPath (path ++ [ name ])
-                             (abort (toJSON {
-                               inherit name path;
-                               message = "Failed to find Haskell pkg";
-                             }))
-                             pkgs;
+
+          # Tincify each package, to ensure it gets the right dependencies
+          value = with rec {
+            fail            = abort (toJSON {
+                                inherit name path;
+                                message = "Couldn't find Haskell package";
+                              });
+            haskellPackages = attrByPath path fail pkgs;
+            pkg             = getAttr name haskellPackages;
+            extras          = if hasAttr name extraDeps
+                                 then { extras = getAttr name extraDeps; }
+                                 else {};
+          };
+          tincify (pkg // extras // { inherit haskellPackages; }) {};
         };
       };
       fold addDrv {} (getAttr name pkgGhcVersions);
