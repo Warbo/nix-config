@@ -28,9 +28,7 @@ buildEnv {
     opusTools
     p7zip
     pamixer
-    pandoc
-    panhandle
-    panpipe
+    pandocPkgs
     poppler_utils
     pmutils
     psmisc

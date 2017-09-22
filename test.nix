@@ -38,10 +38,8 @@ rec {
     "ipfs"
     "linkchecker"
     "mhonarc"
-    "pandoc"
-    "panhandle"
-    "panpipe"
     "pipeToNix"
+    "replace"
     "sshuttle"
     "x2x"
     "xdms"
@@ -61,6 +59,7 @@ rec {
     kbibtex_full    = "kbibtex";
     miller          = "mlr";
     ML4HSFE         = "ml4hsfe-outer-loop";
+    pandocPkgs      = "pandoc";
     stableHackage   = "makeCabalConfig";
     tidy-html5      = "tidy";
     timeout         = "withTimeout";
@@ -124,8 +123,6 @@ rec {
         "lazy-lambda-calculus"
         "mlspec-helper"
         "nix-eval"
-        "panhandle"
-        "panpipe"
         "runtime-arbitrary"
         "runtime-arbitrary-tests"
       ] tryHaskellPackage) // {
@@ -318,6 +315,11 @@ rec {
                 [[ "x$X" = "xpong" ]] || fail "Output was '$X'"
                 echo pass > "$out"
               '';
+
+    mkStableHackageDb =
+      if elem "0.2.0.0" (mkStableHackageDb {}).versions.panhandle
+         then nothing
+         else failDrv "mkStableHackageDb-test";
 
     nixListToBashArray =
       with nixListToBashArray { name = "check"; args = [ "foo" ]; };

@@ -4,9 +4,6 @@ with nixpkgs;
 with builtins;
 with lib;
 with rec {
-  # Needed by recursive builds inside derivations (used to isolate errors)
-  cfg = latestGit { url = "http://chriswarbo.net/git/nix-config.git"; };
-
   # Select our custom packages/overrides, except for those which are buried in
   # larger sets
   topLevel = genAttrs customPkgNames (name:
@@ -24,16 +21,6 @@ with rec {
                         in if isDerivation pkg
                               then pkg
                               else null);
-
-  # Packages which may cause evaluation to fail
-  isolate = [
-    "all" "basic" "getDeps" "ghcast" "ML4HSFE" "mlspec" "pandoc" "panpipe"
-    "panhandle"
-  ];
-
-  innerNixpkgs = ''with import <nixpkgs> {
-                     config = import "${cfg}/config.nix";
-                   }'';
 
   # Select our custom Haskell packages from the various sets of Haskell packages
   # provided by nixpkgs (e.g. for different compiler versions)
@@ -69,8 +56,6 @@ with rec {
           mlspec                    = post710;
           mlspec-helper             = post710;
           nix-eval                  = post710;
-          panhandle                 = post710;
-          panpipe                   = post710;
           runtime-arbitrary         = post710;
           runtime-arbitrary-tests   = post710;
           structural-induction      = post710;

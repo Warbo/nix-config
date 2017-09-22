@@ -18,6 +18,7 @@ buildEnv {
     arandr
     aspell
     aspellDicts.en
+    audacious
     basic # Anything useful for scripts should go in here
     stable.kde4.basket
     cmus
@@ -44,6 +45,7 @@ buildEnv {
     gnome3.gcr
     paprefs
     pavucontrol
+    picard
     pidgin
     xorg.xkill
     skulpture
@@ -53,6 +55,5 @@ buildEnv {
     xfce.exo
     xfce.gtk_xfce_engine
     xfce.xfce4notifyd
-    haskellPackages.xmobar
   ];
 }

@@ -1,3 +1,3 @@
-{ stable }:
+{ nixpkgs1603 }:
 
-stable.haskellPackages.cabal2nix
+nixpkgs1603.haskellPackages.cabal2nix
