@@ -76,8 +76,9 @@ with rec {
 
     # Either because they're not on Hackage, or nixpkgs version doesn't match
     extraDeps = {
-      AstPlugin = [ "HS2AST" ];
-      ML4HSFE   = [ "HS2AST" ];
+      AstPlugin            = [ "HS2AST"             ];
+      ML4HSFE              = [ "HS2AST"             ];
+      lazy-lambda-calculus = [ "lazysmallcheck2012" ];
     };
 
     # Create attrset containing all working versions of the named Haskell pkg
