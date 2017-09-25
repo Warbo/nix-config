@@ -61,7 +61,7 @@ with rec {
           structural-induction      = post710;
           tasty                     = post710;
           tasty-ant-xml             = post710;
-          tinc                      = post710;
+          tinc                      = post8;
           tip-haskell-frontend      = post710;
           tip-haskell-frontend-main = post710;
           tip-lib                   = post710;
