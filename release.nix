@@ -26,12 +26,15 @@ with rec {
   # provided by nixpkgs (e.g. for different compiler versions)
   haskell = with rec {
     # GHC version ranges
-    post710 = [ [ "haskell" "packages" "ghc7102" ]
-                [ "haskell" "packages" "ghc7103" ] ] ++ post8;
-    post8   = [ [ "haskell" "packages" "ghc801"  ]
+    ghc710  = [ [ "haskell" "packages" "ghc7102" ]
+                [ "haskell" "packages" "ghc7103" ] ];
+    ghc80   = [ [ "haskell" "packages" "ghc801"  ]
                 [ "haskell" "packages" "ghc802"  ]
                 [ "haskellPackages"              ]
                 [ "profiledHaskellPackages"      ] ];
+
+    post710 = ghc710 ++ post80;
+    post80  = ghc80;
 
     # GHC versions with a particular feature set
     base48 = post710;
@@ -40,7 +43,7 @@ with rec {
     pkgGhcVersions =
       with rec {
         versions = {
-          ArbitraryHaskell          = post710;
+          ArbitraryHaskell          = ghc710;
           AstPlugin                 = post710;
           genifunctors              = post710;
           geniplate                 = post710;
@@ -61,7 +64,7 @@ with rec {
           structural-induction      = post710;
           tasty                     = post710;
           tasty-ant-xml             = post710;
-          tinc                      = post8;
+          tinc                      = post80;
           tip-haskell-frontend      = post710;
           tip-haskell-frontend-main = post710;
           tip-lib                   = post710;
