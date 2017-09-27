@@ -88,7 +88,8 @@ with { defHPkg = haskellPackages; };
       };
     };
 
-    tincified = runCommand "tinc-of-${name}"
+    tincified = runCommand
+      "tinc-of-ghc-${haskellPackages.ghc.version}-pkg-${name}"
       (newNixpkgsEnv env (withNix (extraSrc.names.env // extraSrc.paths.env // {
         inherit hackageContents;
 
