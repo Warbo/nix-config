@@ -1,6 +1,6 @@
 { cabal2nix, ghcPackageEnv, glibcLocales, haskellPackages, haskellTinc, jq,
-  lib, newNixpkgsEnv, nixListToBashArray, runCommand, stableHackageDb, unpack,
-  withNix, withTincDeps, writeScript, yq }:
+  lib, newNixpkgsEnv, nixListToBashArray, replace, runCommand, stableHackageDb,
+  unpack, withNix, withTincDeps, writeScript, yq }:
 
 with builtins;
 with lib;
@@ -99,8 +99,9 @@ with { defHPkg = haskellPackages; };
           cabal2nix
           (haskellPackages.ghcWithPackages (h: [ h.ghc h.cabal-install ]))
           haskellTinc
-          yq
           jq
+          replace
+          yq
         ];
 
         TINC_USE_NIX = "yes";
@@ -158,8 +159,8 @@ with { defHPkg = haskellPackages; };
           cp -r "$hackageContents"/.cabal "$HOME"/
         else
           # Use a mutable copy of the given cache
-          cp -r "$CACHEPATH" "$out/cache"
-          export HOME="$out/cache"
+          cp -r "$CACHEPATH" "$PWD/cache"
+          export HOME="$PWD/cache"
           allow
         fi
 
@@ -190,6 +191,17 @@ with { defHPkg = haskellPackages; };
         popd
 
         allow
+
+        $GLOBALCACHE || {
+          echo "Moving mutable cache files to permanent Nix store location" 1>&2
+          mv "$PWD/cache" "$out/"
+
+          echo "Updating references" 1>&2
+          while read -r F
+          do
+            replace "$PWD/cache" "$out/cache" -- "$F"
+          done < <(grep -rl "$PWD" "$out/")
+        }
       '';
   };
   withTincDeps {
