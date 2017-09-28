@@ -19,6 +19,7 @@ buildEnv {
     ghostscript
     git
     gnumake
+    gnutls
     haskellPackages.happy
     jq
     md2pdf
