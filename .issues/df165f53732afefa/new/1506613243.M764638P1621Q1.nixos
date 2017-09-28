@@ -1,0 +1,26 @@
+From: Chris Warburton
+Date: Thu, 28 Sep 2017 16:31:18 +0100
+State: new
+Subject: Add 'stable' flag
+Message-Id: <df165f53732afefa-0-artemis@nixos>
+
+Lots of our definitions use things like "latestGit" and "tincify", which
+aren't necessarily deterministic. On the other hand, we've built up so
+many useful helpers that many of our repos now depend on a 'fixed
+version' of nix-config. Those versions, of course, aren't particularly
+'fixed' if they call out to latestGit.
+
+We should add an optional flag, defaulting to true, for whether "stable"
+(i.e. fixed) versions of everything should be used. We can check both
+possibilities with release.nix.
+
+As a start, we should make the 'stable' version of latestGit throw an
+assertion error, since latestGit is itself unstable. We should make a
+single exception: provide the latest version of nix-config in a package.
+That way, we can fetch a stable nix-config with fetchgit, and pick out
+of it the latest, unstable nix-config; without having to write the same
+boilerplate over and over to fetch the latest version.
+
+That 'latest nix-config' package should only provide the 'unstable'
+version (i.e. with 'stable' flag set to 'false'), to deter anyone who
+wants stability from using such an output of latestGit.

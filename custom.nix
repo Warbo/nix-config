@@ -1,3 +1,5 @@
+stable:
+
 pkgs:
 
 with builtins; with pkgs.lib;
