@@ -8,7 +8,7 @@ with rec {
   # larger sets
   topLevel = genAttrs customPkgNames (name:
                if elem name [
-                    "stable"                    # Copy of nixpkgs
+                    "stableNixpkgs"             # Copy of nixpkgs
                     "stableRepo"                # Ditto
                     "haskell"                   # Mostly not ours
                     "haskellPackages"           # Ditto

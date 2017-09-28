@@ -20,7 +20,7 @@ buildEnv {
     aspellDicts.en
     audacious
     basic # Anything useful for scripts should go in here
-    stable.kde4.basket
+    stableNixpkgs.kde4.basket
     cmus
     compton
     conkeror

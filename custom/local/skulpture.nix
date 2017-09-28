@@ -1,4 +1,4 @@
-{ cmake, fetchurl, findutils, stable, stdenv }:
+{ cmake, fetchurl, findutils, stableNixpkgs, stdenv }:
 
 with { inherit (stable) kde4; };
 stdenv.mkDerivation {

@@ -354,7 +354,7 @@ rec {
                         value = 1;
                         set   = {};
                       }));
-    stable          = stable.hello;
+    stableNixpkgs   = stableNixpkgs.hello;
     stableHackageDb = stableHackageDb;
     stableRepo      = stableRepo;
 

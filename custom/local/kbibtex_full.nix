@@ -1,4 +1,4 @@
-{ stable }:
+{ stableNixpkgs }:
 
 stable.callPackage (
 
