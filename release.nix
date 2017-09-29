@@ -33,10 +33,10 @@ with rec {
         # GHC version ranges
         ghc710  = [ [ "haskell" "packages" "ghc7102" ]
                     [ "haskell" "packages" "ghc7103" ] ];
+        ghc802  = [ [ "haskell" "packages" "ghc802"  ] ];
         ghc80   = [ [ "haskell" "packages" "ghc801"  ]
-                    [ "haskell" "packages" "ghc802"  ]
                     [ "haskellPackages"              ]
-                    [ "profiledHaskellPackages"      ] ];
+                    [ "profiledHaskellPackages"      ] ] ++ ghc802;
 
         post710 = ghc710 ++ post80;
         post80  = ghc80;
@@ -69,7 +69,7 @@ with rec {
               structural-induction      = ghc710;
               tasty                     = ghc710;
               tasty-ant-xml             = ghc710;
-              tinc                      = ghc80;
+              tinc                      = ghc802;
               tip-haskell-frontend      = ghc710;
               tip-haskell-frontend-main = ghc710;
               tip-lib                   = ghc710;
