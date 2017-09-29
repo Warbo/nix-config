@@ -1,4 +1,4 @@
-{ fetchFromGitHub, git, isBroken, latestGit, pythonPackages }:
+{ fetchFromGitHub, git, isBroken, pythonPackages }:
 
 with {
   plain = pythonPackages.buildPythonPackage {

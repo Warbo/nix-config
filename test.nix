@@ -5,7 +5,9 @@
 # by the package's build script with the usual 'checkPhase' stuff.
 
 with builtins;
-with import <nixpkgs> { config = import ./config.nix; };
+
+{ pkgs ? (import <nixpkgs> { config = import ./config.nix; }) }:
+with pkgs;
 with lib;
 rec {
   # Check whether the given package provides the given binary

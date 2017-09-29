@@ -3,7 +3,13 @@
 stdenv.mkDerivation {
   name = "git2html";
 
-  src = latestGit { url = https://github.com/Hypercubed/git2html.git; };
+  src = latestGit {
+    url = https://github.com/Hypercubed/git2html.git;
+    stable = {
+      rev    = "b29cc95";
+      sha256 = "0aifz2mdkxay40x2mimx6jz964jb16x4nvbyifkgkxb1jx7fr4jb";
+    };
+  };
 
   installPhase = ''
     mkdir -p "$out/bin"
