@@ -42,7 +42,7 @@ with rec {
         post80  = ghc80;
 
         # GHC versions with a particular feature set
-        base48 = post710;
+        base48 = ghc710;
 
         # Which GHC versions a package should work under
         pkgGhcVersions =
