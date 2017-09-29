@@ -34,7 +34,7 @@ buildEnv {
     pmutils
     psmisc
     python
-    racket
+    nixpkgs1609.racket
     cifs_utils
     silver-searcher
     sshfsFuse
