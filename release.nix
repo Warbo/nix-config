@@ -3,7 +3,7 @@ with builtins;
 with rec {
   # The stable packages should always work; unstable shows us potential bit rot.
   unstable = import <nixpkgs>         { config = import ./unstable.nix; };
-    stable = import unstable.repo1703 { config = import   ./stable.nix; };
+    stable = import unstable.repo1609 { config = import   ./stable.nix; };
 
   mkSet = pkgs:
     with pkgs;

@@ -9,7 +9,7 @@ buildEnv {
     autossh
     artemis
     binutils
-    unstableHaskellPackages.cabal-install
+    haskellPackages.cabal-install
     (tincify haskellPackages.cabal2nix {})
     dtach
     dvtm

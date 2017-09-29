@@ -58,9 +58,6 @@ rec {
                        then profiledHaskellPackages
                        else unprofiledHaskellPackages;
 
-  # Default unstable version
-  unstableHaskellPackages = super.haskellPackages;
-
   #haskellPackages.callHackage = super.haskell.packages.ghc7103.callHackage;
 
   # Profiling
@@ -78,13 +75,19 @@ rec {
     };
   };
 
-  haskell = super.haskell // {
-    packages = let override = mapAttrs (n: overrideHaskellPkgs);
-                   unstable = override       super.haskell.packages;
-                     stable = override self.stable.haskell.packages;
-                in unstable // {
-                     # Direct access to old/new if needed
-                     inherit unstable stable;
-                   };
-  };
+  haskell =
+    with rec {
+      config = import (if self.stable then ../stable.nix else ../unstable.nix);
+      polyfill = if super.haskell.packages ? ghc802
+                    then {}
+                    else {
+                      inherit ((import self.repo1703 {
+                        inherit config;
+                      }).haskell.packages) ghc802;
+                    };
+    };
+    super.haskell // {
+      packages = mapAttrs (n: overrideHaskellPkgs)
+                          (super.haskell.packages // polyfill);
+    };
 }

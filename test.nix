@@ -216,7 +216,6 @@ rec {
     "translitcodec"
     "unpack"
     "unprofiledHaskellPackages"
-    "unstableHaskellPackages"
     "unstableTipSrc"
     "uritemplate"
     "w3c-validator"
