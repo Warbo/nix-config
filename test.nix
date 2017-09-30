@@ -355,6 +355,7 @@ rec {
                         value = 1;
                         set   = {};
                       }));
+    stable          = tryInEnv "stable" (toJSON stable);
     stableNixpkgs   = stableNixpkgs.hello;
     stableHackageDb = stableHackageDb;
     stableRepo      = stableRepo;
