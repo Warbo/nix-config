@@ -42,20 +42,17 @@ rec {
     };
   };
 
-  haskell.packages =
-    # We need GHC 8.0.2 for tinc
+  haskell =
     with rec {
-      config   = import (if self.stable
-                            then ../stable.nix
-                            else ../unstable.nix);
-      polyfill = if super.haskell.packages ? ghc802
+      # We need GHC 8.0.2 for tinc
+      backport = if super.haskell.packages ? ghc802
                     then {}
-                    else {
-                      inherit ((import self.repo1703 {
-                        inherit config;
-                      }).haskell.packages) ghc802;
-                    };
+                    else { inherit (nixpkgs1703.haskell.packages) ghc802; };
+
+      packages = mapAttrs (_: hsPkgs: hsPkgs.override {
+                            overrides = haskellOverrides;
+                          })
+                          (super.haskell.packages // backport);
     };
-    mapAttrs (_: hsPkgs: hsPkgs.override { overrides = haskellOverrides; })
-             (super.haskell.packages // polyfill);
+    super.haskell // { inherit packages; };
 }
