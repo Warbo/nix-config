@@ -10,7 +10,7 @@ buildEnv {
     artemis
     binutils
     haskellPackages.cabal-install
-    (tincify haskellPackages.cabal2nix {})
+    cabal2nix
     dtach
     dvtm
     file
