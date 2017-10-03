@@ -23,7 +23,7 @@ with rec {
                        "unstableHaskellPackages"   # Ditto
                      ];
       drvName  = name: isDerivation (getAttr name pkgs);
-      keepers  = name: !(tooBig name) && isDerivation name;
+      keepers  = name: !(tooBig name) && isDerivation (getAttr name pkgs);
       topLevel = genAttrs (filter keepers customPkgNames)
                           (name: getAttr name pkgs);
 
@@ -103,7 +103,7 @@ with rec {
                                     inherit name path;
                                     message = "Couldn't find Haskell package";
                                   });
-            haskellPackages = attrByPath path fail pkgs;
+                haskellPackages = attrByPath path fail pkgs;
                 pkg             = getAttr name haskellPackages;
                 extras          = if hasAttr name extraDeps
                                      then { extras = getAttr name extraDeps; }
