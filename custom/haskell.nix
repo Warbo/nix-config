@@ -47,7 +47,9 @@ rec {
       # We need GHC 8.0.2 for tinc
       backport = if super.haskell.packages ? ghc802
                     then {}
-                    else { inherit (nixpkgs1703.haskell.packages) ghc802; };
+                    else {
+                      inherit (self.nixpkgs1703.haskell.packages) ghc802;
+                    };
 
       packages = mapAttrs (_: hsPkgs: hsPkgs.override {
                             overrides = haskellOverrides;
