@@ -1,22 +1,22 @@
-stable:
+stable: pkgs:
 
-pkgs:
+with builtins;
+with pkgs.lib;
+with rec {
+  mkPkg = x: oldPkgs:
+    with { newPkgs = oldPkgs // import x overridden pkgs; };
+    newPkgs // {
+      # Keep a record of which packages are custom
+      customPkgNames = attrNames newPkgs;
+    };
 
-with builtins; with pkgs.lib;
+  nixFiles =
+    with { dir = ./custom; };
+    map (f: dir + "/${f}")
+        (filter (hasSuffix ".nix")
+                (attrNames (readDir dir)));
 
-let mkPkg      = x: oldPkgs:
-                   let newPkgs = oldPkgs // import x overridden pkgs;
-                    in newPkgs // {
-                         # Keep a record of which packages are custom
-                         customPkgNames = attrNames newPkgs;
-                       };
-
-    nixFiles   = let dir = ./custom;
-                  in map (f: dir + "/${f}")
-                         (filter (hasSuffix ".nix")
-                                 (attrNames (readDir dir)));
-
-    overridden = pkgs // overrides;
-
-    overrides = fold mkPkg { inherit stable; } nixFiles;
- in overrides
+  overridden = pkgs // overrides;
+  overrides  = fold mkPkg { inherit stable; } nixFiles;
+};
+overrides
