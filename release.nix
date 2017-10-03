@@ -21,6 +21,11 @@ with rec {
                        "profiledHaskellPackages"   # Ditto
                        "unprofiledHaskellPackages" # Ditto
                        "unstableHaskellPackages"   # Ditto
+
+                       # These are designed to break on unstable, so avoid them
+                       "latestNixCfg"
+                       "latestCfgPkgs"
+                       "withLatestCfg"
                      ];
       drvName  = name: isDerivation (getAttr name pkgs);
       keepers  = name: !(tooBig name) && isDerivation (getAttr name pkgs);
