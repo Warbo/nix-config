@@ -1,5 +1,3 @@
 { latestNixCfg }:
 
-pkgs: import pkgs {
-  config = import "${latestNixCfg}/config.nix";
-}
+pkgs: import pkgs { config = latestNixCfg; }
