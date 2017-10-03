@@ -7,11 +7,8 @@
 { self }:
 
 with self;
-with {
-  haskellPackages = haskell.packages.ghc7103;
-};
 buildEnv {
-  name = "all";
+  name  = "all";
   paths = [
     acpi
     anonymous-pro-font
