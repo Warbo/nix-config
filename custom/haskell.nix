@@ -6,49 +6,18 @@ with super.lib;
 with builtins;
 with rec {
   # All .nix files in haskell/
-  hsFiles = filterAttrs (n: _: hasSuffix ".nix" n)
-                        (readDir ./haskell);
+  haskellNames = map (removeSuffix ".nix")
+                     (attrNames (filterAttrs (n: _: hasSuffix ".nix" n)
+                                             (readDir ./haskell)));
+  haskellDefs  = genAttrs haskellNames
+                          (f: import (./haskell + "/${f}.nix") self super);
 
-  # Package definitions loaded from hsFiles
-  hsFileDefs = mapAttrs' (name: _: nameValuePair
-                                     (removeSuffix ".nix" name)
-                                     (import (./haskell + "/${name}")
-                                             self super))
-                                   hsFiles;
-
-  # Packages loaded from elsewhere, e.g. hackage, github, ...
-  hsExternal = mapAttrs (_: self.runCabal2nix) {};
-
-  # Packages to include only if they're not already present
-  hsFallbacks =
-    with {
-      unoverridden = (import <nixpkgs> { config = {}; }).haskellPackages;
-    };
-    filterAttrs (n: _: !(hasAttr n unoverridden)) {
-
-      # Isn't in older nixpkgs
-      weigh = self.runCabal2nix { url = "cabal://weigh"; };
-    };
-
-  # Adds haskell/ contents to a Haskell package set
   haskellOverrides = self: super: mapAttrs (_: def: self.callPackage def {})
-                                           (hsFallbacks // hsFileDefs
-                                                        // hsExternal);
-
-  # Overrides a Haskell package set
-  overrideHaskellPkgs = hsPkgs:
-    hsPkgs.override {
-      overrides = haskellOverrides;
-    };
+                                           haskellDefs;
 };
 
 rec {
-  inherit haskellOverrides;
-
-  # Lets us know which packages we've overridden
-  haskellNames = attrNames hsFileDefs;
-
-  #callHackage  = { inherit (super.haskell.packages.ghc7103) callHackage; };
+  inherit haskellNames haskellOverrides;
 
   # Too many breakages on unstable and 8.x
   unprofiledHaskellPackages = haskell.packages.ghc7103;
@@ -57,8 +26,6 @@ rec {
   haskellPackages = if getEnv "HASKELL_PROFILE" == "1"
                        then profiledHaskellPackages
                        else unprofiledHaskellPackages;
-
-  #haskellPackages.callHackage = super.haskell.packages.ghc7103.callHackage;
 
   # Profiling
   profiledHaskellPackages = unprofiledHaskellPackages.override {
@@ -75,9 +42,12 @@ rec {
     };
   };
 
-  haskell =
+  haskell.packages =
+    # We need GHC 8.0.2 for tinc
     with rec {
-      config = import (if self.stable then ../stable.nix else ../unstable.nix);
+      config   = import (if self.stable
+                            then ../stable.nix
+                            else ../unstable.nix);
       polyfill = if super.haskell.packages ? ghc802
                     then {}
                     else {
@@ -86,8 +56,6 @@ rec {
                       }).haskell.packages) ghc802;
                     };
     };
-    super.haskell // {
-      packages = mapAttrs (n: overrideHaskellPkgs)
-                          (super.haskell.packages // polyfill);
-    };
+    mapAttrs (_: hsPkgs: hsPkgs.override { overrides = haskellOverrides; })
+             (super.haskell.packages // polyfill);
 }
