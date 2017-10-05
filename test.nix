@@ -360,6 +360,8 @@ rec {
     stableHackageDb = stableHackageDb;
     stableRepo      = stableRepo;
 
+    unlines = tryInEnv "unlines" (unlines [ "foo" "bar" ]);
+
     wrap = wrap {
       name   = "wrap-test";
       paths  = [ bash ];
