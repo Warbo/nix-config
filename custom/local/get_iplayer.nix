@@ -7,8 +7,8 @@ with {
     (oldAttrs : {
       name = "get_iplayer";
       src  = fetchurl {
-        url    = https://github.com/get-iplayer/get_iplayer/archive/v2.99.tar.gz;
-        sha256 = "1kvbs9d13qhnd3dzx36a699r6aqwjsg4yprjj6fwa7hmqsxaab8q";
+        url    = https://github.com/get-iplayer/get_iplayer/archive/v3.05.tar.gz;
+        sha256 = "1lk63myf5smm1i9yd9f0ml5cpwj1kqh480y5s1g0mllr4zk8vv5v";
       };
       propagatedBuildInputs = oldAttrs.propagatedBuildInputs ++ [
                                 perlPackages.XMLSimple
