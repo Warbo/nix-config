@@ -1,6 +1,6 @@
-{ cabal2nix, ghcPackageEnv, glibcLocales, haskellPackages, haskellTinc, jq,
-  lib, newNixpkgsEnv, nixListToBashArray, replace, runCommand, stableHackageDb,
-  unpack, withNix, withTincDeps, writeScript, yq }:
+{ cabal2nix, fail, ghcPackageEnv, glibcLocales, haskellPackages, haskellTinc,
+  jq, lib, newNixpkgsEnv, nixListToBashArray, replace, runCommand,
+  stableHackageDb, unpack, withNix, withTincDeps, writeScript, yq }:
 
 with builtins;
 with lib;
@@ -97,6 +97,7 @@ with { defHPkg = haskellPackages; };
 
         buildInputs = [
           cabal2nix
+          fail
           (haskellPackages.ghcWithPackages (h: [ h.ghc h.cabal-install ]))
           haskellTinc
           jq
@@ -122,6 +123,9 @@ with { defHPkg = haskellPackages; };
         LOCALE_ARCHIVE = "${glibcLocales}/lib/locale/locale-archive";
       })))
       ''
+        set   -e
+        shopt -s nullglob
+
         ${extraSrc.names.code}
         ${extraSrc.paths.code}
 
@@ -135,10 +139,29 @@ with { defHPkg = haskellPackages; };
         function listExtraSources {
           for NPLUSONE in $(seq 1 "''${#extraSourceNames[@]}")
           do
-            N=$(( NPLUSONE - 1 ))
+               N=$(( NPLUSONE - 1 ))
+            NAME="''${extraSourceNames[$N]}"
+             PTH="''${extraSourcePaths[$N]}"
 
-            jq --arg name "''${extraSourceNames[$N]}" \
-               --arg path "''${extraSourcePaths[$N]}" \
+            if [[ "x$NAME" = "xghc" ]]
+            then
+              continue
+            fi
+
+            [[ -e "$PTH" ]] || fail "'$PTH' doesn't exist (for '$NAME')"
+            pushd "$PTH" > /dev/null
+              GOT_CBL=0
+              for CBL in *.cabal
+              do
+                GOT_CBL=$(( GOT_CBL + 1 ))
+              done
+              [[ "$GOT_CBL" -eq 1 ]] || {
+                fail "Found '$GOT_CBL' cabal files in '$PTH' (for '$NAME')"
+                exit 1
+              }
+            popd > /dev/null
+
+            jq --arg name "$NAME" --arg path "$PTH" \
                -n '{"name": $name, "path": $path}'
           done
         }
