@@ -161,11 +161,9 @@ rec {
     "font-spacemono"
     "forceBuilds"
     "fsuae-launcher"
-    "getDeps"
     "getNixpkgs"
     "ghcPackageEnv"
     "ghcTurtle"
-    "ghcast"
     "google-api-python-client"
     "gscholar"
     "hackageDb"
@@ -190,7 +188,6 @@ rec {
     "mf2py"
     "mk-python-lhafile"
     "ml4pg"
-    "mlspec"
     "newNixpkgsEnv"
     "nix-eval-test"
     "nixFromCabal"
@@ -227,7 +224,7 @@ rec {
     "withNix"
     "withTincDeps"
     "withTincPackages"
-  ] (n: assert hasAttr n pkgs;
+  ] (n: assert hasAttr n pkgs || abort "No attribute '${n}'";
         trace "TODO: no test for ${n} yet" nothing);
 
   tests = TODO // selfNamedBinaries // binaryProviders // {
