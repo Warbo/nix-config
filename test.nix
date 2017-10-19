@@ -60,7 +60,6 @@ rec {
     hydra           = "hydra-eval-jobs";
     kbibtex_full    = "kbibtex";
     miller          = "mlr";
-    ML4HSFE         = "ml4hsfe-outer-loop";
     pandocPkgs      = "pandoc";
     stableHackage   = "makeCabalConfig";
     tidy-html5      = "tidy";
