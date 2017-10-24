@@ -1,4 +1,4 @@
-{ fetchurl, libusb1, patchelf, rockbox_utility, stdenv, writeScript }:
+{ buildEnv, fetchurl, libusb1, patchelf, rockbox_utility, stdenv, writeScript }:
 
 with rec {
   firmware = fetchurl {
