@@ -61,6 +61,7 @@ rec {
     kbibtex_full    = "kbibtex";
     miller          = "mlr";
     pandocPkgs      = "pandoc";
+    rockbox         = "mks5lboot";
     stableHackage   = "makeCabalConfig";
     tidy-html5      = "tidy";
     timeout         = "withTimeout";
@@ -159,7 +160,6 @@ rec {
     "fetchgx"
     "font-spacemono"
     "forceBuilds"
-    "fsuae-launcher"
     "getNixpkgs"
     "ghcPackageEnv"
     "ghcTurtle"
@@ -185,7 +185,6 @@ rec {
     "md2pdf"
     "mergeDirs"
     "mf2py"
-    "mk-python-lhafile"
     "ml4pg"
     "newNixpkgsEnv"
     "nix-eval-test"
