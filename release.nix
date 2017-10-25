@@ -136,25 +136,52 @@ with rec {
       #
       # Here we list all of the known ways that each package breaks.
       breakages =
-        mapAttrs (n: ps: withDeps (map isBroken ps) (dummyBuild n)) {
-          structural-induction =
+        with rec {
+          # Tincify 'pkgName' using the given 'haskellPackages', and look for a
+          # dependency with the name 'depName'
+          getTincDep = { depName, haskellPackages, pkgName }:
             with rec {
-              # Tincify chooses geniplate-0.6.0.0 which doesn't work with the
-              # Template Haskell version provided by GHC 7.10.2
-
-              pkg  = tincify
-                       (pkgs.haskell.packages.ghc7102.structural-induction // {
-                         haskellPackages = pkgs.haskell.packages.ghc7102;
-                       }) {};
-              geni = filter (d: isAttrs d && d.name == "geniplate-0.6.0.0")
-                            pkg.nativeBuildInputs;
-              info = toJSON {
-                       inherit geni;
-                       msg = "Broken geniplate dependency not found";
-                     };
+              pkg     = tincify (getAttr pkgName haskellPackages // {
+                                  inherit haskellPackages;
+                                }) {};
+              allDeps = concatMap (attr: getAttr attr pkg) [
+                "buildInputs" "nativeBuildInputs" "propagatedBuildInputs"
+                "propagatedNativeBuildInputs"
+              ];
+              match    = dep: isAttrs dep && dep.name == depName;
+              allFound = filter match allDeps;
+              found    = unique allFound;
             };
-            assert length geni == 1 || abort info;
-            geni;
+            assert length found == 1 || abort (toJSON {
+              inherit depName found pkgName;
+              msg = "Couldn't find broken tinc dependency";
+            });
+            found;
+
+          # Runs the given function across multiple Haskell package sets,
+          # concatenating the results
+          acrossHaskellVersions = f: concatMap
+            (version: f (getAttr version pkgs.haskell.packages));
+
+          # tip-lib causes a few packages to fail
+          tipLibFail = pkgName: acrossHaskellVersions
+            (haskellPackages: getTincDep {
+              inherit haskellPackages pkgName;
+              depName = "tip-lib-0.2.2";
+            })
+            [ "ghc7102" "ghc7103" ];
+        };
+        mapAttrs (n: ps: withDeps (map isBroken ps) (dummyBuild n)) {
+          structural-induction = acrossHaskellVersions
+            (haskellPackages: getTincDep {
+              inherit haskellPackages;
+              depName = "geniplate-0.6.0.0";
+              pkgName = "structural-induction";
+            })
+            [ "ghc7102" "ghc7103" ];
+
+          tip-haskell-frontend      = tipLibFail "tip-haskell-frontend";
+          tip-haskell-frontend-main = tipLibFail "tip-haskell-frontend-main";
         };
     };
     topLevel // haskell // { inherit breakages; tests = tests.testDrvs; };
