@@ -226,6 +226,8 @@ rec {
         trace "TODO: no test for ${n} yet" nothing);
 
   tests = TODO // selfNamedBinaries // binaryProviders // {
+    inherit dummyBuild gx nothing repo1603 repo1609 repo1703 stableHackageDb
+            stableRepo;
 
     allDrvsIn       = tryInEnv "allDrvsIn" (allDrvsIn { x = nothing; });
 
@@ -270,8 +272,6 @@ rec {
 
                           echo "pass" > "$out"
                         '';
-
-    gx              = gx;
 
     hackagePackageNames = tryInEnv "hackagePackageNames"
                                    (typeOf hackagePackageNames);
@@ -324,27 +324,6 @@ rec {
         echo pass > "$out"
       '';
 
-    nothing = runCommand "nothing-test"
-      {
-        inherit nothing;
-        buildInputs = [ fail ];
-      }
-      ''
-        [[ -e "$nothing" ]] || fail "Couldn't find '$nothing'"
-        if [[ -f "$nothing" ]]
-        then
-          fail "'$nothing' shouldn't be a file"
-        fi
-
-        COUNT=$(find "$nothing/" | wc -l)
-        [[ "$COUNT" -eq 1 ]] || fail "Found '$COUNT' things in '$nothing'"
-
-        echo pass > "$out"
-      '';
-
-    repo1603        = repo1603;
-    repo1609        = repo1609;
-    repo1703        = repo1703;
     setIn           = tryInEnv "setIn" (toJSON (setIn {
                         path  = [ "x" ];
                         value = 1;
@@ -352,8 +331,6 @@ rec {
                       }));
     stable          = tryInEnv "stable" (toJSON stable);
     stableNixpkgs   = stableNixpkgs.hello;
-    stableHackageDb = stableHackageDb;
-    stableRepo      = stableRepo;
 
     unlines = tryInEnv "unlines" (unlines [ "foo" "bar" ]);
 
