@@ -127,8 +127,37 @@ with rec {
         fold (name: recursiveUpdate (getDrvs name)) {} haskellNames;
 
       tests = import ./test.nix { inherit pkgs; };
+
+      # Checking that things *do* build with known-good package sets is only
+      # half the story: we should also check that we're right about things
+      # failing with known-bad package sets. Otherwise we might end up avoiding
+      # something or, even worse, implementing fragile workarounds, due to
+      # "problems" which may no longer exist.
+      #
+      # Here we list all of the known ways that each package breaks.
+      breakages =
+        mapAttrs (n: ps: withDeps (map isBroken ps) (dummyBuild n)) {
+          structural-induction =
+            with rec {
+              # Tincify chooses geniplate-0.6.0.0 which doesn't work with the
+              # Template Haskell version provided by GHC 7.10.2
+
+              pkg  = tincify
+                       (pkgs.haskell.packages.ghc7102.structural-induction // {
+                         haskellPackages = pkgs.haskell.packages.ghc7102;
+                       }) {};
+              geni = filter (d: isAttrs d && d.name == "geniplate-0.6.0.0")
+                            pkg.nativeBuildInputs;
+              info = toJSON {
+                       inherit geni;
+                       msg = "Broken geniplate dependency not found";
+                     };
+            };
+            assert length geni == 1 || abort info;
+            geni;
+        };
     };
-    topLevel // haskell // { tests = tests.testDrvs; };
+    topLevel // haskell // { inherit breakages; tests = tests.testDrvs; };
 };
 stable.lib.mapAttrs (_: mkSet) {
   inherit stable unstable;
