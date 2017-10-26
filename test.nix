@@ -23,6 +23,7 @@ rec {
 
   # Packages which should provide a binary of the same name
   selfNamedBinaries = genAttrs [
+    "asublim"
     "asv"
     "bibcheck"
     "bibclean"
