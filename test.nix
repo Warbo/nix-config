@@ -44,6 +44,7 @@ rec {
     "pipeToNix"
     "replace"
     "sshuttle"
+    "sta"
     "x2x"
     "xdms"
     "youtube-dl"
