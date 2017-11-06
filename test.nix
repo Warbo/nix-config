@@ -334,6 +334,7 @@ rec {
     stable          = tryInEnv "stable" (toJSON stable);
     stableNixpkgs   = stableNixpkgs.hello;
 
+    tryElse = tryInEnv "tryElse" (tryElse <nope> "fallback");
     unlines = tryInEnv "unlines" (unlines [ "foo" "bar" ]);
 
     wrap = wrap {
