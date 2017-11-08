@@ -3,7 +3,7 @@ self: super: with self;
 haskellGit {
   url    = "${repoSource}/mlspec-helper.git";
   stable = {
-    rev    = "deef213";
-    sha256 = "10hp1alp5n61v56mmjpq4kag67qmswjkh7my72r58zp5l1lc74ag";
+    rev    = "d794706";
+    sha256 = "0vlr3ar1zwk0ykbzmg47j1yv1ba8gf6nzqj10bfy60nii91z7slh";
   };
 }
