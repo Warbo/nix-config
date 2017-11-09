@@ -9,7 +9,6 @@ buildEnv {
     autossh
     artemis
     binutils
-    haskellPackages.cabal-install
     cabal2nix
     dtach
     dvtm
@@ -20,7 +19,10 @@ buildEnv {
     git
     gnumake
     gnutls
+    haskellPackages.cabal-install
     haskellPackages.happy
+    haskellPackages.hlint
+    haskellPackages.stylish-haskell
     jq
     md2pdf
     msmtp
