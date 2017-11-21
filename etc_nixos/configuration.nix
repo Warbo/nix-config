@@ -90,6 +90,10 @@ rec {
     # Block time wasters
     extraHosts = ''
       127.0.0.1 nixos
+      ${trace ''
+        FIXME: Faking texLive mirror source. See
+        https://github.com/NixOS/nixpkgs/issues/24683#issuecomment-314631069
+      '' "146.185.144.154	lipa.ms.mff.cuni.cz"}
       ${readFile "/home/chris/.dotfiles/hosts"}
     '';
 
