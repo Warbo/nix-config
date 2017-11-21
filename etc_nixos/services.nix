@@ -117,6 +117,7 @@ with rec {
       Restart    = "always";
       ExecStart  = writeScript "emacs-start" ''
         #!${bash}/bin/bash
+        cd "$HOME"
         exec emacs --daemon
       '';
       ExecStop = writeScript "emacs-stop" ''
