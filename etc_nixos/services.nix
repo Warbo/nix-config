@@ -280,6 +280,10 @@ with rec {
 
           # Force any X2X sessions to restart, since we've messed up X
           pkill -f 'x2x -east' || true
+
+          # Our keybindings mess up, so restart them
+          sleep 5
+          keys
         fi
       '';
     };
@@ -305,6 +309,10 @@ with rec {
 
           # Force any X2X sessions to restart, since we've messed up X
           pkill -f 'x2x -' || true
+
+          # Our keybindings mess up, so restart them
+          sleep 5
+          keys
         fi
       '';
     };
