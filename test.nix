@@ -41,7 +41,9 @@ rec {
     "ipfs"
     "linkchecker"
     "mhonarc"
+    "opensonic"
     "pipeToNix"
+    "pushover"
     "replace"
     "sshuttle"
     "sta"
@@ -152,6 +154,7 @@ rec {
     pkgTests;
 
   TODO = genAttrs [
+    "alive"
     "anonymous-pro-font"
     "beautifulsoup-custom"
     "citationstyles"
@@ -194,6 +197,7 @@ rec {
     "nixpkgs1603"
     "nixpkgs1609"
     "nixpkgs1703"
+    "openfodder"
     "profiledHaskellPackages"
     "pypdf2"
     "python-lhafile"
@@ -206,6 +210,8 @@ rec {
     "scholar"
     "searchtobibtex"
     "skulpture"
+    "stargus"
+    "stratagus"
     "stripOverrides"
     "suffMatch"
     "tincify"
