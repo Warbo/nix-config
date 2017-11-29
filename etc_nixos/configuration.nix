@@ -219,6 +219,7 @@ rec {
         enable = true;
         user   = "chris";
       };
+      sessionCommands = readFile /home/chris/.dotfiles/xsession;
     };
   };
 
