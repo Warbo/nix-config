@@ -231,7 +231,7 @@ rec {
   };
 
   services.printing = {
-    enable  = false;  # Switch this to enable CUPS
+    enable  = true;  # Switch this to enable CUPS
     drivers = [ pkgs.hplip pkgs.gutenprint ];
   };
 
