@@ -35,8 +35,14 @@ rec {
       device  = "/dev/sda";
     };
 
-    kernelModules = trace "FIXME: Which modules are artefacts of using QEMU to install?"
-                          [ "kvm-intel" "tun" "virtio" "coretemp" ];
+    kernelModules = trace "FIXME: Which modules are artefacts of using QEMU to install?" [
+      "kvm-intel" "tun" "virtio"
+
+      "coretemp"
+
+      # VPN-related, see https://github.com/NixOS/nixpkgs/issues/22947
+      "nf_conntrack_pptp"
+    ];
 
     kernel.sysctl."net.ipv4.tcp_sack" = 0;
 
@@ -84,8 +90,9 @@ rec {
   sound.enableMediaKeys = true;
 
   networking = {
-    hostName                = "nixos";
-    firewall.enable         = false;
+    hostName                          = "nixos";
+    firewall.enable                   = false;
+    firewall.autoLoadConntrackHelpers = true;
 
     # Block time wasters
     extraHosts = ''
