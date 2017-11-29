@@ -251,8 +251,13 @@ rec {
   systemd = {
     services = import ./services.nix (pkgs // mypkgs);
 
-    # Enables virtual terminal 1
-    units."getty@tty1".enable = true;
+    # Enables virtual terminals
+    #units."getty@tty1".enable = true;
+    #units."getty@tty2".enable = true;
+    #units."getty@tty3".enable = true;
+    #units."getty@tty4".enable = true;
+    #units."getty@tty5".enable = true;
+    #units."getty@tty6".enable = true;
   };
 
   # Locale, etc.
