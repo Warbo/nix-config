@@ -72,8 +72,6 @@ with rec {
   '';
 };
 {
-  #"console-getty".enable = true;
-
   thermald-nocheck = {
     description = "Thermal Daemon Service";
     wantedBy    = [ "multi-user.target" ];
