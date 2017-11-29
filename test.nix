@@ -135,12 +135,16 @@ rec {
         ML4HSFE = withDeps
           [ (isBroken haskellPackages.weigh) ]
 
-          (tincify (haskellPackages.ML4HSFE // { extras = [ "HS2AST" ]; }) {});
+          (tincify (haskellPackages.ML4HSFE // {
+            extras = [ "HS2AST" ];
+          }) {});
 
         mlspec = withDeps
           [ (isBroken haskellPackages.weigh) ]
 
-          (tincify haskellPackages.mlspec {});
+          (tincify (haskellPackages.mlspec // {
+            extras = [ "mlspec-helper" ];
+          }) {});
       };
 
       pkgTests = mine // notMine // {
