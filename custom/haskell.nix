@@ -12,6 +12,25 @@ with rec {
   haskellDefs  = genAttrs haskellNames
                           (f: import (./haskell + "/${f}.nix") self super);
 
+  # Some versions of nixpkgs support benchmarkHaskellDepends, others don't
+  callWith = self:
+    with rec {
+      f = { mkDerivation }: { inherit mkDerivation; };
+
+      inherit (self.callPackage f {}) mkDerivation;
+
+      polyfill = def: self.callPackage def {
+        mkDerivation = { benchmarkHaskellDepends ? null }@args:
+          mkDerivation (removeAttrs args [ "benchmarkHaskellDepends" ] // {
+                          libraryHaskellDepends = args.libraryHaskellDepends ++
+                                                  args.benchmarkHaskellDepends;
+                       });
+      };
+    };
+    if functionArgs mkDerivation ? benchmarkHaskellDepends
+       then self.callPackage
+       else polyfill;
+
   haskellOverrides = self: super: mapAttrs (_: def: self.callPackage def {})
                                            haskellDefs;
 };
