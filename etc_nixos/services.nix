@@ -75,7 +75,11 @@ with rec {
   thermald-nocheck = {
     description = "Thermal Daemon Service";
     wantedBy    = [ "multi-user.target" ];
-    script      = "exec ${pkgs.thermald}/sbin/thermald --no-daemon --dbus-enable --ignore-cpuid-check";
+    script      = ''
+      exec ${pkgs.thermald}/sbin/thermald --no-daemon   \
+                                          --dbus-enable \
+                                          --ignore-cpuid-check
+    '';
   };
 
   coolDown = mkService {
