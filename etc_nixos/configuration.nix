@@ -23,8 +23,10 @@ rec {
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
 
-      # Remove this once IPFS service is in stable
-      "${ipfsPkgs}/nixos/modules/services/network-filesystems/ipfs.nix"
+      ((if mypkgs.stable && systemd.services ? ipfs
+           then trace "FIXME: Use upstream ipfs service"
+           else (x: x))
+       "${ipfsPkgs}/nixos/modules/services/network-filesystems/ipfs.nix")
     ];
 
   # Use the GRUB 2 boot loader.
