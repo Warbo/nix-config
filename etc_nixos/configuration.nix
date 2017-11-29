@@ -42,6 +42,9 @@ rec {
 
       # VPN-related, see https://github.com/NixOS/nixpkgs/issues/22947
       "nf_conntrack_pptp"
+
+      # Needed for virtual consoles to work
+      "fbcon" "i915"
     ];
 
     kernel.sysctl."net.ipv4.tcp_sack" = 0;
@@ -248,17 +251,7 @@ rec {
   #services.thinkfan.enable = true;
   #services.thermald.enable = true;  # Requires CPU check disabling on X60s
 
-  systemd = {
-    services = import ./services.nix (pkgs // mypkgs);
-
-    # Enables virtual terminals
-    #units."getty@tty1".enable = true;
-    #units."getty@tty2".enable = true;
-    #units."getty@tty3".enable = true;
-    #units."getty@tty4".enable = true;
-    #units."getty@tty5".enable = true;
-    #units."getty@tty6".enable = true;
-  };
+  systemd = { services = import ./services.nix (pkgs // mypkgs); };
 
   # Locale, etc.
   i18n = {
