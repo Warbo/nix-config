@@ -23,6 +23,7 @@ buildEnv {
     haskellPackages.happy
     haskellPackages.hlint
     haskellPackages.stylish-haskell
+    inotify-tools
     jq
     md2pdf
     msmtp
