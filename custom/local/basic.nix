@@ -12,6 +12,7 @@ buildEnv {
     cabal2nix
     dtach
     dvtm
+    entr
     file
     get_iplayer
     ghc
