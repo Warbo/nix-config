@@ -1,0 +1,34 @@
+From: Chris Warburton
+Date: Wed, 29 Nov 2017 18:51:01 +0000
+State: new
+Subject: Add more dependencies to release.nix Haskell packages
+Message-Id: <86f9c23335ddc07e-0-artemis@nixos>
+
+The extraDeps set in release.nix tells tincify which attributes of (the
+given) haskellPackages it should make available to tinc, in addition to
+the usual content of Hackage.
+
+Custom packages which depend on each other need entries added to this.
+
+Doing this is simple, but tedious (maybe a bash script would help):
+
+ - Try to evaluate a specific Haskell package from release.nix, e.g.
+   'with import ./release.nix; stable.haskell.packages.ghc7102.mlspec'
+ - Wait for it to fail (tincify runs during evaluation, not build)
+ - See which dependencies Cabal complains are missing, if any.
+ - Add those entries to extraDeps.
+ - See if the derivation now succeeds.
+
+The relevant failure messages look like this (mlspec is missing
+mlspec-helper):
+
+  cabal: Could not resolve dependencies:
+  trying: mlspec-0.2.1.2 (user goal)
+  next goal: mlspec-helper (dependency of mlspec-0.2.1.2)
+  Dependency tree exhaustively searched.
+
+Maybe write a bash loop which echoes these expressions into nix-repl,
+greps aggressively to only show the cabal errors, and plays a beep after
+it's done. We can then leave it going, come back when it beeps and add
+any missing dependencies. Rinse and repeat, until everything works (we
+hope!)
