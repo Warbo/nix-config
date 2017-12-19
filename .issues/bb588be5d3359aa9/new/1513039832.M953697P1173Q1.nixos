@@ -1,0 +1,14 @@
+From: Chris Warburton
+Date: Tue, 12 Dec 2017 00:48:54 +0000
+State: new
+Subject: Bump up our Haskell infrastructure
+Message-Id: <bb588be5d3359aa9-0-artemis@nixos>
+
+See
+https://www.reddit.com/r/NixOS/comments/7h8np7/stack_or_cabal_which_one_is_more_preferable_for/
+
+In particular, developPackage and callCabal2Nix
+
+Can we simplify tincify by getting rid of tinc completely, and just
+using cabal to resolve a list of dependencies, then using callCabal2Nix
+with those?
