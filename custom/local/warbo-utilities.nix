@@ -4,7 +4,7 @@ withLatestGit {
   url      = "${repoSource}/warbo-utilities.git";
   srcToPkg = src: import "${src}" { nixPkgs = self; };
   stable   = {
-    rev    = "33ba16d45b5a5cd32914eefd997d37bd104db476";
-    sha256 = "1ics5i17hrpg5kmphn9ksmr9hw02lymjarmkm6wijhv5incnhrcq";
+    rev    = "6235473";
+    sha256 = "0k1wrr9mw6zhl6mfmkplwxp5kgkq7g46hrwyf10v4d2p9l736868";
   };
 }
