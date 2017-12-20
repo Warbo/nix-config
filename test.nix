@@ -260,6 +260,21 @@ rec {
                           echo pass > "$out"
                         '';
 
+    cabalField      = runCommand "cabalField-test"
+                        {
+                          found = cabalField {
+                            dir   = unpack haskellPackages.text.src;
+                            field = "name";
+                          };
+                        }
+                        ''
+                          [[ "x$found" = "xtext" ]] || {
+                            echo "Got '$found' instead of 'text'" 1>&2
+                            exit 1
+                          }
+                          mkdir "$out"
+                        '';
+
     callPackage     = tryInEnv "callPackage" (callPackage ({ bash }: "x") {});
 
     composeWithArgs = tryInEnv "composeWithArgs"
@@ -296,6 +311,19 @@ rec {
                                (runCommand "haskell-tests" {} ''
                                  echo pass > "$out"
                                '');
+
+    haskellPkgDeps  = tryInEnv "haskellPkgDeps"
+                               (haskellPkgDeps {
+                                 name = "text";
+                                 dir  = unpack haskellPackages.text.src;
+                                 pkgs = haskellPackages;
+                               });
+
+    haskellPkgWithDeps = haskellPkgWithDeps {
+                           name   = "text";
+                           dir    = unpack haskellPackages.text.src;
+                           hsPkgs = haskellPackages;
+                         };
 
     isCallable      = ifDrv "isCallable-test"
                             (isCallable (callPackage
