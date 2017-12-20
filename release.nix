@@ -92,7 +92,8 @@ with rec {
             assert all check (attrNames versions); versions;
 
           # Either they're not on Hackage, or nixpkgs version doesn't match
-          extraDeps = {
+          extraDeps = mapAttrs (_: map (n: unpack
+                                             (getAttr n haskellPackages).src)) {
             AstPlugin            = [ "HS2AST"             ];
             lazy-lambda-calculus = [ "lazysmallcheck2012" ];
             ML4HSFE              = [ "HS2AST"             ];
@@ -107,7 +108,7 @@ with rec {
                 inherit set;
                 path  = path ++ [ name ];
 
-                # Tincify each package, to ensure it gets the right dependencies
+                # Ensure each package gets compatible dependencies
                 value =
                   with rec {
                     fail   = abort (toJSON {
@@ -117,10 +118,14 @@ with rec {
                     hP     = attrByPath path fail pkgs;
                     pkg    = getAttr name hP;
                     extras = if hasAttr name extraDeps
-                                then { extras = getAttr name extraDeps; }
+                                then { extra-sources = getAttr name extraDeps; }
                                 else {};
                   };
-                  tincify (pkg // extras // { haskellPackages = hP; }) {};
+                  haskellPkgWithDeps
+                    ({
+                      dir    = unpack pkg.src;
+                      hsPkgs = hP;
+                     } // extras);
               };
             };
             fold addDrv {} (getAttr name pkgGhcVersions);
