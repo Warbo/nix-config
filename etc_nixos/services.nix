@@ -234,6 +234,7 @@ with rec {
     path          = [ openssh warbo-utilities ];
     environment   = {
       DISPLAY = ":0";
+      TERM    = "xterm";
     };
     serviceConfig = {
       User       = "chris";
