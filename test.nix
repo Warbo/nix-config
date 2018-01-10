@@ -201,6 +201,7 @@ rec {
     "nixpkgs1603"
     "nixpkgs1609"
     "nixpkgs1703"
+    "nixpkgs1709"
     "openfodder"
     "profiledHaskellPackages"
     "pypdf2"
@@ -238,7 +239,7 @@ rec {
         trace "TODO: no test for ${n} yet" nothing);
 
   tests = TODO // selfNamedBinaries // binaryProviders // {
-    inherit gx nothing pidgin-privacy-please repo1603 repo1609 repo1703
+    inherit gx nothing pidgin-privacy-please repo1603 repo1609 repo1703 repo1709
             stableHackageDb stableRepo;
 
     allDrvsIn       = tryInEnv "allDrvsIn" (allDrvsIn { x = nothing; });
@@ -299,6 +300,8 @@ rec {
 
                           echo "pass" > "$out"
                         '';
+
+    dropWhile = tryInEnv "dropWhile" (dropWhile (x: x > 2) [ 5 4 3 2 1 ]);
 
     dummyBuild = dummyBuild "dummyBuildTest";
 
@@ -373,6 +376,9 @@ rec {
                       }));
     stable          = tryInEnv "stable" (toJSON stable);
     stableNixpkgs   = stableNixpkgs.hello;
+
+    stringAsList  = tryInEnv "stringAsList"  (stringAsList (x: x) "hi");
+    stringReverse = tryInEnv "stringReverse" (stringReverse "foo");
 
     tryElse = tryInEnv "tryElse" (tryElse <nope> "fallback");
     unlines = tryInEnv "unlines" (unlines [ "foo" "bar" ]);
