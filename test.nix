@@ -314,9 +314,9 @@ rec {
 
     haskellPkgDeps  = tryInEnv "haskellPkgDeps"
                                (haskellPkgDeps {
+                                 inherit (haskellPackages) ghc;
                                  name = "text";
                                  dir  = unpack haskellPackages.text.src;
-                                 pkgs = haskellPackages;
                                });
 
     haskellPkgWithDeps = haskellPkgWithDeps {
