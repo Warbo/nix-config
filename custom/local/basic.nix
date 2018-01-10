@@ -29,6 +29,7 @@ buildEnv {
     md2pdf
     msmtp
     nix-repl
+    nixpkgs1709.youtube-dl
     openssh
     opusTools
     p7zip
@@ -59,7 +60,6 @@ buildEnv {
     xcape
     xorg.xmodmap
     xorg.xproto
-    youtube-dl
     zip
   ];
 }
