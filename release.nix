@@ -37,6 +37,7 @@ with rec {
       haskell =
         with rec {
           # GHC version ranges
+          ghc784  = [ [ "haskell" "packages" "ghc784"  ] ];
           ghc7102 = [ [ "haskell" "packages" "ghc7102" ] ];
           ghc7103 = [ [ "haskell" "packages" "ghc7103" ] ];
           ghc710  = ghc7102 ++ ghc7103;
@@ -66,7 +67,7 @@ with rec {
                 HS2AST                    = ghc710;
                 ifcxt                     = base48;
                 lazy-lambda-calculus      = ghc710;
-                lazysmallcheck2012        = ghc710;
+                lazysmallcheck2012        = ghc784;
                 ML4HSFE                   = ghc710;
                 mlspec                    = ghc710;
                 mlspec-helper             = ghc710;
