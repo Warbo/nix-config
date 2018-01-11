@@ -166,7 +166,6 @@ rec {
     "elcid"
     "feed2maildirsimple"
     "fetchGitHashless"
-    "fetchgx"
     "font-spacemono"
     "forceBuilds"
     "getNixpkgs"
