@@ -1,37 +1,36 @@
-# Used for testing and building via Hydra or "nix-build"
+# Used for testing and building via continuous integration (e.g. Hydra)
 with builtins;
+with import <nixpkgs> { config = import ./config.nix; };
+with lib;
 with rec {
-  # The stable packages should always work; unstable shows us potential bit rot.
-  unstable = import <nixpkgs>         { config = import ./unstable.nix; };
-    stable = import unstable.repo1609 { config = import   ./stable.nix; };
+  # Select our custom packages/overrides, except for those which are buried
+  # in larger sets
+  tooBig = name: hasPrefix "nixpkgs" name ||
+                 hasPrefix "repo"    name ||
+                 elem name [
+                   "stableNixpkgs"             # Copy of nixpkgs
+                   "stableRepo"                # Ditto
+                   "haskell"                   # Mostly not ours
+                   "haskellPackages"           # Ditto
+                   "profiledHaskellPackages"   # Ditto
+                   "unprofiledHaskellPackages" # Ditto
+                   "unstableHaskellPackages"   # Ditto
 
-  mkSet = pkgs:
-    with pkgs;
-    with lib;
-    with rec {
-      # Select our custom packages/overrides, except for those which are buried
-      # in larger sets
-      tooBig = name: hasPrefix "nixpkgs" name ||
-                     hasPrefix "repo"    name ||
-                     elem name [
-                       "stableNixpkgs"             # Copy of nixpkgs
-                       "stableRepo"                # Ditto
-                       "haskell"                   # Mostly not ours
-                       "haskellPackages"           # Ditto
-                       "profiledHaskellPackages"   # Ditto
-                       "unprofiledHaskellPackages" # Ditto
-                       "unstableHaskellPackages"   # Ditto
+                   # These are designed to break on unstable, so avoid them
+                   "latestNixCfg"
+                   "latestCfgPkgs"
+                   "withLatestCfg"
+                 ];
 
-                       # These are designed to break on unstable, so avoid them
-                       "latestNixCfg"
-                       "latestCfgPkgs"
-                       "withLatestCfg"
-                     ];
-      drvName  = name: isDerivation (getAttr name pkgs);
+  topLevel = pkgs:
+    with {
       keepers  = name: !(tooBig name) && isDerivation (getAttr name pkgs);
-      topLevel = genAttrs (filter keepers customPkgNames)
-                          (name: getAttr name pkgs);
+    };
+    genAttrs (filter keepers customPkgNames)
+             (name: getAttr name pkgs);
 
+  select = pkgs:
+    with rec {
       # Select our custom Haskell packages from the various sets of Haskell
       # packages provided by nixpkgs (e.g. for different compiler versions)
       haskell =
@@ -94,7 +93,7 @@ with rec {
 
           # Either they're not on Hackage, or nixpkgs version doesn't match
           extraDeps = mapAttrs (_: map (n: unpack
-                                             (getAttr n haskellPackages).src)) {
+                                             (getAttr n pkgs.haskellPackages).src)) {
             AstPlugin            = [ "HS2AST"             ];
             lazy-lambda-calculus = [ "lazysmallcheck2012" ];
             ML4HSFE              = [ "HS2AST"             ];
@@ -191,8 +190,7 @@ with rec {
           tip-haskell-frontend-main = tipLibFail "tip-haskell-frontend-main";
         };
     };
-    topLevel // haskell // { inherit breakages; tests = tests.testDrvs; };
+    topLevel pkgs // haskell // { inherit breakages; tests = tests.testDrvs; };
 };
-stable.lib.mapAttrs (_: mkSet) {
-  inherit stable unstable;
-}
+
+lib.mapAttrs (_: select) customised
