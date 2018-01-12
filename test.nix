@@ -134,6 +134,7 @@ rec {
           [ (isBroken haskellPackages.weigh) ]
 
           (haskellPkgWithDeps {
+            delay-failure = true;
             dir           =    unpack haskellPackages.ML4HSFE.src;
             extra-sources = [ (unpack haskellPackages.HS2AST.src) ];
             hsPkgs        = haskellPackages;
@@ -143,8 +144,10 @@ rec {
           [ (isBroken haskellPackages.weigh) ]
 
           (haskellPkgWithDeps {
+            delay-failure = true;
             dir           =    unpack haskellPackages.mlspec.src;
             extra-sources = [ (unpack haskellPackages.mlspec-helper.src) ];
+            hsPkgs        = haskellPackages;
           });
       };
 
