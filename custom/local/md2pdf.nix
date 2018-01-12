@@ -1,10 +1,13 @@
-{ fetchgit, repoSource, stdenv }:
+{ latestGit, repoSource, stdenv }:
 
 stdenv.mkDerivation {
   name = "md2pdf";
-  src  = fetchgit {
+  src  = latestGit {
     url    = "${repoSource}/md2pdf.git";
-    sha256 = "1wrwx4q311ali8ksqdw1dlf4k9hr6m2ycjjjwy1ickmz4fh8gh87";
+    stable = {
+      rev    = "ee98157";
+      sha256 = "1wrwx4q311ali8ksqdw1dlf4k9hr6m2ycjjjwy1ickmz4fh8gh87";
+    };
   };
   installPhase = ''
     mkdir -p "$out/bin"

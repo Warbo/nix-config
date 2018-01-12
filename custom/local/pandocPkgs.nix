@@ -1,6 +1,6 @@
 # Fixed versions of pandoc, panpipe, panhandle, pandoc-citeproc and dependencies
 
-{ attrsToDirs, fetchgit, lib, mkStableHackageDb, nixpkgs1609, runCabal2nix,
+{ attrsToDirs, latestGit, lib, mkStableHackageDb, nixpkgs1609, runCabal2nix,
   repoSource, wrap }:
 
 with lib;
@@ -24,10 +24,12 @@ with rec {
     lazysmallcheck2012 =
       assert !(hasAttr "lazysmallcheck2012" hackage.versions) ||
              abort "Hackage has lazysmallcheck2012, use it";
-      self.callPackage (c2n (fetchgit {
+      self.callPackage (c2n (latestGit {
         url    = repoSource + "/lazy-smallcheck-2012.git";
-        rev    = "dbd6fba10a24b2e46d6250d2735be2d792ff69bb";
-        sha256 = "1i3by7mp7wqy9anzphpxfw30rmbsk73sb2vg02nf1mfpjd303jj7";
+        stable = {
+          rev    = "dbd6fba10a24b2e46d6250d2735be2d792ff69bb";
+          sha256 = "1i3by7mp7wqy9anzphpxfw30rmbsk73sb2vg02nf1mfpjd303jj7";
+        };
       })) {};
 
     # Writer tests fail due to read-only filesystem
@@ -38,10 +40,12 @@ with rec {
     panhandle =
       assert !(elem "0.3.0.0" hackage.versions.panhandle) ||
              abort "Hackage has panhandle-0.3, use it";
-      self.callPackage (c2n (fetchgit {
+      self.callPackage (c2n (latestGit {
         url    = repoSource + "/panhandle.git";
-        rev    = "7e44d75";
-        sha256 = "1cgk5wslbr507fmh1fyggvk15lipa8x815392j9qf4f922iifdzn";
+        stable = {
+          rev    = "7e44d75";
+          sha256 = "1cgk5wslbr507fmh1fyggvk15lipa8x815392j9qf4f922iifdzn";
+        };
       })) {};
   };
 
