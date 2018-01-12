@@ -42,19 +42,10 @@ rec {
     };
   };
 
-  haskell =
-    with rec {
-      # We need GHC 8.0.2 for tinc
-      backport = if super.haskell.packages ? ghc802
-                    then {}
-                    else {
-                      inherit (self.nixpkgs1703.haskell.packages) ghc802;
-                    };
-
-      packages = mapAttrs (_: hsPkgs: hsPkgs.override {
-                            overrides = haskellOverrides;
-                          })
-                          (super.haskell.packages // backport);
-    };
-    super.haskell // { inherit packages; };
+  haskell = super.haskell // {
+    packages = mapAttrs (_: hsPkgs: hsPkgs.override {
+                          overrides = haskellOverrides;
+                        })
+                        super.haskell.packages;
+  };
 }

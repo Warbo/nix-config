@@ -76,7 +76,6 @@ with rec {
                 structural-induction      = ghc7103;
                 tasty                     = ghc710;
                 tasty-ant-xml             = ghc710;
-                tinc                      = ghc802;
                 tip-haskell-frontend      = ghc710;
                 tip-haskell-frontend-main = ghc710;
                 tip-lib                   = ghc710;
@@ -134,64 +133,8 @@ with rec {
         fold (name: recursiveUpdate (getDrvs name)) {} haskellNames;
 
       tests = import ./test.nix { inherit pkgs; };
-
-      # Checking that things *do* build with known-good package sets is only
-      # half the story: we should also check that we're right about things
-      # failing with known-bad package sets. Otherwise we might end up avoiding
-      # something or, even worse, implementing fragile workarounds, due to
-      # "problems" which may no longer exist.
-      #
-      # Here we list all of the known ways that each package breaks.
-      breakages =
-        with rec {
-          # Tincify 'pkgName' using the given 'haskellPackages', and look for a
-          # dependency with the name 'depName'
-          getTincDep = { depName, haskellPackages, pkgName }:
-            with rec {
-              pkg     = tincify (getAttr pkgName haskellPackages // {
-                                  inherit haskellPackages;
-                                }) {};
-              allDeps = concatMap (attr: getAttr attr pkg) [
-                "buildInputs" "nativeBuildInputs" "propagatedBuildInputs"
-                "propagatedNativeBuildInputs"
-              ];
-              match    = dep: isAttrs dep && dep.name == depName;
-              allFound = filter match allDeps;
-              found    = unique allFound;
-            };
-            assert length found == 1 || abort (toJSON {
-              inherit depName found pkgName;
-              msg = "Couldn't find broken tinc dependency";
-            });
-            found;
-
-          # Runs the given function across multiple Haskell package sets,
-          # concatenating the results
-          acrossHaskellVersions = f: concatMap
-            (version: f (getAttr version pkgs.haskell.packages));
-
-          # tip-lib causes a few packages to fail
-          tipLibFail = pkgName: acrossHaskellVersions
-            (haskellPackages: getTincDep {
-              inherit haskellPackages pkgName;
-              depName = "tip-lib-0.2.2";
-            })
-            [ "ghc7102" "ghc7103" ];
-        };
-        mapAttrs (n: ps: withDeps (map isBroken ps) (dummyBuild n)) {
-          structural-induction = acrossHaskellVersions
-            (haskellPackages: getTincDep {
-              inherit haskellPackages;
-              depName = "geniplate-0.6.0.0";
-              pkgName = "structural-induction";
-            })
-            [ "ghc7102" "ghc7103" ];
-
-          tip-haskell-frontend      = tipLibFail "tip-haskell-frontend";
-          tip-haskell-frontend-main = tipLibFail "tip-haskell-frontend-main";
-        };
     };
-    topLevel pkgs // haskell // { inherit breakages; tests = tests.testDrvs; };
+    topLevel pkgs // haskell // { tests = tests.testDrvs; };
 };
 
 lib.mapAttrs (_: select) customised

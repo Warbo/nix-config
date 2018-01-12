@@ -102,7 +102,7 @@ rec {
 
   haskellTests =
     with rec {
-      notMine = (genAttrs [
+      notMine = genAttrs [
         "genifunctors"
         "structural-induction"
         "lazysmallcheck2012"
@@ -116,9 +116,7 @@ rec {
         "tasty"
         "tip-types"
         "geniplate"
-      ] tryHaskellPackage) // {
-        tinc = haskell.packages.ghc802.tinc;
-      };
+      ] tryHaskellPackage;
 
       mine = (genAttrs [
         "ArbitraryHaskell"
@@ -135,16 +133,19 @@ rec {
         ML4HSFE = withDeps
           [ (isBroken haskellPackages.weigh) ]
 
-          (tincify (haskellPackages.ML4HSFE // {
-            extras = [ "HS2AST" ];
-          }) {});
+          (haskellPkgWithDeps {
+            dir           =    unpack haskellPackages.ML4HSFE.src;
+            extra-sources = [ (unpack haskellPackages.HS2AST.src) ];
+            hsPkgs        = haskellPackages;
+          });
 
         mlspec = withDeps
           [ (isBroken haskellPackages.weigh) ]
 
-          (tincify (haskellPackages.mlspec // {
-            extras = [ "mlspec-helper" ];
-          }) {});
+          (haskellPkgWithDeps {
+            dir           =    unpack haskellPackages.mlspec.src;
+            extra-sources = [ (unpack haskellPackages.mlspec-helper.src) ];
+          });
       };
 
       pkgTests = mine // notMine // {
@@ -179,7 +180,6 @@ rec {
     "haskellNames"
     "haskellOverrides"
     "haskellPackages"
-    "haskellTinc"
     "helpers"
     "hfeed2atom"
     "inNixedDir"
@@ -218,7 +218,6 @@ rec {
     "stratagus"
     "stripOverrides"
     "suffMatch"
-    "tincify"
     "tipSrc"
     "translitcodec"
     "unpack"
@@ -232,8 +231,6 @@ rec {
     "withLatestCfg"
     "withLatestGit"
     "withNix"
-    "withTincDeps"
-    "withTincPackages"
   ] (n: assert hasAttr n pkgs || abort "No attribute '${n}'";
         trace "TODO: no test for ${n} yet" nothing);
 
