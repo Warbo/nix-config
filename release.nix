@@ -123,8 +123,9 @@ with rec {
                   };
                   haskellPkgWithDeps
                     ({
-                      dir    = unpack pkg.src;
-                      hsPkgs = hP;
+                      delay-failure = true;
+                      dir           = unpack pkg.src;
+                      hsPkgs        = hP;
                      } // extras);
               };
             };

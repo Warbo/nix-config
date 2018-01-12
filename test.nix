@@ -322,9 +322,10 @@ rec {
                                });
 
     haskellPkgWithDeps = haskellPkgWithDeps {
-                           name   = "text";
-                           dir    = unpack haskellPackages.text.src;
-                           hsPkgs = haskellPackages;
+                           name          = "text";
+                           dir           = unpack haskellPackages.text.src;
+                           hsPkgs        = haskellPackages;
+                           delay-failure = true;
                          };
 
     isCallable      = ifDrv "isCallable-test"
