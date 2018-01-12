@@ -5,6 +5,6 @@ import (latestGit {
           ref    = "master";
           stable = {
             rev    = "d9392e0";
-            sha256 = "0fc748a1nilz8wwqmkqslin26xs6l5fc547gnsq124ik3sdivhhc";
+            sha256 = "11sslpidw77747k6qba0acvifxd0wg89nzqbbkpdxajmfb3m776v";
           };
         })
