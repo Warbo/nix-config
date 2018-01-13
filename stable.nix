@@ -34,5 +34,6 @@ other // {
     customised = customised // {
       unstable = pkgs // custom false (nixpkgs // pkgs);
     };
+    unstable = pkgs;
   };
 }
