@@ -31,6 +31,8 @@ with rec {
 };
 other // {
   packageOverrides = pkgs: nixpkgs // customised.stable // {
-    customised = customised // { unstable = custom false pkgs; };
+    customised = customised // {
+      unstable = pkgs // custom false (nixpkgs // pkgs);
+    };
   };
 }
