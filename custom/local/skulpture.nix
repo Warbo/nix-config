@@ -1,6 +1,6 @@
-{ cmake, fetchurl, findutils, stableNixpkgs, stdenv }:
+{ cmake, fetchurl, findutils, nixpkgs1603, stdenv }:
 
-with { inherit (stableNixpkgs) kde4; };
+with { inherit (nixpkgs1603) kde4; };
 stdenv.mkDerivation {
   name    = "skulpture";
   version = "0.2.4";

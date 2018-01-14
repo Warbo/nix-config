@@ -1,6 +1,6 @@
-{ stableNixpkgs }:
+{ nixpkgs1603 }:
 
-stableNixpkgs.callPackage (
+nixpkgs1603.callPackage (
 
 # Shamelessly taken from https://github.com/NixOS/nixpkgs/pull/10219
 # FIXME: This is using FAR too many dependencies; many are taken verbatim from

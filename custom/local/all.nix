@@ -18,7 +18,7 @@ buildEnv {
     asublim
     audacious
     basic # Anything useful for scripts should go in here
-    stableNixpkgs.kde4.basket
+    nixpkgs1603.kde4.basket
     cmus
     compton
     conkeror

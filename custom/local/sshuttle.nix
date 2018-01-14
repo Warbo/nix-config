@@ -1,3 +1,3 @@
-{ stableNixpkgs }:
+{ nixpkgs1603 }:
 
-stableNixpkgs.sshuttle
+nixpkgs1603.sshuttle
