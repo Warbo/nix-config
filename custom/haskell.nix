@@ -19,8 +19,7 @@ with rec {
 rec {
   inherit haskellNames haskellOverrides;
 
-  # Too many breakages on unstable and 8.x
-  unprofiledHaskellPackages = haskell.packages.ghc7103;
+  unprofiledHaskellPackages = super.haskellPackages;
 
   # Turn profiling on/off via environment variable, to make life easier
   haskellPackages = if getEnv "HASKELL_PROFILE" == "1"
