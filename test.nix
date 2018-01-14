@@ -238,7 +238,7 @@ rec {
         trace "TODO: no test for ${n} yet" nothing);
 
   tests = TODO // selfNamedBinaries // binaryProviders // {
-    inherit gx nothing pidgin-privacy-please repo1603 repo1609 repo1703 repo1709
+    inherit nothing pidgin-privacy-please repo1603 repo1609 repo1703 repo1709
             stableHackageDb stableRepo;
 
     allDrvsIn       = tryInEnv "allDrvsIn" (allDrvsIn { x = nothing; });

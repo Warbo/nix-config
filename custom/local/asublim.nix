@@ -11,6 +11,7 @@ with rec {
       sha256 = "0983d415aqd11z3am2wwvlhkk0cxd6iyajz5afjyiggvf77xlgaa";
     };
   };
+
   installPhase = ''
     mkdir -p  "$out/bin"
     cp sublim "$out/bin/asublim"
