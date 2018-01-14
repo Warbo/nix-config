@@ -5,16 +5,21 @@ with lib;
 with rec {
   # Select our custom packages/overrides, except for those which are buried
   # in larger sets
-  tooBig = name: hasPrefix "nixpkgs" name ||
+  tooBig = name: # Ignore copies of nixpkgs
+                 hasPrefix "nixpkgs" name ||
                  hasPrefix "repo"    name ||
                  elem name [
-                   "stableNixpkgs"             # Copy of nixpkgs
-                   "stableRepo"                # Ditto
-                   "haskell"                   # Mostly not ours
-                   "haskellPackages"           # Ditto
-                   "profiledHaskellPackages"   # Ditto
-                   "unprofiledHaskellPackages" # Ditto
-                   "unstableHaskellPackages"   # Ditto
+                   "stableNixpkgs"
+                   "stableRepo"
+                   "unstable"
+                   "customised"
+
+                   # Most Haskell packages aren't ours
+                   "haskell"
+                   "haskellPackages"
+                   "profiledHaskellPackages"
+                   "unprofiledHaskellPackages"
+                   "unstableHaskellPackages"
 
                    # These are designed to break on unstable, so avoid them
                    "latestNixCfg"
@@ -24,7 +29,7 @@ with rec {
 
   topLevel = pkgs:
     with {
-      keepers  = name: !(tooBig name) && isDerivation (getAttr name pkgs);
+      keepers = name: !(tooBig name) && isDerivation (getAttr name pkgs);
     };
     genAttrs (filter keepers customPkgNames)
              (name: getAttr name pkgs);
