@@ -12,28 +12,30 @@ with rec {
   # Generates overrides for a package set. Also takes a bool to pick un/stable.
   custom = import ./custom.nix;
 
+  call = repo: stable: import repo {
+    config = other // {
+      packageOverrides = pkgs: nixpkgs // custom stable (nixpkgs // pkgs);
+    };
+  };
+
   # Load each "repoFOO", applying our overrides and renaming to "nixpkgsFOO"
-  customised = lib.mapAttrs'
+  customised = (lib.mapAttrs'
                  (name: repo: {
                    name  = if name == "stableRepo"
                               then "stable"
                               else "nixpkgs" + lib.removePrefix "repo" name;
-                   value = import repo {
-                     config = other // {
-                       packageOverrides = pkgs:
-                         nixpkgs // custom true (nixpkgs // pkgs);
-                     };
-                   };
+                   value = call repo true;
                  })
-                 repos;
+                 repos) // {
+                   unstable = call <nixpkgs> false;
+                 };
 
   other = import ./other.nix;
 };
 other // {
   packageOverrides = pkgs: nixpkgs // customised.stable // {
-    customised = customised // {
-      unstable = pkgs // custom false (nixpkgs // pkgs);
-    };
+    inherit customised;
+
     unstable = pkgs;
   };
 }
