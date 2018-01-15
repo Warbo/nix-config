@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Sat, 19 Aug 2017 08:23:58 +0100
-State: new
+State: resolved
 Subject: Do local tincification in $out
 Message-Id: <be60742dce38568e-0-artemis@nixos>
+resolution: fixed
 
 In tincify we either use a "global" cache, which lives in /tmp and is
 shared by all runs but may cause permission problems on Hydra, or we use

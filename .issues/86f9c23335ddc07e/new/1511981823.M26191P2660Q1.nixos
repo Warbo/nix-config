@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Wed, 29 Nov 2017 18:51:01 +0000
-State: new
+State: resolved
 Subject: Add more dependencies to release.nix Haskell packages
 Message-Id: <86f9c23335ddc07e-0-artemis@nixos>
+resolution: fixed
 
 The extraDeps set in release.nix tells tincify which attributes of (the
 given) haskellPackages it should make available to tinc, in addition to

@@ -1,0 +1,11 @@
+From: Chris Warburton
+Date: Mon, 15 Jan 2018 12:51:34 +0000
+Subject: Re: Bump up our Haskell infrastructure
+Message-Id: <bb588be5d3359aa9-e197e9ff28659622-artemis@nixos>
+References: <bb588be5d3359aa9-0-artemis@nixos>
+In-Reply-To: <bb588be5d3359aa9-0-artemis@nixos>
+
+We've now replaced tincify with a call to cabal in a sandbox.
+
+We should still replace usages of runCabal2nix, etc. with the "official"
+nixpkgs equivalents.

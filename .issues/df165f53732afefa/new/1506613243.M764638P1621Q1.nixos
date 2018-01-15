@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Thu, 28 Sep 2017 16:31:18 +0100
-State: new
+State: resolved
 Subject: Add 'stable' flag
 Message-Id: <df165f53732afefa-0-artemis@nixos>
+resolution: fixed
 
 Lots of our definitions use things like "latestGit" and "tincify", which
 aren't necessarily deterministic. On the other hand, we've built up so

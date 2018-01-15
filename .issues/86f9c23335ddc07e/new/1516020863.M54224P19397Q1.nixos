@@ -1,0 +1,12 @@
+From: Chris Warburton
+Date: Mon, 15 Jan 2018 12:53:09 +0000
+Subject: Re: Add more dependencies to release.nix Haskell packages
+Message-Id: <86f9c23335ddc07e-c52898d6c9a57332-artemis@nixos>
+References: <86f9c23335ddc07e-0-artemis@nixos>
+In-Reply-To: <86f9c23335ddc07e-0-artemis@nixos>
+
+We now delay failures until build time. If a package's dependencies
+can't be satisfied, we emit a package with an 'exit 1' builder.
+
+This prevents the evaluator aborting, and we can just fix these issues
+as normal broken packages.

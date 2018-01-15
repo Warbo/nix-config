@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Mon, 15 Jan 2018 12:50:53 +0000
+Subject: Re: Do local tincification in $out
+Message-Id: <be60742dce38568e-a86e13f7a841a3f5-artemis@nixos>
+References: <be60742dce38568e-0-artemis@nixos>
+In-Reply-To: <be60742dce38568e-0-artemis@nixos>
+
+We've replaced tincify now.
