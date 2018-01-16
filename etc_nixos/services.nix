@@ -232,16 +232,14 @@ with rec {
   joX2X = mkService {
     description   = "Connect to X display when home";
     path          = [ openssh warbo-utilities ];
-    environment   = {
-      DISPLAY = ":0";
-      TERM    = "xterm";
-    };
+    environment   = { DISPLAY = ":0"; };
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
       RestartSec = 10;
       ExecStart  = writeScript "jo-x2x" ''
         #!${bash}/bin/bash
+        export TERM=xterm
         ${atHome} && ${warbo-utilities}/bin/jo
       '';
     };
