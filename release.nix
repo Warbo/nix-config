@@ -9,8 +9,6 @@ with rec {
                  hasPrefix "nixpkgs" name ||
                  hasPrefix "repo"    name ||
                  elem name [
-                   "stableNixpkgs"
-                   "stableRepo"
                    "unstable"
                    "customised"
 

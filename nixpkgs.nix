@@ -47,10 +47,6 @@ with rec {
 };
 
 repos // pkgSets // {
-  # "Blessed" versions
-  stableRepo    = repos.repo1603;
-  stableNixpkgs = pkgSets.nixpkgs1603;
-
   # Allow other versions
   getNixpkgs = args: rec {
     repo = nixpkgsRepo args;

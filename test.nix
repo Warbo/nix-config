@@ -239,7 +239,7 @@ rec {
 
   tests = TODO // selfNamedBinaries // binaryProviders // {
     inherit nothing pidgin-privacy-please repo1603 repo1609 repo1703 repo1709
-            stableHackageDb stableRepo;
+            stableHackageDb;
 
     allDrvsIn       = tryInEnv "allDrvsIn" (allDrvsIn { x = nothing; });
 
@@ -377,7 +377,6 @@ rec {
                         set   = {};
                       }));
     stable          = tryInEnv "stable" (toJSON stable);
-    stableNixpkgs   = stableNixpkgs.hello;
 
     stringAsList  = tryInEnv "stringAsList"  (stringAsList (x: x) "hi");
     stringReverse = tryInEnv "stringReverse" (stringReverse "foo");
