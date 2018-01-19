@@ -1,7 +1,7 @@
-{ nixpkgs1603 }:
+{ nixpkgs1603, stable, super }:
 
 # We use 16.03 as there are build errors for newer versions
-with (import (builtins.trace "TODO: Add test to ensure existing cmus fails" repo1603) {
+with (import nixpkgs1603 {
   # faac requires allUnfree
   config = { allowUnfree = true; };
 });
@@ -132,4 +132,6 @@ stdenv.mkDerivation rec {
   };
 };
 
-in callPackage f {}
+in if stable
+      then callPackage f {}
+      else super.cmus
