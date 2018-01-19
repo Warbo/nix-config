@@ -1,7 +1,7 @@
-{ stableRepo }:
+{ nixpkgs1603 }:
 
-# We use "stable" as there are build errors for newer versions
-with (import stableRepo {
+# We use 16.03 as there are build errors for newer versions
+with (import (builtins.trace "TODO: Add test to ensure existing cmus fails" repo1603) {
   # faac requires allUnfree
   config = { allowUnfree = true; };
 });
