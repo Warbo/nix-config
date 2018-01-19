@@ -23,6 +23,7 @@ buildEnv {
     haskellPackages.cabal-install
     haskellPackages.happy
     haskellPackages.hlint
+    haskellPackages.pretty-show
     haskellPackages.stylish-haskell
     inotify-tools
     jq
