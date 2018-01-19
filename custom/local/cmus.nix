@@ -1,7 +1,7 @@
-{ nixpkgs1603, stable, super }:
+{ repo1603, stable, super }:
 
 # We use 16.03 as there are build errors for newer versions
-with (import nixpkgs1603 {
+with (import repo1603 {
   # faac requires allUnfree
   config = { allowUnfree = true; };
 });
