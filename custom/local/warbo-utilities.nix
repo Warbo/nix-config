@@ -1,10 +1,12 @@
-{ repoSource, self, withLatestGit }:
+{ repoSource, self, stable, withLatestGit }:
 
 withLatestGit {
   url      = "${repoSource}/warbo-utilities.git";
-  srcToPkg = src: import "${src}" { nixPkgs = self; };
+  srcToPkg = src: import "${src}" (if stable
+                                      then {}
+                                      else { nixPkgs = self; });
   stable   = {
-    rev    = "3c13f68";
-    sha256 = "19wv9szl6qphlbwjz4ajfybcrjr0y7dwv0qnckavy2q72r94amyn";
+    rev    = "32fb6c5";
+    sha256 = "1pnf9isglp17racrglww2lv59dvibbrrcbzrgp8v27zs57qj8naf";
   };
 }
