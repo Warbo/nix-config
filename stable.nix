@@ -15,7 +15,8 @@ with rec {
     config = other // {
       packageOverrides = pkgs: nixpkgs // custom (packagesVersion != "unstable")
                                                  (nixpkgs // pkgs // {
-                                                   inherit packagesVersion;
+                                                   inherit customised
+                                                           packagesVersion;
                                                  });
     };
   };
