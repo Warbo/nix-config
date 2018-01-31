@@ -13,6 +13,7 @@ buildEnv {
     dtach
     dvtm
     entr
+    exfat
     file
     get_iplayer
     ghc
@@ -38,6 +39,7 @@ buildEnv {
     pandocPkgs
     poppler_utils
     pmutils
+    pptp
     psmisc
     python
     nixpkgs1609.racket
