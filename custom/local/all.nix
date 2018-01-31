@@ -4,7 +4,7 @@
 # If you're using Nix standalone, or want per-user configuration, you can run
 # a command like `nix-env -iA all` to install into your profile.
 
-{ self }:
+{ customised, self, stable }:
 
 with self;
 buildEnv {
@@ -19,6 +19,7 @@ buildEnv {
     audacious
     basic # Anything useful for scripts should go in here
     nixpkgs1603.kde4.basket
+    (if stable then nixpkgs1709 else self).blueman
     cmus
     compton
     conkeror
