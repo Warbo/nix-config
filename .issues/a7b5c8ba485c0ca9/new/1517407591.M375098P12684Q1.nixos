@@ -1,0 +1,20 @@
+From: Chris Warburton
+Date: Wed, 31 Jan 2018 14:01:06 +0000
+State: new
+Subject: Add smoke tests for important basic/all packages
+Message-Id: <a7b5c8ba485c0ca9-0-artemis@nixos>
+
+Sometimes things break at runtime, e.g. a Firefox update might break
+Conkeror, etc.
+
+Since we have packaging in place for these things, we might as well add
+some tests to check whether the resulting programs work.
+
+For browsers like conkeror and firefox, we might start a local web
+server, open the browser on http://localhost:SomeUniquePort and check
+whether the server got a request (e.g. python's simple http server will
+spit out messages to stderr when it receives requests).
+
+These just need to be "smoke tests", i.e. checking whether the program
+performs some simple task, so that we know it's doing *something* (and
+not just crashing on startup, for example).
