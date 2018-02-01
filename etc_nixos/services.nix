@@ -454,7 +454,7 @@ with rec {
       "-o ServerAliveInterval=15"
     ]);
 
-    path = [ sshfsFuse utillinux.bin openssh procps ];
+    path = [ sshfsFuse (utillinux.bin or utillinux) openssh procps ];
 
     environment = {
       DISPLAY       = ":0"; # For potential ssh passphrase dialogues
