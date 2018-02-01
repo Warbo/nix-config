@@ -331,7 +331,7 @@ with rec {
       ExecStart  = writeScript "inboxen-start" ''
         #!${bash}/bin/bash
         /var/setuid-wrappers/ping -c 1 google.com || exit
-        timeout -s 9 3600 mbsync gmail dundee
+        timeout -s 9 3600 mbsync --verbose gmail dundee
       '';
     };
   };
