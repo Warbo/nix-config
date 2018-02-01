@@ -38,7 +38,7 @@ with rec {
   other = import ./other.nix;
 
   # Bump this to upgrade everything which doesn't hard-code its nixpkgs version
-  defaultVersion = customised.nixpkgs1603;
+  defaultVersion = customised.nixpkgs1709;
 };
 other // {
   packageOverrides = pkgs: nixpkgs // defaultVersion // {
