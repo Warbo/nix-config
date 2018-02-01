@@ -131,6 +131,18 @@ rec {
     timeZone = "Europe/London";
   };
 
+  # Make system themes available to user sessions
+  environment.sessionVariables = {
+    XCURSOR_PATH = [
+      "${config.system.path}/share/icons"
+      "$HOME/.icons"
+      "$HOME/.nix-profile/share/icons/"
+    ];
+    GTK_DATA_PREFIX = [
+      "${config.system.path}"
+    ];
+  };
+
   # Packages to install in system profile.
   # NOTE: You *could* install these individually via `nix-env -i` as root, but
   # those won't be updated by `nixos-rebuild` and aren't version controlled.
