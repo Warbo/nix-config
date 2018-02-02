@@ -89,21 +89,14 @@ with rec {
       User       = "root";
       Restart    = "always";
       RestartSec = 30;
-      ExecStart  =
-        with {
-          raw = writeScript "cool-now" ''
-            #!${bash}/bin/bash
-            coolDown
-          '';
-        };
-        runCommand "cool-now-wrapped"
-          {
-            inherit raw;
-            buildInputs = [ makeWrapper ];
-          }
-          ''
-            makeWrapper "$raw" "$out" --prefix PATH : "${warbo-utilities}/bin"
-          '';
+      ExecStart  = wrap {
+        name  = "cool-now";
+        paths = [ bash warbo-utilities ];
+        script = ''
+          #!/usr/bin/env bash
+          coolDown
+        '';
+      };
     };
   };
 
@@ -465,15 +458,23 @@ with rec {
       User       = "chris";
       Restart    = "always";
       RestartSec = 60;
-      ExecStart  = writeScript "sshfs-mount" ''
-        #!${bash}/bin/bash
-        sshfs -f ${opts extraOptions} ${addr} ${dir}
-      '';
-      ExecStop = writeScript "sshfuse-unmount" ''
-        #!${bash}/bin/bash
-        pkill -f -9 "sshfs.*${dir}"
-        /var/setuid-wrappers/fusermount -u -z "${dir}"
-      '';
+      ExecStart  = wrap {
+        name   = "sshfs-mount";
+        paths  = path;
+        script = ''
+          #!/usr/bin/env bash
+          sshfs -f ${opts extraOptions} ${addr} ${dir}
+        '';
+      };
+      ExecStop = wrap {
+        name   = "sshfuse-unmount";
+        paths  = path;
+        script = ''
+          #!/usr/bin/env bash
+          pkill -f -9 "sshfs.*${dir}"
+          /var/setuid-wrappers/fusermount -u -z "${dir}"
+        '';
+      };
     };
 
     pi-mount = mkService {
