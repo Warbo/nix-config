@@ -20,6 +20,7 @@ buildEnv {
     basic # Anything useful for scripts should go in here
     (if stable then nixpkgs1709 else self).blueman
     (if stable then nixpkgs1603 else self).kde4.basket
+    clearlooks-phenix
     cmus
     compton
     conkeror
