@@ -348,8 +348,8 @@ with rec {
       RestartSec = 3600;
       ExecStart  = writeScript "mail-backup" ''
         #!${bash}/bin/bash
-        timeout -s 9 3600 mbsync gmail-backup
         ${online} || exit
+        timeout -s 9 3600 mbsync --verbose gmail-backup
       '';
     };
   };
