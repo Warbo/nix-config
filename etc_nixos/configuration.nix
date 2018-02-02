@@ -80,7 +80,7 @@ rec {
     '';
   };
 
-  sound.enableMediaKeys = true;
+  sound.mediaKeys.enable = true;
 
   networking = {
     hostName                          = "nixos";
