@@ -55,5 +55,6 @@ buildEnv {
     xfce.exo
     (xfce.gtk_xfce_engine.override { withGtk3 = true; })
     xfce.xfce4notifyd
+    xsettingsd
   ];
 }
