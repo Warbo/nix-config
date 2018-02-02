@@ -13,13 +13,10 @@ with rec {
           } // opts.serviceConfig;
         };
 
-  sudoWrapper = stdenv.mkDerivation {
-    name = "sudo-wrapper";
-    buildCommand = ''
-      mkdir -p "$out/bin"
-      ln -s /var/setuid-wrappers/sudo "$out/bin/sudo"
-    '';
-  };
+  sudoWrapper = runCommand "sudo-wrapper" {} ''
+    mkdir -p "$out/bin"
+    ln -s "${config.security.wrapperDir}/sudo" "$out/bin/sudo"
+  '';
 
   pingOnce = "/var/setuid-wrappers/ping -c 1";
 
