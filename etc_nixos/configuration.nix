@@ -131,6 +131,18 @@ rec {
   # those won't be updated by `nixos-rebuild` and aren't version controlled.
   # To see if there are any such packages, do `nix-env -q` as root.
   environment.systemPackages = [ mypkgs.all pkgs.sshfsFuse ];
+  fonts = {
+    enableDefaultFonts      = true;
+    fontconfig.defaultFonts = {
+      monospace = [ "Droid Sans Mono" ];
+      sansSerif = [ "Droid Sans"      ];
+      serif     = [ "Droid Sans"      ];
+    };
+    fonts = [
+      mypkgs.anonymous-pro-font
+      mypkgs.droid-fonts
+    ];
+  };
 
   nixpkgs.config = {
     packageOverrides = pkgs: {
