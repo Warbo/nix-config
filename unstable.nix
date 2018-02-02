@@ -1,3 +1,1 @@
-import ./other.nix // {
-  packageOverrides = import ./custom.nix false;
-}
+import ./custom.nix "unstable"
