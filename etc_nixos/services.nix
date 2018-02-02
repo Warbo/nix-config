@@ -468,7 +468,7 @@ with rec {
         script = ''
           #!/usr/bin/env bash
           pkill -f -9 "sshfs.*${dir}"
-          /var/setuid-wrappers/fusermount -u -z "${dir}"
+          "${config.security.wrapperDir}/fusermount" -u -z "${dir}"
         '';
       };
     };
@@ -510,7 +510,7 @@ with rec {
         ExecStop = writeScript "sshfuse-unmount" ''
           #!${bash}/bin/bash
           pkill -f -9 "sshfs.*${dir}"
-          /var/setuid-wrappers/fusermount -u -z "${dir}"
+          "${config.security.wrapperDir}/fusermount" -u -z "${dir}"
         '';
       };
     };
