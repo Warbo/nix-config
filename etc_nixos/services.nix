@@ -238,9 +238,7 @@ with rec {
   workX2X = mkService {
     description   = "Connect to X display when at work";
     path          = [ openssh warbo-utilities ];
-    environment   = {
-      DISPLAY = ":0";
-    };
+    environment   = { DISPLAY = ":0"; };
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
