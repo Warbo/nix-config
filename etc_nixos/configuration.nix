@@ -4,13 +4,7 @@
 with builtins;
 with rec {
   mypkgs  = import <nixpkgs> {
-              config = import /home/chris/.nixpkgs/config.nix;
-            };
-  ipfsPkgs = mypkgs.fetchFromGitHub {
-    owner  = "NixOS";
-    repo   = "nixpkgs";
-    rev    = "aa429e6";
-    sha256 = "1y7j59zg2zhmqqk9srh8qmi69ar2bidir4bjyhy0h0370kfvnkrg";
+    config = import /home/chris/.nixpkgs/config.nix;
   };
 };
 
@@ -21,13 +15,7 @@ rec {
 
   imports =
     [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-
-      ((if mypkgs.stable && systemd.services ? ipfs
-           then trace "FIXME: Use upstream ipfs service"
-           else (x: x))
-       "${ipfsPkgs}/nixos/modules/services/network-filesystems/ipfs.nix")
-    ];
+      ./hardware-configuration.nix ];
 
   # Use the GRUB 2 boot loader.
   boot = trace "FIXME: Use system.activationScripts to make /boot/grub/libreboot_grub.cfg" {
@@ -153,9 +141,6 @@ rec {
     packageOverrides = pkgs: {
       # Required for PulseAudio headsets
       bluez = pkgs.bluez5;
-
-      # IPFS package is broken in 16.09
-      ipfs = (import "${ipfsPkgs}" {}).ipfs;
     };
   };
 
@@ -189,7 +174,7 @@ rec {
   services.ipfs = {
     enable      = true;
     enableGC    = true; # Laptop, limited storage
-    autoMigrate = true; # If the storage format changes
+    #autoMigrate = true; # If the storage format changes
   };
 
   # Limit the size of our logs, to prevent ridiculous space usage and slowdown
@@ -284,8 +269,4 @@ rec {
     home        = "/home/chris";
     shell       = "/run/current-system/sw/bin/bash";
   };
-
-  # Remove these when IPFS service is in stable
-  ids.uids.ipfs = 261;
-  ids.gids.ipfs = 261;
 }
