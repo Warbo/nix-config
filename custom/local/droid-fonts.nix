@@ -1,17 +1,15 @@
-{stdenv, fetchurl, xz, gnutar, utillinux }:
+{ fetchurl, gnutar, runCommand, utillinux, xz }:
 
-stdenv.mkDerivation {
-  name = "droid-fonts";
-  zipped = fetchurl {
-             url    = "http://http.debian.net/debian/pool/main/f/fonts-android/fonts-android_4.4.4r2.orig.tar.xz";
-             sha256 = "0w7idnjwckyqypxm5ccqj9wg15zjq1z92a98vfvnbyljn95bd9ir";
-           };
-  buildInputs = [ xz gnutar utillinux ];
-  buildCommand = ''
-    source $stdenv/setup
-
-    D="$out/share/fonts/droid"
-    echo "Making font dir '$D'"
+runCommand "droid-fonts"
+  {
+    zipped = fetchurl {
+      url    = "http://http.debian.net/debian/pool/main/f/fonts-android/fonts-android_4.4.4r2.orig.tar.xz";
+      sha256 = "0w7idnjwckyqypxm5ccqj9wg15zjq1z92a98vfvnbyljn95bd9ir";
+    };
+    buildInputs = [ xz gnutar utillinux ];
+  }
+  ''
+    D="$out/share/fonts/truetype"
     mkdir -p "$D"
     cd "$D"
 
@@ -22,5 +20,4 @@ stdenv.mkDerivation {
     shopt -s nullglob
     rm *.mk
     rm *.xml
-  '';
-}
+  ''
