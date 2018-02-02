@@ -49,7 +49,7 @@ rec {
 
     kernelParams = [
       "acpi_osi="
-      "video.use_native_backlight=1"
+      #"video.use_native_backlight=1"
       "clocksource=acpi_pm pci=use_crs"
       "consoleblank=0"
     ];
