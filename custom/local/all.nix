@@ -53,7 +53,7 @@ buildEnv {
     vlc
     w3m
     xfce.exo
-    xfce.gtk_xfce_engine
+    (xfce.gtk_xfce_engine.override { withGtk3 = true; })
     xfce.xfce4notifyd
   ];
 }
