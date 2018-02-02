@@ -18,7 +18,7 @@ with rec {
     ln -s "${config.security.wrapperDir}/sudo" "$out/bin/sudo"
   '';
 
-  pingOnce = "/var/setuid-wrappers/ping -c 1";
+  pingOnce = "${config.security.wrapperDir}/ping -c 1";
 
   online   = "${pingOnce} google.com 1>/dev/null 2>/dev/null";
 
@@ -320,7 +320,7 @@ with rec {
       RestartSec = 600;
       ExecStart  = writeScript "inboxen-start" ''
         #!${bash}/bin/bash
-        /var/setuid-wrappers/ping -c 1 google.com || exit
+        ${online} || exit
         timeout -s 9 3600 mbsync --verbose gmail dundee
       '';
     };
@@ -350,8 +350,8 @@ with rec {
       RestartSec = 3600;
       ExecStart  = writeScript "mail-backup" ''
         #!${bash}/bin/bash
-        /var/setuid-wrappers/ping -c 1 google.com || exit
         timeout -s 9 3600 mbsync gmail-backup
+        ${online} || exit
       '';
     };
   };
@@ -528,7 +528,7 @@ with rec {
       RestartSec = 20;
       ExecStart = writeScript "pi-monitor" ''
         #!${bash}/bin/bash
-        if /var/setuid-wrappers/ping -c 1 raspberrypi
+        if ${pingOnce} raspberrypi
         then
           # We're home, no need to unmount anything
           exit 0
