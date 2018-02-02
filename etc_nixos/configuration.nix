@@ -62,8 +62,8 @@ rec {
   hardware.pulseaudio = {
     systemWide = false;
     enable     = true;
-    package    = pkgs.pulseaudioFull;
-    configFile = pkgs.writeText "default.pa" ''
+    package    = mypkgs.pulseaudioFull;
+    configFile = mypkgs.writeText "default.pa" ''
       load-module module-udev-detect
       load-module module-jackdbus-detect channels=2
       load-module module-bluetooth-policy
@@ -130,7 +130,8 @@ rec {
   # NOTE: You *could* install these individually via `nix-env -i` as root, but
   # those won't be updated by `nixos-rebuild` and aren't version controlled.
   # To see if there are any such packages, do `nix-env -q` as root.
-  environment.systemPackages = [ mypkgs.all pkgs.sshfsFuse ];
+  environment.systemPackages = [ mypkgs.all ];
+
   fonts = {
     enableDefaultFonts      = true;
     fontconfig.defaultFonts = {
@@ -250,7 +251,7 @@ rec {
 
   services.printing = {
     enable  = true;  # Switch this to enable CUPS
-    drivers = [ pkgs.hplip pkgs.gutenprint ];
+    drivers = [ mypkgs.hplip mypkgs.gutenprint ];
   };
 
   services.avahi = {
