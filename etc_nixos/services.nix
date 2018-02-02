@@ -639,7 +639,7 @@ with rec {
 
   hydra-monitor = mkService {
     description   = "Force hydra-bind to restart when down";
-    path          = [ curl ];
+    path          = [ coreutils curl procps ];
     wantedBy      = [ "default.target" ];
     serviceConfig = {
       User       = "chris";
@@ -647,6 +647,7 @@ with rec {
       RestartSec = 20;
       ExecStart  = writeScript "hydra-monitor" ''
         #!${bash}/bin/bash
+        set -e
         echo "Checking for Hydra server"
         if timeout 10 curl http://localhost:3000
         then
@@ -655,7 +656,7 @@ with rec {
         fi
 
         echo "Server is down, killing any hydra ssh bindings"
-        pkill -f -9 'ssh.*3000:localhost:3000'
+        pkill -f -9 'ssh.*3000:localhost:3000' || true
         exit 0
       '';
     };
