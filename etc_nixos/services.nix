@@ -22,8 +22,6 @@ with rec {
 
   online   = "${pingOnce} google.com 1>/dev/null 2>/dev/null";
 
-  wifiName = '' ${networkmanager}/bin/nmcli c | grep -v -- "--" | grep -v "DEVICE" | cut -d ' ' -f1'';
-
   setLocation = writeScript "setLocation" ''
     #!${bash}/bin/bash
     set -e
@@ -33,7 +31,9 @@ with rec {
       exit 0
     }
 
-    WIFI=$(${wifiName})
+    WIFI=$(${networkmanager}/bin/nmcli c | grep -v -- "--"  |
+                                           grep -v "DEVICE" |
+                                           cut -d ' ' -f1   )
     if echo "$WIFI" | grep "aa.net.uk" > /dev/null
     then
       echo "home" > /tmp/location
