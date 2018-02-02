@@ -662,57 +662,6 @@ with rec {
     };
   };
 
-  ipfsRemoteOnLocal = {
-    wantedBy      = [ "default.target" ];
-    after         = [ "network.target" ];
-    environment   = { IPFS_PATH = "/var/lib/ipfs/.ipfs"; };
-    path          = with pkgs; [ ipfs openssh ];
-    serviceConfig = {
-      Type       = "simple";
-      User       = "chris";
-      Restart    = "always";
-      RestartSec = 60;
-      ExecStart  = writeScript "ipfs-remote-on-local" ''
-        #!${bash}/bin/bash
-
-        echo "Providing chriswarbo.net:4001 (IPFS swarm) as our port 6001" 1>&2
-        ssh -N -L "6001:localhost:4001" chriswarbo.net &
-        sleep 3
-
-        echo "Adding tunnelled port to IPFS swarm" 1>&2
-        ID=Qmf7fikDA5TB5RD3vUT7bF36mAn3NTBcbMbHRNcTo6WqVK
-        ipfs swarm connect "/ip4/127.0.0.1/tcp/6001/ipfs/$ID" || true
-
-        wait
-      '';
-    };
-  };
-
-  ipfsLocalOnRemote = {
-    wantedBy      = [ "default.target" ];
-    after         = [ "network.target" ];
-    path          = with pkgs; [ openssh ];
-    serviceConfig = {
-      Type       = "simple";
-      User       = "chris";
-      Restart    = "always";
-      RestartSec = 60;
-      ExecStart  = writeScript "ipfs-local-on-remote" ''
-        #!${bash}/bin/bash
-
-        echo "Providing our 4001 (IPFS swarm) as chriswarbo.net:6001" 1>&2
-        ssh -N -T -R6001:localhost:4001 chriswarbo.net &
-        sleep 3
-
-        echo "Adding tunnelled port to IPFS swarm" 1>&2
-        ID=QmVkjeUP5UCZjUJqo6KueCGu5hSi1KqWGWWpbg3NRL6mHZ
-        ssh chriswarbo.net ipfs swarm connect "/ip4/127.0.0.1/tcp/6001/ipfs/$ID" || true
-
-        wait
-      '';
-    };
-  };
-
   ssh-agent = mkService {
     description   = "Run ssh-agent";
     path          = [ openssh ];
