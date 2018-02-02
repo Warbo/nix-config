@@ -1,6 +1,6 @@
 with builtins;
 
-pkgs: with pkgs;
+{ config, pkgs}: with pkgs;
 
 with rec {
   mkService = opts: {
