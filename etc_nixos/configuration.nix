@@ -111,8 +111,8 @@ rec {
   };
 
   programs = {
-    light.enable = true;
-    mosh.enable  = true;
+    #light.enable = true;
+    #mosh.enable  = true;
   };
 
   time = {
