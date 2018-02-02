@@ -158,6 +158,14 @@ rec {
     user_allow_other
   '';
 
+  # Programs which need to be setuid, etc. should be put in here. These will get
+  # wrappers made and put into a system-wide directory when the config is
+  # activated, and will be removed when switched away.
+  security.wrappers = {
+    fusermount.source  = "${mypkgs.fuse}/bin/fusermount";
+    fusermount3.source = "${mypkgs.fuse3}/bin/fusermount3";
+  };
+
   # List services that you want to enable:
 
   services.acpid = {
