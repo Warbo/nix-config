@@ -267,7 +267,7 @@ rec {
   #services.thinkfan.enable = true;
   #services.thermald.enable = true;  # Requires CPU check disabling on X60s
 
-  systemd = { services = import ./services.nix (pkgs // mypkgs); };
+  systemd.services = import ./services.nix { inherit config; pkgs = mypkgs; };
 
   # Locale, etc.
   i18n = {
