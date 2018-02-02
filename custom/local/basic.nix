@@ -15,6 +15,8 @@ buildEnv {
     entr
     exfat
     file
+    fuse
+    fuse3
     get_iplayer
     ghc
     ghostscript
