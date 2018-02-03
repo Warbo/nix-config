@@ -480,7 +480,6 @@ with rec {
       inherit path environment;
       description   = "Raspberry pi";
       after         = [ "network.target" ];
-      wantedBy      = [ "default.target" ];
       serviceConfig = mkCfg "pi@raspberrypi:/opt/shared"
                             "/home/chris/Public"
                             [];
@@ -490,7 +489,6 @@ with rec {
       inherit path environment;
       description   = "Desktop files";
       after         = [ "network.target" ];
-      wantedBy      = [ "default.target" ];
       serviceConfig = mkCfg "user@localhost:/"
                             "/home/chris/DesktopFiles"
                             ["-p 22222"];
@@ -588,7 +586,6 @@ with rec {
     description   = "Bind desktop SSH";
     path          = [ openssh iputils procps ];
     environment   = { SSH_AUTH_SOCK = "/run/user/1000/ssh-agent"; };
-    wantedBy      = [ "default.target" ];
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
@@ -620,7 +617,6 @@ with rec {
   hydra-monitor = mkService {
     description   = "Force hydra-bind to restart when down";
     path          = [ coreutils curl procps ];
-    wantedBy      = [ "default.target" ];
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
