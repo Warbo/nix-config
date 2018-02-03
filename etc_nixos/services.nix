@@ -205,7 +205,11 @@ with rec {
           HOUR=$(date "+%H")
           [[ "$HOUR" -gt 16 ]] || exit
 
-          ${atWork} || exit
+          function stillAtWork {
+            ${atWork} || exit
+          }
+
+          stillAtWork
 
           # Set DBus variables to make notifications appear on X display
           MID=$(cat /etc/machine-id)
@@ -219,12 +223,16 @@ with rec {
 
           notify "Past 5pm; half an hour until suspend"
           sleep 600
+          stillAtWork
           notify "20 minutes until suspend"
           sleep 600
+          stillAtWork
           notify "10 minutes until suspend"
           sleep 600
+          stillAtWork
           notify "Suspending"
           sleep 60
+          stillAtWork
           gksudo -S pm-suspend
         '';
       };
