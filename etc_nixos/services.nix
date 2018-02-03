@@ -1,7 +1,7 @@
+{ config, pkgs}:
+
 with builtins;
-
-{ config, pkgs}: with pkgs;
-
+with pkgs;
 with rec {
   mkService = opts:
     with rec {
@@ -25,61 +25,75 @@ with rec {
 
   online   = "${pingOnce} google.com 1>/dev/null 2>/dev/null";
 
-  setLocation = writeScript "setLocation" ''
-    #!${bash}/bin/bash
-    set -e
+  setLocation = wrap {
+    name   = "setLocation";
+    paths  = [ bash networkmanager ];
+    script = ''
+      #!/usr/bin/env bash
+      set -e
 
-    ${online} || {
+      ${online} || {
+        echo "unknown" > /tmp/location
+        exit 0
+      }
+
+      WIFI=$(nmcli c | grep -v -- "--"  | grep -v "DEVICE" |
+                                          cut -d ' ' -f1   )
+      if echo "$WIFI" | grep "aa.net.uk" > /dev/null
+      then
+        echo "home" > /tmp/location
+        exit 0
+      fi
+      if echo "$WIFI" | grep "UoD_WiFi" > /dev/null
+      then
+        echo "work" > /tmp/location
+        exit 0
+      fi
+      if echo "$WIFI" | grep "eduroam" > /dev/null
+      then
+        echo "work" > /tmp/location
+        exit 0
+      fi
       echo "unknown" > /tmp/location
-      exit 0
-    }
+    '';
+  };
 
-    WIFI=$(${networkmanager}/bin/nmcli c | grep -v -- "--"  |
-                                           grep -v "DEVICE" |
-                                           cut -d ' ' -f1   )
-    if echo "$WIFI" | grep "aa.net.uk" > /dev/null
-    then
-      echo "home" > /tmp/location
-      exit 0
-    fi
-    if echo "$WIFI" | grep "UoD_WiFi" > /dev/null
-    then
-      echo "work" > /tmp/location
-      exit 0
-    fi
-    if echo "$WIFI" | grep "eduroam" > /dev/null
-    then
-      echo "work" > /tmp/location
-      exit 0
-    fi
-    echo "unknown" > /tmp/location
-  '';
+  atHome = wrap {
+    name   = "atHome";
+    paths  = [ bash ];
+    script = ''
+      #!/usr/bin/env bash
+      set -e
 
-  atHome = writeScript "atHome" ''
-    #!${bash}/bin/bash
-    set -e
+      LOC=$(cat /tmp/location)
+      [[ "x$LOC" = "xhome" ]] || exit 1
+    '';
+  };
 
-    LOC=$(cat /tmp/location)
-    [[ "x$LOC" = "xhome" ]] || exit 1
-  '';
+  atWork = wrap {
+    name   = "atWork";
+    paths  = [ bash ];
+    script = ''
+      #!/usr/bin/env bash
+      set -e
 
-  atWork = writeScript "atWork" ''
-    #!${bash}/bin/bash
-    set -e
-
-    LOC=$(cat /tmp/location)
-    [[ "x$LOC" = "xwork" ]] || exit 1
-  '';
+      LOC=$(cat /tmp/location)
+      [[ "x$LOC" = "xwork" ]] || exit 1
+    '';
+  };
 };
 {
   thermald-nocheck = {
     description = "Thermal Daemon Service";
     wantedBy    = [ "multi-user.target" ];
-    script      = ''
-      exec ${pkgs.thermald}/sbin/thermald --no-daemon   \
-                                          --dbus-enable \
-                                          --ignore-cpuid-check
-    '';
+    script      = wrap {
+      name   = "thermald-nocheck";
+      paths  = [ bash thermald ];
+      script = ''
+        #!/usr/bin/env bash
+        exec thermald --no-daemon --dbus-enable --ignore-cpuid-check
+      '';
+    };
   };
 
   coolDown = mkService {
