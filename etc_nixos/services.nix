@@ -174,8 +174,8 @@ with rec {
       };
 
       # Don't stop, since it may kill programs we want to keep using
-      ExecStop   = ''"${coreutils}/bin/true"'';
-      ExecReload = ''"${coreutils}/bin/true"'';
+      ExecStop   = "${coreutils}/bin/true";
+      ExecReload = "${coreutils}/bin/true";
 
       # Since we run at startup, X might not be up; pretend we're on a virtual
       # terminal (e.g. ctrl-alt-f6) for the purpose of DVTM's capability queries
@@ -246,150 +246,162 @@ with rec {
       User       = "chris";
       Restart    = "always";
       RestartSec = 10;
-      ExecStart  = writeScript "check-location" ''
-        #!${bash}/bin/bash
-        ${setLocation}
-        if ${atHome} || ${atWork}
-        then
-          # Unlikely to change for a while
-          sleep 300
-        fi
-      '';
+      ExecStart  = wrap {
+        name   = "check-location";
+        paths  = [ bash ];
+        script = ''
+          #!/usr/bin/env bash
+          ${setLocation}
+          if ${atHome} || ${atWork}
+          then
+            # Unlikely to change for a while
+            sleep 300
+          fi
+        '';
+      };
     };
   };
 
   joX2X = mkService {
     description   = "Connect to X display when home";
-    path          = [ openssh warbo-utilities ];
-    environment   = { DISPLAY = ":0"; };
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
       RestartSec = 10;
-      ExecStart  = writeScript "jo-x2x" ''
-        #!${bash}/bin/bash
-        export TERM=xterm
-        ${atHome} && ${warbo-utilities}/bin/jo
-      '';
+      ExecStart  = wrap {
+        name   = "jo-x2x";
+        paths  = [ bash openssh warbo-utilities ];
+        vars   = {
+          DISPLAY = ":0";
+          TERM    = "xterm";
+        };
+        script = ''
+          #!/usr/bin/env bash
+          ${atHome} && jo
+        '';
+      };
     };
   };
 
   workX2X = mkService {
     description   = "Connect to X display when at work";
-    path          = [ openssh warbo-utilities ];
-    environment   = { DISPLAY = ":0"; };
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
       RestartSec = 10;
-      ExecStart  = writeScript "work-x2x" ''
-        #!${bash}/bin/bash
-        ${atWork} || exit
-        ssh -Y user@localhost -p 22222 "x2x -east -to :0"
-      '';
+      ExecStart  = wrap {
+        name   = "work-x2x";
+        paths  = [ bash openssh warbo-utilities ];
+        vars   = { DISPLAY = ":0"; };
+        script = ''
+          #!/usr/bin/env bash
+          ${atWork} || exit
+          ssh -Y user@localhost -p 22222 "x2x -east -to :0"
+        '';
+      };
     };
   };
 
   workScreen = mkService {
     description = "Turn on VGA screen";
-    path = [ nettools psmisc warbo-utilities xorg.xrandr ];
-    environment = {
-      DISPLAY = ":0";
-    };
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
       RestartSec = 10;
-      ExecStart  = writeScript "display-on" ''
-        #!${bash}/bin/bash
-        # "connected" means plugged in; "(" indicates it's not active
-        if xrandr | grep "VGA1 connected ("
-        then
+      ExecStart  = wrap {
+        name   = "display-on";
+        paths  = [ bash nettools psmisc warbo-utilities xorg.xrandr ];
+        vars   = { DISPLAY = ":0"; };
+        script = ''
+          #!/usr/bin/env bash
+          # "connected" means plugged in; "(" indicates it's not active
+          xrandr | grep "VGA1 connected (" || exit
+
           # Enable external monitor
           on
 
           # Force any X2X sessions to restart, since we've messed up X
-          pkill -f 'x2x -east' || true
-
-          # Our keybindings mess up, so restart them
-          sleep 5
-          keys
-        fi
-      '';
+          pkill -f 'x2x -' || true
+        '';
+      };
     };
   };
 
+  # FIXME: Add keys service, which checks for xcape
+
   screenOff = mkService {
     description = "Turn Off VGA screen";
-    path = [ bash nettools psmisc warbo-utilities xorg.xrandr ];
-    environment = {
-      DISPLAY = ":0";
-    };
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
       RestartSec = 10;
-      ExecStart  = writeScript "display-off" ''
-        #!${bash}/bin/bash
-        # "1080" means active; "disconnected" means not plugged in
-        if xrandr | grep "VGA1 disconnected 1080"
-        then
+      ExecStart  = wrap {
+        name   = "display-off";
+        paths  = [ bash nettools psmisc warbo-utilities xorg.xrandr ];
+        vars   = { DISPLAY = ":0"; };
+        script = ''
+          #!/usr/bin/env bash
+          # "1080" means active; "disconnected" means not plugged in
+          xrandr | grep "VGA1 disconnected 1080" || exit
+
           # Disable external monitor
           off
 
           # Force any X2X sessions to restart, since we've messed up X
           pkill -f 'x2x -' || true
-
-          # Our keybindings mess up, so restart them
-          sleep 5
-          keys
-        fi
-      '';
+        '';
+      };
     };
   };
 
   inboxen = mkService {
     description   = "Fetch mail inboxes";
-    path          = [ bash coreutils iputils isync ];
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
       RestartSec = 600;
-      ExecStart  = writeScript "inboxen-start" ''
-        #!${bash}/bin/bash
-        ${online} || exit
-        timeout -s 9 3600 mbsync --verbose gmail dundee
-      '';
+      ExecStart  = wrap {
+        name   = "inboxen-start";
+        paths  = [ bash coreutils iputils isync ];
+        script = ''
+          #!/usr/bin/env bash
+          ${online} || exit
+          timeout -s 9 3600 mbsync --verbose gmail dundee
+        '';
+      };
     };
   };
 
   news = mkService {
     description   = "Fetch news";
-    path          = [ findutils.out warbo-utilities ];
-    environment   = { LANG = "en_GB.UTF-8"; };
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
       RestartSec = 60 * 60 * 4;
-      ExecStart  = writeScript "get-news-start" ''
-        #!${bash}/bin/bash
-        exec get_news
-      '';
+      ExecStart  = wrap {
+        name  = "get-news-start";
+        paths = [ findutils.out warbo-utilities ];
+        vars  = { LANG = "en_GB.UTF-8"; };
+        file  = "${warbo-utilities}/bin/get_news";
+      };
     };
   };
 
   mailbackup = mkService {
     description   = "Fetch all mail";
-    path          = [ bash coreutils iputils isync ];
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
       RestartSec = 3600;
-      ExecStart  = writeScript "mail-backup" ''
-        #!${bash}/bin/bash
-        ${online} || exit
-        timeout -s 9 3600 mbsync --verbose gmail-backup
-      '';
+      ExecStart  = wrap {
+        name   = "mail-backup";
+        paths  = [ bash coreutils iputils isync ];
+        script = ''
+          #!/usr/bin/env bash
+          ${online} || exit
+          timeout -s 9 3600 mbsync --verbose gmail-backup
+        '';
+      };
     };
   };
 
