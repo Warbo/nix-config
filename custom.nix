@@ -1,5 +1,6 @@
 defaultVersion:
 
+with builtins;
 with rec {
   # Various immutable versions of nixpkgs
   nixpkgs = import ./nixpkgs.nix;
@@ -10,9 +11,12 @@ with rec {
   repos = lib.filterAttrs (name: _: lib.hasPrefix "repo" name)
                           nixpkgs;
 
+  nixFiles = with { dir = ./custom; };
+    map (f: dir + "/${f}")
+        (filter (lib.hasSuffix ".nix")
+                (attrNames (readDir dir)));
+
   custom = version: pkgs:
-    with builtins;
-    with lib;
     with rec {
       super = nixpkgs // pkgs // { inherit customised; };
 
@@ -23,14 +27,8 @@ with rec {
           customPkgNames = attrNames newPkgs;
         };
 
-      nixFiles =
-        with { dir = ./custom; };
-        map (f: dir + "/${f}")
-            (filter (hasSuffix ".nix")
-                    (attrNames (readDir dir)));
-
       self      = super // overrides;
-      overrides = fold mkPkg { stable = version != "unstable"; } nixFiles;
+      overrides = lib.fold mkPkg { stable = version != "unstable"; } nixFiles;
     };
     nixpkgs // overrides;
 
