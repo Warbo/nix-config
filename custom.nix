@@ -16,41 +16,33 @@ with rec {
         (filter (lib.hasSuffix ".nix")
                 (attrNames (readDir dir)));
 
-  custom = version: pkgs:
-    with rec {
-      super = nixpkgs // pkgs // { inherit customised; };
-
-      mkPkg = x: oldPkgs:
-        with { newPkgs = oldPkgs // import x self super; };
-        newPkgs // {
-          # Keep a record of which packages are custom
-          customPkgNames = attrNames newPkgs;
-        };
-
-      self      = super // overrides;
-      overrides = lib.fold mkPkg { stable = version != "unstable"; } nixFiles;
-    };
-    nixpkgs // overrides;
-
   call = repo: version: import repo {
     config = other // {
-      packageOverrides = custom version;
+      packageOverrides = pkgs:
+        with rec {
+          mkPkg = x: oldPkgs:
+            with { newPkgs = oldPkgs // import x self super; };
+            newPkgs // {
+              # Keep a record of which packages are custom
+              customPkgNames = attrNames newPkgs;
+            };
+
+          self      = super   // overrides;
+          super     = nixpkgs // pkgs // { inherit customised; };
+          overrides = lib.fold mkPkg { stable = version != "unstable"; }
+                               nixFiles;
+        };
+        nixpkgs // overrides;
     };
   };
 
   # Load each "repoFOO", applying our overrides and renaming to "nixpkgsFOO"
-  customised = (lib.mapAttrs'
-                 (name: repo:
-                   with {
-                     packagesVersion = lib.removePrefix "repo" name;
-                   };
-                   {
-                     name  = "nixpkgs" + lib.removePrefix "repo" name;
-                     value = call repo true;
-                   })
-                 repos) // {
-                   unstable = call <nixpkgs> "unstable";
-                 };
+  customised = { unstable = call <nixpkgs> "unstable"; } //
+               lib.mapAttrs' (name: repo: {
+                               name  = "nixpkgs" + lib.removePrefix "repo" name;
+                               value = call repo true;
+                             })
+                             repos;
 
   other = import ./other.nix;
 };
