@@ -3,15 +3,18 @@ with builtins;
 { config, pkgs}: with pkgs;
 
 with rec {
-  mkService = opts: {
+  mkService = opts:
+    with rec {
+      service       = srvDefaults // opts;
+      serviceConfig = cfgDefaults // opts.serviceConfig;
+      cfgDefaults   = { Type = "simple"; };
+      srvDefaults   = {
         enable   = true;
         wantedBy = [ "default.target"  ];
         after    = [ "local-fs.target" ];
-      } // opts // {
-        serviceConfig = {
-            Type = "simple";
-          } // opts.serviceConfig;
-        };
+      };
+    };
+    service // { inherit serviceConfig; };
 
   sudoWrapper = runCommand "sudo-wrapper" {} ''
     mkdir -p "$out/bin"
