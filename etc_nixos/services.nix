@@ -3,6 +3,8 @@
 with builtins;
 with pkgs;
 with rec {
+  SSH_AUTH_SOCK = "/run/user/1000/ssh-agent";
+
   mkService = opts:
     with rec {
       service       = srvDefaults // opts;
@@ -118,8 +120,8 @@ with rec {
     description     = "Emacs daemon";
     path            = [ all emacs mu sudoWrapper ];
     environment     = {
-      COLUMNS       = "80";
-      SSH_AUTH_SOCK = "/run/user/1000/ssh-agent";
+      inherit SSH_AUTH_SOCK;
+      COLUMNS = "80";
     };
     reloadIfChanged = true;  # As opposed to restarting
     serviceConfig   = {
@@ -405,80 +407,50 @@ with rec {
     };
   };
 
-  inherit (rec {
-    xmobar = description: RestartSec: mkService {
-      inherit description;
-      serviceConfig = {
-        inherit RestartSec;
-        User       = "chris";
-        Restart    = "always";
-        ExecStart  =
-          let disk = writeScript "disk" ''
-                #!${bash}/bin/bash
-                df -h | grep /dev/disk/by-label/nixos |
-                        sed -e 's/ [ ]*/ /g'          |
-                        cut -d ' ' -f 5
-              '';
-           in writeScript "xmobar-stats" ''
-                #!${bash}/bin/bash
-                cd /home/chris/.cache/xmobar
-                agenda head         > agenda
-              '';
-      };
-    };
-
-    agenda = xmobar "Agenda " 900;
-  })
-  agenda;
-
   keeptesting = mkService {
     description   = "Run tests";
     enable        = false;
-    path          = with pkgs; [ basic nix.out ];
-    environment   = { LOCATE_PATH = /var/cache/locatedb; } //
-                    (listToAttrs
-                      (map (name: { inherit name;
-                        value = builtins.getEnv name; })
-                        [ "NIX_PATH" "NIX_REMOTE" ]));
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
       RestartSec = 300;
-      ExecStart  = writeScript "keep-testing" ''
-        #!${bash}/bin/bash
-        set -e
-        if ! plugged_in
-        then
-          exit 0
-        fi
+      ExecStart  = wrap {
+        name  = "keep-testing";
+        paths = [ bash basic nix.out warbo-utilities ];
+        vars  = {
+          LOCATE_PATH = /var/cache/locatedb;
+          NIX_PATH    = getEnv "NIX_PATH";
+          NIX_REMOTE  = getEnv "NIX_REMOTE";
+        };
+        script = ''
+          #!/usr/bin/env bash
+          set -e
+          plugged_in || exit
+          hot        && exit
 
-        if hot
-        then
-          exit 0
-        fi
+          cd "$HOME/System/Tests" || exit 1
 
-        cd ~/System/Tests || exit 1
+          # Choose one successful script at random
+          S=$(find results/pass -type f | shuf | head -n1)
 
-        # Choose one successful script at random
-        S=$(find results/pass -type f | shuf | head -n1)
+          # Choose one test at random
+          #T=$(shuf | head -n1)
 
-        # Choose one test at random
-        #T=$(shuf | head -n1)
+          # Choose the oldest test
+          O=$(ls -1tr results/pass | head -n1)
 
-        # Choose the oldest test
-        O=$(ls -1tr results/pass | head -n1)
+          # Force chosen tests to be re-run
+          for TST in "$S" "$O"
+          do
+            NAME=$(basename "$TST")
+            touch results/pass/"$NAME"
+            mv results/pass/"$NAME" results/check/
+          done
 
-        # Force chosen tests to be re-run
-        for TST in "$S" "$O"
-        do
-          NAME=$(basename "$TST")
-          touch results/pass/"$NAME"
-          mv results/pass/"$NAME" results/check/
-        done
-
-        # Run chosen tests, along with any existing failures
-        ./run
-      '';
+          # Run chosen tests, along with any existing failures
+          ./run
+        '';
+      };
     };
   };
 
@@ -497,8 +469,8 @@ with rec {
              (utillinux.bin or utillinux) ];
 
     environment = {
-      DISPLAY       = ":0"; # For potential ssh passphrase dialogues
-      SSH_AUTH_SOCK = "/run/user/1000/ssh-agent";
+      inherit SSH_AUTH_SOCK;
+      DISPLAY = ":0"; # For potential ssh passphrase dialogues
     };
 
     mkCfg = addr: dir: extraOptions: {
@@ -546,172 +518,182 @@ with rec {
 
   pi-monitor = mkService {
     description = "Unmount raspberrypi when unreachable";
-    path = [ iputils utillinux ];
     serviceConfig = {
       User = "root";
       Restart = "always";
       RestartSec = 20;
-      ExecStart = writeScript "pi-monitor" ''
-        #!${bash}/bin/bash
-        if ${pingOnce} raspberrypi
-        then
-          # We're home, no need to unmount anything
-          exit 0
-        fi
+      ExecStart = wrap {
+        name   = "pi-monitor";
+        paths  = [ bash fuse fuse3 iputils psmisc utillinux ];
+        script = ''
+          #!/usr/bin/env bash
+          set -e
 
-        # We're not home; check if raspberrypi is mounted
-        if mount | grep raspberrypi
-        then
-          # Anything trying to access the mount will hang, making KILL the
-          # only reliable way to un-hang processes
-          pkill -9 -f 'sshfs.*raspberrypi'
+          # No need to unmount anything if we're home
+          ${pingOnce} raspberrypi && exit
 
-          # Try to unmount more cleanly too
-          fusermount -u -z /home/chris/Public
-        fi
-      '';
+          # We're not home; check if raspberrypi is mounted
+          if mount | grep raspberrypi
+          then
+            # Anything trying to access the mount will hang, making KILL the
+            # only reliable way to un-hang processes
+            pkill -9 -f 'sshfs.*raspberrypi'
+
+            # Try to unmount more cleanly too
+            fusermount -u -z /home/chris/Public
+          fi
+        '';
+      };
     };
   };
 
   desktop-bind = mkService {
     description   = "Bind desktop SSH";
-    path          = [ iputils openssh procps ];
-    environment   = { SSH_AUTH_SOCK = "/run/user/1000/ssh-agent"; };
     requires      = [ "network.target" ];
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
       RestartSec = 20;
-      ExecStart  = writeScript "desktop-bind" ''
-        #!${bash}/bin/bash
+      ExecStart  = wrap {
+        name   = "desktop-bind";
+        paths  = [ bash iputils openssh procps ];
+        vars   = { inherit SSH_AUTH_SOCK; };
+        script = ''
+          #!/usr/bin/env bash
 
-        echo "Checking for existing bind"
-        if pgrep -f 'ssh.*22222:localhost:22222'
-        then
-          echo "Existing bind found, aborting"
-          exit 1
-        fi
+          echo "Checking for existing bind"
+          if pgrep -f 'ssh.*22222:localhost:22222'
+          then
+            echo "Existing bind found, aborting"
+            exit 1
+          fi
 
-        echo "No existing binds found, binding port"
-        ssh -N -A -L 22222:localhost:22222 chriswarbo.net
+          echo "No existing binds found, binding port"
+          ssh -N -A -L 22222:localhost:22222 chriswarbo.net
 
-        echo "Bind exited"
-      '';
+          echo "Bind exited"
+        '';
+      };
     };
   };
 
   desktop-monitor = mkService {
     description   = "Kill desktop-bind if it's hung";
-    path          = [ coreutils iputils openssh procps su.su ];
-    environment   = { SSH_AUTH_SOCK = "/run/user/1000/ssh-agent"; };
     serviceConfig = {
       User       = "root";
       Restart    = "always";
       RestartSec = 20;
-      ExecStart  = writeScript "desktop-monitor" ''
-        #!${bash}/bin/bash
-        PAT='ssh.*22222:localhost:22222'
+      ExecStart  = wrap {
+        name   = "desktop-monitor";
+        paths  = [ bash coreutils iputils openssh procps su.su ];
+        vars   = {
+          inherit SSH_AUTH_SOCK;
+          PAT = "ssh.*22222:localhost:22222";
+        };
+        script = ''
+          #!/usr/bin/env bash
+          set -e
+          pgrep -f "$PAT" || exit
 
-        if pgrep -f "$PAT"
-        then
-          # Bind is running, make sure it's working
-          if timeout 10 su -c 'ssh -A user@localhost -p 22222 true' - chris
-          then
-            # Seems to be working
-            true
-          else
-            echo "Can't access bound port, kill the bind"
-            pkill -f -9 "$PAT"
-          fi
-        fi
+          # Bind is running, see if it's working
+          timeout 10 su -c 'ssh -A user@localhost -p 22222 true' - chris && exit
 
-        echo "Monitor exiting"
-      '';
+          echo "Can't access bound port, kill the bind"
+          pkill -f -9 "$PAT"
+        '';
+      };
     };
   };
 
   hydra-bind = mkService {
     description   = "Bind desktop SSH";
-    path          = [ openssh iputils procps ];
-    environment   = { SSH_AUTH_SOCK = "/run/user/1000/ssh-agent"; };
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
       RestartSec = 20;
-      ExecStart  = writeScript "hydra-bind" ''
-        #!${bash}/bin/bash
-        echo "Checking for existing binds"
-        if pgrep -f 'ssh.*3000:localhost:3000'
-        then
-          echo "Existing bind found, sleeping"
-          exit 0
-        fi
+      ExecStart  = wrap {
+        name   = "hydra-bind";
+        paths  = [ bash openssh iputils procps ];
+        vars   = { inherit SSH_AUTH_SOCK; };
+        script = ''
+          #!/usr/bin/env bash
+          set -e
 
-        echo "Checking for identity"
-        if ssh-add -L | grep "The agent has no identities"
-        then
-          echo "No identity found, adding"
-          ssh-add /home/chris/.ssh/id_rsa
-        fi
+          echo "Checking for existing binds"
+          pgrep -f 'ssh.*3000:localhost:3000' && exit
 
-        echo "Binding port"
-        ssh -N -A -L 3000:localhost:3000 user@localhost -p 22222
+          echo "Checking for identity"
+          if ssh-add -L | grep "The agent has no identities"
+          then
+            echo "No identity found, adding"
+            ssh-add /home/chris/.ssh/id_rsa
+          fi
 
-        echo "Bind exited"
-      '';
+          echo "Binding port"
+          ssh -N -A -L 3000:localhost:3000 user@localhost -p 22222
+        '';
+      };
     };
   };
 
   hydra-monitor = mkService {
     description   = "Force hydra-bind to restart when down";
-    path          = [ coreutils curl procps ];
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
       RestartSec = 20;
-      ExecStart  = writeScript "hydra-monitor" ''
-        #!${bash}/bin/bash
-        set -e
-        echo "Checking for Hydra server"
-        if timeout 10 curl http://localhost:3000
-        then
-          echo "OK, server is up"
-          exit 0
-        fi
+      ExecStart  = wrap {
+        name   = "hydra-monitor";
+        paths  = [ bash coreutils curl procps ];
+        script = ''
+          #!/usr/bin/env bash
+          set -e
+          echo "Checking for Hydra server"
+          if timeout 10 curl http://localhost:3000
+          then
+            echo "OK, server is up"
+            exit 0
+          fi
 
-        echo "Server is down, killing any hydra ssh bindings"
-        pkill -f -9 'ssh.*3000:localhost:3000' || true
-        exit 0
-      '';
+          echo "Server is down, killing any hydra ssh bindings"
+          pkill -f -9 'ssh.*3000:localhost:3000' || true
+          exit 0
+        '';
+      };
     };
   };
 
   ssh-agent = mkService {
     description   = "Run ssh-agent";
-    path          = [ openssh ];
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
       RestartSec = 20;
-      ExecStart  = writeScript "ssh-agent-start" ''
-        #!${bash}/bin/bash
-        if [[ -e /run/user/1000/ssh-agent ]]
-        then
-          echo "Socket exists, sleeping"
-          exit 0
-        fi
-        exec ssh-agent -D -a /run/user/1000/ssh-agent
-      '';
-      ExecStop   = writeScript "ssh-agent-stop" ''
-        #!${bash}/bin/bash
-        SSH_AUTH_SOCK=/run/user/1000/ssh-agent ssh-agent -k
-      '';
+      ExecStart  = wrap {
+        name   = "ssh-agent-start";
+        paths  = [ bash openssh ];
+        script = ''
+          #!/usr/bin/env bash
+          set -e
+          [[ -e /run/user/1000/ssh-agent ]] && exit
+
+          exec ssh-agent -D -a /run/user/1000/ssh-agent
+        '';
+      };
+      ExecStop   = wrap {
+        name   = "ssh-agent-stop";
+        paths  = [ bash openssh ];
+        vars   = { inherit SSH_AUTH_SOCK; };
+        script = ''
+          #!/usr/bin/env bash
+          ssh-agent -k
+        '';
+      };
     };
   };
 
   kill-network-mounts = mkService {
     description   = "Force kill network mounts after suspend/resume";
-    path          = [ psmisc];
 
     # suspend.target causes this to be invoked, but only after (i.e. on resume)
     after         = [ "suspend.target" ];
@@ -719,10 +701,14 @@ with rec {
     serviceConfig = {
       User      = "root";
       Type      = "oneshot";
-      ExecStart = writeScript "kill-network-filesystems" ''
-        #!${bash}/bin/bash
-        killall -9 sshfs || true
-      '';
+      ExecStart = wrap {
+        name   = "kill-network-filesystems";
+        paths  = [ bash psmisc];
+        script = ''
+          #!/usr/bin/env bash
+          killall -9 sshfs || true
+        '';
+      };
     };
   };
 
@@ -731,16 +717,19 @@ with rec {
   wifiPower = {
     wantedBy      = [ "multi-user.target" ];
     before        = [ "network.target" ];
-    path          = with pkgs; [ iw ];
     serviceConfig = {
       Type       = "simple";
       User       = "root";
       Restart    = "always";
       RestartSec = 60;
-      ExecStart  = writeScript "wifipower" ''
-        #!${bash}/bin/bash
-        iw dev wlp2s0 set power_save off
-      '';
+      ExecStart  = wrap {
+        name   = "wifipower";
+        paths  = [ bash iw ];
+        script = ''
+          #!/usr/bin/env bash
+          iw dev wlp2s0 set power_save off
+        '';
+      };
     };
   };
 }
