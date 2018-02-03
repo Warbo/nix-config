@@ -187,44 +187,47 @@ with rec {
 
   hometime = mkService {
     description = "Count down to the end of the work day";
-    path        = [ gksu libnotify iputils networkmanager pmutils ];
-    environment = {
-      DISPLAY    = ":0";
-      XAUTHORITY = "/home/chris/.Xauthority";
-    };
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
       RestartSec = 300;
-      ExecStart  = writeScript "hometime" ''
-        #!${bash}/bin/bash
-        set -e
+      ExecStart  = wrap {
+        name   = "hometime";
+        paths  = [ bash gksu libnotify iputils networkmanager pmutils ];
+        vars   = {
+          DISPLAY    = ":0";
+          XAUTHORITY = "/home/chris/.Xauthority";
+        };
+        script = ''
+          #!/usr/bin/env bash
+          set -e
 
-        HOUR=$(date "+%H")
-        [[ "$HOUR" -gt 16 ]] || exit
+          HOUR=$(date "+%H")
+          [[ "$HOUR" -gt 16 ]] || exit
 
-        ${atWork} || exit
+          ${atWork} || exit
 
-        # Set DBus variables to make notifications appear on X display
-        MID=$(cat /etc/machine-id)
-          D=$(echo "$DISPLAY" | cut -d '.' -f1 | tr -d :)
-        source ~/.dbus/session-bus/"$MID"-"$D"
-        export DBUS_SESSION_BUS_ADDRESS
+          # Set DBus variables to make notifications appear on X display
+          MID=$(cat /etc/machine-id)
+            D=$(echo "$DISPLAY" | cut -d '.' -f1 | tr -d :)
+          source ~/.dbus/session-bus/"$MID"-"$D"
+          export DBUS_SESSION_BUS_ADDRESS
 
-        function notify {
-          notify-send -t 0 "Home Time" "$1"
-        }
+          function notify {
+            notify-send -t 0 "Home Time" "$1"
+          }
 
-        notify "Past 5pm; half an hour until suspend"
-        sleep 600
-        notify "20 minutes until suspend"
-        sleep 600
-        notify "10 minutes until suspend"
-        sleep 600
-        notify "Suspending"
-        sleep 60
-        gksudo -S pm-suspend
-      '';
+          notify "Past 5pm; half an hour until suspend"
+          sleep 600
+          notify "20 minutes until suspend"
+          sleep 600
+          notify "10 minutes until suspend"
+          sleep 600
+          notify "Suspending"
+          sleep 60
+          gksudo -S pm-suspend
+        '';
+      };
     };
   };
 
