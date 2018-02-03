@@ -495,29 +495,6 @@ with rec {
                             "/home/chris/DesktopFiles"
                             ["-p 22222"];
     };
-
-    /*
-    desktop-laptop-mount = mkService {
-      inherit path environment;
-      description = "Laptop files on desktop";
-      after = [ "network.target" ];
-      wantedBy = [ "default.target" ];
-      serviceConfig = {
-        User       = "chris";
-        Restart    = "always";
-        RestartSec = 60;
-        ExecStart  = writeScript "sshfs-mount" ''
-          #!${bash}/bin/bash
-          ssh -f ${opts} sshfs -f ${opts extraOptions} ${addr} ${dir}
-        '';
-        ExecStop = writeScript "sshfuse-unmount" ''
-          #!${bash}/bin/bash
-          pkill -f -9 "sshfs.*${dir}"
-          "${config.security.wrapperDir}/fusermount" -u -z "${dir}"
-        '';
-      };
-    };
-    */
   })
   pi-mount desktop-mount;
 
