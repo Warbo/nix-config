@@ -153,14 +153,25 @@ with rec {
     serviceConfig   = {
       User      = "chris";
       Restart   = "always";
-      ExecStart = writeScript "shell-start" ''
-        #!${bash}/bin/bash
-        cd
-        exec dtach -A ~/.sesh -r winch "${writeScript "session" ''
-          #!${bash}/bin/bash
-          exec dvtm -M -m ^b
-        ''}"
-      '';
+      ExecStart = wrap {
+        name   = "shell-start";
+        paths  = [ bash dtach ];
+        vars   = {
+          session = wrap {
+            name   = "session";
+            paths  = [ bash dvtm ];
+            script = ''
+              #!/usr/bin/env bash
+              exec dvtm -M -m ^b
+            '';
+          };
+        };
+        script = ''
+          #!/usr/bin/env bash
+          cd "$HOME"
+          exec dtach -A "$HOME/.sesh" -r winch "$session"
+        '';
+      };
 
       # Don't stop, since it may kill programs we want to keep using
       ExecStop   = ''"${coreutils}/bin/true"'';
