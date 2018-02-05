@@ -714,8 +714,9 @@ with rec {
 
   # Turn off power saving on WiFi to work around
   # https://bugzilla.kernel.org/show_bug.cgi?id=56301 (or something similar)
-  wifiPower = {
+  wifiPower = mkService {
     wantedBy      = [ "multi-user.target" ];
+    after         = [];
     before        = [ "network.target" ];
     serviceConfig = {
       Type       = "simple";
