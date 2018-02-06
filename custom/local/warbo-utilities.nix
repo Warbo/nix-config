@@ -6,7 +6,7 @@ withLatestGit {
                                       then {}
                                       else { nixPkgs = self; });
   stable   = {
-    rev    = "30f07ff";
-    sha256 = "04wczkd893fk8cappp9xc1hj0nn3c0p1q4jjk4asyld7ivx0qri5";
+    rev    = "bf69378";
+    sha256 = "1a1ss17cvc94xg83vjgwbqc6aphx2xy3hapn2j1lk464l2iwd1bn";
   };
 }
