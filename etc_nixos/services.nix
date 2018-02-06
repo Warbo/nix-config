@@ -96,9 +96,10 @@ with rec {
   };
 };
 {
-  thermald-nocheck = {
+  thermald-nocheck = mkService {
     description = "Thermal Daemon Service";
     wantedBy    = [ "multi-user.target" ];
+    after       = [];
     script      = wrap {
       name   = "thermald-nocheck";
       paths  = [ bash thermald ];
