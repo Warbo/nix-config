@@ -189,6 +189,7 @@ rec {
 
   services.ipfs = {
     enable      = true;
+    autoMount   = true;
     enableGC    = true; # Laptop, limited storage
     dataDir     = "/var/lib/ipfs/.ipfs";
     #autoMigrate = true; # If the storage format changes
