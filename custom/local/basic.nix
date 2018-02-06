@@ -8,6 +8,8 @@ buildEnv {
   paths = [
     autossh
     artemis
+    bibclean
+    bibtool
     binutils
     cabal2nix
     dtach
