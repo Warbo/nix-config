@@ -8,15 +8,26 @@ with rec {
   mkService = opts:
     with rec {
       service       = srvDefaults // opts;
-      serviceConfig = cfgDefaults // opts.serviceConfig;
+      serviceConfig = if opts ? serviceConfig
+                         then { serviceConfig = cfgDefaults //
+                                                opts.serviceConfig; }
+                         else {};
       cfgDefaults   = { Type = "simple"; };
       srvDefaults   = {
         enable   = true;
         wantedBy = [ "default.target"  ];
         after    = [ "local-fs.target" ];
       };
+
+      combined  = service // serviceConfig;
+
+      # Some attributes must be strings of commands, rather than externally
+      # defined scripts. We replace such scripts with strings that call them.
+      stringify = x: if x ? script && lib.isDerivation x.script
+                        then stringify (x // { script = toString x.script; })
+                        else x;
     };
-    service // { inherit serviceConfig; };
+    stringify combined;
 
   sudoWrapper = runCommand "sudo-wrapper" {} ''
     mkdir -p "$out/bin"
