@@ -379,8 +379,10 @@ with rec {
         paths  = [ bash coreutils iputils isync ];
         script = ''
           #!/usr/bin/env bash
+          set -e
           ${online} || exit
           timeout -s 9 3600 mbsync --verbose gmail dundee
+          echo "Finished syncing" 1>&2
         '';
       };
     };
@@ -412,8 +414,10 @@ with rec {
         paths  = [ bash coreutils iputils isync ];
         script = ''
           #!/usr/bin/env bash
+          set -e
           ${online} || exit
           timeout -s 9 3600 mbsync --verbose gmail-backup
+          echo "Finished syncing" 1>&2
         '';
       };
     };
