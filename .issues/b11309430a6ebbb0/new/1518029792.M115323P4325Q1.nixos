@@ -1,0 +1,27 @@
+From: Chris Warburton
+Date: Wed, 07 Feb 2018 18:51:50 +0000
+State: new
+Subject: Give access to current repo
+Message-Id: <b11309430a6ebbb0-0-artemis@nixos>
+
+We can use names like nixpkgs1603 to access the pristine contents of
+nixpkgs version 16.03, customised.nixpkgs1603 to access our overrides
+applied to that version and repo1603 to access the source of nixpkgs
+16.03.
+
+These let us pick out things from particular nixpkgs versions,
+regardless of what version we're overriding.
+
+We can use super and self to get the (non-overridden and overridden,
+respectively) versions of nixpkgs that we're currently overriding.
+
+These let us maintain consistency within a nixpkgs version, and have
+each version use its own packages in its overrides (e.g. so that the
+conkeror in 17.03 will use the firefox in 17.03, and so on).
+
+There doesn't seem to be a 'current' version (equivalent to self and
+super) for the 'repoXXXX' case. This prevents us accessing files from
+the current repo.
+
+This would be useful, for example to load themes directly from their
+.nix files.
