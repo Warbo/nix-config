@@ -1,0 +1,38 @@
+From: Chris Warburton
+Date: Wed, 07 Feb 2018 14:25:30 +0000
+State: new
+Subject: Try to speed up evaluation
+Message-Id: <bca5560f19e130bd-0-artemis@nixos>
+
+Evaluation of 'import <nixpkgs> { config = import "this repo"; }' is
+very slow. Running Nix commands with the '-v' flag shows that we're
+loading a whole bunch of stuff from many different versions of nixpkgs.
+
+Whilst we want multiple versions to be available, we should try to avoid
+actually using them for our day-to-day config. We can do this in two
+ways:
+
+ - For things which just-so-happen to use old versions, we can try
+   bumping them to use 'super' or 'self' instead. Or, you know, get rid
+   of pinned versions if there's no need to pin them.
+
+ - For things which are specifically broken or missing on newer nixpkgs
+   versions, we could try importing just the relevant file, rather than
+   the whole config.
+
+An example of the latter might be:
+
+    { nixpkgs1603 }:
+
+    # This was removed in nixpkgs 16.09
+    nixpkgs1603.fooPackages.bar
+
+We might try doing this instead:
+
+    { fooPackages, repo1603 }:
+
+    # This was removed in nixpkgs 16.09
+    fooPackages.callPackage "${repo1603}/pkgs/foo/bar.nix" {}
+
+This way, we're being much more targeted. Dependencies might be an
+issue, so this isn't guaranteed to work, but I think it's worth a shot.
