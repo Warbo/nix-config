@@ -18,7 +18,7 @@ buildEnv {
     asublim
     audacious
     basic # Anything useful for scripts should go in here
-    (if stable then nixpkgs1709 else self).blueman
+    blueman
     basket
     clearlooks-phenix
     cmus
