@@ -27,6 +27,7 @@ buildEnv {
     dillo
     dmenu
     droid-fonts
+    e17gtk-theme
     emacs
     firefox
     gcalcli
@@ -56,5 +57,6 @@ buildEnv {
     (xfce.gtk_xfce_engine.override { withGtk3 = true; })
     xfce.xfce4notifyd
     xsettingsd
+    zuki-theme
   ];
 }
