@@ -19,7 +19,7 @@ buildEnv {
     audacious
     basic # Anything useful for scripts should go in here
     (if stable then nixpkgs1709 else self).blueman
-    (if stable then nixpkgs1603 else self).kde4.basket
+    basket
     clearlooks-phenix
     cmus
     compton
