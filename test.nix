@@ -29,7 +29,6 @@ rec {
     "bibclean"
     "bibtool"
     "cabal2nix"
-    "cmus"
     "conkeror"
     "ditaaeps"
     "emacs"
