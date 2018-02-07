@@ -5,7 +5,7 @@ with rec {
   # Various immutable versions of nixpkgs
   nixpkgs = import ./nixpkgs.nix;
 
-  inherit (nixpkgs.nixpkgs1603) lib;
+  inherit (getAttr defaultVersion nixpkgs) lib;
 
   # Just the nixpkgs repos (ignores instantiated package sets, functions, etc.)
   repos = lib.filterAttrs (name: _: lib.hasPrefix "repo" name)
