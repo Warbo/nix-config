@@ -9,10 +9,8 @@ with rec {
                                        else {}) //
                       (if args ? super then { inherit super; }
                                        else {});
-  mkPkg       = x: old:
-    with rec {
-      func = import (./local + "/${x}");
-    };
+  mkPkg = x: old:
+    with { func = import (./local + "/${x}"); };
     old // listToAttrs [{
              name  = removeSuffix ".nix" x;
              value = callPackage func (extraArgs (functionArgs func));

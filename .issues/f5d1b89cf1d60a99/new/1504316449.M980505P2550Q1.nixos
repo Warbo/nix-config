@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Sat, 02 Sep 2017 02:34:56 +0100
-State: new
+State: resolved
 Subject: Use faster version of Python 'checker' script
 Message-Id: <f5d1b89cf1d60a99-0-artemis@nixos>
+resolution: fixed
 
 Nixpkgs runs a script after building a Python package, which seems to
 check for problems in the "$out" dir like duplicate module names and
