@@ -46,7 +46,7 @@ buildEnv {
     paprefs
     pavucontrol
     picard
-    customised.nixpkgs1609.pidgin-with-plugins
+    pidgin-with-plugins
     xorg.xkill
     skulpture
     trayer
