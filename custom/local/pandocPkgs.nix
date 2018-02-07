@@ -1,6 +1,5 @@
 # Fixed versions of pandoc, panpipe, panhandle, pandoc-citeproc and dependencies
-
-{ attrsToDirs, latestGit, lib, mkStableHackageDb, nixpkgs1609, runCabal2nix,
+{ attrsToDirs, haskell, latestGit, lib, mkStableHackageDb, runCabal2nix,
   repoSource, wrap }:
 
 with lib;
@@ -33,7 +32,7 @@ with rec {
       })) {};
 
     # Writer tests fail due to read-only filesystem
-    pandoc = nixpkgs1609.haskell.lib.dontCheck
+    pandoc = haskell.lib.dontCheck
       (self.callPackage (c2n "cabal://pandoc-1.17.2") {});
 
     # We need a fix from 0.3, but our hackage index only has 0.2
@@ -50,7 +49,7 @@ with rec {
   };
 
   # A Haskell package set with particular versions chosen to work for pan*
-  pkgs = nixpkgs1609.haskell.packages.ghc7103.override {
+  pkgs = haskell.packages.ghc7103.override {
     overrides = self: super: extra self // mapAttrs (go self) {
       pandoc-citeproc = "0.10.4";
       panpipe         = "0.2.0.0";
