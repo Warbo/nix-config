@@ -5,7 +5,10 @@ with rec {
   # Various immutable versions of nixpkgs
   nixpkgs = import ./nixpkgs.nix;
 
-  inherit (getAttr defaultVersion nixpkgs) lib;
+  inherit (if defaultVersion == "unstable"
+              then import <nixpkgs> { config = {}; }
+              else getAttr defaultVersion nixpkgs)
+          lib;
 
   # Just the nixpkgs repos (ignores instantiated package sets, functions, etc.)
   repos = lib.filterAttrs (name: _: lib.hasPrefix "repo" name)
