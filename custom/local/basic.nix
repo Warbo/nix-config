@@ -2,10 +2,14 @@
 { self }:
 
 with self;
-
+with {
+  extras = if self ? fuse3
+              then [ fuse3 ]
+              else trace "WARNING: No fuse3 found" [];
+};
 buildEnv {
   name  = "basic";
-  paths = [
+  paths = extras ++ [
     autossh
     artemis
     bibclean
@@ -18,7 +22,6 @@ buildEnv {
     exfat
     file
     fuse
-    fuse3
     get_iplayer
     ghc
     ghostscript
