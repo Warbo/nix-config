@@ -19,7 +19,9 @@ with rec {
 rec {
   inherit haskellNames haskellOverrides;
 
-  unprofiledHaskellPackages = super.haskellPackages;
+  unprofiledHaskellPackages = super.haskellPackages.override {
+    overrides = haskellOverrides;
+  };
 
   # Turn profiling on/off via environment variable, to make life easier
   haskellPackages = if getEnv "HASKELL_PROFILE" == "1"
