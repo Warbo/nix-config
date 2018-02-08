@@ -1,0 +1,12 @@
+From: Chris Warburton
+Date: Thu, 08 Feb 2018 17:50:16 +0000
+State: new
+Subject: Use newer cabal-install in haskellPkgDeps
+Message-Id: <f2933673003213d8-0-artemis@nixos>
+
+It's currently hard-coded to nixpkgs1609 because cabal 2.0 seems to
+break stuff.
+
+In particular, it seems unable to find the package index we get from
+stableHackageDb. This *may* be something to do with the new 01-index.tar
+cache, but I'm not sure.
