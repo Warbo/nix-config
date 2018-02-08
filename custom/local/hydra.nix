@@ -1,4 +1,4 @@
-{ isBroken, lib, perlPackages, super, withDeps }:
+{ isBroken, lib, perlPackages, super, system, withDeps }:
 
 # Remove once the patch has trickled down.
 # See https://github.com/NixOS/nixpkgs/pull/32001
@@ -59,4 +59,7 @@ with rec {
     '';
   });
 };
-withDeps [ (isBroken pv) ] unrestricted
+withDeps (if system == "i686-linux"
+             then [ (isBroken pv) ]
+             else [])
+         unrestricted
