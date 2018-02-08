@@ -1,6 +1,7 @@
 # This contains the stuff we expect to be available for non-interactive scripts
 { self }:
 
+with builtins;
 with self;
 with {
   extras = if self ? fuse3
