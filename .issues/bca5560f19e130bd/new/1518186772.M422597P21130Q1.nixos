@@ -1,0 +1,12 @@
+From: Chris Warburton
+Date: Fri, 09 Feb 2018 14:31:18 +0000
+Subject: Re: Try to speed up evaluation
+Message-Id: <bca5560f19e130bd-b9864698f6f1eb7a-artemis@nixos>
+References: <bca5560f19e130bd-0-artemis@nixos>
+In-Reply-To: <bca5560f19e130bd-0-artemis@nixos>
+
+I've removed a bunch of occurrences of nixpkgsXXXX. Some have been
+altered to use the latest version (e.g. many of those which were
+backporting from nixpkgs1709 turned out to be no longer necessary);
+others have been altered to import the required .nix file from repoXXXX
+instead.

@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Wed, 07 Feb 2018 14:25:30 +0000
-State: new
+State: resolved
 Subject: Try to speed up evaluation
 Message-Id: <bca5560f19e130bd-0-artemis@nixos>
+resolution: fixed
 
 Evaluation of 'import <nixpkgs> { config = import "this repo"; }' is
 very slow. Running Nix commands with the '-v' flag shows that we're

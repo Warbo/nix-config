@@ -1,3 +1,18 @@
-{ repo1709, self }:
+{ callPackage, nothing, repo, runCommand }:
 
-self.callPackage "${repo1709}/pkgs/misc/themes/zuki" {}
+with rec {
+  suffix = "pkgs/misc/themes/zuki";
+
+  havePath = import (runCommand "have-zuki.nix" { inherit repo suffix; } ''
+    if [[ -e "$repo/$suffix" ]]
+    then
+      echo true  > "$out"
+    else
+      echo false > "$out"
+    fi
+  '');
+
+  pkg = callPackage "${repo}/${suffix}" {};
+};
+
+if havePath then pkg else nothing
