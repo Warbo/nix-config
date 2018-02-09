@@ -13,8 +13,9 @@
 with builtins;
 with lib;
 with rec {
-  deps = haskellPkgDepSet {
-    inherit delay-failure dir extra-sources hackageContents hsPkgs;
+  deps = haskellPkgDeps {
+    inherit delay-failure dir extra-sources hackageContents;
+    inherit (hsPkgs) ghc;
     name = pName;
   };
 
@@ -42,26 +43,20 @@ with rec {
                    then pkgName pkg
                    else cabalField { dir = pkg; field = "name"; };
 
-  # The desired package, including tests
-  fullPkg = haskell.lib.doCheck (getAttr pName deps);
+  # Run cabal2nix on each dependency
+  funcs = listToAttrs (map (url: rec {
+                             name  = nameOf url;
+                             value = runCabal2nix { inherit name url; };
+                           })
+                           deps);
 };
 
 if deps.delayedFailure or false
-   then runCommand "failed-${pName}"
-          {
-            inherit (deps) stderr;
-            msg = ''
-              We failed to solve this Haskell package's dependencies. To prevent
-              eval-time problems, the error was delayed to build time, in the
-              form of this failing package.
-
-              Contents of stderr follows.
-            '';
-          }
-          ''
-            set -e
-            echo "$msg"    1>&2
-            echo "$stderr" 1>&2
-            exit 1
-          ''
-   else fullPkg
+   then deps
+   else hsPkgs.override {
+     overrides = self: super:
+       mapAttrs (_: p: haskell.lib.dontCheck (self.callPackage p {})) funcs //
+       (if funcs ? zlib
+           then { zlib = self.callPackage funcs.zlib { inherit (pkgs) zlib; }; }
+           else {});
+   }
