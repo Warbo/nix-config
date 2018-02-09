@@ -1,71 +1,32 @@
 # Fixed versions of pandoc, panpipe, panhandle, pandoc-citeproc and dependencies
-{ attrsToDirs, haskell, latestGit, lib, mkStableHackageDb, runCabal2nix,
-  repoSource, wrap }:
+{ haskell, haskellPkgsDeps, latestGit, lib, repoSource }:
 
 with lib;
-with rec {
-  hackage = mkStableHackageDb {
-    rev    = "c008e28";
-    sha256 = "0kfcc7dw6sahgkv130r144pfjsxwzq8h479fw866nf875frvpblz";
-  };
-
-  # runCabal2nix with a fixed Hackage revision
-  c2n = url: runCabal2nix {
-    inherit url;
-    packageDb = hackage.installed;
-  };
-
-  # Fetches a package with the given name and version from Hackage
-  go = self: name: ver: self.callPackage (c2n "cabal://${name}-${ver}") {};
-
-  # Packages which aren't on Hackage
-  extra = self: {
-    lazysmallcheck2012 =
-      assert !(hasAttr "lazysmallcheck2012" hackage.versions) ||
-             abort "Hackage has lazysmallcheck2012, use it";
-      self.callPackage (c2n (latestGit {
-        url    = repoSource + "/lazy-smallcheck-2012.git";
-        stable = {
-          rev    = "dbd6fba10a24b2e46d6250d2735be2d792ff69bb";
-          sha256 = "1i3by7mp7wqy9anzphpxfw30rmbsk73sb2vg02nf1mfpjd303jj7";
-        };
-      })) {};
-
-    # Writer tests fail due to read-only filesystem
-    pandoc = haskell.lib.dontCheck
-      (self.callPackage (c2n "cabal://pandoc-1.17.2") {});
-
-    # We need a fix from 0.3, but our hackage index only has 0.2
-    panhandle =
-      assert !(elem "0.3.0.0" hackage.versions.panhandle) ||
-             abort "Hackage has panhandle-0.3, use it";
-      self.callPackage (c2n (latestGit {
-        url    = repoSource + "/panhandle.git";
+with {
+  hSet = haskellPkgsDeps {
+    deps = [
+      "base >= 4.8"
+      "pandoc-citeproc == 0.10.4"
+      "panpipe == 0.2.0.0"
+      "panhandle == 0.3.0.0"
+      "aeson == 0.11.3.0"
+      "attoparsec == 0.13.1.0"
+      "tasty == 0.11.2.1"
+      "lazysmallcheck2012"
+      "pandoc"
+    ];
+    hsPkgs = haskell.packages.ghc7103;
+    extra-sources = [
+      haskell.packages.ghc7103.lazysmallcheck2012.src
+      (latestGit {
+        url    = "${repoSource}/panhandle.git";
         stable = {
           rev    = "7e44d75";
           sha256 = "1cgk5wslbr507fmh1fyggvk15lipa8x815392j9qf4f922iifdzn";
         };
-      })) {};
-  };
-
-  # A Haskell package set with particular versions chosen to work for pan*
-  pkgs = haskell.packages.ghc7103.override {
-    overrides = self: super: extra self // mapAttrs (go self) {
-      pandoc-citeproc = "0.10.4";
-      panpipe         = "0.2.0.0";
-
-      # Ensures working dependency versions
-      aeson      = "0.11.3.0";
-      attoparsec = "0.13.1.0";
-      tasty      = "0.11.2.1";
-    };
+      })
+    ];
   };
 };
 
-# Expose the binaries of each package we care about
-attrsToDirs {
-  bin = listToAttrs (map (name: {
-    inherit name;
-    value = wrap { file = "${getAttr name pkgs}/bin/${name}"; };
-  }) [ "pandoc" "pandoc-citeproc" "panhandle" "panpipe" ]);
-}
+hSet.ghcWithPackages (h: [ h.pandoc h.panpipe h.pandoc-citeproc h.panhandle ])
