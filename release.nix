@@ -7,29 +7,90 @@ with rec {
   # in larger sets
   topLevel = pkgs:
     with rec {
-      tooBig = name:
-                 # Ignore copies of nixpkgs
-                 hasPrefix "nixpkgs" name ||
-                 elem name [
-                   "unstable"
-                   "customised"
+      avoid = name:
+                # Ignore copies of nixpkgs
+                hasPrefix "nixpkgs" name ||
+                elem name [
+                  "unstable"
+                  "customised"
 
-                   # Most Haskell packages aren't ours
-                   "haskell"
-                   "haskellPackages"
-                   "profiledHaskellPackages"
-                   "unprofiledHaskellPackages"
-                   "unstableHaskellPackages"
+                  # Most Haskell packages aren't ours
+                  "haskell"
+                  "haskellPackages"
+                  "profiledHaskellPackages"
+                  "unprofiledHaskellPackages"
+                  "unstableHaskellPackages"
 
-                   # These are designed to break on unstable, so avoid them
-                   "latestNixCfg"
-                   "latestCfgPkgs"
-                   "withLatestCfg"
-                 ];
+                  # These are designed to break on unstable, so avoid them
+                  "latestNixCfg"
+                  "latestCfgPkgs"
+                  "withLatestCfg"
 
-      nonDerivation = name: elem name [];
+                  # Not derivations
+                  "mkStableHackageDb"
+                  "allDrvsIn"
+                  "attrsToDirs"
+                  "cabalField"
+                  "callPackage"
+                  "composeWithArgs"
+                  "customPkgNames"
+                  "dirContaining"
+                  "dirsToAttrs"
+                  "dropWhile"
+                  "dummyBuild"
+                  "fetchGitHashless"
+                  "forceBuilds"
+                  "ghcPackageEnv"
+                  "hackagePackageNames"
+                  "hackageUpdate"
+                  "haskellGit"
+                  "haskellNames"
+                  "haskellOverrides"
+                  "haskellPkgDeps"
+                  "haskellPkgDepsSet"
+                  "haskellPkgWithDeps"
+                  "haskellPkgsDeps"
+                  "helpers"
+                  "isBroken"
+                  "isCallable"
+                  "isPath"
+                  "latestCabal"
+                  "latestGit"
+                  "mergeDirs"
+                  "mkBin"
+                  "ml4pg"
+                  "newNixpkgsEnv"
+                  "nix-eval-test"
+                  "nixFromCabal"
+                  "nixListToBashArray"
+                  "repo2npm"
+                  "repoSource"
+                  "reverse"
+                  "runCabal2nix"
+                  "runCmd"
+                  "runScript"
+                  "sanitiseName"
+                  "setIn"
+                  "stable"
+                  "stargus"
+                  "stratagus"
+                  "stringAsList"
+                  "stringReverse"
+                  "stripOverrides"
+                  "suffMatch"
+                  "tests"
+                  "tryElse"
+                  "unlines"
+                  "unpack"
+                  "withArgs"
+                  "withArgsOf"
+                  "withDeps"
+                  "withLatestGit"
+                  "withNix"
+                  "wrap"
+                ];
 
-      keepers = name: !(tooBig name) && !(nonDerivation name);
+      keepers = name: !(avoid name);
     };
     genAttrs (filter keepers customPkgNames)
              (name: getAttr name pkgs);
