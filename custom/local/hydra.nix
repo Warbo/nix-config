@@ -1,4 +1,4 @@
-{ isBroken, lib, perlPackages, super, system, withDeps }:
+{ isBroken, lib, nothing, perlPackages, super, system, withDeps }:
 
 # Remove once the patch has trickled down.
 # See https://github.com/NixOS/nixpkgs/pull/32001
@@ -58,8 +58,13 @@ with rec {
       echo "Restricted mode disabled" 1>&2
     '';
   });
+
+  checked = withDeps (if system == "i686-linux"
+                         then [ (isBroken pv) ]
+                         else [])
+                     unrestricted;
 };
-withDeps (if system == "i686-linux"
-             then [ (isBroken pv) ]
-             else [])
-         unrestricted
+
+if super ? hydra
+   then checked
+   else nothing
