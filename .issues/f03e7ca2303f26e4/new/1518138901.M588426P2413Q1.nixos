@@ -1,0 +1,21 @@
+From: Chris Warburton
+Date: Fri, 09 Feb 2018 01:11:27 +0000
+State: new
+Subject: Bumping hackage breaks cabal
+Message-Id: <f03e7ca2303f26e4-0-artemis@nixos>
+
+I tried bumping mkStableHackageDb.nix with the following:
+
+    { rev    ? "c5d1a03",
+      sha256 ? "18m1l1nlshbn0r0x5a5n89brvsc4jb2g4z9xpiyvn9cgaqh95pf6" }:
+
+After waiting a while for it to be generated, cabal-install 1.24.0.2
+(nixpkgs1703.cabal-install) and from nixpkgs1609 both complained about
+the hackage index being broken:
+
+    Resolving dependencies...
+    cabal: internal error when reading package index: failed to parse .cabal
+    fileThe package index or index cache is probably corrupt. Running cabal update
+    might fix it.
+
+This may be due to .cabal files using a newer, unsupported format.
