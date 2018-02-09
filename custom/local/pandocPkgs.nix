@@ -1,8 +1,8 @@
 # Fixed versions of pandoc, panpipe, panhandle, pandoc-citeproc and dependencies
-{ haskell, haskellPkgsDeps, latestGit, lib, repoSource }:
+{ haskell, haskellPkgsDeps, latestGit, lib, repoSource, runCommand }:
 
 with lib;
-with {
+with rec {
   hSet = haskellPkgsDeps {
     deps = [
       "base >= 4.8"
@@ -31,6 +31,20 @@ with {
 
     useOldZlib = true;
   };
+
+  wanted = hSet.ghcWithPackages (h: [
+    h.pandoc
+    h.panpipe
+    h.pandoc-citeproc
+    h.panhandle
+  ]);
 };
 
-hSet.ghcWithPackages (h: [ h.pandoc h.panpipe h.pandoc-citeproc h.panhandle ])
+runCommand "pandocPkgs" { inherit wanted; } ''
+  # Pluck out the binaries we want, ignore those we don't (e.g. ghc)
+  mkdir -p "$out/bin"
+  for P in pandoc pandoc-citeproc panhandle panpipe
+  do
+    ln -s "$wanted/bin/$P" "$out/bin/$P"
+  done
+''
