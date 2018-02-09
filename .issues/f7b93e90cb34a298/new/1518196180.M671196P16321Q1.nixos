@@ -1,0 +1,11 @@
+From: Chris Warburton
+Date: Fri, 09 Feb 2018 17:08:26 +0000
+State: resolved
+Subject: isBroken should handle multi-output derivations
+Message-Id: <f7b93e90cb34a298-0-artemis@nixos>
+resolution: fixed
+
+Currently we write to "$out", but this doesn't work for everything. For
+example, perlPackages.ParamsValidate has a 'devdoc' output, which we
+don't genetate, and Nix complains that we failed to produce the output
+path.
