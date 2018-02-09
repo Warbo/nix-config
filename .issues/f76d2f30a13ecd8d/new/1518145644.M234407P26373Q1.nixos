@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Fri, 09 Feb 2018 03:05:54 +0000
-State: new
+State: resolved
 Subject: Distinguish between haskell and non-haskell deps
 Message-Id: <f76d2f30a13ecd8d-0-artemis@nixos>
+resolution: fixed
 
 Especially e.g. zlib. We can do this by calling a Haskell package
 function with dummy args, including a 'mkDerivation' which just looks at

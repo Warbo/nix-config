@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Wed, 07 Feb 2018 18:51:50 +0000
-State: new
+State: resolved
 Subject: Give access to current repo
 Message-Id: <b11309430a6ebbb0-0-artemis@nixos>
+resolution: fixed
 
 We can use names like nixpkgs1603 to access the pristine contents of
 nixpkgs version 16.03, customised.nixpkgs1603 to access our overrides
