@@ -31,11 +31,11 @@ with rec {
             };
 
           self      = super   // overrides;
-          super     = nixpkgs // pkgs // { inherit customised; };
+          super     = nixpkgs // pkgs // { inherit customised repo; };
           overrides = lib.fold mkPkg { stable = version != "unstable"; }
                                nixFiles;
         };
-        nixpkgs // overrides;
+        nixpkgs // { inherit repo; } // overrides;
     };
   };
 
