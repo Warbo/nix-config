@@ -1,9 +1,11 @@
-{ kde4, kdelibs4, repo1609, self }:
+{ kde4, repo1609, self }:
 
-with {
-  oldPkg = self.callPackage "${repo1609}/pkgs/applications/office/basket" {
+with rec {
+  kdelibs = self.kdelibs4 or kde4.kdelibs;
+
+  oldPkg  = self.callPackage "${repo1609}/pkgs/applications/office/basket" {
+    inherit kdelibs;
     inherit (kde4) kdepimlibs;
-    kdelibs = kdelibs4;
   };
 };
 if kde4 ? basket
