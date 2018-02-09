@@ -15,7 +15,7 @@ with {
       "lazysmallcheck2012"
       "pandoc"
     ];
-    hsPkgs = haskell.packages.ghc7103;
+
     extra-sources = [
       haskell.packages.ghc7103.lazysmallcheck2012.src
       (latestGit {
@@ -26,6 +26,10 @@ with {
         };
       })
     ];
+
+    hsPkgs = haskell.packages.ghc7103;
+
+    useOldZlib = true;
   };
 };
 
