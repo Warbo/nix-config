@@ -5,9 +5,11 @@ with lib;
 with rec {
   # Select our custom packages/overrides, except for those which are buried
   # in larger sets
-  tooBig = name: # Ignore copies of nixpkgs
+  topLevel = pkgs:
+    with rec {
+      tooBig = name:
+                 # Ignore copies of nixpkgs
                  hasPrefix "nixpkgs" name ||
-                 hasPrefix "repo"    name ||
                  elem name [
                    "unstable"
                    "customised"
@@ -25,9 +27,9 @@ with rec {
                    "withLatestCfg"
                  ];
 
-  topLevel = pkgs:
-    with {
-      keepers = name: !(tooBig name) && isDerivation (getAttr name pkgs);
+      nonDerivation = name: elem name [];
+
+      keepers = name: !(tooBig name) && !(nonDerivation name);
     };
     genAttrs (filter keepers customPkgNames)
              (name: getAttr name pkgs);
