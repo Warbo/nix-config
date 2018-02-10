@@ -1,11 +1,15 @@
-{ isBroken, lib, nothing, perlPackages, super, system, withDeps }:
+{ callPackage, fetchFromGitHub, isBroken, lib, perlPackages, super, system,
+  withDeps }:
 
-# Remove once the patch has trickled down.
-# See https://github.com/NixOS/nixpkgs/pull/32001
+# Hydra's pretty broken. Try to keep track of the problems using isBroken, so we
+# will be notified when anything gets fixed.
 with rec {
+
+  # There's a known bug with pv on i686
+  # See https://github.com/NixOS/nixpkgs/pull/32001
   pv = perlPackages.ParamsValidate;
 
-  fixed = super.hydra.override {
+  i686Fix = hydra: withDeps [ (isBroken pv) ] (hydra.override {
     perlPackages = perlPackages.override {
       overrides = {
         ParamsValidate = pv.overrideAttrs (old: {
@@ -13,10 +17,35 @@ with rec {
         });
       };
     };
+  });
+
+  # newHydra should have working dependencies, but is itself broken
+  newHydra = if system == "i686-linux"
+                then i686Fix super.hydra
+                else super.hydra;
+
+  # Use known-good old version
+
+  src = fetchFromGitHub  {
+    owner  = "NixOS";
+    repo   = "nixpkgs-channels";
+    rev    = "3badad8";
+    sha256 = "0izfn9pg6jjc945pmfh20akzjpj7g95frz0rfgw2kn2g8drpfjd0";
   };
 
-  # Next we disable 'restricted-eval' mode by patching the source
-  unrestricted = lib.overrideDerivation fixed (old: {
+  deps = {
+    inherit (callPackage "${src}/pkgs/servers/sql/postgresql"       {})
+      postgresql92;
+    inherit (callPackage "${src}/pkgs/tools/package-management/nix" {})
+      nixUnstable;
+  };
+
+  oldHydra = i686Fix
+    (callPackage "${src}/pkgs/development/tools/misc/hydra" deps);
+
+  # We also disable 'restricted-eval' mode by patching the source
+
+  unrestricted = lib.overrideDerivation oldHydra (old: {
     patchPhase = ''
       F='src/hydra-eval-jobs/hydra-eval-jobs.cc'
       echo "Patching '$F' to switch off restricted mode" 1>&2
@@ -58,13 +87,6 @@ with rec {
       echo "Restricted mode disabled" 1>&2
     '';
   });
-
-  checked = withDeps (if system == "i686-linux"
-                         then [ (isBroken pv) ]
-                         else [])
-                     unrestricted;
 };
 
-if super ? hydra
-   then checked
-   else nothing
+withDeps [ (isBroken newHydra) ] unrestricted
