@@ -1,0 +1,15 @@
+From: Chris Warburton
+Date: Sun, 11 Feb 2018 02:26:46 +0000
+State: new
+Subject: Only test things which aren't derivations
+Message-Id: <862c9e42944a96aa-0-artemis@nixos>
+
+release.nix should pass into test.nix the set of non-test things it
+already has. test.nix should check that these are all derivations, then
+it should check that all of the customNames which aren't in the given
+set are not derivations (i.e. nothing's been left out).
+
+It should add a test derivation where appropriate which 'exercise' the
+non-derivation things. Actual testing should be done by those things,
+e.g. with assertions or withDeps, etc. The job of test.nix is just to
+add them to release.nix in a way that triggers them.

@@ -1,5 +1,5 @@
-{ callPackage, fetchFromGitHub, isBroken, lib, perlPackages, super, system,
-  withDeps }:
+{ callPackage, fetchFromGitHub, isBroken, lib, moreutils, perlPackages, replace,
+  super, system, withDeps }:
 
 # Hydra's pretty broken. Try to keep track of the problems using isBroken, so we
 # will be notified when anything gets fixed.
@@ -9,7 +9,7 @@ with rec {
   # See https://github.com/NixOS/nixpkgs/pull/32001
   pv = perlPackages.ParamsValidate;
 
-  i686Fix = hydra: withDeps [ (isBroken pv) ] (hydra.override {
+  i686Fix = hydra: /*withDeps [ (isBroken pv) ]*/ (hydra.override {
     perlPackages = perlPackages.override {
       overrides = {
         ParamsValidate = pv.overrideAttrs (old: {
@@ -46,7 +46,31 @@ with rec {
   # We also disable 'restricted-eval' mode by patching the source
 
   unrestricted = lib.overrideDerivation oldHydra (old: {
+    preFixup = ''
+      while read -r F
+      do
+        "${replace}/bin/replace" "$TMPDIR" "$out" -- "$F"
+      done < <(find "$out" -type f)
+    '';
+
     patchPhase = ''
+      echo "Removing aws-sdk-cpp, which won't build on 32bit" 1>&2
+      patch -u -p1   -i "${./hydraSansS3.patch}"
+      grep 'Only in ' < "${./hydraSansS3.patch}" |
+        sed -e 's@Only in hydra-orig/@@g'        |
+        sed -e 's@: @/@g'                        |
+        while read -r F
+        do
+          rm -vf "$F"
+        done
+
+      if [[ -e src/hydra-queue-runner/s3-binary-cache-store.cc ]]
+      then
+        echo "Patch failed to delete things" 1>&2
+        exit 1
+      fi
+
+
       F='src/hydra-eval-jobs/hydra-eval-jobs.cc'
       echo "Patching '$F' to switch off restricted mode" 1>&2
       [[ -f "$F" ]] || {
@@ -85,8 +109,14 @@ with rec {
         fi
       done < <(patterns)
       echo "Restricted mode disabled" 1>&2
+
+      echo "Adding in missing math library" 1>&2
+      for F in src/hydra-eval-jobs/*.cc src/hydra-queue-runner/*.cc
+      do
+        cat <(echo "#include <math.h>") "$F" | "${moreutils}/bin/sponge" "$F"
+      done
     '';
   });
 };
 
-withDeps [ (isBroken newHydra) ] unrestricted
+/*withDeps [ (isBroken newHydra) ]*/ unrestricted
