@@ -9,7 +9,7 @@ with rec {
   # See https://github.com/NixOS/nixpkgs/pull/32001
   pv = perlPackages.ParamsValidate;
 
-  i686Fix = hydra: /*withDeps [ (isBroken pv) ]*/ (hydra.override {
+  i686Fix = hydra: withDeps [ (isBroken pv) ] (hydra.override {
     perlPackages = perlPackages.override {
       overrides = {
         ParamsValidate = pv.overrideAttrs (old: {
@@ -119,4 +119,4 @@ with rec {
   });
 };
 
-/*withDeps [ (isBroken newHydra) ]*/ unrestricted
+withDeps [ (isBroken newHydra) ] unrestricted
