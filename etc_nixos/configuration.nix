@@ -87,15 +87,70 @@ rec {
     firewall.enable                   = false;
     firewall.autoLoadConntrackHelpers = true;
 
-    # Block time wasters
-    extraHosts = ''
-      127.0.0.1 nixos
-      ${trace ''
-        FIXME: Faking texLive mirror source. See
-        https://github.com/NixOS/nixpkgs/issues/24683#issuecomment-314631069
-      '' "146.185.144.154	lipa.ms.mff.cuni.cz"}
-      ${readFile "/home/chris/.dotfiles/hosts"}
-    '';
+    # Block surveillance, malicious actors, time wasters, etc.
+    extraHosts =
+      with pkgs.lib;
+      with rec {
+        format = lst: concatStringsSep "\n" (map (d: "127.0.0.1 ${d}") lst);
+
+        blockList = url: mypkgs.runCommand "blocklist.nix"
+          {
+            inherit url;
+            buildInputs   = with mypkgs; [ jq wget ];
+            SSL_CERT_FILE = /etc/ssl/certs/ca-bundle.crt;
+          }
+          ''
+            echo "Fetching block list '$url'" 1>&2
+
+            wget -O- "$url" | grep '^.' > tmp
+
+            grep -v '^\s*#' < tmp > tmp2
+            mv tmp2 tmp
+
+            sed -e 's/\s\s*/ /g' < tmp > tmp2
+            mv tmp2 tmp
+
+            cut -d ' ' -f2 < tmp > tmp2
+            mv tmp2 tmp
+
+            echo '['           > "$out"
+              jq -R '.' < tmp >> "$out"
+            echo ']'          >> "$out"
+          '';
+
+        general = blockList "http://someonewhocares.org/hosts/hosts";
+
+        facebook = blockList "https://www.remembertheusers.com/files/hosts-fb";
+
+        timewasters = [
+          "facebook.com"
+          "www.facebook.com"
+          "twitter.com"
+          "www.twitter.com"
+          "reddit.com"
+          "www.reddit.com"
+          "ycombinator.com"
+          "news.ycombinator.com"
+          "lobste.rs"
+          "www.lobste.rs"
+          "slashdot.org"
+          "www.slashdot.org"
+          "slashdot.com"
+          "www.slashdot.com"
+          "lesswrong.com"
+          "www.lesswrong.com"
+        ];
+      };
+      ''
+        127.0.0.1 nixos
+        ${trace ''
+          FIXME: Faking texLive mirror source. See
+          https://github.com/NixOS/nixpkgs/issues/24683#issuecomment-314631069
+        '' "146.185.144.154	lipa.ms.mff.cuni.cz"}
+        ${format (import general)}
+        ${format (import facebook)}
+        ${format timewasters}
+      '';
 
     # NetworkManager
     networkmanager.enable = true;
