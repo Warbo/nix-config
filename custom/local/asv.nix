@@ -1,6 +1,6 @@
-{ fetchFromGitHub, git, isBroken, pythonPackages }:
+{ fetchFromGitHub, git, isBroken, pkgHasBinary, pythonPackages }:
 
-with {
+with rec {
   plain = pythonPackages.buildPythonPackage {
     name = "airspeed-velocity";
     src  = fetchFromGitHub {
@@ -21,8 +21,11 @@ with {
     # For resulting scripts
     propagatedBuildInputs = [ pythonPackages.six ];
   };
+
+  pkg = plain.override (old: {
+    stillNeedToDisableTests = isBroken plain;
+    doCheck = false;
+  });
 };
-plain.override (old: {
-  stillNeedToDisableTests = isBroken plain;
-  doCheck = false;
-})
+
+pkgHasBinary "asv" pkg

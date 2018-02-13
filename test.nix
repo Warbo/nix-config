@@ -10,24 +10,9 @@ with builtins;
 with pkgs;
 with lib;
 rec {
-  # Check whether the given package provides the given binary
-  hasBinary = pkg: bin: runCommand "have-binary-${bin}"
-    {
-      inherit bin;
-      buildInputs = [ pkg ];
-    }
-    ''
-      command -v "$bin" || exit 1
-      echo pass > "$out"
-    '';
 
   # Packages which should provide a binary of the same name
   selfNamedBinaries = genAttrs [
-    "asublim"
-    "asv"
-    "bibcheck"
-    "bibclean"
-    "bibtool"
     "cabal2nix"
     "conkeror"
     "ditaaeps"
@@ -68,7 +53,6 @@ rec {
     stableHackage   = "makeCabalConfig";
     tidy-html5      = "tidy";
     timeout         = "withTimeout";
-    warbo-utilities = "jo";
   };
 
   failDrv = name: runCommand name "exit 1";
