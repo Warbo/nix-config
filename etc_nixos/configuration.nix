@@ -78,6 +78,7 @@ rec {
       load-module module-filter-heuristics
       load-module module-filter-apply
     '';
+    zeroconf.discovery.enable = true;
   };
 
   sound.mediaKeys.enable = true;
