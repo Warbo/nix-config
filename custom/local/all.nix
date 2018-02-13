@@ -33,6 +33,7 @@ buildEnv {
     gcalcli
     gensgs
     gtk_engines
+    gtk-engine-murrine
     iotop
     kbibtex_full
     keepassx
