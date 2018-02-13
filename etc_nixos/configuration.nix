@@ -174,18 +174,39 @@ rec {
     timeZone = "Europe/London";
   };
 
-  # Make system themes available to user sessions
-  environment.sessionVariables = {
-    GTK_DATA_PREFIX = [
-      "${config.system.path}"
-    ];
-  };
+  environment = {
+    # For SSHFS
+    etc."fuse.conf".text = ''
+      user_allow_other
+    '';
 
-  # Packages to install in system profile.
-  # NOTE: You *could* install these individually via `nix-env -i` as root, but
-  # those won't be updated by `nixos-rebuild` and aren't version controlled.
-  # To see if there are any such packages, do `nix-env -q` as root.
-  environment.systemPackages = [ mypkgs.all ];
+    # Apparently needed for GTK themes.
+    pathsToLink = [ "/share" ];
+
+    # Make system themes available to user sessions
+    variables = {
+      GTK_DATA_PREFIX = [ "${config.system.path}" ];
+
+      # find theme engines
+      GTK_PATH = concatStringsSep ":" [
+        "${config.system.path}/lib/gtk-3.0"
+        "${config.system.path}/lib/gtk-2.0"
+      ];
+
+      # Find the mouse
+      XCURSOR_PATH = [
+        "~/.icons"
+        "~/.nix-profile/share/icons"
+        "/var/run/current-system/sw/share/icons"
+      ];
+    };
+
+    # Packages to install in system profile.
+    # NOTE: You *could* install these individually via `nix-env -i` as root, but
+    # those won't be updated by `nixos-rebuild` and aren't version controlled.
+    # To see if there are any such packages, do `nix-env -q` as root.
+    systemPackages = [ mypkgs.all ];
+  };
 
   fonts = {
     enableDefaultFonts      = true;
@@ -208,11 +229,6 @@ rec {
   };
 
   nix.trustedBinaryCaches = [ "http://hydra.nixos.org/" ];
-
-  # For SSHFS
-  environment.etc."fuse.conf".text = ''
-    user_allow_other
-  '';
 
   # Programs which need to be setuid, etc. should be put in here. These will get
   # wrappers made and put into a system-wide directory when the config is
