@@ -181,39 +181,6 @@ with rec {
 
   online   = "${pingOnce} google.com 1>/dev/null 2>/dev/null";
 
-  setLocation = wrap {
-    name   = "setLocation";
-    paths  = [ bash networkmanager ];
-    script = ''
-      #!/usr/bin/env bash
-      set -e
-
-      ${online} || {
-        echo "unknown" > /tmp/location
-        exit 0
-      }
-
-      WIFI=$(nmcli c | grep -v -- "--"  | grep -v "DEVICE" |
-                                          cut -d ' ' -f1   )
-      if echo "$WIFI" | grep "aa.net.uk" > /dev/null
-      then
-        echo "home" > /tmp/location
-        exit 0
-      fi
-      if echo "$WIFI" | grep "UoD_WiFi" > /dev/null
-      then
-        echo "work" > /tmp/location
-        exit 0
-      fi
-      if echo "$WIFI" | grep "eduroam" > /dev/null
-      then
-        echo "work" > /tmp/location
-        exit 0
-      fi
-      echo "unknown" > /tmp/location
-    '';
-  };
-
   atHome = wrap {
     name   = "atHome";
     paths  = [ bash ];
@@ -415,17 +382,35 @@ with rec {
     RestartSec  = 10;
     shouldRun   = "${coreutils}/bin/true";
     start       = wrap {
-      name   = "check-location";
-      paths  = [ bash warbo-utilities ];
-      vars   = { inherit atHome atWork setLocation; };
+      name   = "setLocation";
+      paths  = [ bash networkmanager ];
       script = ''
         #!/usr/bin/env bash
-        "$setLocation"
-        if "$atHome" || "$atWork"
+        set -e
+
+        ${online} || {
+        echo "unknown" > /tmp/location
+        exit 0
+        }
+
+        WIFI=$(nmcli c | grep -v -- "--"  | grep -v "DEVICE" |
+                         cut -d ' ' -f1   )
+        if echo "$WIFI" | grep "aa.net.uk" > /dev/null
         then
-          # Unlikely to change for a while
-          sleep 300
+          echo "home" > /tmp/location
+          exit 0
         fi
+        if echo "$WIFI" | grep "UoD_WiFi" > /dev/null
+        then
+          echo "work" > /tmp/location
+          exit 0
+        fi
+        if echo "$WIFI" | grep "eduroam" > /dev/null
+        then
+          echo "work" > /tmp/location
+          exit 0
+        fi
+        echo "unknown" > /tmp/location
       '';
     };
   };
