@@ -143,6 +143,43 @@ with rec {
 
   SSH_AUTH_SOCK = "/run/user/1000/ssh-agent";
 
+  sshfsHelpers = rec {
+    paths = [ bash coreutils fuse fuse3 iputils openssh procps sshfsFuse
+              (utillinux.bin or utillinux) ];
+
+    vars = dir: {
+      inherit SSH_AUTH_SOCK;
+      DISPLAY = ":0"; # For potential ssh passphrase dialogues
+    };
+
+    stop  = dir: wrap {
+      inherit paths;
+      name = "sshfuse-unmount";
+      vars = { inherit dir; };
+      script = ''
+        #!/usr/bin/env bash
+        pkill -f -9 "sshfs.*$dir"
+        "${config.security.wrapperDir}/fusermount" -u -z "$dir"
+      '';
+    };
+
+    isRunning = dir: wrap {
+      name   = "desktop-is-mounted";
+      paths  = sshfsHelpers.paths;
+      vars   = vars dir // { checkProc = findProcess "sshfs.*${dir}"; };
+      script = ''
+        #!/usr/bin/env bash
+        set -e
+
+        # If we can't list what's in the directory then we don't count as
+        # running, even if the processes exist, etc.
+        ls "$dir" 1> /dev/null 2> /dev/null || exit 1
+
+        "$checkProc" || exit 1
+      '';
+    };
+  };
+
   mkService = opts:
     with rec {
       service       = srvDefaults // opts;
