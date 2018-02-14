@@ -123,7 +123,7 @@ with rec {
 
   findProcess = pat: wrap {
     name   = "find-process";
-    paths  = [ bash psutils ];
+    paths  = [ bash procps psutils ];
     vars   = { inherit pat; };
     script = ''
       #!/usr/bin/env bash
@@ -133,7 +133,7 @@ with rec {
 
   killProcess = pat: wrap {
     name   = "kill-process";
-    paths  = [ bash psutils ];
+    paths  = [ bash procps psutils ];
     vars   = { inherit pat; };
     script = ''
       #!/usr/bin/env bash
