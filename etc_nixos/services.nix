@@ -374,31 +374,40 @@ with rec {
     };
   };
 
-  hometime = mkService {
-    description = "Count down to the end of the work day";
-    serviceConfig = {
-      User       = "chris";
-      Restart    = "always";
-      RestartSec = 300;
-      ExecStart  = wrap {
-        name   = "hometime";
-        paths  = [ bash gksu libnotify iputils networkmanager pmutils ];
-        vars   = {
+  hometime =
+    with {
+      workingLate = wrap {
+        name   = "workingLate";
+        vars   = { inherit atWork; };
+        paths  = [ bash ];
+        script = ''
+          #!/usr/bin/env bash
+          set -e
+
+          HOUR=$(date "+%H")
+          [[ "$HOUR" -gt 16 ]] || exit 1
+
+          "$atWork" || exit 1
+          exit 0
+        '';
+      };
+    };
+    pollingService {
+      name        = "hometime";
+      description = "Count down to the end of the work day";
+      RestartSec  = 300;
+      shouldRun   = workingLate;
+      start       = wrap {
+        name  = "hometime";
+        paths = [ bash gksu libnotify iputils networkmanager pmutils ];
+        vars  = {
+          inherit workingLate;
           DISPLAY    = ":0";
           XAUTHORITY = "/home/chris/.Xauthority";
         };
         script = ''
           #!/usr/bin/env bash
           set -e
-
-          HOUR=$(date "+%H")
-          [[ "$HOUR" -gt 16 ]] || exit
-
-          function stillAtWork {
-            ${atWork} || exit
-          }
-
-          stillAtWork
 
           # Set DBus variables to make notifications appear on X display
           MID=$(cat /etc/machine-id)
@@ -410,18 +419,23 @@ with rec {
             notify-send -t 0 "Home Time" "$1"
           }
 
+          "$workingLate" || exit
           notify "Past 5pm; half an hour until suspend"
           sleep 600
-          stillAtWork
+
+          "$workingLate" || exit
           notify "20 minutes until suspend"
           sleep 600
-          stillAtWork
+
+          "$workingLate" || exit
           notify "10 minutes until suspend"
           sleep 600
-          stillAtWork
+
+          "$workingLate" || exit
           notify "Suspending"
           sleep 60
-          stillAtWork
+
+          "$workingLate" || exit
           gksudo -S pm-suspend
         '';
       };
