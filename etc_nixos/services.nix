@@ -659,14 +659,15 @@ with rec {
 
           "$stop" || true
 
-          sshfs -f -o follow_symlinks                      \
-                   -o allow_other                          \
-                   -o IdentityFile=/home/chris/.ssh/id_rsa \
-                   -o debug                                \
-                   -o sshfs_debug                          \
-                   -o reconnect                            \
-                   -o ServerAliveInterval=15               \
-                   "pi@raspberrypi:/opt/shared" "$dir"
+          sshfs -o follow_symlinks                      \
+                -o allow_other                          \
+                -o IdentityFile=/home/chris/.ssh/id_rsa \
+                -o debug                                \
+                -o sshfs_debug                          \
+                -o reconnect                            \
+                -o ServerAliveInterval=15               \
+                "pi@raspberrypi:/opt/shared" "$dir"
+          sleep 5
         '';
       };
     };
@@ -717,14 +718,15 @@ with rec {
           # Force a clean slate
           "$stop" || true
 
-          sshfs -f -p 22222 -o follow_symlinks                      \
-                            -o allow_other                          \
-                            -o IdentityFile=/home/chris/.ssh/id_rsa \
-                            -o debug                                \
-                            -o sshfs_debug                          \
-                            -o reconnect                            \
-                            -o ServerAliveInterval=15               \
-                            "user@localhost:/" "$dir"
+          sshfs -p 22222 -o follow_symlinks                      \
+                         -o allow_other                          \
+                         -o IdentityFile=/home/chris/.ssh/id_rsa \
+                         -o debug                                \
+                         -o sshfs_debug                          \
+                         -o reconnect                            \
+                         -o ServerAliveInterval=15               \
+                         "user@localhost:/" "$dir"
+          sleep 5
         '';
       };
     };
@@ -865,7 +867,8 @@ with rec {
           fi
 
           echo "Binding port"
-          ssh -N -A -L 3000:localhost:3000 user@localhost -p 22222
+          ssh -f -N -A -L 3000:localhost:3000 user@localhost -p 22222
+          sleep 5
         '';
       };
       stop = wrap {
