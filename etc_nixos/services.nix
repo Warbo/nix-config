@@ -856,11 +856,15 @@ with rec {
     RestartSec  = "10";
     isRunning   = findProcess "xcape";
     shouldRun   = "${coreutils}/bin/true";
-    stop        = "${coreutils}/bin/true";
+    stop        = wrap {name="keys-stop";paths=[psmisc];script=''
+      #!/usr/bin/env bash
+      killall xcape || true
+    '';};
     start       = wrap {
-      name = "start-keys";
-      vars = { DISPLAY = ":0"; };
-      file = "${warbo-utilities}/bin/keys";
+      name  = "start-keys";
+      vars  = { DISPLAY = ":0"; };
+      paths = [ psmisc warbo-utilities xorg.setxkbmap ];
+      file  = "${warbo-utilities}/bin/keys";
     };
   };
 
