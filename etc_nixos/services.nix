@@ -3,6 +3,15 @@
 with builtins;
 with pkgs;
 with rec {
+  # Polls regularly and runs the 'start' script whenever 'shouldRun' is true
+  pollingService =
+    { name, description, extra ? {}, RestartSec, shouldRun, start }:
+      monitoredService {
+        inherit name description extra RestartSec shouldRun start;
+        stop      = "${coreutils}/bin/true";
+        isRunning = "${coreutils}/bin/false";
+      };
+
   # Polls regularly, checking whether 'shouldRun' and 'isRunning' are consistent
   # and running 'start' or 'stop' if they're not
   monitoredService =
