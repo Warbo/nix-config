@@ -121,6 +121,26 @@ with rec {
       };
       mkService (generalConfig // { inherit serviceConfig; });
 
+  findProcess = pat: wrap {
+    name   = "find-process";
+    paths  = [ bash psutils ];
+    vars   = { inherit pat; };
+    script = ''
+      #!/usr/bin/env bash
+      pgrep "$pat"
+    '';
+  };
+
+  killProcess = pat: wrap {
+    name   = "kill-process";
+    paths  = [ bash psutils ];
+    vars   = { inherit pat; };
+    script = ''
+      #!/usr/bin/env bash
+      pkill "$pat"
+    '';
+  };
+
   SSH_AUTH_SOCK = "/run/user/1000/ssh-agent";
 
   mkService = opts:
