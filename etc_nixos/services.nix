@@ -5,7 +5,14 @@ with pkgs;
 with rec {
   # Polls regularly and runs the 'start' script whenever 'shouldRun' is true
   pollingService =
-    { name, description, extra ? {}, RestartSec, shouldRun, start }:
+    {
+      name,         # Used for naming scripts, etc.
+      description,  # Shows up in systemd output
+      extra ? {},   # Any extra systemd options we don't have by default
+      RestartSec,   # Number of seconds to sleep between polls
+      shouldRun,    # Script: exit status is whether or not to run 'start'
+      start         # Script: do the required task then exit (not long-lived)
+    }:
       monitoredService {
         inherit name description extra RestartSec shouldRun start;
         stop      = "${coreutils}/bin/true";
@@ -15,8 +22,17 @@ with rec {
   # Polls regularly, checking whether 'shouldRun' and 'isRunning' are consistent
   # and running 'start' or 'stop' if they're not
   monitoredService =
-    { name, description, extra ? {}, isRunning, RestartSec, shouldRun, start,
-      stop, User ? "chris" }:
+    {
+      name,           # Used to name scripts, etc.
+      description,    # Shows up in systemd output
+      extra ? {},     # Extra options to pass through to systemd
+      isRunning,      # Script: whether the functionality is currently running
+      RestartSec,     # How long to wait between checks
+      shouldRun,      # Script: whether to be started or stopped, e.g. if online
+      start,          # Script to start the functionality. Not long-lived.
+      stop,           # Idempotent script to stop (e.g. kill) the functionality
+      User ? "chris"  # User to run scripts as
+    }:
       with rec {
         extraNoCfg = removeAttrs extra [ "serviceConfig" ];
 
