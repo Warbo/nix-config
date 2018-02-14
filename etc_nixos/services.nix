@@ -462,23 +462,29 @@ with rec {
     };
   };
 
+  joX2X = monitoredService {
+    name        = "jo-x2x";
+    description = "Connect to X display when home";
+    RestartSec  = 10;
+    isRunning   = findProcess "x2x -west";
+    shouldRun   = atHome;
+    stop        = killProcess "x2x -west";
+    start       = wrap {
+      name   = "jo-x2x-start";
+      paths  = [ bash openssh warbo-utilities ];
+      vars   = {
+        DISPLAY = ":0";
+        TERM    = "xterm";
       };
+      script = ''
+        #!/usr/bin/env bash
+        set -e
+        jo &
+        sleep 5
+      '';
     };
   };
 
-  joX2X = mkService {
-    description   = "Connect to X display when home";
-    serviceConfig = {
-      User       = "chris";
-      Restart    = "always";
-      RestartSec = 10;
-      ExecStart  = wrap {
-        name   = "jo-x2x";
-        paths  = [ bash openssh warbo-utilities ];
-        vars   = {
-          DISPLAY = ":0";
-          TERM    = "xterm";
-        };
         script = ''
           #!/usr/bin/env bash
           ${atHome} && jo
