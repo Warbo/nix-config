@@ -3,6 +3,115 @@
 with builtins;
 with pkgs;
 with rec {
+  # Polls regularly, checking whether 'shouldRun' and 'isRunning' are consistent
+  # and running 'start' or 'stop' if they're not
+  monitoredService =
+    { name, description, extra ? {}, isRunning, RestartSec, shouldRun, start,
+      stop, User ? "chris" }:
+      with rec {
+        extraNoCfg = removeAttrs extra [ "serviceConfig" ];
+
+        generalConfig = {
+          inherit description;
+        } // extraNoCfg;
+
+        serviceConfig = {
+          inherit RestartSec User;
+          Restart   = "always";
+          ExecStart = wrap {
+            name   = name + "-start";
+            vars   = { inherit isRunning shouldRun start stop; };
+            paths  = [ bash fail ];
+            script = ''
+              #!/usr/bin/env bash
+              set -e
+
+              # If all is well, exit early
+
+              if "$shouldRun" && "$isRunning"
+              then
+                exit 0
+              fi
+
+              if (! "$shouldRun") && (! "$isRunning")
+              then
+                exit 0
+              fi
+
+              # If we're here, we need to take action
+
+              if "$shouldRun"
+              then
+                echo "Running start script for '$name'" 1>&2
+                "$start"
+              else
+                echo "Running stop script for '$name'" 1>&2
+                "$stop"
+              fi
+
+              # Check that all is well due to our action
+
+              if "$shouldRun" && (! "$isRunning")
+              then
+                fail "Didn't manage to start '$name'"
+              fi
+
+              if (! "$shouldRun") && "$isRunning"
+              then
+                fail "Didn't manage to stop '$name'"
+              fi
+
+              exit 0
+            '';
+          };
+          ExecStop = wrap {
+            name   = name + "-stop";
+            vars   = { inherit isRunning stop; };
+            paths  = [ bash fail ];
+            script = ''
+              #!/usr/bin/env bash
+              set -e
+
+              "$isRunning" || exit 0
+
+              "$stop"
+
+              if "$isRunning"
+              then
+                fail "Couldn't stop '$name'"
+              fi
+
+              exit 0
+            '';
+          };
+          ExecRestart = wrap {
+            name   = name + "-restart";
+            paths  = [ bash fail ];
+            vars   = { inherit isRunning shouldRun start stop; };
+            script = ''
+              #!/usr/bin/env bash
+              set -e
+              if "$isRunning"
+              then
+                "$stop"
+                if "$isRunning"
+                then
+                  fail "Failed to stop '$name'"
+                fi
+              fi
+
+              if "$shouldRun"
+              then
+                "$start"
+                "$isRunning" || fail "Failed to start '$name'"
+              fi
+              exit 0
+            '';
+          };
+        } // (extra.serviceConfig or {});
+      };
+      mkService (generalConfig // { inherit serviceConfig; });
+
   SSH_AUTH_SOCK = "/run/user/1000/ssh-agent";
 
   mkService = opts:
