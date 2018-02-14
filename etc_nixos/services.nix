@@ -864,22 +864,44 @@ with rec {
     };
   };
 
-  hydra-bind = mkService {
-    description   = "Bind desktop SSH";
-    serviceConfig = {
-      User       = "chris";
-      Restart    = "always";
-      RestartSec = 20;
-      ExecStart  = wrap {
+  hydra-bind =
+    with {
+      paths = [ bash coreutils curl iputils openssh procps ];
+      vars  = {
+        inherit SSH_AUTH_SOCK;
+        pat = "ssh.*3000:localhost:3000";
+      };
+    };
+    monitoredService {
+      name        = "hydra-bind";
+      description = "Bind desktop SSH";
+      RestartSec  = 20;
+      isRunning   = wrap {
+        inherit paths vars;
+        name   = "hydra-bind-running";
+        script = ''
+          #!/usr/bin/env bash
+          pgrep -f "$pat" && exit 0
+          exit 1
+        '';
+      };
+      shouldRun = wrap {
+        inherit paths vars;
+        name   = "hydra-bind-query";
+        script = ''
+          #!/usr/bin/env bash
+          timeout 10 curl 'http://localhost:3000' && exit 0
+          exit 1
+        '';
+      };
+      start = wrap {
+        inherit paths vars;
         name   = "hydra-bind";
-        paths  = [ bash openssh iputils procps ];
-        vars   = { inherit SSH_AUTH_SOCK; };
         script = ''
           #!/usr/bin/env bash
           set -e
 
-          echo "Checking for existing binds"
-          pgrep -f 'ssh.*3000:localhost:3000' && exit
+          pkill -f -9 "$pat" || true
 
           echo "Checking for identity"
           if ssh-add -L | grep "The agent has no identities"
@@ -892,35 +914,15 @@ with rec {
           ssh -N -A -L 3000:localhost:3000 user@localhost -p 22222
         '';
       };
-    };
-  };
-
-  hydra-monitor = mkService {
-    description   = "Force hydra-bind to restart when down";
-    serviceConfig = {
-      User       = "chris";
-      Restart    = "always";
-      RestartSec = 20;
-      ExecStart  = wrap {
-        name   = "hydra-monitor";
-        paths  = [ bash coreutils curl procps ];
+      stop = wrap {
+        inherit paths vars;
+        name   = "hydra-bind-query";
         script = ''
           #!/usr/bin/env bash
-          set -e
-          echo "Checking for Hydra server"
-          if timeout 10 curl http://localhost:3000
-          then
-            echo "OK, server is up"
-            exit 0
-          fi
-
-          echo "Server is down, killing any hydra ssh bindings"
-          pkill -f -9 'ssh.*3000:localhost:3000' || true
-          exit 0
+          pkill -f -9 "$pat" || true
         '';
       };
     };
-  };
 
   ssh-agent = mkService {
     description   = "Run ssh-agent";
