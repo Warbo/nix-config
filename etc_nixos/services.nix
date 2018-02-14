@@ -504,75 +504,68 @@ with rec {
     };
   };
 
-        script = ''
-          #!/usr/bin/env bash
-          ${atHome} && jo
-        '';
-      };
-    };
-  };
+  workScreen =
+    with {
+      # "1080" means active; "disconnected" means not plugged in
+      disconnectedButActive = ''xrandr | grep "VGA1 disconnected 1080"'';
 
-        vars   = { DISPLAY = ":0"; };
-        script = ''
-          #!/usr/bin/env bash
-          ${atWork} || exit
-          ssh -Y user@localhost -p 22222 "x2x -east -to :0"
-        '';
-      };
+      connectedButInactive = ''xrandr | grep "VGA1 connected ("'';
     };
-  };
-
-  workScreen = mkService {
-    description = "Turn on VGA screen";
-    serviceConfig = {
-      User       = "chris";
-      Restart    = "always";
-      RestartSec = 10;
-      ExecStart  = wrap {
-        name   = "display-on";
+    monitoredService {
+      name        = "work-screen";
+      description = "Turn on/off VGA screen";
+      RestartSec  = 10;
+      isRunning   = wrap {
+        name   = "work-screen-running";
         paths  = [ bash nettools psmisc warbo-utilities xorg.xrandr ];
         vars   = { DISPLAY = ":0"; };
         script = ''
           #!/usr/bin/env bash
-          # "connected" means plugged in; "(" indicates it's not active
-          xrandr | grep "VGA1 connected (" || exit
+          ${connectedButInactive}  && exit 1
+          ${disconnectedButActive} && exit 0
+          exit 1 # Otherwise, assume not running
+        '';
+      };
+      shouldRun = wrap {
+        name   = "display-query";
+        paths  = [ bash nettools psmisc xorg.xrandr ];
+        vars   = { DISPLAY = ":0"; };
+        script = ''
+          #!/usr/bin/env bash
+          ${connectedButInactive}  && exit 0
+          ${disconnectedButActive} && exit 1
+          exit 1 # Otherwise, assume we shouldn't run
+        '';
+      };
+      start = wrap {
+        name   = "display-on";
+        paths  = [ bash psmisc warbo-utilities xorg.xrandr ];
+        vars   = { DISPLAY = ":0"; };
+        script = ''
+          #!/usr/bin/env bash
+          set -e
+          on  # Enable external monitor
 
-          # Enable external monitor
-          on
+          # Force any X2X sessions to restart, since we've messed up X
+          pkill -f 'x2x -' || true
+        '';
+      };
+      stop = wrap {
+        name   = "display-off";
+        paths  = [ bash psmisc warbo-utilities xorg.xrandr ];
+        vars   = { DISPLAY = ":0"; };
+        script = ''
+          #!/usr/bin/env bash
+          set -e
+          off  # Disable external monitor
 
           # Force any X2X sessions to restart, since we've messed up X
           pkill -f 'x2x -' || true
         '';
       };
     };
-  };
 
   # FIXME: Add keys service, which checks for xcape
-
-  screenOff = mkService {
-    description = "Turn Off VGA screen";
-    serviceConfig = {
-      User       = "chris";
-      Restart    = "always";
-      RestartSec = 10;
-      ExecStart  = wrap {
-        name   = "display-off";
-        paths  = [ bash nettools psmisc warbo-utilities xorg.xrandr ];
-        vars   = { DISPLAY = ":0"; };
-        script = ''
-          #!/usr/bin/env bash
-          # "1080" means active; "disconnected" means not plugged in
-          xrandr | grep "VGA1 disconnected 1080" || exit
-
-          # Disable external monitor
-          off
-
-          # Force any X2X sessions to restart, since we've messed up X
-          pkill -f 'x2x -' || true
-        '';
-      };
-    };
-  };
 
   inboxen = mkService {
     description   = "Fetch mail inboxes";
