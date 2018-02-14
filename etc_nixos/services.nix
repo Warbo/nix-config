@@ -702,8 +702,11 @@ with rec {
       start = wrap {
         name   = "pi-mount-start";
         paths  = sshfsHelpers.paths;
+        vars   = vars // { inherit stop; };
         script = ''
           #!/usr/bin/env bash
+
+          "$stop" || true
 
           sshfs -f -o follow_symlinks                      \
                    -o allow_other                          \
