@@ -38,14 +38,12 @@ with rec {
 
         generalConfig = {
           inherit description;
-        } // extraNoCfg;
-
-        serviceConfig = {
-          inherit RestartSec User;
-          Restart   = "always";
-          ExecStart = wrap {
-            name   = name + "-start";
-            vars   = { inherit isRunning name shouldRun start stop; };
+          script  = wrap {
+            name   = name + "-script";
+            vars   = {
+              inherit isRunning name shouldRun start stop;
+              secs = toString RestartSec;
+            };
             paths  = [ bash fail ];
             script = ''
               #!/usr/bin/env bash
@@ -133,6 +131,12 @@ with rec {
               exit 0
             '';
           };
+        } // extraNoCfg;
+
+        serviceConfig = {
+          inherit RestartSec User;
+          Restart = "always";
+
         } // (extra.serviceConfig or {});
       };
       mkService (generalConfig // { inherit serviceConfig; });
