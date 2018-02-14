@@ -977,7 +977,6 @@ with rec {
   # https://bugzilla.kernel.org/show_bug.cgi?id=56301 (or something similar)
   wifiPower = mkService {
     wantedBy      = [ "multi-user.target" ];
-    after         = [];
     before        = [ "network.target" ];
     serviceConfig = {
       Type       = "simple";
