@@ -565,8 +565,6 @@ with rec {
       };
     };
 
-  # FIXME: Add keys service, which checks for xcape
-
   inboxen = mkService {
     description   = "Fetch mail inboxes";
     serviceConfig = {
@@ -926,6 +924,20 @@ with rec {
         '';
       };
     };
+
+  keys = monitoredService {
+    name        = "keys";
+    description = "Sets up keyboard";
+    RestartSec  = "10";
+    isRunning   = findProcess "xcape";
+    shouldRun   = "${coreutils}/bin/true";
+    stop        = "${coreutils}/bin/true";
+    start       = wrap {
+      name = "start-keys";
+      vars = { DISPLAY = ":0"; };
+      file = "${warbo-utilities}/bin/keys";
+    };
+  };
 
   ssh-agent = mkService {
     description   = "Run ssh-agent";
