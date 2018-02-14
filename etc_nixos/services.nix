@@ -462,25 +462,6 @@ with rec {
     };
   };
 
-  checkLocation = mkService {
-    description   = "Use WiFi name to check where we are";
-    path          = [ warbo-utilities ];
-    serviceConfig = {
-      User       = "chris";
-      Restart    = "always";
-      RestartSec = 10;
-      ExecStart  = wrap {
-        name   = "check-location";
-        paths  = [ bash ];
-        script = ''
-          #!/usr/bin/env bash
-          ${setLocation}
-          if ${atHome} || ${atWork}
-          then
-            # Unlikely to change for a while
-            sleep 300
-          fi
-        '';
       };
     };
   };
