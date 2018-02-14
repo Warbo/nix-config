@@ -717,17 +717,63 @@ with rec {
       };
     };
 
-
-    desktop-mount = mkService {
-      inherit path environment;
-      description   = "Desktop files";
-      after         = [ "network.target" ];
-      serviceConfig = mkCfg "user@localhost:/"
-                            "/home/chris/DesktopFiles"
-                            ["-p 22222"];
+  desktop-mount =
+    with rec {
+      dir       = "/home/chris/DesktopFiles";
+      isRunning = sshfsHelpers.isRunning dir;
+      stop      = sshfsHelpers.stop dir;
+      vars      = sshfsHelpers.vars dir;
     };
-  })
-  pi-mount desktop-mount;
+    monitoredService {
+      inherit isRunning stop;
+      name        = "desktop-mount";
+      description = "Desktop files";
+      extra       = { after = [ "network.target" ]; };
+      RestartSec  = 30;
+      shouldRun   = wrap {
+        name   = "desktop-mount-query";
+        paths  = sshfsHelpers.paths;
+        vars   = vars // { PAT = "ssh.*22222:localhost:22222"; };
+        script = ''
+          #!/usr/bin/env bash
+
+          # Check if our port is bound
+          pgrep -f "$PAT" || exit 1
+
+          # Check if we're online
+          ${online} || exit 1
+
+          # Check if the bind works
+          if timeout 10 ssh -A user@localhost -p 22222 true
+          then
+            exit 0
+          else
+            exit 1
+          fi
+        '';
+      };
+      start = wrap {
+        name   = "desktop-mount-start";
+        paths  = sshfsHelpers.paths;
+        vars   = vars // { inherit stop; };
+        script = ''
+          #!/usr/bin/env bash
+          set -e
+
+          # Force a clean slate
+          "$stop" || true
+
+          sshfs -f -p 22222 -o follow_symlinks                      \
+                            -o allow_other                          \
+                            -o IdentityFile=/home/chris/.ssh/id_rsa \
+                            -o debug                                \
+                            -o sshfs_debug                          \
+                            -o reconnect                            \
+                            -o ServerAliveInterval=15               \
+                            "user@localhost:/" "$dir"
+        '';
+      };
+    };
 
   pi-monitor = mkService {
     description = "Unmount raspberrypi when unreachable";
