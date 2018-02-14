@@ -731,37 +731,6 @@ with rec {
       };
     };
 
-  pi-monitor = mkService {
-    description = "Unmount raspberrypi when unreachable";
-    serviceConfig = {
-      User = "root";
-      Restart = "always";
-      RestartSec = 20;
-      ExecStart = wrap {
-        name   = "pi-monitor";
-        paths  = [ bash fuse fuse3 iputils psmisc utillinux ];
-        script = ''
-          #!/usr/bin/env bash
-          set -e
-
-          # No need to unmount anything if we're home
-          ${pingOnce} raspberrypi && exit
-
-          # We're not home; check if raspberrypi is mounted
-          if mount | grep raspberrypi
-          then
-            # Anything trying to access the mount will hang, making KILL the
-            # only reliable way to un-hang processes
-            pkill -9 -f 'sshfs.*raspberrypi'
-
-            # Try to unmount more cleanly too
-            fusermount -u -z /home/chris/Public
-          fi
-        '';
-      };
-    };
-  };
-
   desktop-bind = mkService {
     description   = "Bind desktop SSH";
     requires      = [ "network.target" ];
