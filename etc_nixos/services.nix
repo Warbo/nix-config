@@ -485,6 +485,25 @@ with rec {
     };
   };
 
+  workX2X = monitoredService {
+    name        = "work-x2x";
+    description = "Connect to X display when at work";
+    RestartSec  = 10;
+    isRunning   = findProcess "x2x -east";
+    shouldRun   = atWork;
+    stop        = killProcess "x2x -east";
+    start       = wrap {
+      name   = "work-x2x";
+      paths  = [ bash openssh warbo-utilities ];
+      vars   = { DISPLAY = ":0"; };
+      script = ''
+        #!/usr/bin/env bash
+        ssh -Y user@localhost -p 22222 "x2x -east -to :0" &
+        sleep 5
+      '';
+    };
+  };
+
         script = ''
           #!/usr/bin/env bash
           ${atHome} && jo
@@ -493,15 +512,6 @@ with rec {
     };
   };
 
-  workX2X = mkService {
-    description   = "Connect to X display when at work";
-    serviceConfig = {
-      User       = "chris";
-      Restart    = "always";
-      RestartSec = 10;
-      ExecStart  = wrap {
-        name   = "work-x2x";
-        paths  = [ bash openssh warbo-utilities ];
         vars   = { DISPLAY = ":0"; };
         script = ''
           #!/usr/bin/env bash
