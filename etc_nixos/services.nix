@@ -148,7 +148,7 @@ with rec {
               (utillinux.bin or utillinux) ];
 
     vars = dir: {
-      inherit SSH_AUTH_SOCK;
+      inherit dir SSH_AUTH_SOCK;
       DISPLAY = ":0"; # For potential ssh passphrase dialogues
     };
 
