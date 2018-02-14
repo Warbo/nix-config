@@ -669,56 +669,54 @@ with rec {
     };
   };
 
-  inherit (rec {
-    opts = extra: concatStringsSep " " (extra ++ [
-      "-o follow_symlinks"
-      "-o allow_other"
-      "-o IdentityFile=/home/chris/.ssh/id_rsa"
-      "-o debug"
-      "-o sshfs_debug"
-      "-o reconnect"
-      "-o ServerAliveInterval=15"
-    ]);
-
-    path = [ bash fuse fuse3 openssh procps sshfsFuse
-             (utillinux.bin or utillinux) ];
-
-    environment = {
-      inherit SSH_AUTH_SOCK;
-      DISPLAY = ":0"; # For potential ssh passphrase dialogues
+  pi-mount =
+    with rec {
+      dir       = "/home/chris/Public";
+      isRunning = sshfsHelpers.isRunning dir;
+      stop      = sshfsHelpers.stop dir;
+      vars      = sshfsHelpers.vars dir;
     };
-
-    mkCfg = addr: dir: extraOptions: {
-      User       = "chris";
-      Restart    = "always";
-      RestartSec = 60;
-      ExecStart  = wrap {
-        name   = "sshfs-mount";
-        paths  = path;
+    monitoredService {
+      inherit isRunning stop;
+      name        = "pi-mount";
+      description = "Raspberry pi mount";
+      extra       = { after = [ "network.target" ]; };
+      RestartSec  = 30;
+      shouldRun   = wrap {
+        name   = "desktop-mount-query";
+        paths  = sshfsHelpers.paths;
+        vars   = vars // { inherit atHome; };
         script = ''
           #!/usr/bin/env bash
-          sshfs -f ${opts extraOptions} ${addr} ${dir}
+
+          # We must be online
+          ${online} || exit 1
+
+          # We must be home
+          "$atHome" || exit 1
+
+          # Try to contact the pi
+          ${pingOnce} raspberrypi || exit 1
         '';
       };
-      ExecStop = wrap {
-        name   = "sshfuse-unmount";
-        paths  = path;
+      start = wrap {
+        name   = "pi-mount-start";
+        paths  = sshfsHelpers.paths;
         script = ''
           #!/usr/bin/env bash
-          pkill -f -9 "sshfs.*${dir}"
-          "${config.security.wrapperDir}/fusermount" -u -z "${dir}"
+
+          sshfs -f -o follow_symlinks                      \
+                   -o allow_other                          \
+                   -o IdentityFile=/home/chris/.ssh/id_rsa \
+                   -o debug                                \
+                   -o sshfs_debug                          \
+                   -o reconnect                            \
+                   -o ServerAliveInterval=15               \
+                   "pi@raspberrypi:/opt/shared" "$dir"
         '';
       };
     };
 
-    pi-mount = mkService {
-      inherit path environment;
-      description   = "Raspberry pi";
-      after         = [ "network.target" ];
-      serviceConfig = mkCfg "pi@raspberrypi:/opt/shared"
-                            "/home/chris/Public"
-                            [];
-    };
 
     desktop-mount = mkService {
       inherit path environment;
