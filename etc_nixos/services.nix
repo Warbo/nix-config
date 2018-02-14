@@ -49,86 +49,34 @@ with rec {
               #!/usr/bin/env bash
               set -e
 
-              # If all is well, exit early
+              # Stopping on exit puts us in a known state
+              trap "$stop" EXIT
 
-              if "$shouldRun" && "$isRunning"
-              then
-                exit 0
-              fi
+              function allIsWell {
+                "$shouldRun" && "$isRunning" && return 0
+                "$shouldRun" || "$isRunning" || return 0
+                return 1
+              }
 
-              if (! "$shouldRun") && (! "$isRunning")
-              then
-                exit 0
-              fi
-
-              # If we're here, we need to take action
-
-              if "$shouldRun"
-              then
-                echo "Running start script for '$name'" 1>&2
-                "$start"
-              else
-                echo "Running stop script for '$name'" 1>&2
-                "$stop"
-              fi
-
-              # Check that all is well due to our action
-
-              if "$shouldRun" && (! "$isRunning")
-              then
-                fail "Didn't manage to start '$name'"
-              fi
-
-              if (! "$shouldRun") && "$isRunning"
-              then
-                fail "Didn't manage to stop '$name'"
-              fi
-
-              exit 0
-            '';
-          };
-          ExecStop = wrap {
-            name   = name + "-stop";
-            vars   = { inherit isRunning name stop; };
-            paths  = [ bash fail ];
-            script = ''
-              #!/usr/bin/env bash
-              set -e
-
-              "$isRunning" || exit 0
-
-              "$stop"
-
-              if "$isRunning"
-              then
-                fail "Couldn't stop '$name'"
-              fi
-
-              exit 0
-            '';
-          };
-          ExecRestart = wrap {
-            name   = name + "-restart";
-            paths  = [ bash fail ];
-            vars   = { inherit isRunning name shouldRun start stop; };
-            script = ''
-              #!/usr/bin/env bash
-              set -e
-              if "$isRunning"
-              then
-                "$stop"
-                if "$isRunning"
+              function startOrStop {
+                if "$shouldRun"
                 then
-                  fail "Failed to stop '$name'"
+                  echo "Running start script for '$name'" 1>&2
+                  "$start"
+                else
+                  echo "Running stop script for '$name'" 1>&2
+                  "$stop"
                 fi
-              fi
 
-              if "$shouldRun"
-              then
-                "$start"
-                "$isRunning" || fail "Failed to start '$name'"
-              fi
-              exit 0
+                allIsWell || fail "Couldn't start/stop '$name'"
+              }
+
+              # Make a long-running process, since 'start' exits immediately
+              while true
+              do
+                allIsWell || startOrStop
+                sleep "$secs"
+              done
             '';
           };
         } // extraNoCfg;
