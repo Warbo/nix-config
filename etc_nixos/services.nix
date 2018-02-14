@@ -440,6 +440,26 @@ with rec {
         '';
       };
     };
+
+  checkLocation = pollingService {
+    name        = "check-location";
+    description = "Use WiFi name to check where we are";
+    RestartSec  = 10;
+    shouldRun   = "${coreutils}/bin/true";
+    start       = wrap {
+      name   = "check-location";
+      paths  = [ bash warbo-utilities ];
+      vars   = { inherit atHome atWork setLocation; };
+      script = ''
+        #!/usr/bin/env bash
+        "$setLocation"
+        if "$atHome" || "$atWork"
+        then
+          # Unlikely to change for a while
+          sleep 300
+        fi
+      '';
+    };
   };
 
   checkLocation = mkService {
