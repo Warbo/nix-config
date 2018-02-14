@@ -29,7 +29,7 @@ with rec {
           Restart   = "always";
           ExecStart = wrap {
             name   = name + "-start";
-            vars   = { inherit isRunning shouldRun start stop; };
+            vars   = { inherit isRunning name shouldRun start stop; };
             paths  = [ bash fail ];
             script = ''
               #!/usr/bin/env bash
@@ -75,7 +75,7 @@ with rec {
           };
           ExecStop = wrap {
             name   = name + "-stop";
-            vars   = { inherit isRunning stop; };
+            vars   = { inherit isRunning name stop; };
             paths  = [ bash fail ];
             script = ''
               #!/usr/bin/env bash
@@ -96,7 +96,7 @@ with rec {
           ExecRestart = wrap {
             name   = name + "-restart";
             paths  = [ bash fail ];
-            vars   = { inherit isRunning shouldRun start stop; };
+            vars   = { inherit isRunning name shouldRun start stop; };
             script = ''
               #!/usr/bin/env bash
               set -e
