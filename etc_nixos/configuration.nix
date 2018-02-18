@@ -128,8 +128,6 @@ rec {
           "www.facebook.com"
           "twitter.com"
           "www.twitter.com"
-          "reddit.com"
-          "www.reddit.com"
           "ycombinator.com"
           "news.ycombinator.com"
           "lobste.rs"
