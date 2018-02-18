@@ -424,7 +424,7 @@ with rec {
     stop        = killProcess "x2x -west";
     start       = wrap {
       name   = "jo-x2x-start";
-      paths  = [ bash openssh warbo-utilities ];
+      paths  = [ bash coreutils openssh warbo-utilities ];
       vars   = {
         DISPLAY = ":0";
         TERM    = "xterm";
@@ -432,7 +432,7 @@ with rec {
       script = ''
         #!/usr/bin/env bash
         set -e
-        jo &
+        nohup jo
         sleep 5
       '';
     };
@@ -447,11 +447,11 @@ with rec {
     stop        = killProcess "x2x -east";
     start       = wrap {
       name   = "work-x2x";
-      paths  = [ bash openssh warbo-utilities ];
+      paths  = [ bash coreutils openssh warbo-utilities ];
       vars   = { DISPLAY = ":0"; };
       script = ''
         #!/usr/bin/env bash
-        ssh -Y user@localhost -p 22222 "x2x -east -to :0" &
+        nohup ssh -Y user@localhost -p 22222 "x2x -east -to :0"
         sleep 5
       '';
     };
