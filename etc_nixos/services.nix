@@ -177,9 +177,19 @@ with rec {
     ln -s "${config.security.wrapperDir}/sudo" "$out/bin/sudo"
   '';
 
-  pingOnce = "${config.security.wrapperDir}/ping -c 1";
+  pingOnce  = "${config.security.wrapperDir}/ping -c 1";
 
-  online   = "${pingOnce} google.com 1>/dev/null 2>/dev/null";
+  online    = "${pingOnce} google.com 1>/dev/null 2>/dev/null";
+
+  areOnline = wrap {
+    name   = "are-online";
+    paths  = [ bash ];
+    script = ''
+      #!/usr/bin/env bash
+      ${online} && exit 0
+      exit 1
+    '';
+  };
 
   atHome = wrap {
     name   = "atHome";
