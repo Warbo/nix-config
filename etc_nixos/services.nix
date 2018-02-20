@@ -95,7 +95,7 @@ with rec {
     vars   = { inherit pat; };
     script = ''
       #!/usr/bin/env bash
-      pgrep "$pat"
+      pgrep -f "$pat"
     '';
   };
 
