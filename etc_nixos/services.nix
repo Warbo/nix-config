@@ -822,16 +822,8 @@ with rec {
           exit 1
         '';
       };
-      shouldRun = wrap {
-        inherit paths vars;
-        name   = "hydra-bind-query";
-        script = ''
-          #!/usr/bin/env bash
-          timeout 10 curl 'http://localhost:3000' && exit 0
-          exit 1
-        '';
-      };
-      start = wrap {
+      shouldRun = areOnline;
+      start     = wrap {
         inherit paths vars;
         name   = "hydra-bind";
         script = ''
