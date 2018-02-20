@@ -741,63 +741,65 @@ with rec {
       };
     };
 
-  desktop-bind = mkService {
-    description   = "Bind desktop SSH";
-    requires      = [ "network.target" ];
-    serviceConfig = {
-      User       = "chris";
-      Restart    = "always";
-      RestartSec = 20;
-      ExecStart  = wrap {
+  desktop-bind =
+    with {
+      pat = "ssh.*22222:localhost:22222";
+    };
+    monitoredService {
+      name          = "desktop-bind";
+      description   = "Bind desktop SSH";
+      extra         = { requires = [ "network.target" ]; };
+      RestartSec    = 20;
+      isRunning     = wrap {
+        name   = "desktop-bind-query";
+        paths  = [ bash coreutils openssh procps ];
+        vars   = { inherit SSH_AUTH_SOCK; check = findProcess pat; };
+        script = ''
+          #!/usr/bin/env bash
+          echo "Checking for bind process" 1>&2
+          "$check" || {
+            echo "Bind process not found" 1>&2
+            exit 1
+          }
+
+          echo "Bind is running, see if it's working" 1>&2
+          timeout 10 ssh -A user@localhost -p 22222 true && {
+            echo "Bind works" 1>&2
+            exit 0
+          }
+
+          echo "Bind not working" 1>&2
+          exit 1
+        '';
+      };
+      shouldRun     = areOnline;
+      start         = wrap {
         name   = "desktop-bind";
         paths  = [ bash iputils openssh procps ];
-        vars   = { inherit SSH_AUTH_SOCK; };
+        vars   = { inherit pat SSH_AUTH_SOCK; };
         script = ''
           #!/usr/bin/env bash
 
-          echo "Checking for existing bind"
-          if pgrep -f 'ssh.*22222:localhost:22222'
-          then
-            echo "Existing bind found, aborting"
-            exit 1
-          fi
+          echo "Killing any existing bind" 1>&2
+          pkill -f -9 "$pat" || true
 
-          echo "No existing binds found, binding port"
-          ssh -N -A -L 22222:localhost:22222 chriswarbo.net
-
-          echo "Bind exited"
+          echo "Setting up bind" 1>&2
+          ssh -f -N -A -L 22222:localhost:22222 chriswarbo.net
+          sleep 5
+          echo "Done" 1>&2
         '';
       };
-    };
-  };
-
-  desktop-monitor = mkService {
-    description   = "Kill desktop-bind if it's hung";
-    serviceConfig = {
-      User       = "root";
-      Restart    = "always";
-      RestartSec = 20;
-      ExecStart  = wrap {
-        name   = "desktop-monitor";
-        paths  = [ bash coreutils iputils openssh procps su.su ];
-        vars   = {
-          inherit SSH_AUTH_SOCK;
-          PAT = "ssh.*22222:localhost:22222";
-        };
+      stop = wrap {
+        name   = "unbind-desktop";
+        paths  = [ bash procps ];
+        vars   = { inherit pat; };
         script = ''
           #!/usr/bin/env bash
-          set -e
-          pgrep -f "$PAT" || exit
-
-          # Bind is running, see if it's working
-          timeout 10 su -c 'ssh -A user@localhost -p 22222 true' - chris && exit
-
-          echo "Can't access bound port, kill the bind"
-          pkill -f -9 "$PAT"
+          echo "Stopping bind (if running)" 1>&2
+          pkill -f -9 "$pat" || true
         '';
       };
     };
-  };
 
   hydra-bind =
     with {
