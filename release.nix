@@ -148,6 +148,7 @@ with rec {
                 tip-haskell-frontend-main = ghc710;
                 tip-lib                   = ghc710;
                 tip-types                 = ghc710;
+                weigh                     = ghc802;
               };
 
               errorMessage = "pkgGhcVersions name not found";
