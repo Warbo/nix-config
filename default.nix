@@ -1,4 +1,3 @@
-{ pkgFunc ? import <nixpkgs> }:
+{ unstablePath ? <nixpkgs>, args ? {} }:
 
-builtins.trace "FIXME: Make nix-config's default.nix take nixpkgs and output a set of our custom pkgs"
-  (pkgFunc { config = import ./config.nix; })
+import unstablePath ({ config = import ./custom.nix unstablePath; } // args)

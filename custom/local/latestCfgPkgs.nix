@@ -1,3 +1,3 @@
-{ withLatestCfg }:
+{ repo, withLatestCfg }:
 
-withLatestCfg <nixpkgs>
+withLatestCfg repo

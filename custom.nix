@@ -1,14 +1,24 @@
+# defaultVersion is either a name, like "nixpkgs1709" or "unstable", or a
+# function which we use in place of 'import <nixpkgs>' for unstable
 defaultVersion:
 
 with builtins;
 with rec {
-  # Various immutable versions of nixpkgs
-  nixpkgs = import ./nixpkgs.nix;
+  # Various immutable versions of nixpkgs. defaultVersion is used to load lib.
+  nixpkgs = import ./nixpkgs.nix { inherit defaultVersion; };
 
-  inherit (if defaultVersion == "unstable"
-              then import <nixpkgs> { config = {}; }
-              else getAttr defaultVersion nixpkgs)
-          lib;
+  # Whether defaultVersion is a nixpkgs version or a path
+  customUnstable = !(elem defaultVersion ([ "unstable" ] ++ attrNames nixpkgs));
+
+  unstablePath = if customUnstable
+                    then defaultVersion
+                    else <nixpkgs>;
+
+  defaultAttr    = if customUnstable
+                      then "unstable"
+                      else defaultVersion;
+
+  inherit (nixpkgs.nixpkgs1709) lib;
 
   # Just the nixpkgs repos (ignores instantiated package sets, functions, etc.)
   repos = lib.filterAttrs (name: _: lib.hasPrefix "repo" name)
@@ -40,7 +50,7 @@ with rec {
   };
 
   # Load each "repoFOO", applying our overrides and renaming to "nixpkgsFOO"
-  customised = { unstable = call <nixpkgs> "unstable"; } //
+  customised = { unstable = call unstablePath "unstable"; } //
                lib.mapAttrs' (name: repo: {
                                name  = "nixpkgs" + lib.removePrefix "repo" name;
                                value = call repo true;
@@ -50,7 +60,7 @@ with rec {
   other = import ./other.nix;
 };
 other // {
-  packageOverrides = pkgs: nixpkgs // (getAttr defaultVersion customised) // {
+  packageOverrides = pkgs: nixpkgs // (getAttr defaultAttr customised) // {
     inherit customised;
 
     unstable = pkgs;

@@ -1,10 +1,18 @@
 # Stable nixpkgs repos
+{ defaultVersion }:
 
 with builtins;
 with rec {
+  knownNames = [ "unstable" ] ++ attrNames repoData ++
+               map swapName (attrNames repoData);
+
+  unstablePath = if elem defaultVersion knownNames
+                    then <nixpkgs>
+                    else defaultVersion;
+
   # Only use the system's <nixpkgs> for essentials, e.g. fixed-output git
   # fetchers and pure utility functions.
-  unstablePkgs = import <nixpkgs> { config = {}; };
+  unstablePkgs = import unstablePath { config = {}; };
 
   inherit (unstablePkgs)     fetchFromGitHub;
   inherit (unstablePkgs.lib) mapAttrs mapAttrs';
@@ -19,7 +27,9 @@ with rec {
   # and causing an infinite loop
   importPkgs = repo: import repo { config = {}; };
 
-  repos = mapAttrs (_: nixpkgsRepo) {
+  repos = mapAttrs (_: nixpkgsRepo) repoData;
+
+  repoData = {
     repo1603 = {
       rev    = "d231868";
       sha256 = "0m2b5ignccc5i5cyydhgcgbyl8bqip4dz32gw0c6761pd4kgw56v";
@@ -38,8 +48,10 @@ with rec {
     };
   };
 
+  swapName = n: replaceStrings [ "repo" ] [ "nixpkgs" ] n;
+
   loadRepo = n: v: {
-    name  = replaceStrings [ "repo" ] [ "nixpkgs" ] n;
+    name  = swapName n;
     value = importPkgs v;
   };
 
