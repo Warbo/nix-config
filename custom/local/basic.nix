@@ -36,6 +36,7 @@ buildEnv {
     haskellPackages.stylish-haskell
     inotify-tools
     jq
+    lzip
     md2pdf
     msmtp
     nix-repl
