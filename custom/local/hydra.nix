@@ -9,20 +9,22 @@ with rec {
   # See https://github.com/NixOS/nixpkgs/pull/32001
   pv = perlPackages.ParamsValidate;
 
-  i686Fix = hydra: withDeps [ (isBroken pv) ] (hydra.override {
-    perlPackages = perlPackages.override {
-      overrides = {
-        ParamsValidate = pv.overrideAttrs (old: {
-          perlPreHook = "export LD=$CC";
-        });
-      };
+  i686Fix = hydra:
+    with {
+      fixed = withDeps [ (isBroken pv) ] (hydra.override {
+        perlPackages = perlPackages.override {
+          overrides = {
+            ParamsValidate = pv.overrideAttrs (old: {
+              perlPreHook = "export LD=$CC";
+            });
+          };
+        };
+      });
     };
-  });
+    if system == "i686-linux" then fixed else hydra;
 
   # newHydra should have working dependencies, but is itself broken
-  newHydra = if system == "i686-linux"
-                then i686Fix super.hydra
-                else super.hydra;
+  newHydra = i686Fix super.hydra;
 
   # Use known-good old version
 
@@ -40,12 +42,17 @@ with rec {
       nixUnstable;
   };
 
-  oldHydra = i686Fix
-    (callPackage "${src}/pkgs/development/tools/misc/hydra" deps);
+  oldHydra = i686Fix (callPackage "${src}/pkgs/development/tools/misc/hydra"
+                                  deps);
+
+  workingHydra = withDeps (if system == "i686-linux"
+                              then [ (isBroken newHydra) ]
+                              else [                     ])
+                          oldHydra;
 
   # We also disable 'restricted-eval' mode by patching the source
 
-  unrestricted = lib.overrideDerivation oldHydra (old: {
+  unrestricted = lib.overrideDerivation workingHydra (old: {
     preFixup = ''
       while read -r F
       do
@@ -119,4 +126,4 @@ with rec {
   });
 };
 
-withDeps [ (isBroken newHydra) ] unrestricted
+unrestricted
