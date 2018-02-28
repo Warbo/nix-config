@@ -15,7 +15,6 @@ buildEnv {
     arandr
     aspell
     aspellDicts.en
-    asublim
     audacious
     basic # Anything useful for scripts should go in here
     blueman
