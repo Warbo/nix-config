@@ -204,6 +204,10 @@ with rec {
       tests = import ./test.nix { inherit pkgs; };
     };
     topLevel pkgs // haskell // { tests = tests.testDrvs; };
+
+  # We keep these versions hanging around, but we don't really care if our
+  # customisations don't work with them
+  deprecated = [ "nixpkgs1603" "nixpkgs1609" "nixpkgs1703" ];
 };
 
-lib.mapAttrs (_: select) customised
+lib.mapAttrs (_: select) (removeAttrs customised deprecated)
