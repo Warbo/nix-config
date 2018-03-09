@@ -27,7 +27,7 @@ pythonPackages.buildPythonPackage {
 
   propagatedBuildInputs = [
     pythonPackages.python
-    pythonPackages.requests2
+    pythonPackages.requests
   ];
 
   meta = {
