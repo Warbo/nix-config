@@ -15,8 +15,8 @@ with rec {
     url      = "${repoSource}/warbo-utilities.git";
     srcToPkg = src: import "${src}" { inherit nixPkgs; };
     stable   = {
-      rev    = "48c6d57";
-      sha256 = "19796lkq00x39pbmykvik2g7aixql08znkgrav92bq2yw7j3nxm3";
+      rev    = "e806837";
+      sha256 = "05g1kqaqymnnnfxx516jilz5a9salhv5ggcppfi0bbmmd7i1jy8g";
     };
   };
 };
