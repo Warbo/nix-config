@@ -657,7 +657,7 @@ with rec {
           "$atHome" || exit 1
 
           # Try to contact the pi
-          ${pingOnce} raspberrypi || exit 1
+          ${pingOnce} raspberrypi.local || exit 1
         '';
       };
       start = wrap {
@@ -676,7 +676,7 @@ with rec {
                 -o sshfs_debug                          \
                 -o reconnect                            \
                 -o ServerAliveInterval=15               \
-                "pi@raspberrypi:/opt/shared" "$dir"
+                "pi@raspberrypi.local:/opt/shared" "$dir"
           sleep 5
         '';
       };
