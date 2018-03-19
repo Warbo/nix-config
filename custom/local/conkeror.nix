@@ -1,8 +1,5 @@
 { firefox, latestGit, makeWrapper, stdenv, unzip }:
 
-with rec {
-
-};
 stdenv.mkDerivation rec {
   inherit firefox;
   pkgname      = "conkeror";

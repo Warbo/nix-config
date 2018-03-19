@@ -28,7 +28,7 @@ buildEnv {
     droid-fonts
     e17gtk-theme
     emacs
-    firefox
+    firefox59
     gcalcli
     gensgs
     gtk_engines
