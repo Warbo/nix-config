@@ -1,0 +1,11 @@
+From: Chris Warburton
+Date: Thu, 22 Mar 2018 18:50:05 +0000
+Subject: Re: Maybe remove warbo-utilities dep from basic?
+Message-Id: <a8e8059cea71cf51-8e4ac848a8bea17f-artemis@nixos>
+References: <a8e8059cea71cf51-0-artemis@nixos>
+In-Reply-To: <a8e8059cea71cf51-0-artemis@nixos>
+
+Removed warbo-utilities from basic and added a 'forceLatest' arg to the
+warbo-utilities builder which defaults to false. This way, we can say
+'warbo-utilities.override { forceLatest = true; }' and we get the latest
+revision (it sets 'unsafeSkip' in the latestGit call).

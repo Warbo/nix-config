@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Mon, 05 Mar 2018 12:29:40 +0000
-State: new
+State: resolved
 Subject: Maybe remove warbo-utilities dep from basic?
 Message-Id: <a8e8059cea71cf51-0-artemis@nixos>
+resolution: fixed
 
 It's a fast moving target, and causes a lot of churn.
 

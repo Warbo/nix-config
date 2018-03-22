@@ -64,7 +64,6 @@ buildEnv {
     ts
     usbutils
     unzip
-    warbo-utilities
     wget
     wmname
     xbindkeys
