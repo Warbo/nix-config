@@ -1,3 +1,3 @@
-{ nixpkgs1609 }:
+{ callPackage, repo1609 }:
 
-nixpkgs1609.conkeror
+callPackage "${repo1609}/pkgs/applications/networking/browsers/conkeror" {}
