@@ -16,6 +16,7 @@ buildEnv {
     bibclean
     bibtool
     binutils
+    brittany
     cabal2nix
     dtach
     dvtm
