@@ -259,6 +259,8 @@ rec {
     };
   };
 
+  services.bitlbee.enable = true;
+
   services.ipfs = {
     enable      = true;
     autoMount   = true;
