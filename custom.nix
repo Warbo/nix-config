@@ -1,5 +1,5 @@
 # defaultVersion is either a name, like "nixpkgs1709" or "unstable", or a
-# function which we use in place of 'import <nixpkgs>' for unstable
+# path like <nixpkgs> which we'll use for the unstable version
 defaultVersion:
 
 with builtins;
