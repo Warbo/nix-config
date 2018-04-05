@@ -46,6 +46,10 @@ with rec {
       rev    = "39cd40f";
       sha256 = "0kpx4h9p1lhjbn1gsil111swa62hmjs9g93xmsavfiki910s73sh";
     };
+    repo1803 = {
+      rev    = "120b013";
+      sha256 = "0hk4y2vkgm1qadpsm4b0q1vxq889jhxzjx3ragybrlwwg54mzp4f";
+    };
   };
 
   swapName = n: replaceStrings [ "repo" ] [ "nixpkgs" ] n;
