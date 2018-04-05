@@ -1,7 +1,7 @@
-{ config, pkgs}:
+{ config, pkgs, warbo-utilities }:
 
 with builtins;
-with pkgs;
+with pkgs // { inherit warbo-utilities; };  # Prevents shadowing
 with rec {
   # Polls regularly and runs the 'start' script whenever 'shouldRun' is true
   pollingService =
