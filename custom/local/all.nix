@@ -51,6 +51,7 @@ buildEnv {
     xorg.xkill
     skulpture
     trayer
+    vertex-theme
     vlc
     w3m
     xfce.exo

@@ -16,6 +16,7 @@ with rec {
     gtk_engines
     gtk-engine-murrine
     (xfce.gtk_xfce_engine.override { withGtk3 = true; })
+    vertex-theme
     zuki-theme
     anonymous-pro-font
     droid-fonts
