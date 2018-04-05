@@ -1,0 +1,30 @@
+From: Chris Warburton
+Date: Thu, 05 Apr 2018 19:23:06 +0100
+State: new
+Subject: Revert to stable Firefox
+Message-Id: <beed417034cd8fb0-0-artemis@nixos>
+
+Firefox has been crashing A LOT recently, possibly due to upgrading to
+NixOS 17.09. Unfortunately we can't just use nixpkgs1603.firefox because
+there's some sort of impure dependency on libGL.so, and we get a
+'missing symbol' error when we try to run it.
+
+Note that this also affects Conkeror :(
+
+We should do the following:
+
+ - Find a reliable way to reproduce the FF/conkeror crash.
+ - Test this in a derivation, where we can pass in a different FF
+   version and try the test.
+ - Use 'shouldFail' or equivalent to ensure that super.firefox crashes
+ - Test that the old Firefox doesn't crash (this will presumably take
+   the libGL error into account too)
+ - Find some reasonable way to make the old FF build against the new
+   libGL.so
+ - Provide the rebuilt old FF, using withDeps to ensure that it doesn't
+   crash on the test case (including on startup, due to libGL) and that
+   the latest FF does crash
+
+Another reason to use older FF is for the extensions like DownThemAll.
+We could also have a test check if FF supports them, since they don'
+work in newer versions.
