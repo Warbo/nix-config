@@ -6,6 +6,8 @@ with rec {
   mypkgs  = import <nixpkgs> {
     config = import /home/chris/.nixpkgs/config.nix;
   };
+
+  warbo-utilities = mypkgs.warbo-utilities.override { forceLatest = true; };
 };
 
 { config, pkgs, ... }:
@@ -204,7 +206,7 @@ rec {
     # NOTE: You *could* install these individually via `nix-env -i` as root, but
     # those won't be updated by `nixos-rebuild` and aren't version controlled.
     # To see if there are any such packages, do `nix-env -q` as root.
-    systemPackages = [ mypkgs.all ];
+    systemPackages = [ mypkgs.all warbo-utilities ];
   };
 
   fonts = {
@@ -339,7 +341,10 @@ rec {
   #services.thinkfan.enable = true;
   #services.thermald.enable = true;  # Requires CPU check disabling on X60s
 
-  systemd.services = import ./services.nix { inherit config; pkgs = mypkgs; };
+  systemd.services = import ./services.nix {
+    inherit config warbo-utilities;
+    pkgs = mypkgs;
+  };
 
   # Locale, etc.
   i18n = {
