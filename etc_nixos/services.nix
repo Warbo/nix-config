@@ -159,7 +159,7 @@ with rec {
       srvDefaults   = {
         enable   = true;
         wantedBy = [ "default.target"  ];
-        after    = [ "local-fs.target" ];
+        requires = [ "local-fs.target" ];
       };
 
       combined  = service // serviceConfig;
@@ -219,7 +219,6 @@ with rec {
   thermald-nocheck = mkService {
     description = "Thermal Daemon Service";
     wantedBy    = [ "multi-user.target" ];
-    after       = [];
     script      = wrap {
       name   = "thermald-nocheck";
       paths  = [ bash thermald ];
@@ -389,6 +388,7 @@ with rec {
   checkLocation = pollingService {
     name        = "check-location";
     description = "Use WiFi name to check where we are";
+    extra       = { requires = [ "network.target" ]; };
     RestartSec  = 10;
     shouldRun   = "${coreutils}/bin/true";
     start       = wrap {
@@ -399,8 +399,8 @@ with rec {
         set -e
 
         ${online} || {
-        echo "unknown" > /tmp/location
-        exit 0
+          echo "unknown" > /tmp/location
+          exit 0
         }
 
         WIFI=$(nmcli c | grep -v -- "--"  | grep -v "DEVICE" |
@@ -428,6 +428,7 @@ with rec {
   joX2X = monitoredService {
     name        = "jo-x2x";
     description = "Connect to X display when home";
+    extra       = { requires = [ "network.target" ]; };
     RestartSec  = 10;
     isRunning   = findProcess "x2x -west";
     shouldRun   = atHome;
@@ -451,6 +452,7 @@ with rec {
   workX2X = monitoredService {
     name        = "work-x2x";
     description = "Connect to X display when at work";
+    extra       = { requires = [ "network.target" ]; };
     RestartSec  = 10;
     isRunning   = findProcess "x2x -east";
     shouldRun   = atWork;
@@ -477,6 +479,7 @@ with rec {
     monitoredService {
       name        = "work-screen";
       description = "Turn on/off VGA screen";
+      extra       = { requires = [ "graphical.target" ]; };
       RestartSec  = 10;
       isRunning   = wrap {
         name   = "work-screen-running";
@@ -530,6 +533,7 @@ with rec {
 
   inboxen = mkService {
     description   = "Fetch mail inboxes";
+    requires      = [ "network.target" ];
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
@@ -550,6 +554,7 @@ with rec {
 
   news = mkService {
     description   = "Fetch news";
+    requires      = [ "network.target" ];
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
@@ -565,6 +570,7 @@ with rec {
 
   mailbackup = mkService {
     description   = "Fetch all mail";
+    requires      = [ "network.target" ];
     serviceConfig = {
       User       = "chris";
       Restart    = "always";
@@ -641,7 +647,7 @@ with rec {
       inherit isRunning stop;
       name        = "pi-mount";
       description = "Raspberry pi mount";
-      extra       = { after = [ "network.target" ]; };
+      extra       = { requires = [ "network.target" ]; };
       RestartSec  = 30;
       shouldRun   = wrap {
         name   = "desktop-mount-query";
@@ -693,7 +699,7 @@ with rec {
       inherit isRunning stop;
       name        = "desktop-mount";
       description = "Desktop files";
-      extra       = { after = [ "network.target" ]; };
+      extra       = { requires = [ "network.target" ]; };
       RestartSec  = 30;
       shouldRun   = wrap {
         name   = "desktop-mount-query";
@@ -812,6 +818,7 @@ with rec {
     monitoredService {
       name        = "hydra-bind";
       description = "Bind desktop SSH";
+      extra      = { requires   = [ "network.target" ]; };
       RestartSec  = 20;
       isRunning   = wrap {
         inherit paths vars;
