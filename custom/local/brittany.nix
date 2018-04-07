@@ -1,24 +1,14 @@
-{ fetchFromGitHub, hasBinary, haskell, haskellPackages, runCabal2nix,
-  withDeps }:
+{ fetchFromGitHub, hasBinary, haskellNewBuild, withDeps }:
 
 with rec {
-  hsPkgs = haskellPackages.override {
-    overrides = self: super: {
-      brittany = self.callPackage (runCabal2nix {
-        url = fetchFromGitHub {
-          owner  = "lspitzner";
-          repo   = "brittany";
-          rev    = "b43ee43";
-          sha256 = "0mk46vk8li5a93bi93z1y7qr3r1ij7l0kiripcllkbg86ysdyzy6";
-        };
-      }) {};
-
-      # Until https://github.com/EduardSergeev/monad-memo/pull/4
-      monad-memo = haskell.lib.dontCheck super.monad-memo;
-    };
+  src = fetchFromGitHub {
+    owner  = "lspitzner";
+    repo   = "brittany";
+    rev    = "21ef8b2";
+    sha256 = "0xcf6rp90m34y72fijblcmsdwwwl3g6jbw1g4yc3r5cb8rpks82p";
   };
 
-  brittany = hsPkgs.brittany;
+  brittany = haskellNewBuild { dir = src; name = "brittany"; };
 
   check = hasBinary brittany "brittany";
 };
