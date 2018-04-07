@@ -18,6 +18,7 @@ buildEnv {
     binutils
     brittany
     cabal2nix
+    ddgr
     dtach
     dvtm
     entr
