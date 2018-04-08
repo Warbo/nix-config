@@ -48,7 +48,6 @@ with rec {
                   "haskellNames"
                   "haskellOverrides"
                   "haskellPkgDepsSet"
-                  "haskellPkgsDeps"
                   "helpers"
                   "isBroken"
                   "isCallable"

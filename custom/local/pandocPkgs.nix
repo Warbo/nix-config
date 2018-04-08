@@ -1,5 +1,5 @@
 # Fixed versions of pandoc, panpipe, panhandle, pandoc-citeproc and dependencies
-{ haskell, haskellPkgsDeps, latestGit, lib, repoSource, runCommand }:
+{ attrsToDirs, cabal-install, fetchFromHackage, gcc, ghc, haskell, haskellNewBuild, installHackage, latestGit, lib, nixListToBashArray, pkgconfig, repoSource, runCommand, unzip, writeScript, zlib }:
 
 with lib;
 with rec {
@@ -38,13 +38,61 @@ with rec {
     h.pandoc-citeproc
     h.panhandle
   ]);
+
+  deps = {
+    pandoc          = "1.17.2";
+    pandoc-citeproc = "0.10.4";
+    panhandle       = "0.3.0.0";
+    panpipe         = "0.2.0.0";
+  };
+
+  getDep = name: version: fetchFromHackage { inherit name version; };
+
+  cabalFile = writeScript "dummy.cabal" ''
+    name:                dummy
+    version:             1
+    synopsis:            Dummy for building
+    description:         Dummy for building
+    homepage:            http://chriswarbo.net/projects/repos/reduce-equations.html
+    license:             PublicDomain
+    author:              Chris Warburton
+    maintainer:          chriswarbo@gmail.com
+    build-type:          Simple
+    cabal-version:       >=1.10
+
+    library
+      build-depends:     ${concatStringsSep ", "
+                             (["base"] ++ (map (n: n + " == " + getAttr n deps)
+                                               (attrNames deps)))}
+      hs-source-dirs:      .
+      default-language:    Haskell2010
+  '';
+
+  build = name: version: haskellNewBuild {
+    inherit name;
+    extra-inputs = [ gcc pkgconfig unzip zlib zlib.dev ];
+    pkg          = "${name}-${version}";
+  };
+
+  dirs = nixListToBashArray {
+    args = attrValues (mapAttrs build deps);
+    name = "dirs";
+  };
 };
 
-runCommand "pandocPkgs" { inherit wanted; } ''
-  # Pluck out the binaries we want, ignore those we don't (e.g. ghc)
-  mkdir -p "$out/bin"
-  for P in pandoc pandoc-citeproc panhandle panpipe
-  do
-    ln -s "$wanted/bin/$P" "$out/bin/$P"
-  done
-''
+runCommand "pandocPkgs"
+  dirs.env
+  ''
+    ${dirs.code}
+
+    mkdir -p "$out/bin"
+    for DIR in "$dirs[@]"
+    do
+      cp -sv "$DIR"/bin/* "$out/bin"
+    done
+  ''
+/*haskellNewBuild {
+  dir = attrsToDirs (mapAttrs getDep deps // { "dummy.cabal" = cabalFile; });
+  name = "pandocPkgs";
+}
+*/
