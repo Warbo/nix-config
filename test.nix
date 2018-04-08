@@ -111,27 +111,7 @@ rec {
         "nix-eval"
         "runtime-arbitrary"
         "runtime-arbitrary-tests"
-      ] tryHaskellPackage) // {
-        ML4HSFE = withDeps
-          [ (isBroken haskellPackages.weigh) ]
-
-          (haskellPkgWithDeps {
-            delay-failure = true;
-            dir           =    unpack haskellPackages.ML4HSFE.src;
-            extra-sources = [ (unpack haskellPackages.HS2AST.src) ];
-            hsPkgs        = haskellPackages;
-          });
-
-        mlspec = withDeps
-          [ (isBroken haskellPackages.weigh) ]
-
-          (haskellPkgWithDeps {
-            delay-failure = true;
-            dir           =    unpack haskellPackages.mlspec.src;
-            extra-sources = [ (unpack haskellPackages.mlspec-helper.src) ];
-            hsPkgs        = haskellPackages;
-          });
-      };
+      ] tryHaskellPackage);
 
       pkgTests = mine // notMine // {
         haveAllHaskellTests = testWeHave {
@@ -290,22 +270,6 @@ rec {
                                (runCommand "haskell-tests" {} ''
                                  echo pass > "$out"
                                '');
-
-    haskellPkgDeps  = tryInEnv "haskellPkgDeps"
-                               (haskellPkgDeps {
-                                 inherit (haskellPackages) ghc;
-                                 name          = "text";
-                                 delay-failure = true;
-                                 dir           = unpack
-                                                   haskellPackages.text.src;
-                               });
-
-    haskellPkgWithDeps = haskellPkgWithDeps {
-                           name          = "text";
-                           dir           = unpack haskellPackages.text.src;
-                           hsPkgs        = haskellPackages;
-                           delay-failure = true;
-                         };
 
     isCallable      = ifDrv "isCallable-test"
                             (isCallable (callPackage

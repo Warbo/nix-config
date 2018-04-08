@@ -47,9 +47,7 @@ with rec {
                   "haskellGit"
                   "haskellNames"
                   "haskellOverrides"
-                  "haskellPkgDeps"
                   "haskellPkgDepsSet"
-                  "haskellPkgWithDeps"
                   "haskellPkgsDeps"
                   "helpers"
                   "isBroken"
@@ -186,12 +184,7 @@ with rec {
                                 then { extra-sources = getAttr name extraDeps; }
                                 else {};
                   };
-                  haskellPkgWithDeps
-                    ({
-                      delay-failure = true;
-                      dir           = unpack pkg.src;
-                      hsPkgs        = hP;
-                     } // extras);
+                  haskellNewBuild { dir = unpack pkg.src; };
               };
             };
             fold addDrv {} (getAttr name pkgGhcVersions);
