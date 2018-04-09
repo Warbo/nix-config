@@ -159,7 +159,6 @@ with rec {
       srvDefaults   = {
         enable   = true;
         wantedBy = [ "default.target"  ];
-        requires = [ "local-fs.target" ];
       };
 
       combined  = service // serviceConfig;
