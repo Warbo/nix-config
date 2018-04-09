@@ -42,7 +42,7 @@ buildEnv {
     md2pdf
     msmtp
     nix-repl
-    nixpkgs1709.youtube-dl
+    youtube-dl
     openssh
     opusTools
     p7zip
