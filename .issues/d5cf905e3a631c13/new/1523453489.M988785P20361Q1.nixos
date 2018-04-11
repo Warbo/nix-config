@@ -1,0 +1,47 @@
+From: Chris Warburton
+Date: Wed, 11 Apr 2018 14:17:12 +0100
+State: new
+Subject: Try to depend on imported derivations
+Message-Id: <d5cf905e3a631c13-0-artemis@nixos>
+
+Sometimes we'll import the result of a derivation, e.g. a Haskell
+package might come from the result of runCabal2nix, and that result may
+have depended on a mechanism like haskellPkgDeps to pick the versions,
+and that might depend on stableHackageDb which takes *ages* to build.
+
+The problem is, if we have such a package installed and we do a garbage
+collection, we'll end up deleting those derivations that we imported, so
+rebuilding the installed package (e.g. during 'nixos-rebuild switch')
+will end up rebuilding those to-be-imported derivations; *even if the
+installed package doesn't actually change*!
+
+We could try to solve this "locally", by making the thing we import from
+a derivation itself depend on that derivation. For example, if we're
+making a Haskell package from a runCabal2nix derivation, we could add
+that runCabal2nix derivation as a dependency of the Haskell package
+using 'withDeps'.
+
+The trouble with doing that is the possibility of causing unnecessary
+rebuilds. For example, let's say we bump stableHackageDb: that causes
+the runCabal2nix derivation to change (since it has a different input),
+which (due to 'withDeps') would cause the Haskell package to get
+rebuild: *even if the resulting Haskell package doesn't change*!
+
+One of the nice features of importing from a derivation is that we can
+sever the dependency chain: if derivations foo and bar both result in
+equivalent Nix expressions, say for baz, then switching out foo with bar
+won't cause baz to get rebuilt.
+
+I think the best solution is to depend on such derivations in "combo"
+packages, i.e. those which only exist to expose some binary, or merge
+together the contents of other packages. Rebuilding such packages is
+fine, since they're just symlink farms, and if they don't have many
+things depending on them (apart from other link farms) then cascading
+rebuilds aren't too bad.
+
+We could, for example, use 'pandocPkgs' for this.
+
+To facilitate such use, functions which rely on importing expensive
+derivations should pass along those derivations in their output, so that
+their callers can either add them as dependencies, or pass them along in
+turn. I'm mostly thinking about the haskellPkgDeps functions here.

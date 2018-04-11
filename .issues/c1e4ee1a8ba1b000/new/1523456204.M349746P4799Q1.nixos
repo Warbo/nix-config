@@ -1,0 +1,99 @@
+From: Chris Warburton
+Date: Wed, 11 Apr 2018 14:52:48 +0100
+State: new
+Subject: Make it simple to use fixed, latest and <path> deps
+Message-Id: <c1e4ee1a8ba1b000-0-artemis@nixos>
+
+It's nice to give projects a release.nix file so they can be built and
+tested on Hydra. It's also nice to run those builds against different
+versions of the project's dependencies.
+
+Sometimes we have a "pinned" version of some dependency, so we
+definitely want to build against that (since it's the recommended one to
+use).
+
+Sometimes our dependency is taken from a git repo, so we should try
+building against the latest commit (so we can see if any breakages have
+been introduced).
+
+Sometimes our dependency is given via Hydra, e.g. <foo>, so we should
+try building against that if given (since that lets us track builds
+against versions more easily).
+
+To make this easier, we should provide a function which takes a repo,
+revision/sha256 combo and an optional path, and returns those 2 or 3
+things.
+
+For example:
+
+{ url, rev ? null, sha256 ? null, path ? null }:
+
+with rec {
+  pinned = if rev == null || sha256 == null
+              then {}
+              else {
+                pinned = latestGit {
+                  inherit url;
+                  stable = { inherit rev sha256; };
+                };
+              };
+
+  latest = latestGit {
+    inherit url;
+    stable = { unsafeSkip = true; };
+  };
+
+  fromPath = if path == null
+                then {}
+                else with tryEval path;
+                     if success
+                        then { fromPath = path; }
+                        else {};
+};
+{ inherit latest; } // pinned // fromPath
+
+We should maybe also add an assert that we're stable, since this feature
+seems like it would only make sense from a stable checkout (it's
+providing the unstable ones!) and also we want to ensure that  latestGit
+behaves as we expect for pinned versions (rather than always getting the
+unstable one).
+
+This way, a release.nix file can import a pinned nix-config and use this
+function to cover all the bases w.r.t. "top level inputs" (e.g. those
+which we'd pass in via Hydra). In particular we could use this to handle
+dependencies on nix-config itself, e.g.
+
+with {
+  pinnedCfg = {
+    url    = http://chriswarbo.net/git/nix-config.git;
+    rev    = "foo";
+    sha256 = "bar";
+  };
+
+  configuredPkgs = import ((import <nixpkgs> {}).fetchgit pinnedCfg) {};
+
+  versions = depVersions (pinnedCfg // { path = <nix-config>; });
+};
+configuredPkgs.lib.mapAttrs (_: cfg: import ./. { inherit cfg; })
+                            versions
+
+This way we get a 'latest', a 'pinned' and a 'fromPath' build, with
+nix-config taken from those sources.
+
+To prevent a combinatorial explosion it might be better to allow all
+dependencies to be handled at once, e.g. taking arguments like:
+
+{
+  cfg = { url = ...; rev = "..."; sha256 = "..."; path = <...>; };
+  foo = { url = ...; rev = "..."; sha256 = "..."; path = <...>; };
+  bar = { url = ...; rev = "..."; sha256 = "..."; path = <...>; };
+  ...
+}
+
+And returning a set like:
+
+{
+  pinned   = { cfg = ...; foo = ...; bar = ...; ... };
+  latest   = { cfg = ...; foo = ...; bar = ...; ... };
+  fromPath = { cfg = ...; foo = ...; bar = ...; ... };
+}
