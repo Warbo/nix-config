@@ -10,14 +10,7 @@ with rec {
                then (x: x)
                else trace "FIXME: Don't override, have Firefox 59 (${version})";
 
-  styles = p: with p; [
-    clearlooks-phenix
-    e17gtk-theme
-    gtk_engines
-    gtk-engine-murrine
-    (xfce.gtk_xfce_engine.override { withGtk3 = true; })
-    vertex-theme
-    zuki-theme
+  styles = p: with p; widgetThemes ++ [
     anonymous-pro-font
     droid-fonts
   ];

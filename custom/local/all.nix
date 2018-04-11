@@ -6,10 +6,9 @@
 
 { self }: with self;
 
-with self;
 buildEnv {
   name  = "all";
-  paths = [
+  paths = widgetThemes ++ [
     acpi
     anonymous-pro-font
     arandr
@@ -19,20 +18,16 @@ buildEnv {
     basic # Anything useful for scripts should go in here
     blueman
     basket
-    clearlooks-phenix
     cmus
     compton
     conkeror
     dillo
     dmenu
     droid-fonts
-    e17gtk-theme
     emacs
     firefox
     gcalcli
     gensgs
-    gtk_engines
-    gtk-engine-murrine
     iotop
     kbibtex_full
     keepassx
@@ -49,15 +44,11 @@ buildEnv {
     picard
     pidgin-with-plugins
     xorg.xkill
-    skulpture
     trayer
-    vertex-theme
     vlc
     w3m
     xfce.exo
-    (xfce.gtk_xfce_engine.override { withGtk3 = true; })
     xfce.xfce4notifyd
     xsettingsd
-    zuki-theme
   ];
 }
