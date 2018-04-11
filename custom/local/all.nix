@@ -1,10 +1,10 @@
-# This one package depends on all of the packages we want in our user config
+# This one package depends on all of the packages we want in our user profile
 # so we don't need to keep track of everything separately. If you're on NixOS
 # you can make these available system-wide using /etc/nixos/configuration.nix
 # If you're using Nix standalone, or want per-user configuration, you can run
 # a command like `nix-env -iA all` to install into your profile.
 
-{ customised, self, stable }:
+{ self }: with self;
 
 with self;
 buildEnv {
