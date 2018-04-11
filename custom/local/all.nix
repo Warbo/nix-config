@@ -15,6 +15,7 @@ buildEnv {
     aspell
     aspellDicts.en
     audacious
+    awf
     basic # Anything useful for scripts should go in here
     blueman
     basket
