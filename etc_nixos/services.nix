@@ -539,13 +539,49 @@ with rec {
       RestartSec = 600;
       ExecStart  = wrap {
         name   = "inboxen-start";
-        paths  = [ bash coreutils iputils isync ];
+        paths  = [ bash coreutils iputils isync mu procps psutils gnused ];
         script = ''
           #!/usr/bin/env bash
           set -e
           ${online} || exit
-          timeout -s 9 3600 mbsync --verbose gmail dundee
-          echo "Finished syncing" 1>&2
+          CODE=0
+
+          echo "Fetching mail" 1>&2
+          if timeout -s 9 3600 mbsync --verbose gmail dundee
+          then
+            echo "Finished syncing" 1>&2
+          else
+            echo "Error syncing" 1>&2
+            CODE=1
+          fi
+
+          # Try waiting for existing mu processes to die
+          for RETRY in $(seq 1 20)
+          do
+            # Find running mu processes. Try to exclude mupdf, etc.
+            if P=$(ps auxww | grep '[ /]mu\( \|$\)')
+            then
+              echo "Stopping running mu instances" 1>&2
+              echo "$P" | sed -e 's/  */ /g' | cut -d ' ' -f2 | while read -r I
+              do
+                kill -INT "$I"
+              done
+              sleep 1
+            else
+              # Stop early if nothing's running
+              break
+            fi
+          done
+
+          echo "Indexing maildirs for Mu" 1>&2
+          if mu index --maildir=~/Mail
+          then
+            echo "Finished indexing" 1>&2
+          else
+            echo "Error indexing" 1>&2
+            CODE=2
+          fi
+          exit "$CODE"
         '';
       };
     };
