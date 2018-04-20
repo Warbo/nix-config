@@ -167,12 +167,6 @@ rec {
     '';
   };
 
-  programs = {
-    #light.enable = true;
-    #mosh.enable  = true;
-    ssh.startAgent = true;
-  };
-
   time = {
     timeZone = "Europe/London";
   };
