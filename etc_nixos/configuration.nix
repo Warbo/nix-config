@@ -318,7 +318,7 @@ rec {
 
   # Enable updatedb for the locate command. Run as chris to access /home/chris
   services.locate = {
-    enable     = true;
+    enable     = false;
     localuser  = "chris";
     extraFlags = [
       "--prunefs='fuse.sshfs'"
