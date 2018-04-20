@@ -57,20 +57,21 @@ rec {
     ];
   };
 
-  hardware.bluetooth.enable = true;
+  hardware.bluetooth.enable = false;
 
   hardware.cpu.intel.updateMicrocode = true;
 
   hardware.pulseaudio = {
-    systemWide = false;
+    systemWide = true;
     enable     = true;
     package    = mypkgs.pulseaudioFull;
-    configFile = mypkgs.writeText "default.pa" ''
+    /*configFile = mypkgs.writeText "default.pa" ''
       load-module module-udev-detect
-      load-module module-jackdbus-detect channels=2
-      load-module module-bluetooth-policy
-      load-module module-bluetooth-discover
-      load-module module-esound-protocol-unix
+      ${""
+      #load-module module-jackdbus-detect channels=2
+      #load-module module-bluetooth-policy
+      #load-module module-bluetooth-discover
+      }load-module module-esound-protocol-unix
       load-module module-native-protocol-unix
       load-module module-always-sink
       load-module module-console-kit
@@ -80,7 +81,7 @@ rec {
       load-module module-filter-heuristics
       load-module module-filter-apply
     '';
-    zeroconf.discovery.enable = true;
+    zeroconf.discovery.enable = true;*/
   };
 
   sound.mediaKeys.enable = true;
@@ -226,7 +227,7 @@ rec {
   nixpkgs.config = {
     packageOverrides = pkgs: {
       # Required for PulseAudio headsets
-      bluez = pkgs.bluez5;
+      #bluez = pkgs.bluez5;
     };
   };
 
