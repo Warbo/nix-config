@@ -9,5 +9,9 @@ with rec {
   lucid = version.override { withGTK2 = false; withGTK3 = false; };
 };
 (emacsPackagesNgGen lucid).emacsWithPackages (epkgs:
-  (with epkgs.elpaPackages;  []) ++
-  (with epkgs.melpaPackages; []))
+  with epkgs;
+  with elpaPackages;
+  with melpaPackages;
+  [
+    agda2-mode
+  ])

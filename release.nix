@@ -117,6 +117,7 @@ with rec {
           pkgGhcVersions =
             with rec {
               versions = {
+                Agda                      = ghc710;
                 ArbitraryHaskell          = ghc710;
                 AstPlugin                 = ghc710;
                 genifunctors              = ghc710;

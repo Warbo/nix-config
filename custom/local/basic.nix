@@ -32,6 +32,7 @@ buildEnv {
     gnumake
     gnutls
     cabal-install2
+    haskellPackages.Agda
     haskellPackages.happy
     haskellPackages.hlint
     haskellPackages.pretty-show
