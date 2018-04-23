@@ -1,7 +1,7 @@
-{ autoconf, automake, fetchFromGitHub, gcc, gtk2, gtk3, pkgconfig, runCommand,
-  stdenv, widgetThemes }:
+{ autoconf, automake, fetchFromGitHub, gcc, gtk2, gtk3, hasBinary, pkgconfig,
+  runCommand, stdenv, widgetThemes, withDeps }:
 
-with {
+with rec {
   pkg = stdenv.mkDerivation {
     name = "awf";
     src  = fetchFromGitHub {
@@ -13,11 +13,17 @@ with {
     buildInputs  = [ autoconf automake gcc gtk2 gtk3 pkgconfig ] ++ widgetThemes;
     preConfigure = "bash autogen.sh";
   };
-};
-runCommand "awf-binaries" { inherit pkg; } ''
-  mkdir -p "$out/bin"
-  for B in "$src/bin"/*
-  do
+
+  # Only expose binaries, to prevent path conflicts
+  bins = runCommand "awf-binaries" { inherit pkg; } ''
+    mkdir -p "$out/bin"
+    for B in "$pkg/bin"/*
+    do
     cp -s "$B" "$out/bin/"
-  done
-''
+    done
+  '';
+};
+
+withDeps [ (hasBinary bins "awf-gtk2")
+           (hasBinary bins "awf-gtk3") ]
+         bins
