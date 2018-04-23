@@ -9,6 +9,7 @@
 buildEnv {
   name  = "all";
   paths = widgetThemes ++ [
+    abiword
     acpi
     anonymous-pro-font
     arandr
@@ -33,6 +34,7 @@ buildEnv {
     kbibtex_full
     keepassx
     leafpad
+    lxappearance
     mplayer
     mu
     mupdf
