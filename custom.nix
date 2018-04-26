@@ -10,25 +10,39 @@ with rec {
   # Whether defaultVersion is a nixpkgs version or a path
   customUnstable = !(elem defaultVersion ([ "unstable" ] ++ attrNames nixpkgs));
 
+  # The nixpkgs path to use for "unstable"; if defaultVersion is a path we'll
+  # use that, otherwise we'll default to the usual <nixpkgs>
   unstablePath = if customUnstable
                     then defaultVersion
                     else <nixpkgs>;
 
+  # The name of the nixpkgs set we'll provide by default. If defaultVersion is a
+  # path then we pick "unstable" in order to use that path's nixpkgs. This works
+  # because unstablePath will set defaultVersion as the path for "unstable" in
+  # this case. Otherwise, defaultVersion must already be a nixpkgs name
+  # (possibly "unstable"!) so we return it as-is.
   defaultAttr    = if customUnstable
                       then "unstable"
                       else defaultVersion;
 
-  inherit (nixpkgs.nixpkgs1709) lib;
+  stableVersion = import ./stableVersion.nix;
+
+  inherit (getAttr stableVersion nixpkgs) lib;
 
   # Just the nixpkgs repos (ignores instantiated package sets, functions, etc.)
   repos = lib.filterAttrs (name: _: lib.hasPrefix "repo" name)
                           nixpkgs;
 
+  # All of the files containing our overrides
   nixFiles = with { dir = ./custom; };
     map (f: dir + "/${f}")
         (filter (lib.hasSuffix ".nix")
                 (attrNames (readDir dir)));
 
+  # Imports the given nixpkgs path, applying our overrides. The 'unstable' flag
+  # will be set for these overrides iff 'version' is "unstable". This will e.g.
+  # decide whether 'latestGit' uses the latest commit of a repo or a hard-coded
+  # default.
   call = repo: version: import repo {
     config = other // {
       packageOverrides = pkgs:
@@ -41,11 +55,17 @@ with rec {
             };
 
           self      = super   // overrides;
-          super     = nixpkgs // pkgs // { inherit customised repo; };
+          super     = nixpkgs // pkgs // {
+                        inherit customised repo stableVersion;
+                      };
           overrides = lib.fold mkPkg { stable = version != "unstable"; }
                                nixFiles;
+
+          combined  = nixpkgs // { inherit repo; } // overrides;
         };
-        nixpkgs // { inherit repo; } // overrides;
+        # Ensure that the definitions we add here are present in the result
+        assert combined ? latest        || abort "No 'latest' found";
+        combined;
     };
   };
 
@@ -60,9 +80,16 @@ with rec {
   other = import ./other.nix;
 };
 other // {
-  packageOverrides = pkgs: nixpkgs // (getAttr defaultAttr customised) // {
-    inherit customised;
-
-    unstable = pkgs;
-  };
+  packageOverrides = pkgs:
+    with {
+      result = nixpkgs // getAttr defaultAttr customised // {
+        inherit customised stableVersion;
+        unstable = pkgs;
+      };
+    };
+    assert result ? customised    || abort    "'customised' not found";
+    assert result ? unstable      || abort      "'unstable' not found";
+    assert result ? stableVersion || abort "'stableVersion' not found";
+    assert result ? latest        || abort        "'latest' not found";
+    result;
 }
