@@ -1,0 +1,14 @@
+From: Chris Warburton
+Date: Thu, 26 Apr 2018 11:50:00 +0100
+State: new
+Subject: Add Next browser
+Message-Id: <f22d46c5db830632-0-artemis@nixos>
+
+Conkeror seems to have died because of Mozilla's overhauls of
+XUL/Gecko/Quantum/etc. Looks like "next-browser" is the spiritual
+successor:
+
+https://github.com/next-browser/next/tree/master/next#linux-setup-experimental
+
+Looks like any package will require some common lisp stuff, which I
+don't yet know how to do ;)
