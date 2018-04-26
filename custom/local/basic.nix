@@ -42,6 +42,7 @@ buildEnv {
     lzip
     md2pdf
     msmtp
+    nix-diff
     nix-repl
     youtube-dl
     openssh
