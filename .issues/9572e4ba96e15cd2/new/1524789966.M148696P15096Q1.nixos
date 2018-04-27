@@ -1,0 +1,22 @@
+From: Chris Warburton
+Date: Fri, 27 Apr 2018 01:32:16 +0100
+State: new
+Subject: Cached cabal new-build
+Message-Id: <9572e4ba96e15cd2-0-artemis@nixos>
+
+Cabal 2 breaks a bunch of stuff, but does present an opportunity.
+
+There are 3 things to consider:
+
+ - Hackage tarballs. These are allegedly "incremental", which might mean
+   that we can just store the length that we downloaded, then download
+   only that much in the future to re-create the same input.
+ - Build plans. Cabal only guarantees an identical plan if the hackage
+   index is the same, hence the need for the above. However, we can
+   "freeze" the chosen constraints to a "plan" file, which is nice.
+ - The ~/.cabal package cache. Each package is stored separately for the
+   compiler version, package version, hash of dependencies, etc. so we
+   should be able to share this between invocations, in a similar way to
+   the cabal2nixCache.
+
+Maybe ask in #haskell about e.g. downloading partial hackage tarballs.
