@@ -1,0 +1,62 @@
+From: Chris Warburton
+Date: Fri, 27 Apr 2018 15:49:05 +0100
+State: new
+Subject: Speed up eval by reducing data dependencies
+Message-Id: <96e3d8501ee406ef-0-artemis@nixos>
+
+Evaluating nix-config can take a while, which slows down many commands.
+Since Nix is lazy, it should only evaluate what is needed, but running
+commands verbosely shows lots of seemingly-random files being evaluated.
+
+This may be due to unnecessary data dependencies, for example we might
+have an attrset like:
+
+{
+  a = import foo...;
+  b = bar...;
+  c = baz...;
+}
+
+In this case, when we ask for (say) the 'b' parameter, the 'a' and 'c'
+are ignored, 'foo' won't be imported and 'baz' won't be called. Only
+'bar' will be called.
+
+Now compare an alternative setup:
+
+fold (x: y: x // fiddleWith y)
+     {}
+     [ { name = "a"; value = import foo...; }
+       { name = "b"; value = bar...;        }
+       { name = "c"; value = baz...;        } ]
+
+The result is still an attrset, but it's been built up piecemeal from
+each of these components. When we ask for 'b' in this case, the 'fold'
+will be forced, to give the equivalent of:
+
+{} // fiddleWith { name = "a"; value = import foo..; }
+   // fiddleWith { name = "b"; value = bar...;       }
+   // fiddleWith { name = "c"; value = baz...;       }
+
+We can't get the 'b' attribute from this directly, since we don't know
+which one of these parts defines it. We'll start from the last line
+(since that would override anything defined before):
+
+{} // fiddleWith { name = "a"; value = import foo..; }
+   // fiddleWith { name = "b"; value = bar...;       }
+   // { c = baz...;                                  }
+
+This has forced the call to 'fiddleWith', which might cause quite a bit
+of work, but *we* know (due to the way we just-so-happen to define
+things) that there'll be no "b" in there. So we carry on:
+
+{} // fiddleWith { name = "a"; value = import foo..; }
+   // { b = bar...;
+        c = baz...;                                  }
+
+Now we've called 'fiddleWith' again, for the 'b' case, which again might
+do a bunch of work. This time there's a 'b' attribute defined, so we can
+now pick that out and do the 'bar' call as in the above example.
+
+The question is, can we define things in a way which is more like the
+first example, but still allow the names and attributes to be
+calculated rather than hard-coded in an attrset literal?

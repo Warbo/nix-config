@@ -1,0 +1,38 @@
+From: Chris Warburton
+Date: Fri, 27 Apr 2018 16:15:03 +0100
+State: new
+Subject: haskellRelease needs to take system packages into account
+Message-Id: <a1ac9ebe1ad51141-0-artemis@nixos>
+
+Some Haskell packages (e.g. zlib) require system packages (e.g. zlib).
+Since there's a name clash, we need to figure out which of the arguments
+should come from nixpkgs and which from (the overridden)
+haskellPackages.
+
+We do this already for the non-derivation version. It calls each Haskell
+function with a dummy 'mkDerivation' function, which spots those
+dependencies which are used for the system deps. We could do a similar
+thing, e.g. supplying strings as arguments (i.e. 'foo' gets the value
+'"foo"') and seeing which strings come back.
+
+Trickier would be to make calling these functions easy for our
+'override' function. One way would be to augment the list of names that
+we're already defining. We could instead define an attrset, whose names
+are the Haskell package names (hence we can recover the existing
+behaviour via 'attrNames', along with the extra guarantee that there are
+no duplicates!) and the values are lists of system packages. We can do
+this by calling a function like the following, as the value of each
+attribute:
+
+    name: with rec {
+      func    = import (./. + "/pkgs/${name}.nix");
+      args    = attrNames (functionArgs func);
+      dummies = listToAttrs (map (x: { name = x; value = x; }) args);
+      sysArgs = func (dummies // {
+        mkDerivation = args: args.librarySystemDepends or [];
+      });
+      sysPkgs = listToAttrs
+        (map (name: { inherit name; value = getAttr name pkgs; })
+             sysArgs);
+    };
+    haskellPackages.callPackage func sysPkgs;

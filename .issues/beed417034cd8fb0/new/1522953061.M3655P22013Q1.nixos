@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Thu, 05 Apr 2018 19:23:06 +0100
-State: new
+State: resolved
 Subject: Revert to stable Firefox
 Message-Id: <beed417034cd8fb0-0-artemis@nixos>
+resolution: fixed
 
 Firefox has been crashing A LOT recently, possibly due to upgrading to
 NixOS 17.09. Unfortunately we can't just use nixpkgs1603.firefox because

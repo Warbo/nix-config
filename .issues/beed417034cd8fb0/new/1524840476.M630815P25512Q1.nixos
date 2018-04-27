@@ -1,0 +1,9 @@
+From: Chris Warburton
+Date: Fri, 27 Apr 2018 15:47:25 +0100
+Subject: Re: Revert to stable Firefox
+Message-Id: <beed417034cd8fb0-f65d8d02002c15c0-artemis@nixos>
+References: <beed417034cd8fb0-0-artemis@nixos>
+In-Reply-To: <beed417034cd8fb0-0-artemis@nixos>
+
+This is more of a system config issue, since it's caused by a broken
+OpenGL driver. I've opened a corresponding issue in dotfiles instead.

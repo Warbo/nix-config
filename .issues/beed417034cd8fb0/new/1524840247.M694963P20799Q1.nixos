@@ -1,0 +1,11 @@
+From: Chris Warburton
+Date: Fri, 27 Apr 2018 15:42:54 +0100
+Subject: Re: Revert to stable Firefox
+Message-Id: <beed417034cd8fb0-ad14ea88bcc9bcec-artemis@nixos>
+References: <beed417034cd8fb0-0-artemis@nixos>
+In-Reply-To: <beed417034cd8fb0-0-artemis@nixos>
+
+I've debugged these crashes with gdb and they seem to be caused by
+OpenGL drivers. There's a related-looking NixOS bug at
+https://github.com/NixOS/nixpkgs/issues/30758 bug the supplied
+work-around doesn't seem to work :(
