@@ -1,0 +1,12 @@
+From: Chris Warburton
+Date: Sun, 29 Apr 2018 22:25:32 +0100
+State: new
+Subject: Look into Haskell packageSourceOverrides
+Message-Id: <c54cefe6d2885101-0-artemis@nixos>
+
+From nixpkgs 18.03, we can do the following:
+
+  haskellPackages.extend (haskell.lib.packageSourceOverrides {
+    foo = ./we-can/use/paths-to-package-dirs;
+    bar = "1.2.3"; # We can also use particular version numbers
+  })
