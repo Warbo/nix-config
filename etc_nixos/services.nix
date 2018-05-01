@@ -17,6 +17,7 @@ with rec {
         inherit name description extra RestartSec shouldRun start;
         stop      = "${coreutils}/bin/true";
         isRunning = "${coreutils}/bin/false";
+        allGood   = "${coreutils}/bin/true";  # We're stateless, so always good
       };
 
   # Polls regularly, checking whether 'shouldRun' and 'isRunning' are consistent
@@ -31,6 +32,7 @@ with rec {
       shouldRun,      # Script: whether to be started or stopped, e.g. if online
       start,          # Script to start the functionality. Not long-lived.
       stop,           # Idempotent script to stop (e.g. kill) the functionality
+      allGood ? "",   # Script: whether we're started/stopped correctly
       User ? "chris"  # User to run scripts as
     }:
       with rec {
@@ -41,7 +43,7 @@ with rec {
           script  = wrap {
             name   = name + "-script";
             vars   = {
-              inherit isRunning name shouldRun start stop;
+              inherit allGood isRunning name shouldRun start stop;
               secs = toString RestartSec;
             };
             paths  = [ bash fail ];
@@ -53,12 +55,28 @@ with rec {
               trap "$stop" EXIT
 
               function allIsWell {
+                # If allGood script is provided, use that to check that we're in
+                # a sensible state
+                if [[ -n "$allGood" ]]
+                then
+                  "$allGood"
+                  return "$?"
+                fi
+
+                # If not, check that we're running iff we should be
+                consistent || return 1
+                return 0
+              }
+
+              function consistent {
+                # Whether we're running iff we should be
                 "$shouldRun" && "$isRunning" && return 0
                 "$shouldRun" || "$isRunning" || return 0
                 return 1
               }
 
               function startOrStop {
+                # Take an action (start or stop) as appropriate
                 if "$shouldRun"
                 then
                   echo "Running start script for '$name'" 1>&2
@@ -68,13 +86,15 @@ with rec {
                   "$stop"
                 fi
 
+                # Bail out if we're not in a sensible state
                 allIsWell || fail "Couldn't start/stop '$name'"
               }
 
               # Make a long-running process, since 'start' exits immediately
               while true
               do
-                allIsWell || startOrStop
+                # Iff we've become inconsistent, trigger an action
+                consistent || startOrStop
                 sleep "$secs"
               done
             '';
