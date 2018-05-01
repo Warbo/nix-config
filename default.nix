@@ -1,7 +1,7 @@
-{ unstablePath ? <nixpkgs>, stable ? true, args ? {} }:
+{
+  args           ? {},
+  defaultVersion ? import ./stableVersion.nix,
+  unstablePath   ? <nixpkgs>
+}:
 
-import unstablePath ({
-  config = import ./custom.nix (if stable
-                                   then import ./stableVersion.nix
-                                   else unstablePath);
-} // args)
+import unstablePath ({ config = import ./custom.nix defaultVersion; } // args)
