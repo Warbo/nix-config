@@ -8,7 +8,7 @@ with haskellPkgsDeps {
     "pandoc-citeproc == 0.10.4"
     "panpipe == 0.2.0.0"
     "panhandle == 0.3.0.0"
-    "aeson == 0.11.3.0"
+    #"aeson == 0.11.3.0"
     "attoparsec == 0.13.0.2"
     "tasty == 0.11.2.1"
     "lazysmallcheck2012"
