@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Fri, 27 Apr 2018 15:49:05 +0100
-State: new
+State: resolved
 Subject: Speed up eval by reducing data dependencies
 Message-Id: <96e3d8501ee406ef-0-artemis@nixos>
+resolution: fixed
 
 Evaluating nix-config can take a while, which slows down many commands.
 Since Nix is lazy, it should only evaluate what is needed, but running

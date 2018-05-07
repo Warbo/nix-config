@@ -1,6 +1,12 @@
 {}:
 
 with builtins;
-if getEnv "GIT_REPO_DIR" == ""
-   then "http://chriswarbo.net/git"
-   else getEnv "GIT_REPO_DIR"
+with {
+  env = getEnv "GIT_REPO_DIR";
+  dir = /home/chris/Programming/repos;
+};
+if env != ""
+   then env
+   else if pathExists dir
+           then toString dir
+	   else "http://chriswarbo.net/git"

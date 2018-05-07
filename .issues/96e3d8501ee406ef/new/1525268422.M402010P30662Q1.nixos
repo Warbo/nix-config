@@ -1,0 +1,14 @@
+From: Chris Warburton
+Date: Wed, 02 May 2018 14:37:27 +0100
+Subject: Re: Speed up eval by reducing data dependencies
+Message-Id: <96e3d8501ee406ef-ecf504043dfce2e7-artemis@nixos>
+References: <96e3d8501ee406ef-0-artemis@nixos>
+In-Reply-To: <96e3d8501ee406ef-0-artemis@nixos>
+
+This seems to be a premature optimisation. Timing how long it takes to
+print customPkgNames from a cold start, using nix-instantiate, gives
+about 1.5 seconds. That seems fine.
+
+What about something which is buried in the modular file structure?
+Doing the same for zuki-theme.name takes ~2.5 seconds, and that includes
+handling things like fetchgit, withDeps [ test ], etc.
