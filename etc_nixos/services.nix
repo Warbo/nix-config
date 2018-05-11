@@ -87,7 +87,7 @@ with rec {
                 fi
 
                 # Bail out if we're not in a sensible state
-                allIsWell || fail "Couldn't start/stop '$name'"
+                allIsWell || echo "Inconsistent state for '$name'" 1>&2
               }
 
               # Make a long-running process, since 'start' exits immediately
