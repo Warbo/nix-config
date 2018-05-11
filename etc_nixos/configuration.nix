@@ -8,6 +8,11 @@ with rec {
   };
 
   warbo-utilities = mypkgs.warbo-utilities.override { forceLatest = true; };
+
+  myOverrides =
+    with mypkgs; lib.genAttrs customPkgNames (n: getAttr n mypkgs) // {
+      inherit warbo-utilities;
+    };
 };
 
 { config, pkgs, ... }:
@@ -219,7 +224,10 @@ rec {
   };
 
   nixpkgs.config = {
-    packageOverrides = pkgs: {
+    packageOverrides = pkgs: mypkgs // {
+      # Use original nix, as long as our override is broken
+      #inherit (pkgs) nix;
+
       # Required for PulseAudio headsets
       #bluez = pkgs.bluez5;
     };
