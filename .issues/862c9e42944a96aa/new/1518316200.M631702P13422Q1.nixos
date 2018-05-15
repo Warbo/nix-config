@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Sun, 11 Feb 2018 02:26:46 +0000
-State: new
+State: resolved
 Subject: Only test things which aren't derivations
 Message-Id: <862c9e42944a96aa-0-artemis@nixos>
+resolution: fixed
 
 release.nix should pass into test.nix the set of non-test things it
 already has. test.nix should check that these are all derivations, then

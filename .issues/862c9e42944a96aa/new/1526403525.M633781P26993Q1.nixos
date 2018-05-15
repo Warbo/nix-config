@@ -1,0 +1,31 @@
+From: Chris Warburton
+Date: Tue, 15 May 2018 17:47:54 +0100
+Subject: Re: Only test things which aren't derivations
+Message-Id: <862c9e42944a96aa-de2ebeeee3868c69-artemis@nixos>
+References: <862c9e42944a96aa-0-artemis@nixos>
+In-Reply-To: <862c9e42944a96aa-0-artemis@nixos>
+
+I've now taken a different approach: each file can define both a 'pkg'
+(which could actually be a helper function, or whatever) *and* a list of
+tests. These lists are all concatenated into a 'customTests' list,
+similar to how `customPkgNames` accumulates names.
+
+The idea is as follows:
+
+ - Tests which should checked as soon as we *use* a definition should be
+   assertions on those definitions. For example, checking that some
+   dummy input gives the right sort of thing. These are like unit tests,
+   since they're quick sanity checks of the functionality.
+ - More thorough tests, which are slow but important, should be
+   derivations which the package depends on (e.g. using 'withDeps').
+   Of course, this only applies to derivations; however it can also be
+   used by functions which produce derivations, since they can make
+   their output depend on the tests passing.
+ - Assertions can be a bad idea for some things, since we might not want
+   to abort all invocations when they fail. These can be moved on to the
+   'tests' list.
+ - If there's a heavyweight test, like integration tests, which we might
+   not want to force all users to depend on, we can make them
+   derivations and put them in the 'tests' list. Examples might be
+   checking that our Haskell helper functions work, e.g.
+   'haskellPkgWithDeps' and friends.

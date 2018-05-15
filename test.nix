@@ -10,7 +10,6 @@ with builtins;
 with pkgs;
 with lib;
 rec {
-
   # Packages which should provide some binary
   binaryProviders = mapAttrs (n: hasBinary (getAttr n pkgs)) {
     all             = "firefox";
@@ -311,11 +310,7 @@ rec {
   };
 
   testDrvs = tests // {
-    haveAllTests = testWeHave {
-      label  = "all";
-      wanted = customPkgNames;
-      have   = attrNames tests;
-    };
+    customTests  = withDeps customTests nothing;
   };
 
   all = withDeps (attrValues testDrvs)

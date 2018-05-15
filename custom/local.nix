@@ -13,7 +13,9 @@ with rec {
     with rec {
       func     = import (./local + "/${x}");
       result   = callPackage func (extraArgs (functionArgs func));
-      hasTests = (result ? pkg or false) and (result ? tests or false);
+      hasTests = isAttrs result         &&
+                 hasAttr "pkg"   result &&
+                 hasAttr "tests" result;
     };
     {
       pkgs = old.pkgs // listToAttrs [{
