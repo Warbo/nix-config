@@ -11,18 +11,19 @@ with rec {
                                        else {});
   mkPkg = x: old:
     with rec {
-      func   = import (./local + "/${x}");
-      result = callPackage func (extraArgs (functionArgs func));
+      func     = import (./local + "/${x}");
+      result   = callPackage func (extraArgs (functionArgs func));
+      hasTests = (result ? pkg or false) and (result ? tests or false);
     };
     {
       pkgs = old.pkgs // listToAttrs [{
                name  = removeSuffix ".nix" x;
-               value = if result.hasTests or false
+               value = if hasTests
                           then result.pkg
                           else result;
              }];
 
-      tests = old.tests ++ (if result.hasTests or false
+      tests = old.tests ++ (if hasTests
                                then result.tests
                                else []);
     };

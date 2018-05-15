@@ -11,31 +11,6 @@ with pkgs;
 with lib;
 rec {
 
-  # Packages which should provide a binary of the same name
-  selfNamedBinaries = genAttrs [
-    "cabal2nix"
-    "conkeror"
-    "ditaaeps"
-    "emacs"
-    "fail"
-    "gcalcli"
-    "get_iplayer"
-    "git2html"
-    "goat"
-    "ipfs"
-    "linkchecker"
-    "mhonarc"
-    "pipeToNix"
-    "pushover"
-    "replace"
-    "sshuttle"
-    "sta"
-    "x2x"
-    "xdms"
-    "youtube-dl"
-    "yq"
-  ] (n: hasBinary (getAttr n pkgs) n);
-
   # Packages which should provide some binary
   binaryProviders = mapAttrs (n: hasBinary (getAttr n pkgs)) {
     all             = "firefox";
@@ -194,7 +169,7 @@ rec {
   ] (n: assert hasAttr n pkgs || abort "No attribute '${n}'";
         trace "TODO: no test for ${n} yet" nothing);
 
-  tests = TODO // selfNamedBinaries // binaryProviders // {
+  tests = TODO // binaryProviders // {
     inherit nothing pidgin-privacy-please repo1603 repo1609 repo1703 repo1709
             stableHackageDb;
 

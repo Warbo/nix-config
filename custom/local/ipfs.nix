@@ -1,4 +1,4 @@
-{ latest, nixpkgs1803, self }:
+{ hasBinary, latest, nixpkgs1803, self, withDeps }:
 
 with builtins;
 with rec {
@@ -16,5 +16,12 @@ with rec {
   warn = if compareVersions stableIpfs.version newIpfs.version == -1
             then (x: x)
             else trace warning;
+
+  pkg = warn newIpfs;
+
+  tested = withDeps [ (hasBinary pkg "ipfs") ] pkg;
 };
-warn newIpfs
+{
+  pkg   =   tested;
+  tests = [ tested ];
+}

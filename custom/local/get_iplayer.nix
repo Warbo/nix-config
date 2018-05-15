@@ -1,8 +1,8 @@
 # Updated get_iplayer
+{ buildEnv, fetchurl, ffmpeg, hasBinary, super, perlPackages, stdenv,
+  withDeps }:
 
-{ buildEnv, fetchurl, ffmpeg, super, perlPackages, stdenv }:
-
-with {
+with rec {
   get_iplayer_real = stdenv.lib.overrideDerivation super.get_iplayer
     (oldAttrs : {
       name = "get_iplayer";
@@ -15,10 +15,16 @@ with {
                                 ffmpeg
                               ];
     });
-};
 
-# Some dependencies seem to be missing, so bundle them in with get_iplayer
-buildEnv {
-  name  = "get_iplayer";
-  paths = [ get_iplayer_real ffmpeg perlPackages.XMLSimple ];
+  # Some dependencies seem to be missing, so bundle them in with get_iplayer
+  pkg = buildEnv {
+    name  = "get_iplayer";
+    paths = [ get_iplayer_real ffmpeg perlPackages.XMLSimple ];
+  };
+
+  tested = withDeps [ (hasBinary pkg "get_iplayer") ] pkg;
+};
+{
+  pkg   =   tested;
+  tests = [ tested ];
 }
