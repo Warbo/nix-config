@@ -10,13 +10,27 @@ with rec {
                       (if args ? super then { inherit super; }
                                        else {});
   mkPkg = x: old:
-    with { func = import (./local + "/${x}"); };
-    old // listToAttrs [{
-             name  = removeSuffix ".nix" x;
-             value = callPackage func (extraArgs (functionArgs func));
-           }];
+    with rec {
+      func   = import (./local + "/${x}");
+      result = callPackage func (extraArgs (functionArgs func));
+    };
+    {
+      pkgs = old.pkgs // listToAttrs [{
+               name  = removeSuffix ".nix" x;
+               value = if result.hasTests or false
+                          then result.pkg
+                          else result;
+             }];
+
+      tests = old.tests ++ (if result.hasTests or false
+                               then result.tests
+                               else []);
+    };
 };
 fold mkPkg
-     { inherit callPackage; }
+     {
+       pkgs  = { inherit callPackage; };
+       tests = [];
+     }
      (filter (hasSuffix ".nix")
              (attrNames (readDir ./local)))

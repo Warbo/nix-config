@@ -48,17 +48,29 @@ with rec {
       packageOverrides = pkgs:
         with rec {
           mkPkg = x: oldPkgs:
-            with { newPkgs = oldPkgs // import x self super; };
+            with rec {
+              result  = import x self super;
+              newPkgs = oldPkgs // result.pkgs;
+            };
+            assert result ? pkgs  || abort "No 'pkgs' from ${x}";
+            assert result ? tests || abort "No 'tests' from ${x}";
             newPkgs // {
               # Keep a record of which packages are custom
               customPkgNames = attrNames newPkgs;
+
+              # Accumulate any tests defined by the custom packages
+              customTests = oldPkgs.customTests ++ result.tests;
             };
 
           self      = super   // overrides;
           super     = nixpkgs // pkgs // {
                         inherit customised repo stableVersion;
                       };
-          overrides = lib.fold mkPkg { stable = version != "unstable"; }
+          overrides = lib.fold mkPkg
+                               {
+                                 customTests = [];
+                                 stable      = version != "unstable";
+                               }
                                nixFiles;
 
           combined  = nixpkgs // { inherit repo; } // overrides;
