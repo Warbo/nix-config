@@ -9,4 +9,4 @@ if env != ""
    then env
    else if pathExists dir
            then toString dir
-	   else "http://chriswarbo.net/git"
+           else "http://chriswarbo.net/git"
