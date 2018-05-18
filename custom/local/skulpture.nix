@@ -1,4 +1,5 @@
-{ cmake, fail, fetchurl, findutils, kdelibs4, stdenv, writeScript }:
+{ cmake, fail, fetchurl, findutils, kdelibs4 ? nixpkgs1709.kdelibs4,
+  nixpkgs1709, stdenv, writeScript }:
 
 stdenv.mkDerivation {
   name    = "skulpture";
