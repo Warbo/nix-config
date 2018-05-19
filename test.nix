@@ -10,24 +10,6 @@ with builtins;
 with pkgs;
 with lib;
 rec {
-  # Packages which should provide some binary
-  binaryProviders = mapAttrs (n: hasBinary (getAttr n pkgs)) {
-    all             = "firefox";
-    artemis         = "git-artemis";
-    asv-nix         = "asv";
-    basic           = "ssh";
-    coq_mtac        = "coqc";
-    git2html-real   = "git2html";
-    hydra           = "hydra-eval-jobs";
-    kbibtex_full    = "kbibtex";
-    miller          = "mlr";
-    pandocPkgs      = "pandoc";
-    rockbox         = "mks5lboot";
-    stableHackage   = "makeCabalConfig";
-    tidy-html5      = "tidy";
-    timeout         = "withTimeout";
-  };
-
   failDrv = name: runCommand name "exit 1";
 
   # Makes a derivation with the given value in its environment; checks whether
@@ -292,12 +274,6 @@ rec {
                         set   = {};
                       }));
     stable          = tryInEnv "stable" (toJSON stable);
-
-    stringAsList  = tryInEnv "stringAsList"  (stringAsList (x: x) "hi");
-    stringReverse = tryInEnv "stringReverse" (stringReverse "foo");
-
-    tryElse = tryInEnv "tryElse" (tryElse <nope> "fallback");
-    unlines = tryInEnv "unlines" (unlines [ "foo" "bar" ]);
 
     wrap = wrap {
       name   = "wrap-test";

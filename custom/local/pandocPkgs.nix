@@ -29,26 +29,32 @@ with haskellPkgsDeps {
   hsPkgs = haskell.packages.ghc7103;
 
   useOldZlib = true;
-};
 
-# Add the "gcRoots" as dependencies; these are derivations we imported in order
-# to generate the required Haskell packages, but which aren't actually included
-# in the dependencies of anything. Notably this includes hackageDb. By adding
-# these as dependencies here, we ensure the GC sees them as live.
-withDeps gcRoots (runCommand "pandocPkgs"
-  {
-    wanted = hsPkgs.ghcWithPackages (h: [
-      h.pandoc
-      h.panpipe
-      h.pandoc-citeproc
-      h.panhandle
-    ]);
-  }
-  ''
-    # Pluck out the binaries we want, ignore those we don't (e.g. ghc)
-    mkdir -p "$out/bin"
-    for P in pandoc pandoc-citeproc panhandle panpipe
-    do
-      ln -s "$wanted/bin/$P" "$out/bin/$P"
-    done
-  '')
+  # Add the "gcRoots" as dependencies; these are derivations we imported in order
+  # order to generate the required Haskell packages, but which aren't actually
+  # included in the dependencies of anything. Notably this includes hackageDb.
+  # By adding these as dependencies here, we ensure the GC sees them as live.
+  pkg = withDeps gcRoots (runCommand "pandocPkgs"
+    {
+      wanted = hsPkgs.ghcWithPackages (h: [
+        h.pandoc
+        h.panpipe
+        h.pandoc-citeproc
+        h.panhandle
+      ]);
+    }
+    ''
+      # Pluck out the binaries we want, ignore those we don't (e.g. ghc)
+      mkdir -p "$out/bin"
+      for P in pandoc pandoc-citeproc panhandle panpipe
+      do
+        ln -s "$wanted/bin/$P" "$out/bin/$P"
+      done
+    '');
+
+  tested = withDeps [ (hasBinary pkg "pandoc") ] pkg;
+};
+{
+  pkg   =   tested;
+  tests = [ tested ];
+}

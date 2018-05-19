@@ -1,4 +1,4 @@
-{ fetchFromGitHub, fetchurl, pythonPackages }:
+{ fetchFromGitHub, fetchurl, hasBinary, pythonPackages, withDeps }:
 
 with rec {
   mercurial = pythonPackages.buildPythonPackage {
@@ -8,15 +8,21 @@ with rec {
       sha256 = "182qh6d0srps2n5sydzy8n3gi78la6m0wi3846zpyyd0b8pmgmfp";
     };
   };
-};
 
-pythonPackages.buildPythonPackage {
-  name = "artemis";
-  src  = fetchFromGitHub {
-    owner  = "mrzv";
-    repo   = "artemis";
-    rev    = "6a3d496";
-    sha256 = "1xdd4ayb6jyk4w5hdq2dxbxzzk90lk21rvkhwcih8ydwwg6zrnqh";
+  untested = pythonPackages.buildPythonPackage {
+    name = "artemis";
+    src  = fetchFromGitHub {
+      owner  = "mrzv";
+      repo   = "artemis";
+      rev    = "6a3d496";
+      sha256 = "1xdd4ayb6jyk4w5hdq2dxbxzzk90lk21rvkhwcih8ydwwg6zrnqh";
+    };
+    propagatedBuildInputs = [ mercurial ];
   };
-  propagatedBuildInputs = [ mercurial ];
+
+  pkg = withDeps [ (hasBinary untested "git-artemis") ] untested;
+};
+{
+  inherit   pkg;
+  tests = [ pkg ];
 }

@@ -1,5 +1,5 @@
-{ callPackage, fetchFromGitHub, isBroken, lib, moreutils, perlPackages, replace,
-  super, system, withDeps }:
+{ callPackage, fetchFromGitHub, hasBinary, isBroken, lib, moreutils,
+  perlPackages, replace, super, system, withDeps }:
 
 # Hydra's pretty broken. Try to keep track of the problems using isBroken, so we
 # will be notified when anything gets fixed.
@@ -124,6 +124,10 @@ with rec {
       done
     '';
   });
-};
 
-unrestricted
+  tested = withDeps [ (hasBinary unrestricted "hydra-eval-jobs") ] unrestricted;
+};
+{
+  pkg   =   tested;
+  tests = [ tested ];
+}
