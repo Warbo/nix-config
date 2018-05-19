@@ -240,22 +240,6 @@ rec {
                         (ifDrv "otherIsNotPath"   (!(isPath 42       )))
                       ] nothing;
 
-    mkBin = runCommand "mkBin-test"
-              {
-                buildInputs = [ fail (mkBin {
-                  name   = "ping";
-                  script = ''
-                    #!/usr/bin/env bash
-                    echo "pong"
-                  '';
-                }) ];
-              }
-              ''
-                X=$(ping)
-                [[ "x$X" = "xpong" ]] || fail "Output was '$X'"
-                echo pass > "$out"
-              '';
-
     mkStableHackageDb =
       if elem "0.2.0.0" (mkStableHackageDb {}).versions.panhandle
          then nothing
@@ -267,22 +251,6 @@ rec {
         ${code}
         echo pass > "$out"
       '';
-
-    setIn           = tryInEnv "setIn" (toJSON (setIn {
-                        path  = [ "x" ];
-                        value = 1;
-                        set   = {};
-                      }));
-    stable          = tryInEnv "stable" (toJSON stable);
-
-    wrap = wrap {
-      name   = "wrap-test";
-      paths  = [ bash ];
-      vars   = {
-        MY_VAR = "MY VAL";
-      };
-      script = ./custom/local/wrap.nix;
-    };
   };
 
   testDrvs = tests // {
