@@ -111,7 +111,7 @@ with rec {
 
       tests = import ./test.nix { inherit pkgs; };
     };
-    topLevel pkgs // haskell // { tests = tests.testDrvs; };
+    topLevel pkgs // haskell // { inherit (tests) tests; };
 
   # We keep these versions hanging around, but we don't really care if our
   # customisations don't work with them

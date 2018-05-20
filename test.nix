@@ -10,18 +10,6 @@ with builtins;
 with pkgs;
 with lib;
 rec {
-  failDrv = name: runCommand name "exit 1";
-
-  # Makes a derivation with the given value in its environment; checks whether
-  # this causes the build to fail or not.
-  tryInEnv = name: x: runCommand "try-${name}-in-env" { inherit x; }
-                                 ''echo pass > "$out"'';
-
-  ifDrv   = name: bool: runCommand name {} ''
-    mkdir "$out"
-    exit ${if bool then "0" else "1"}
-  '';
-
   testWeHave = { label, wanted, have}: runCommand "have-${label}-tests"
     {
       inherit label;
@@ -80,23 +68,16 @@ rec {
     pkgTests;
 
   tests = {
-    inherit nothing pidgin-privacy-please repo1603 repo1609 repo1703 repo1709
-            stableHackageDb;
+    inherit hackagePackageNamesDrv;
 
-    callPackage     = tryInEnv "callPackage" (callPackage ({ bash }: "x") {});
+    haskell     = withDeps (attrValues haskellTests)
+                           (runCommand "haskell-tests" {} ''
+                             echo pass > "$out"
+                           '');
 
-    hackagePackageNamesDrv = hackagePackageNamesDrv;
-
-    haskell         = withDeps (attrValues haskellTests)
-                               (runCommand "haskell-tests" {} ''
-                                 echo pass > "$out"
-                               '');
+    customTests = withDeps customTests nothing;
   };
 
-  testDrvs = tests // {
-    customTests  = withDeps customTests nothing;
-  };
-
-  all = withDeps (attrValues testDrvs)
+  all = withDeps (attrValues tests)
                  (runCommand "all-tests" {} ''echo pass > "$out"'');
 }
