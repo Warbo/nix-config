@@ -1,5 +1,6 @@
 # Fixed versions of pandoc, panpipe, panhandle, pandoc-citeproc and dependencies
-{ haskell, haskellPkgsDeps, latestGit, lib, repoSource, runCommand, withDeps }:
+{ hasBinary, haskell, haskellPkgsDeps, latestGit, lib, repoSource, runCommand,
+  withDeps }:
 
 with lib;
 with haskellPkgsDeps {
@@ -29,7 +30,8 @@ with haskellPkgsDeps {
   hsPkgs = haskell.packages.ghc7103;
 
   useOldZlib = true;
-
+};
+with rec {
   # Add the "gcRoots" as dependencies; these are derivations we imported in order
   # order to generate the required Haskell packages, but which aren't actually
   # included in the dependencies of anything. Notably this includes hackageDb.

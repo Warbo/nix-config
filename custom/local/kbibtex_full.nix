@@ -1,10 +1,10 @@
-{ hasBinary, nixpkgs1603, withDeps }:
+{ hasBinary, nixpkgs1603, withArgs, withDeps }:
 
 with rec {
   # Shamelessly taken from https://github.com/NixOS/nixpkgs/pull/10219
   # FIXME: This is using FAR too many dependencies; many are taken verbatim from
   # that digikam patch, and are hence unused by kbibtex
-  withArgs = f: withArgs
+  setArgs = f: withArgs
     [ "stdenv" "fetchurl" "automoc4" "boost" "shared_desktop_ontologies" "cmake"
       "eigen" "lcms" "gettext" "jasper" "lensfun" "libgphoto2" "libjpeg"
       "libpgf" "libtiff" "libusb1" "liblqr1" "mysql" "opencv" "perl" "phonon"
@@ -70,7 +70,7 @@ with rec {
     enableParallelBuilding = true;
   };
 
-  makePkg = args:
+  makePkg = setArgs (args:
     with args;
     with rec {
       v     = "0.4";
@@ -163,7 +163,7 @@ with rec {
       popd > /dev/null
 
       ${replaceExeListWithWrapped [ "kbibtex" ]}
-    '';
+    '');
 
   untested = nixpkgs1603.callPackage makePkg {};
 

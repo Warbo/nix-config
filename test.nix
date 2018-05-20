@@ -79,146 +79,11 @@ rec {
     };
     pkgTests;
 
-  TODO = genAttrs [
-    "anonymous-pro-font"
-    "beautifulsoup-custom"
-    "citationstyles"
-    "droid-fonts"
-    "elcid"
-    "feed2maildirsimple"
-    "fetchGitHashless"
-    "font-spacemono"
-    "forceBuilds"
-    "getNixpkgs"
-    "ghcPackageEnv"
-    "ghcTurtle"
-    "google-api-python-client"
-    "gscholar"
-    "hackageDb"
-    "hackageUpdate"
-    "haskellGit"
-    "haskellNames"
-    "haskellOverrides"
-    "haskellPackages"
-    "helpers"
-    "hfeed2atom"
-    "inNixedDir"
-    "isBroken"
-    "jsbeautifier"
-    "latestCabal"
-    "latestCfgPkgs"
-    "latestGit"
-    "latestNixCfg"
-    "lhasa"
-    "md2pdf"
-    "mergeDirs"
-    "mf2py"
-    "ml4pg"
-    "newNixpkgsEnv"
-    "nixFromCabal"
-    "nixpkgs1603"
-    "nixpkgs1609"
-    "nixpkgs1703"
-    "nixpkgs1709"
-    "profiledHaskellPackages"
-    "pypdf2"
-    "python-lhafile"
-    "repo2npm"
-    "repoSource"
-    "reverse"
-    "runCabal2nix"
-    "runScript"
-    "sanitiseName"
-    "scholar"
-    "searchtobibtex"
-    "skulpture"
-    "stripOverrides"
-    "suffMatch"
-    "tipSrc"
-    "translitcodec"
-    "unpack"
-    "unprofiledHaskellPackages"
-    "unstableTipSrc"
-    "uritemplate"
-    "w3c-validator"
-    "withArgs"
-    "withArgsOf"
-    "withDeps"
-    "withLatestCfg"
-    "withLatestGit"
-    "withNix"
-  ] (n: assert hasAttr n pkgs || abort "No attribute '${n}'";
-        trace "TODO: no test for ${n} yet" nothing);
-
-  tests = TODO // binaryProviders // {
+  tests = {
     inherit nothing pidgin-privacy-please repo1603 repo1609 repo1703 repo1709
             stableHackageDb;
 
-    allDrvsIn       = tryInEnv "allDrvsIn" (allDrvsIn { x = nothing; });
-
-    attrsToDirs     = attrsToDirs { foo = { bar = ./test.nix; }; };
-
-    backtrace       = runCommand "backtrace-test"
-                        { buildInputs = [ backtrace fail ]; }
-                        ''
-                          X=$(NOTRACE=1 backtrace)
-                          [[ -z "$X" ]] || fail "NOTRACE should suppress trace"
-
-                          Y=$(backtrace)
-                          for Z in "Backtrace" "End Backtrace" "bash"
-                          do
-                            echo "$Y" | grep -F "$Z" || fail "Didn't find '$Z'"
-                          done
-
-                          echo pass > "$out"
-                        '';
-
-    cabalField      = runCommand "cabalField-test"
-                        {
-                          found = cabalField {
-                            dir   = unpack haskellPackages.text.src;
-                            field = "name";
-                          };
-                        }
-                        ''
-                          [[ "x$found" = "xtext" ]] || {
-                            echo "Got '$found' instead of 'text'" 1>&2
-                            exit 1
-                          }
-                          mkdir "$out"
-                        '';
-
     callPackage     = tryInEnv "callPackage" (callPackage ({ bash }: "x") {});
-
-    composeWithArgs = tryInEnv "composeWithArgs"
-                               (callPackage (composeWithArgs
-                                               (x: x)
-                                               ({ hello }: hello)) {});
-
-    customPkgNames  = tryInEnv "customPkgNames" customPkgNames;
-
-    dirContaining   = dirContaining ./custom [
-                        ./custom/local.nix
-                        ./custom/haskell.nix
-                      ];
-
-    dirsToAttrs     = runCommand "dirsToAttrs-test"
-                        (dirsToAttrs (attrsToDirs {
-                          x = ./custom/local/dirsToAttrs.nix; }))
-                        ''
-                          [[ -n "$x" ]]                      || exit 1
-                          [[ -f "$x" ]]                      || exit 2
-                          grep 'builtins' < "$x" > /dev/null || exit 3
-
-                          echo "pass" > "$out"
-                        '';
-
-    dropWhile = tryInEnv "dropWhile" (dropWhile (x: x > 2) [ 5 4 3 2 1 ]);
-
-    dummyBuild = dummyBuild "dummyBuildTest";
-
-    hackagePackageNames = tryInEnv "hackagePackageNames"
-                                   (typeOf hackagePackageNames);
 
     hackagePackageNamesDrv = hackagePackageNamesDrv;
 
@@ -226,31 +91,6 @@ rec {
                                (runCommand "haskell-tests" {} ''
                                  echo pass > "$out"
                                '');
-
-    isCallable      = ifDrv "isCallable-test"
-                            (isCallable (callPackage
-                                          ({}: (x: abort "shouldn't force"))
-                                          {}));
-
-    isPath          = withDeps [
-                        (ifDrv "relativePathIsPath" (isPath ./test.nix))
-                        (ifDrv "absolutePathIsPath" (isPath /tmp      ))
-                        (ifDrv "pathStringIsPath"   (isPath "/tmp"    ))
-                        (ifDrv "stringIsNotPath"  (!(isPath "foo"    )))
-                        (ifDrv "otherIsNotPath"   (!(isPath 42       )))
-                      ] nothing;
-
-    mkStableHackageDb =
-      if elem "0.2.0.0" (mkStableHackageDb {}).versions.panhandle
-         then nothing
-         else failDrv "mkStableHackageDb-test";
-
-    nixListToBashArray =
-      with nixListToBashArray { name = "check"; args = [ "foo" ]; };
-      runCommand "check-NLTBA" env ''
-        ${code}
-        echo pass > "$out"
-      '';
   };
 
   testDrvs = tests // {
