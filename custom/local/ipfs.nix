@@ -19,7 +19,7 @@ with rec {
 
   pkg = warn newIpfs;
 
-  tested = withDeps [ (hasBinary pkg "ipfs") ] pkg;
+  tested = withDeps [ (hasBinary pkg.bin "ipfs") ] pkg;
 };
 {
   pkg   =   tested;
