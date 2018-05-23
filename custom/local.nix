@@ -13,27 +13,28 @@ with rec {
     with rec {
       func     = import (./local + "/${x}");
       result   = callPackage func (extraArgs (functionArgs func));
+      name     = removeSuffix ".nix" x;
       hasTests = isAttrs result         &&
                  hasAttr "pkg"   result &&
                  hasAttr "tests" result;
     };
     {
       pkgs = old.pkgs // listToAttrs [{
-               name  = removeSuffix ".nix" x;
+               inherit name;
                value = if hasTests
                           then result.pkg
                           else result;
              }];
 
-      tests = old.tests ++ (if hasTests
-                               then result.tests
-                               else []);
+      tests = old.tests // (if hasTests
+                               then { "${name}" = result.tests; }
+                               else {});
     };
 };
 fold mkPkg
      {
        pkgs  = { inherit callPackage; };
-       tests = [];
+       tests = {};
      }
      (filter (hasSuffix ".nix")
              (attrNames (readDir ./local)))

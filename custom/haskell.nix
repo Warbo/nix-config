@@ -17,7 +17,7 @@ with rec {
 };
 
 {
-  tests = [];
+  tests = {};
   pkgs  = rec {
     inherit haskellNames haskellOverrides;
 

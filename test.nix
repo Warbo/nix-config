@@ -68,14 +68,12 @@ rec {
     pkgTests;
 
   tests = {
-    inherit hackagePackageNamesDrv;
+    inherit customTests hackagePackageNamesDrv;
 
     haskell     = withDeps (attrValues haskellTests)
                            (runCommand "haskell-tests" {} ''
                              echo pass > "$out"
                            '');
-
-    customTests = withDeps customTests nothing;
   };
 
   all = withDeps (attrValues tests)

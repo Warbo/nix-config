@@ -51,6 +51,7 @@ with rec {
             with rec {
               result  = import x self super;
               newPkgs = oldPkgs // result.pkgs;
+              name    = lib.removeSuffix ".nix" (baseNameOf x);
             };
             assert result ? pkgs  || abort "No 'pkgs' from ${x}";
             assert result ? tests || abort "No 'tests' from ${x}";
@@ -59,7 +60,9 @@ with rec {
               customPkgNames = attrNames newPkgs;
 
               # Accumulate any tests defined by the custom packages
-              customTests = oldPkgs.customTests ++ result.tests;
+              customTests = oldPkgs.customTests // {
+                "${name}" = result.tests;
+              };
             };
 
           self      = super   // overrides;
@@ -68,7 +71,7 @@ with rec {
                       };
           overrides = lib.fold mkPkg
                                {
-                                 customTests = [];
+                                 customTests = {};
                                  stable      = version != "unstable";
                                }
                                nixFiles;
