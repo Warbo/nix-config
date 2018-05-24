@@ -1,5 +1,7 @@
-{ dnsutils, gcc, ghc, pkgconfig, runCommand, super, zlib }:
+{ dnsutils ? null, gcc, ghc, pkgconfig, runCommand, super, zlib }:
 
+assert dnsutils != null ||
+       throw "No dnsutils for cabal-install2 (is nixpkgs older than 17.03?)";
 with rec {
   old    = super.cabal-install.version;
   new    = "2.2.0.0";
