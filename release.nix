@@ -1,7 +1,8 @@
 # Used for testing and building via continuous integration (e.g. Hydra)
-with builtins;
 with import <nixpkgs> { config = import ./config.nix; };
-with lib;
+lib.mapAttrs (_: builtins.getAttr "customTests") customised
+
+/*
 with rec {
   # Select our custom packages/overrides, except for those which are buried
   # in larger sets
@@ -119,3 +120,4 @@ with rec {
 };
 
 lib.mapAttrs (_: select) (removeAttrs customised deprecated)
+*/
