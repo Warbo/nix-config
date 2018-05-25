@@ -39,6 +39,6 @@ with rec {
   tested = withDeps [ (hasBinary pkg "withTimeout") ] pkg;
 };
 {
-  pkg   =   tested;
-  tests = [ tested ];
+  pkg   = tested;
+  tests = tested;
 }

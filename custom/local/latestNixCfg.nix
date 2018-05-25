@@ -13,7 +13,7 @@ with rec {
     };
   };
 };
-assert stable || abort (toJSON {
+assert stable || throw (toJSON {
          msg = ''
            Unstable nix-config doesn't provide latestNixConfig, since it's more
            likely to be misused than be of any help. Try the following:

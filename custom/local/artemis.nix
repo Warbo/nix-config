@@ -23,6 +23,6 @@ with rec {
   pkg = withDeps [ (hasBinary untested "git-artemis") ] untested;
 };
 {
-  inherit   pkg;
-  tests = [ pkg ];
+  inherit pkg;
+  tests = pkg;
 }

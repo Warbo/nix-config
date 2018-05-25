@@ -128,6 +128,6 @@ with rec {
   tested = withDeps [ (hasBinary unrestricted "hydra-eval-jobs") ] unrestricted;
 };
 {
-  pkg   =   tested;
-  tests = [ tested ];
+  pkg   = tested;
+  tests = tested;
 }

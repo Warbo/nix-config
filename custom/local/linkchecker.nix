@@ -40,6 +40,6 @@ with rec {
   tested = withDeps [ (hasBinary pkg "linkchecker") ] pkg;
 };
 {
-  pkg   =   tested;
-  tests = [ tested ];
+  pkg   = tested;
+  tests = tested;
 }

@@ -17,6 +17,6 @@ with rec {
   tested = withDeps [ (hasBinary pkg "goat") ] pkg;
 };
 {
-  pkg   =   tested;
-  tests = [ tested ];
+  pkg   = tested;
+  tests = tested;
 }

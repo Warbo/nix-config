@@ -82,6 +82,6 @@ with rec {
   tested = withDeps [ (hasBinary pkg "ssh") ] pkg;
 };
 {
-  pkg   =   tested;
-  tests = [ tested ];
+  pkg   = tested;
+  tests = tested;
 }

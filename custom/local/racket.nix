@@ -6,5 +6,5 @@ rec {
         if success
            then trace "WARNING: Racket override wasn't needed" value
            else nixpkgs1609.racket;
-  tests = [ pkg ];
+  tests = pkg;
 }

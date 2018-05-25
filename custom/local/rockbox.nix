@@ -73,6 +73,6 @@ with rec {
   tested = withDeps [ (hasBinary pkg "mks5lboot") ] pkg;
 };
 {
-  pkg   =   tested;
-  tests = [ tested ];
+  pkg   = tested;
+  tests = tested;
 }

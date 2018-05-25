@@ -19,6 +19,6 @@ with rec {
   tested = withDeps [ (hasBinary pkg "emacs") ] pkg;
 };
 {
-  pkg   =   tested;
-  tests = [ tested ];
+  pkg   = tested;
+  tests = tested;
 }

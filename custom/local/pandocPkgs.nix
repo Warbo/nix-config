@@ -57,6 +57,6 @@ with rec {
   tested = withDeps [ (hasBinary pkg "pandoc") ] pkg;
 };
 {
-  pkg   =   tested;
-  tests = [ tested ];
+  pkg   = tested;
+  tests = tested;
 }

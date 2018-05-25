@@ -21,5 +21,5 @@ rec {
     '';
   };
 
-  tests = [ pkg ];
+  tests = pkg;
 }

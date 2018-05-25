@@ -170,6 +170,6 @@ with rec {
   tested = withDeps [ (hasBinary untested "kbibtex") ] untested;
 };
 {
-  pkg   =   tested;
-  tests = [ tested ];
+  pkg   = tested;
+  tests = tested;
 }

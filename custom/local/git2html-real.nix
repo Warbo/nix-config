@@ -21,6 +21,6 @@ with rec {
   tested = withDeps [ (hasBinary pkg "git2html") ] pkg;
 };
 {
-  pkg   =   tested;
-  tests = [ tested ];
+  pkg   = tested;
+  tests = tested;
 }

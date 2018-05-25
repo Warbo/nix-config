@@ -13,5 +13,5 @@ with rec {
 };
 {
   inherit pkg;
-  tests = [ pkg ];
+  tests = pkg;
 }

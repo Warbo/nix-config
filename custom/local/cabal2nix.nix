@@ -10,6 +10,6 @@ with rec {
   tested = withDeps [ (hasBinary pkg "cabal2nix") ] pkg;
 };
 {
-  pkg   =   tested;
-  tests = [ tested ];
+  pkg   = tested;
+  tests = tested;
 }

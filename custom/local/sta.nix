@@ -18,6 +18,6 @@ with rec {
   tested = withDeps [ (hasBinary pkg "sta") ] pkg;
 };
 {
-  pkg   =   tested;
-  tests = [ tested ];
+  pkg   = tested;
+  tests = tested;
 }

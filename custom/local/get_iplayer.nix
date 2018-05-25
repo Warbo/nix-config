@@ -25,6 +25,6 @@ with rec {
   tested = withDeps [ (hasBinary pkg "get_iplayer") ] pkg;
 };
 {
-  pkg   =   tested;
-  tests = [ tested ];
+  pkg   = tested;
+  tests = tested;
 }

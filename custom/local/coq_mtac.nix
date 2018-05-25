@@ -18,6 +18,6 @@ with rec {
   tested = withDeps [ (hasBinary patched "coqc") ] patched;
 };
 {
-  pkg   =   tested;
-  tests = [ tested ];
+  pkg   = tested;
+  tests = tested;
 }
