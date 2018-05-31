@@ -297,18 +297,38 @@ rec {
   };
 
   services.udev =
-    with rec {
-      keyboardScript =   writeScript "usb-keyboard.sh" ''
-        #!${bash}/bin/bash
-        DISPLAY=":0" "${warbo-utilities}/bin/keys"
-      '';
-      keyboardRule = action: ''SUBSYSTEM=="input", SUBSYSTEMS=="usb", '' +
-                             ''ACTION=="${action}", RUN+="${keyboardScript}"'';
+    with mypkgs;
+    with {
+      fixKeyboard = wrap {
+        name   = "usb-keyboard.sh";
+        paths  = [ bash coreutils warbo-utilities ];
+        vars   = {
+          debounce   = "/tmp/keys-last-ran";
+          DISPLAY    = ":0";
+          XAUTHORITY = "/home/chris/.Xauthority";
+        };
+        script = ''
+          #!/usr/bin/env bash
+          set  -e
+
+          # Run 'keys' to fix keyboard, etc. We may get several events in
+          # succession, which we debounce by noting the time.
+          THEN=0
+          [[ -e "$debounce" ]] && THEN=$(cat "$debounce")
+          NOW=$(date '+%s')
+          echo "$NOW" > "$debounce"
+
+          # Bail out if our last run was seconds ago
+          [[ "$(( THEN + 3 ))" -gt "$NOW" ]] && exit 0
+
+          # Run 'keys' from warbo-utilities, as user chris
+          sudo -u chris keys
+        '';
+      };
     };
     {
       extraRules = ''
-        ${keyboardRule "add"}
-        ${keyboardRule "remove"}
+        SUBSYSTEM=="usb", ACTION=="add|remove", RUN+="${fixKeyboard}"
       '';
     };
 
