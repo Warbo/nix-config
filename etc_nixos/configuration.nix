@@ -165,10 +165,13 @@ rec {
   };
 
   powerManagement = {
-    enable = true;
+    enable            = true;
     powerDownCommands = ''
       umount -at cifs
       killall sshfs || true
+    '';
+    resumeCommands = ''
+      DISPLAY=:0 "${warbo-utilities}"/bin/keys || true
     '';
   };
 
