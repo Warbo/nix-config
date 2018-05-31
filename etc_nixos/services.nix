@@ -916,18 +916,6 @@ with rec {
       };
     };
 
-  keys = pollingService {
-    name        = "keys";
-    description = "Sets up keyboard";
-    RestartSec  = "10";
-    shouldRun   = findProcess "bin/X ";
-    start       = wrap {
-      name  = "start-keys";
-      vars  = { DISPLAY = ":0"; };
-      file  = "${warbo-utilities}/bin/keys";
-    };
-  };
-
   ssh-agent = mkService {
     description   = "Run ssh-agent";
     serviceConfig = {
