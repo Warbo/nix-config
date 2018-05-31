@@ -296,6 +296,22 @@ rec {
     };
   };
 
+  services.udev =
+    with rec {
+      keyboardScript =   writeScript "usb-keyboard.sh" ''
+        #!${bash}/bin/bash
+        DISPLAY=":0" "${warbo-utilities}/bin/keys"
+      '';
+      keyboardRule = action: ''SUBSYSTEM=="input", SUBSYSTEMS=="usb", '' +
+                             ''ACTION=="${action}", RUN+="${keyboardScript}"'';
+    };
+    {
+      extraRules = ''
+        ${keyboardRule "add"}
+        ${keyboardRule "remove"}
+      '';
+    };
+
   services.xserver = {
     enable         = true;
     layout         = "gb";
