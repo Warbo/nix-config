@@ -266,11 +266,11 @@ rec {
   services.bitlbee.enable = true;
 
   services.ipfs = {
-    enable      = true;
-    autoMount   = true;
-    enableGC    = true; # Laptop, limited storage
-    dataDir     = "/var/lib/ipfs/.ipfs";
-    #autoMigrate = true; # If the storage format changes
+    enable         = true;
+    autoMount      = false;
+    enableGC       = true; # Laptop, limited storage
+    dataDir        = "/var/lib/ipfs/.ipfs";
+    serviceFdlimit = 64 * 1024;  # Bump up, since it keeps running out
   };
 
   # Limit the size of our logs, to prevent ridiculous space usage and slowdown
