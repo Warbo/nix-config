@@ -46,17 +46,10 @@ rec {
 
     kernel.sysctl."net.ipv4.tcp_sack" = 0;
 
-    #extraModprobeConfig = ''
-    #  # thinkpad acpi
-    #  options thinkpad_acpi
-    #  # experimental=1 fan_control=1 brightness_enable=1 hotkey=enable,0xffffff
-    #'';
-
     extraModulePackages = [ config.boot.kernelPackages.tp_smapi ];
 
     kernelParams = [
       "acpi_osi="
-      #"video.use_native_backlight=1"
       "clocksource=acpi_pm pci=use_crs"
       "consoleblank=0"
     ];
@@ -70,23 +63,6 @@ rec {
     systemWide = true;
     enable     = true;
     package    = mypkgs.pulseaudioFull;
-    /*configFile = mypkgs.writeText "default.pa" ''
-      load-module module-udev-detect
-      ${""
-      #load-module module-jackdbus-detect channels=2
-      #load-module module-bluetooth-policy
-      #load-module module-bluetooth-discover
-      }load-module module-esound-protocol-unix
-      load-module module-native-protocol-unix
-      load-module module-always-sink
-      load-module module-console-kit
-      load-module module-systemd-login
-      load-module module-intended-roles
-      load-module module-position-event-sounds
-      load-module module-filter-heuristics
-      load-module module-filter-apply
-    '';
-    zeroconf.discovery.enable = true;*/
   };
 
   sound.mediaKeys.enable = true;
@@ -127,8 +103,7 @@ rec {
             echo ']'          >> "$out"
           '';
 
-        general = blockList "http://someonewhocares.org/hosts/hosts";
-
+        general  = blockList "http://someonewhocares.org/hosts/hosts";
         facebook = blockList "https://www.remembertheusers.com/files/hosts-fb";
 
         timewasters = [
@@ -228,11 +203,7 @@ rec {
 
   nixpkgs.config = {
     packageOverrides = pkgs: mypkgs // {
-      # Use original nix, as long as our override is broken
-      #inherit (pkgs) nix;
 
-      # Required for PulseAudio headsets
-      #bluez = pkgs.bluez5;
     };
   };
 
@@ -255,14 +226,6 @@ rec {
         event = "button/mute.*";
         action = "amixer set Master toggle";
       };
-      /*brighten = {
-        event  = "video/brightnessup";
-        action = "";
-      }
-      darken = {
-        event  = "video/brightnessdown";
-        action = "";
-      };*/
     };
   };
 
@@ -290,11 +253,7 @@ rec {
   };
 
   # Because Tories
-  services.tor = {
-    client = {
-      enable = true;
-    };
-  };
+  services.tor = { client = { enable = true; }; };
 
   services.udev =
     with mypkgs;
@@ -357,17 +316,6 @@ rec {
     };
   };
 
-  # Enable updatedb for the locate command. Run as chris to access /home/chris
-  services.locate = {
-    enable     = false;
-    localuser  = "chris";
-    extraFlags = [
-      "--prunefs='fuse.sshfs'"
-      "--prunepaths='/home/chris/Public /home/chris/Uni /nix/store'"
-      "--localpaths='/home/chris'"
-    ];
-  };
-
   services.printing = {
     enable  = true;  # Switch this to enable CUPS
     drivers = [ mypkgs.hplip mypkgs.gutenprint ];
@@ -381,10 +329,6 @@ rec {
     publish.addresses   = true;
     publish.workstation = true;
   };
-
-  # Not sure which is better. Ubuntu uses thermald by default.
-  #services.thinkfan.enable = true;
-  #services.thermald.enable = true;  # Requires CPU check disabling on X60s
 
   systemd.services = import ./services.nix {
     inherit config warbo-utilities;
