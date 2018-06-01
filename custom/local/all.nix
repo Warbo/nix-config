@@ -12,6 +12,7 @@ with rec {
     paths = widgetThemes ++ [
       abiword
       acpi
+      albert
       anonymous-pro-font
       arandr
       aspell
@@ -25,7 +26,6 @@ with rec {
       compton
       conkeror
       dillo
-      dmenu
       droid-fonts
       emacs
       firefox
