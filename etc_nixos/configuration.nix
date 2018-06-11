@@ -203,7 +203,102 @@ rec {
 
   nixpkgs.config = {
     packageOverrides = pkgs: mypkgs // {
+      mesa_drivers =
+        with rec {
+          mo = pkgs.mesa_noglu.override {
+            grsecEnabled        = config.grsecurity or false;
+            enableTextureFloats = true;
+            galliumDrivers      = if pkgs.stdenv.isArm || pkgs.stdenv.isAarch64
+                                     then null
+                                     else ["r300" "r600" "radeonsi" "nouveau"];
+          };
 
+          patch = toFile "i915-gl2.patch" ''
+            diff --git a/src/mesa/drivers/dri/i915/intel_extensions.c b/src/mesa/drivers/dri/i915/intel_extensions.c
+            index 4f2c6fa34e..ab7820f123 100644
+            --- a/src/mesa/drivers/dri/i915/intel_extensions.c
+            +++ b/src/mesa/drivers/dri/i915/intel_extensions.c
+            @@ -92,12 +92,8 @@ intelInitExtensions(struct gl_context *ctx)
+                   ctx->Extensions.ATI_separate_stencil = true;
+                   ctx->Extensions.ATI_texture_env_combine3 = true;
+                   ctx->Extensions.NV_texture_env_combine4 = true;
+            -
+            -      if (driQueryOptionb(&intel->optionCache, "fragment_shader"))
+            -         ctx->Extensions.ARB_fragment_shader = true;
+            -
+            -      if (driQueryOptionb(&intel->optionCache, "stub_occlusion_query"))
+            -         ctx->Extensions.ARB_occlusion_query = true;
+            +      ctx->Extensions.ARB_fragment_shader = true;
+            +      ctx->Extensions.ARB_occlusion_query = true;
+                }
+            ${" "}
+                if (intel->ctx.Mesa_DXTn
+            diff --git a/src/mesa/drivers/dri/i915/intel_screen.c b/src/mesa/drivers/dri/i915/intel_screen.c
+            index 863f6ef7ec..ac61d4ffcd 100644
+            --- a/src/mesa/drivers/dri/i915/intel_screen.c
+            +++ b/src/mesa/drivers/dri/i915/intel_screen.c
+            @@ -61,10 +61,6 @@ DRI_CONF_BEGIN
+             	 DRI_CONF_DESC(en, "Enable early Z in classic mode (unstable, 945-only).")
+                   DRI_CONF_OPT_END
+            ${" "}
+            -      DRI_CONF_OPT_BEGIN_B(fragment_shader, "true")
+            -	 DRI_CONF_DESC(en, "Enable limited ARB_fragment_shader support on 915/945.")
+            -      DRI_CONF_OPT_END
+            -
+                DRI_CONF_SECTION_END
+                DRI_CONF_SECTION_QUALITY
+                   DRI_CONF_FORCE_S3TC_ENABLE("false")
+            @@ -78,10 +74,6 @@ DRI_CONF_BEGIN
+                   DRI_CONF_DISABLE_GLSL_LINE_CONTINUATIONS("false")
+                   DRI_CONF_DISABLE_BLEND_FUNC_EXTENDED("false")
+            ${" "}
+            -      DRI_CONF_OPT_BEGIN_B(stub_occlusion_query, "false")
+            -	 DRI_CONF_DESC(en, "Enable stub ARB_occlusion_query support on 915/945.")
+            -      DRI_CONF_OPT_END
+            -
+                   DRI_CONF_OPT_BEGIN_B(shader_precompile, "true")
+             	 DRI_CONF_DESC(en, "Perform code generation at shader link time.")
+                   DRI_CONF_OPT_END
+            @@ -1135,21 +1127,12 @@ set_max_gl_versions(struct intel_screen *screen)
+                __DRIscreen *psp = screen->driScrnPriv;
+            ${" "}
+                switch (screen->gen) {
+            -   case 3: {
+            -      bool has_fragment_shader = driQueryOptionb(&screen->optionCache, "fragment_shader");
+            -      bool has_occlusion_query = driQueryOptionb(&screen->optionCache, "stub_occlusion_query");
+            -
+            +   case 3:
+                   psp->max_gl_core_version = 0;
+                   psp->max_gl_es1_version = 11;
+            +      psp->max_gl_compat_version = 21;
+                   psp->max_gl_es2_version = 20;
+            -
+            -      if (has_fragment_shader && has_occlusion_query) {
+            -         psp->max_gl_compat_version = 21;
+            -      } else {
+            -         psp->max_gl_compat_version = 14;
+            -      }
+                   break;
+            -   }
+                case 2:
+                   psp->max_gl_core_version = 0;
+                   psp->max_gl_compat_version = 13;
+          '';
+
+          patched = mo.overrideAttrs (old: {
+            patches = old.patches ++ [ patch ];
+          });
+        };
+        trace ''FIXME: The Gallium version of the i915 driver seems to segfault.
+                       This affects things like Firefox, which is annoying.
+                       Until this is fixed upstream, we're using the workaround
+                       from https://github.com/NixOS/nixpkgs/issues/30758 which
+                       removes i915 from the list of Gallium drivers, causing a
+                       fallback to the non-Gallium version. It also patches the
+                       i915 driver's source to ensure OpenGL2 works.
+                NOTE: We can test this by seeing if glxgears segfaults:
+                        nix-shell -p glxinfo --run glxgears''
+              patched.drivers;
     };
   };
 
