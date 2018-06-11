@@ -260,28 +260,13 @@ rec {
     with {
       fixKeyboard = wrap {
         name   = "usb-keyboard.sh";
-        paths  = [ bash coreutils warbo-utilities ];
-        vars   = {
-          debounce   = "/tmp/keys-last-ran";
-          DISPLAY    = ":0";
-          XAUTHORITY = "/home/chris/.Xauthority";
-        };
+        paths  = [ bash coreutils ];
         script = ''
           #!/usr/bin/env bash
-          set  -e
-
-          # Run 'keys' to fix keyboard, etc. We may get several events in
-          # succession, which we debounce by noting the time.
-          THEN=0
-          [[ -e "$debounce" ]] && THEN=$(cat "$debounce")
-          NOW=$(date '+%s')
-          echo "$NOW" > "$debounce"
-
-          # Bail out if our last run was seconds ago
-          [[ "$(( THEN + 3 ))" -gt "$NOW" ]] && exit 0
-
-          # Run 'keys' from warbo-utilities, as user chris
-          sudo -u chris keys
+          # Requests that the keyboard be fixed. Running 'keys' from here seems
+          # to fail (even with DISPLAY, etc. set) so we instead just log a
+          # request in /tmp and rely on 'key_poller' to spot it.
+          date '+%s' > /tmp/keys-last-ask
         '';
       };
     };
