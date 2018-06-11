@@ -233,10 +233,26 @@ rec {
 
   services.ipfs = {
     enable         = true;
-    autoMount      = false;
-    enableGC       = true; # Laptop, limited storage
+    autoMount      = false;  # Mounting can cause FUSE errors
+    enableGC       = true;   # Laptop, limited storage
     dataDir        = "/var/lib/ipfs/.ipfs";
     serviceFdlimit = 64 * 1024;  # Bump up, since it keeps running out
+    extraConfig    = {
+      # Reduce memory usage (from https://github.com/ipfs/go-ipfs/issues/4145 )
+      Swarm = {
+        AddrFilters = null;
+        ConnMgr     = {
+          GracePeriod = "20s";
+          HighWater   = 100;
+          LowWater    = 50;
+          Type        = "basic";
+        };
+      };
+    };
+    extraFlags = [
+      # Reduce CPU usage (from https://github.com/ipfs/go-ipfs/issues/4145 )
+      "--routing=dhtclient"
+    ];
   };
 
   # Limit the size of our logs, to prevent ridiculous space usage and slowdown
