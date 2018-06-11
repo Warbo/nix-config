@@ -524,7 +524,7 @@ with rec {
       };
       start = wrap {
         name   = "display-on";
-        paths  = [ bash psmisc warbo-utilities xorg.xrandr ];
+        paths  = [ bash procps psmisc warbo-utilities xorg.xrandr ];
         vars   = { DISPLAY = ":0"; };
         script = ''
           #!/usr/bin/env bash
@@ -537,7 +537,7 @@ with rec {
       };
       stop = wrap {
         name   = "display-off";
-        paths  = [ bash psmisc warbo-utilities xorg.xrandr ];
+        paths  = [ bash procps psmisc warbo-utilities xorg.xrandr ];
         vars   = { DISPLAY = ":0"; };
         script = ''
           #!/usr/bin/env bash
