@@ -71,6 +71,7 @@ with rec {
                       };
           overrides = lib.fold mkPkg
                                {
+                                 inherit version;
                                  customTests = {};
                                  stable      = version != "unstable";
                                }
@@ -86,9 +87,9 @@ with rec {
 
   # Load each "repoFOO", applying our overrides and renaming to "nixpkgsFOO"
   customised = { unstable = call unstablePath "unstable"; } //
-               lib.mapAttrs' (name: repo: {
-                               name  = "nixpkgs" + lib.removePrefix "repo" name;
-                               value = call repo true;
+               lib.mapAttrs' (n: repo: rec {
+                               name  = "nixpkgs" + lib.removePrefix "repo" n;
+                               value = call repo name;
                              })
                              repos;
 
