@@ -25,8 +25,113 @@ with rec {
   slowPkgs = [ "gcc" "nix" ];
 
   all = bootstrapPkgs ++ slowPkgs;
+
+  # Where we should take pristine packages from
+  source = getAttr super.version self;
+
+  # These should end up pristine. If not, either our untouchanbles aren't
+  # propagating properly or, perhaps, some other dependency has changed.
+  consequences = [
+    # Regressions
+    "curl"
+    "libuv"
+
+    # From basic.nix
+    "autossh"
+    "binutils"
+    "dtach"
+    "dvtm"
+    "entr"
+    "exfat"
+    "file"
+    "fuse"
+    "ghostscript"
+    "git"
+    "gnumake"
+    "gnutls"
+    "imagemagick"
+    "inotify-tools"
+    "jq"
+    "lzip"
+    "msmtp"
+    "nix-repl"
+    "openssh"
+    "opusTools"
+    "p7zip"
+    "pamixer"
+    "poppler_utils"
+    "pmutils"
+    "pptp"
+    "psmisc"
+    "python"
+    "cifs_utils"
+    "silver-searcher"
+    "sshfsFuse"
+    "sshuttle"
+    "smbnetfs"
+    "sox"
+    "st"
+    "tightvnc"
+    "ts"
+    "usbutils"
+    "unzip"
+    "wget"
+    "wmname"
+    "xbindkeys"
+    "xcalib"
+    "xcape"
+    "zip"
+
+    # From all.nix
+    "abiword"
+    "acpi"
+    "albert"
+    "arandr"
+    "aspell"
+    "audacious"
+    "awf"
+    "blueman"
+    "compton"
+    "dillo"
+    "firefox"
+    "gensgs"
+    "iotop"
+    "keepassx"
+    "leafpad"
+    "lxappearance"
+    "mplayer"
+    "mupdf"
+    "networkmanagerapplet"
+    "paprefs"
+    "pavucontrol"
+    "picard"
+    "trayer"
+    "vlc"
+    "w3m"
+    "xsettingsd"
+  ];
 };
 {
-  pkgs  = genAttrs all (n: getAttr n (getAttr super.version super.customised));
-  tests = {};
+  pkgs  = genAttrs all (n: getAttr n source);
+  tests = genAttrs (all ++ consequences) (n:
+    with self;
+    runCommand "pristine-${n}"
+      (withNix {
+        inherit n;
+        buildInputs = [ nix-diff ];
+        ours        = "${getAttr n self}";
+        pure        = "${getAttr n source}";
+      })
+      ''
+        if [[ "x$ours" = "x$pure" ]]
+        then
+          echo "Our '$n' package is pristine" 1>&2
+          mkdir "$out"
+        else
+          echo "Package '$n' differs from pristine nixpkgs" 1>&2
+          oursDrv=$(nix-store -q --deriver "$ours")
+          pureDrv=$(nix-store -q --deriver "$pure")
+          nix-diff "$pureDrv" "$oursDrv"
+        fi
+      '');
 }
