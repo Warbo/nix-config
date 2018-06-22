@@ -13,6 +13,7 @@ with rec {
     paths = extras ++ [
       autossh
       artemis
+      asv-nix
       bibclean
       bibtool
       binutils
