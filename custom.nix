@@ -67,7 +67,7 @@ with rec {
 
           self      = super   // overrides;
           super     = nixpkgs // pkgs // {
-                        inherit customised repo stableVersion;
+                        inherit customised repo stableVersion version;
                       };
           overrides = lib.fold mkPkg
                                {
@@ -80,7 +80,7 @@ with rec {
           combined  = nixpkgs // { inherit repo; } // overrides;
         };
         # Ensure that the definitions we add here are present in the result
-        assert combined ? latest        || abort "No 'latest' found";
+        assert combined ? latest || abort "No 'latest' found";
         combined;
     };
   };
