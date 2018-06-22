@@ -15,11 +15,18 @@ with super.lib;
 with rec {
   # These were found using 'nix-diff' to compare 'nix' against 'nixpkgs1803.nix'
   # and trying to minimise the difference.
-  bootstrapPkgs = [ "acl" "attr" "bzip2" "coreutils" "xz" "zlib" ];
+  bootstrapPkgs = [
+    "acl" "attr" "bash" "bzip2" "coreutils" "gawk" "gnugrep" "gnused" "gzip"
+    /*"libiconv"*/ "patchelf" "pcre" /*"perl"*/ "xz" "zlib"
+  ];
 
-  pkgs = bootstrapPkgs;
+  # These take a while to build, and can cause cascades requiring other packages
+  # to be rebuilt, when we don't actually care about overriding them.
+  slowPkgs = [ "gcc" "nix" ];
+
+  all = bootstrapPkgs ++ slowPkgs;
 };
 {
-  pkgs  = genAttrs pkgs (n: getAttr n (getAttr self.version self.customised));
+  pkgs  = genAttrs all (n: getAttr n (getAttr super.version super.customised));
   tests = {};
 }
