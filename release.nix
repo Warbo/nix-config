@@ -1,6 +1,15 @@
 # Used for testing and building via continuous integration (e.g. Hydra)
 with import <nixpkgs> { config = import ./config.nix; };
-lib.mapAttrs (_: builtins.getAttr "customTests") customised
+{
+  tests   = lib.mapAttrs (_: builtins.getAttr "customTests") customised;
+  imports = lib.genAttrs (builtins.attrNames customised)
+                         (defaultVersion: dummyWithEnv {
+                           name  = "can-import-for-${defaultVersion}";
+                           value = builtins.typeOf (import ./. {
+                             inherit defaultVersion;
+                           });
+                         });
+}
 
 /*
 with rec {
