@@ -22,7 +22,7 @@ with rec {
 
   # These take a while to build, and can cause cascades requiring other packages
   # to be rebuilt, when we don't actually care about overriding them.
-  slowPkgs = [ "gcc" "nix" ];
+  slowPkgs = [ "gcc" /*"nix"*/ ];
 
   all = bootstrapPkgs ++ slowPkgs;
 
