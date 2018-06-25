@@ -40,10 +40,10 @@ with rec {
                 (attrNames (readDir dir)));
 
   # Imports the given nixpkgs path, applying our overrides. The 'unstable' flag
-  # will be set for these overrides iff 'version' is "unstable". This will e.g.
-  # decide whether 'latestGit' uses the latest commit of a repo or a hard-coded
-  # default.
-  call = repo: version: import repo {
+  # will be set for these overrides iff 'nixpkgsVersion' is "unstable". This
+  # will e.g. decide whether 'latestGit' uses the latest commit of a repo or a
+  # hard-code default.
+  call = repo: nixpkgsVersion: import repo {
     config = other // {
       packageOverrides = pkgs:
         with rec {
@@ -67,13 +67,13 @@ with rec {
 
           self      = super   // overrides;
           super     = nixpkgs // pkgs // {
-                        inherit customised repo stableVersion version;
+                        inherit customised repo stableVersion nixpkgsVersion;
                       };
           overrides = lib.fold mkPkg
                                {
-                                 inherit version;
+                                 inherit nixpkgsVersion;
                                  customTests = {};
-                                 stable      = version != "unstable";
+                                 stable      = nixpkgsVersion != "unstable";
                                }
                                nixFiles;
 

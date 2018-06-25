@@ -27,7 +27,7 @@ with rec {
   all = bootstrapPkgs ++ slowPkgs;
 
   # Where we should take pristine packages from
-  source = getAttr super.version self;
+  source = getAttr super.nixpkgsVersion self;
 
   # These should end up pristine. If not, either our untouchanbles aren't
   # propagating properly or, perhaps, some other dependency has changed.
