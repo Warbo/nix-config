@@ -1,3 +1,0 @@
-{ mkStableHackageDb }:
-
-(mkStableHackageDb {}).availableDrv
