@@ -5,8 +5,8 @@
 # a command like `nix-env -iA all` to install into your profile.
 { abiword, acpi, albert, anonymous-pro-font, arandr, aspell, aspellDicts,
   audacious, awf, basic, basket, blueman, buildEnv, cmus, compton, dillo,
-  droid-fonts, emacs, firefox, gcalcli, gensgs, gnome3, iotop, kbibtex_full,
-  keepassx, leafpad, lib, lxappearance, mplayer, mu, mupdf,
+  droid-fonts, emacsWithPkgs, firefox, gcalcli, gensgs, gnome3, iotop,
+  kbibtex_full, keepassx, leafpad, lib, lxappearance, mplayer, mu, mupdf,
   networkmanagerapplet, nixpkgs1709, paprefs, pavucontrol, picard,
   pidgin-with-plugins, xfce, xorg, trayer, vlc, w3m, widgetThemes, withDeps,
   xsettingsd }@args:
