@@ -52,5 +52,5 @@ with rec {
 };
 {
   pkg   = tested;
-  tests = tested;
+  tests = {};
 }
