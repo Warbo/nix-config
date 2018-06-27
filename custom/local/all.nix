@@ -9,7 +9,7 @@ with self;
 with rec {
   pkg = buildEnv {
     name  = "all";
-    paths = widgetThemes ++ [
+    paths = /*widgetThemes ++ */[
       abiword
       acpi
       albert
@@ -18,24 +18,24 @@ with rec {
       aspell
       aspellDicts.en
       audacious
-      awf
+      #awf
       basic # Anything useful for scripts should go in here
-      blueman
+      #blueman
       basket
       cmus
       compton
-      conkeror
+      #conkeror
       dillo
       droid-fonts
       emacs
-      firefox
+      #firefox
       gcalcli
       gensgs
       iotop
       kbibtex_full
       keepassx
       leafpad
-      lxappearance
+      #lxappearance
       mplayer
       mu
       mupdf
@@ -51,13 +51,13 @@ with rec {
       trayer
       vlc
       w3m
-      xfce.exo
-      xfce.xfce4notifyd
-      xsettingsd
+      #xfce.exo
+      #xfce.xfce4notifyd
+      #xsettingsd
     ];
   };
 
-  tested = withDeps [ (hasBinary pkg "firefox") ] pkg;
+  tested = /*withDeps [ (hasBinary pkg "firefox") ]*/ pkg;
 };
 {
   pkg   = tested;
