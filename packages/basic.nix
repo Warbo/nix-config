@@ -30,7 +30,7 @@ with rec {
         else [ fuse3 ])
 
     # These provide generally useful binaries
-    (with haskellPackages; [ Agda happy hlint pretty-show stylish-haskell ])
+    (with haskellPackages; [ happy hlint pretty-show stylish-haskell ])
 
     # Newer versions of racket are broken on i686
     # FIXME: We should improve this, e.g. by checking and warning or something
