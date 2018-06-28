@@ -1,1 +1,1 @@
-import ./stable.nix
+import ./other.nix
