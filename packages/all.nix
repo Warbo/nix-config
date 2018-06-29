@@ -4,41 +4,39 @@
 # If you're using Nix standalone, or want per-user configuration, you can run
 # a command like `nix-env -iA all` to install into your profile.
 { abiword, acpi, albert, anonymous-pro-font, arandr, aspell, aspellDicts,
-  audacious, awf, basic, basket, blueman, buildEnv, cmus, compton, dillo,
-  droid-fonts, emacsWithPkgs, firefox, gcalcli, gensgs, gnome3, iotop,
-  kbibtex_full, keepassx, leafpad, lib, lxappearance, mplayer, mu, mupdf,
+  audacious, awf, basic, basket, blueman, buildEnv, cmus, compton, die, dillo,
+  droid-fonts, emacsWithPkgs, firefox, gcalcli, gensgs, gnome3, hasBinary,
+  iotop, kbibtex_full, keepassx, leafpad, lib, lxappearance, mplayer, mu, mupdf,
   networkmanagerapplet, nixpkgs1709, paprefs, pavucontrol, picard,
-  pidgin-with-plugins, xfce, xorg, trayer, vlc, w3m, widgetThemes, withDeps,
-  xsettingsd }@args:
+  pidgin-with-plugins, stripOverrides, xfce, xorg, trayer, vlc, w3m,
+  widgetThemes, withDeps, xsettingsd }@args:
 
 with builtins;
 with lib;
 with rec {
   nonPackages = [
-    "aspellDicts" "buildEnv" "gnome3" "lib" "widgetThemes" "withDeps" "xfce"
-    "xorg"
+    "aspellDicts" "buildEnv" "die" "gnome3" "hasBinary" "lib" "nixpkgs1709"
+    "stripOverrides" "widgetThemes" "withDeps" "xfce" "xorg"
   ];
 
-  extras = concatLists [
-    [ aspellDicts.en ]
-    [ gnome3.gcr ]
-    (with nixpkgs1709; [ conkeror ])
-    widgetThemes
-    (with xfce; [ exo xfce4notifyd ])
-    (with xorg; [ xkill ])
-  ];
-
-  packages = extras ++ map (name: getAttr name args)
-                           (filter (name: !(elem name nonPackages))
-                                   (attrNames args));
-  pkg = buildEnv {
-    name  = "all";
-    paths = packages;
+  extras = widgetThemes // {
+    inherit (gnome3)      gcr;
+    inherit (nixpkgs1709) conkeror;
+    inherit (xfce)        exo xfce4notifyd;
+    inherit (xorg)        xkill;
+    aspellDicts = aspellDicts.en;
   };
 
-  tested = withDeps [ (hasBinary pkg "firefox") ] pkg;
+  packages = stripOverrides (extras // filterAttrs (n: _: !(elem n nonPackages))
+                                                   args);
 };
-{
-  pkg   = tested;
-  tests = {};
+assert all isDerivation (attrValues packages) || die {
+  error   = "Non-derivation in dependencies of all.nix";
+  types   = mapAttrs (_: typeOf) packages;
+  nonDrvs = mapAttrs (_: typeOf)
+                     (filterAttrs (_: x: !(isDerivation x)) packages);
+};
+rec {
+  pkg   = buildEnv { name = "all"; paths = attrValues packages; };
+  tests = hasBinary pkg "firefox";
 }
