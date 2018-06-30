@@ -1,5 +1,5 @@
 # Used for testing and building via continuous integration (e.g. Hydra)
-with import <nixpkgs> { config = import ./config.nix; };
+with import <nixpkgs> { overlays = import ./overlays.nix; };
 {
   tests   = lib.mapAttrs (_: builtins.getAttr "customTests") customised;
   imports = lib.genAttrs (builtins.attrNames customised)
