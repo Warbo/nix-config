@@ -1,14 +1,7 @@
 # Used for testing and building via continuous integration (e.g. Hydra)
-with import <nixpkgs> { overlays = import ./overlays.nix; };
+with { pkgs = import <nixpkgs> { overlays = import ./overlays.nix; }; };
 {
-  tests   = lib.mapAttrs (_: builtins.getAttr "customTests") customised;
-  imports = lib.genAttrs (builtins.attrNames customised)
-                         (defaultVersion: dummyWithEnv {
-                           name  = "can-import-for-${defaultVersion}";
-                           value = builtins.typeOf (import ./. {
-                             inherit defaultVersion;
-                           });
-                         });
+  inherit (pkgs) customTests;
 }
 
 /*
