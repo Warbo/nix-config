@@ -47,8 +47,8 @@ with rec {
       sha256 = "0kpx4h9p1lhjbn1gsil111swa62hmjs9g93xmsavfiki910s73sh";
     };
     repo1803 = {
-      rev    = "120b013";
-      sha256 = "0hk4y2vkgm1qadpsm4b0q1vxq889jhxzjx3ragybrlwwg54mzp4f";
+      rev    = "94d80eb";
+      sha256 = "1l4hdxwcqv5izxcgv3v4njq99yai8v38wx7v02v5sd96g7jj2i8f";
     };
   };
 
