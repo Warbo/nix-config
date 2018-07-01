@@ -1,4 +1,4 @@
-# Turn files of the form "./local/foo.nix" into packages "foo" using callPackage
+# Override broken or non-optimal packages from <nixpkgs> and elsewhere
 self: super:
 
 with builtins;
