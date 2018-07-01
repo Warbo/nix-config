@@ -7,8 +7,10 @@ with builtins;
 with super.lib;
 {
   overrides = {
-    latestCfgPkgs = self.withLatestCfg self.repo;
+    # Whichever nixpkgs version we're using, with the latest nix-config overlay
+    latestCfgPkgs = self.withLatestCfg self.path;
 
+    # The latest nixpkgs version which we have the repo for
     latest = fold (x: y: if x == null
                             then y
                             else if y == null
@@ -19,11 +21,16 @@ with super.lib;
                   null
                   (filter (hasPrefix "nixpkgs") (attrNames self.customised));
 
+    # The latest revision of this repo
     latestNixCfg = self.latestGit {
       url    = "${self.repoSource}/nix-config.git";
       stable = { unsafeSkip = true; };
     };
 
+    # A known-good version of nixpkgs to default to, if needed
+    stableVersion = "nixpkgs1803";
+
+    # Imports the given nixpkgs repo with the latest version of nix-config
     withLatestCfg = nixpkgs: import nixpkgs {
       overlays = import "${self.latestNixCfg}/overlays.nix";
     };
