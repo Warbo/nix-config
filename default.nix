@@ -1,26 +1,4 @@
-{
-  args           ? {},
-  defaultVersion ? null,
-  unstablePath   ? <nixpkgs>
-}:
-
-with rec {
-  stableVersion = import ./stableVersion.nix;
-
-  chosenVersion = if defaultVersion == null
-                     then stableVersion
-                     else defaultVersion;
-
-  bootstrap = import unstablePath {
-    config = import ./custom.nix stableVersion;
-  };
-
-  repo =
-    if defaultVersion == "unstable"
-       then unstablePath
-       else builtins.getAttr "repo${bootstrap.lib.removePrefix "nixpkgs"
-                                                               defaultVersion}"
-                             bootstrap;
-};
-
-import repo ({ config = import ./custom.nix chosenVersion; } // args)
+with builtins;
+with { pkgs = import <nixpkgs> { overlays = import ./overlays.nix; }; };
+listToAttrs (map (name: { inherit name; value = getAttr name pkgs; })
+                 pkgs.customNames)
