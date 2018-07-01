@@ -6,7 +6,7 @@ with rec {
                then path + "/${file}"
                else "${fetchgit args}/${file}");
 };
-map localOrRemote [
+[ (import ./overlay.nix) ] ++ map localOrRemote [
   {
     args = {
       url    = http://chriswarbo.net/git/nix-helpers.git;
