@@ -4,22 +4,16 @@ self: super:
 with builtins;
 with super.lib;
 with rec {
-  callPackage = super.newScope self;
-  extraArgs   = args: (if args ? self  then { inherit self;  }
-                                       else {}) //
-                      (if args ? super then { inherit super; }
-                                       else {});
-  mkPkg = x: old:
+  mkPkg = name: old:
     with rec {
-      func     = import (./local + "/${x}");
-      result   = callPackage func (extraArgs (functionArgs func));
-      name     = removeSuffix ".nix" x;
+      func     = import (./local + "/${name}.nix");
+      result   = self.newScope { inherit self super; } func {};
       hasTests = isAttrs result         &&
                  hasAttr "pkg"   result &&
                  hasAttr "tests" result;
     };
     {
-      pkgs = old.pkgs // listToAttrs [{
+      overrides = old.overrides // listToAttrs [{
                inherit name;
                value = if hasTests
                           then result.pkg
@@ -33,8 +27,9 @@ with rec {
 };
 fold mkPkg
      {
-       pkgs  = { inherit callPackage; };
-       tests = {};
+       overrides  = {};
+       tests      = {};
      }
-     (filter (hasSuffix ".nix")
-             (attrNames (readDir ./local)))
+     (map (removeSuffix ".nix")
+          (filter (hasSuffix ".nix")
+                  (attrNames (readDir ./local))))
