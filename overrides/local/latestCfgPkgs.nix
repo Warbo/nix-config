@@ -1,3 +1,0 @@
-{ repo, withLatestCfg }:
-
-withLatestCfg repo
