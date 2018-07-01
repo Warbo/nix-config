@@ -52,22 +52,23 @@ with rec {
   packages = console // graphical;
 };
 
-assert lib.all self.isDerivation (attrValues packages) || self.die {
-  error   = "Non-derivation in dependencies of meta-package";
-  types   = lib.mapAttrs (_: typeOf) packages;
-  nonDrvs = lib.mapAttrs (_: typeOf)
-                         (lib.filterAttrs (_: x: !(self.isDerivation x))
-                                          packages);
-};
-
 {
   overrides = {
     all   = self.buildEnv { name  = "all";   paths = attrValues graphical; };
     basic = self.buildEnv { name  = "basic"; paths = attrValues console;   };
   };
 
-  tests = {
-    all   = self.hasBinary self.all   "firefox";
-    basic = self.hasBinary self.basic "ssh";
-  };
+  tests =
+    with lib;
+    assert all self.isDerivation (attrValues packages) || self.die {
+      error   = "Non-derivation in dependencies of meta-package";
+      types   = mapAttrs (_: typeOf) packages;
+      nonDrvs = mapAttrs (_: typeOf)
+                         (filterAttrs (_: x: !(self.isDerivation x))
+                                      packages);
+    };
+    {
+      all   = self.hasBinary self.all   "firefox";
+      basic = self.hasBinary self.basic "ssh";
+    };
 }
