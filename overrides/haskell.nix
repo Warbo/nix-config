@@ -1,6 +1,18 @@
 # Override Haskell packages using haskell/*.nix
 self: super:
-
+{
+  overrides = {
+    haskellPackages = super.haskellPackages.override (old: {
+      overrides = super.lib.composeExtensions
+        (old.overrides or (_: _: {}))
+        (helf: huper: {
+          # FIXME: Put overrides in here, so they're extensible
+        });
+    });
+  };
+  tests     = {};
+}
+/*
 with super;
 with super.lib;
 with builtins;
@@ -17,8 +29,8 @@ with rec {
 };
 
 {
-  tests = {};
-  pkgs  = rec {
+  tests     = {};
+  overrides = rec {
     inherit haskellNames haskellOverrides;
 
     unprofiledHaskellPackages = super.haskellPackages.override {
@@ -53,3 +65,4 @@ with rec {
     };
   };
 }
+*/
