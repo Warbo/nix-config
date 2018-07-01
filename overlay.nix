@@ -1,19 +1,18 @@
 self: super:
 
 with builtins;
+with super.lib;
 with rec {
-  inherit (super) lib;
-
-  stableVersion = import ./stableVersion.nix;
-
-  # All of the files containing our overrides
-  nixFiles = self.nixFilesIn ./overrides;
+  # Names of every ".nix" file in overrides/ (this must not depend on 'self')
+  fileNames = map (removeSuffix ".nix")
+                  (filter (hasSuffix ".nix")
+                          (attrNames (readDir ./overrides)));
 
   mkPkg = f: oldPkgs:
-    with self.newScope { inherit super; } (getAttr f nixFiles) {};
-    oldPkgs // result.pkgs // {
-      customPkgNames = attrNames newPkgs;
-      customTests    = oldPkgs.customTests // { "${f}" = result.tests; };
+    with import (./. + "/overrides/${f}.nix") self super;
+    oldPkgs // mapAttrs (n: trace "Evaluating ${n}") overrides // {
+      customPkgNames = oldPkgs.customPkgNames ++ attrNames overrides;
+      customTests    = oldPkgs.customTests    // { "${f}" = tests; };
     };
 };
-lib.fold mkPkg { customTests = {}; } (attrNames nixFiles)
+fold mkPkg { customTests = {}; } fileNames
