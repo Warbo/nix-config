@@ -1,48 +1,42 @@
 # This contains useful stuff we would like to be available for user shells and
 # general one-off scripts. We can install it using e.g. 'nix-env -iA basic' and
 # not have to worry about managing each package individually. See also: all.nix
-{ autossh, artemis, asv-nix, bibclean, bibtool, binutils, brittany, buildEnv,
-  cabal-install2, cabal2nix, cifs_utils, ddgr, dtach, dvtm, entr, exfat, file,
-  fuse, fuse3 ? null, get_iplayer, ghc, ghostscript, git, gnumake, gnutls,
-  hasBinary, haskellPackages, inotify-tools, jq, lib, lzip, md2pdf, msmtp, nix,
-  nix-diff, nix-repl, youtube-dl, openssh, opusTools, p7zip, pamixer,
-  pandocPkgs, poppler_utils, pmutils, pptp, psmisc, python, racket,
-  silver-searcher, sshfsFuse, sshuttle, smbnetfs, sox, st, imagemagick,
-  tightvnc, ts, usbutils, unzip, wget, wmname, xbindkeys, xcalib,
-  xcape, xorg, zip }@args:
+self: super:
 
 with builtins;
-with lib;
-with rec {
-  # We assume that everything in args is a package we want to include, except
-  # for the names given in this list.
-  nonPackages = [
-    "buildEnv" "fuse3" "hasBinary" "haskellPackages" "lib" "nix" "nix-repl"
-    "xorg"
-  ];
-
-  # Anything we can't take as a simple argument, e.g. nested attributes
-  extras = concatLists [
-    # Newer NixOS systems need fuse3 rather than fuse, but it doesn't exist on
-    # older systems. We include it if available, otherwise we just warn.
-    (if fuse3 == null
-        then trace "WARNING: No fuse3 found" []
-        else [ fuse3 ])
-
-    # These provide generally useful binaries
-    (with haskellPackages; [ happy hlint pretty-show stylish-haskell ])
-
-    # We only need nix-repl for Nix 1.x, since 2.x has a built-in repl
-    (if compareVersions nix.version "2" == -1 then [ nix-repl ] else [])
-
-    (with xorg; [ xmodmap xproto ])
-  ];
-
-  packages = extras ++ map (name: getAttr name args)
-                           (filter (name: !(elem name nonPackages))
-                                   (attrNames args));
-};
 rec {
-  pkg   = buildEnv { name  = "basic"; paths = packages; };
-  tests = hasBinary pkg "ssh";
+  overrides = {
+    basic = buildEnv {
+      name  = "basic";
+      paths =
+        # Newer NixOS systems need fuse3 rather than fuse, but it doesn't exist
+        # on older systems. We include it if available, otherwise we just warn.
+        (if self ? fuse3
+            then { inherit (self) fuse3; }
+            else trace "WARNING: No fuse3 found" {}) //
+
+        # We only need nix-repl for Nix 1.x, since 2.x has a built-in repl
+        (if compareVersions nix.version "2" == -1
+            then { inherit (self) nix-repl; }
+            else {}) // {
+
+        # These provide generally useful binaries
+        inherit (haskellPackages) happy hlint pretty-show stylish-haskell;
+
+        inherit (self) autossh artemis asv-nix bibclean bibtool binutils
+                       brittany cabal-install2 cabal2nix cifs_utils ddgr dtach
+                       dvtm entr exfat file fuse get_iplayer ghc ghostscript git
+                       gnumake gnutls imagemagick inotify-tools jq lzip md2pdf
+                       msmtp nix-diff youtube-dl openssh opusTools p7zip pamixer
+                       pandocPkgs poppler_utils pmutils pptp psmisc python
+                       racket silver-searcher sshfsFuse sshuttle smbnetfs sox st
+                       tightvnc ts usbutils unzip wget wmname xbindkeys xcalib
+                       xcape zip;
+
+        inherit (xorg) xmodmap xproto;
+      };
+    };
+  };
+
+  tests = self.hasBinary self.basic "ssh";
 }
