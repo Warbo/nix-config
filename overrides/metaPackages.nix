@@ -17,12 +17,12 @@ with rec {
         else trace "WARNING: No fuse3 found" {}) //
 
     # We only need nix-repl for Nix 1.x, since 2.x has a built-in repl
-    (if compareVersions nix.version "2" == -1
+    (if compareVersions self.nix.version "2" == -1
         then { inherit (self) nix-repl; }
         else {}) // {
 
     # These provide generally useful binaries
-    inherit (haskellPackages) happy hlint pretty-show stylish-haskell;
+    inherit (self.haskellPackages) happy hlint pretty-show stylish-haskell;
 
     inherit (self) autossh artemis asv-nix bibclean bibtool binutils
                    brittany cabal-install2 cabal2nix cifs_utils ddgr dtach
@@ -34,19 +34,19 @@ with rec {
                    tightvnc ts usbutils unzip wget wmname xbindkeys xcalib
                    xcape zip;
 
-    inherit (xorg) xmodmap xproto;
+    inherit (self.xorg) xmodmap xproto;
   };
 
-  graphical = self.stripOverrides (widgetThemes // {
-    inherit (gnome3)      gcr;
-    inherit (nixpkgs1709) abiword conkeror firefox gnumeric mplayer vlc;
+  graphical = self.stripOverrides (self.widgetThemes // {
+    inherit (self.gnome3)      gcr;
+    inherit (self.nixpkgs1709) abiword conkeror firefox gnumeric mplayer vlc;
     inherit (self)        acpi albert anonymous-pro-font arandr aspell audacious
       awf basic basket blueman cmus compton dillo droid-fonts emacsWithPkgs
       gcalcli gensgs iotop kbibtex_full keepassx leafpad lxappearance mu mupdf
       paprefs pavucontrol picard pidgin-with-plugins trayer w3m xsettingsd;
-    inherit (xfce)        exo xfce4notifyd;
-    inherit (xorg)        xkill;
-    aspellDicts = aspellDicts.en;
+    inherit (self.xfce) exo xfce4notifyd;
+    inherit (self.xorg) xkill;
+    aspellDicts = self.aspellDicts.en;
   });
 
   packages = console // graphical;
@@ -60,11 +60,11 @@ with rec {
 
   tests =
     with lib;
-    assert all self.isDerivation (attrValues packages) || self.die {
+    assert all isDerivation (attrValues packages) || self.die {
       error   = "Non-derivation in dependencies of meta-package";
       types   = mapAttrs (_: typeOf) packages;
       nonDrvs = mapAttrs (_: typeOf)
-                         (filterAttrs (_: x: !(self.isDerivation x))
+                         (filterAttrs (_: x: !(isDerivation x))
                                       packages);
     };
     {
