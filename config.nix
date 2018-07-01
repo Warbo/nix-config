@@ -1,1 +1,3 @@
-import ./other.nix
+{
+  allowUnfree = true;
+}
