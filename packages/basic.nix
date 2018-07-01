@@ -4,11 +4,11 @@
 { autossh, artemis, asv-nix, bibclean, bibtool, binutils, brittany, buildEnv,
   cabal-install2, cabal2nix, cifs_utils, ddgr, dtach, dvtm, entr, exfat, file,
   fuse, fuse3 ? null, get_iplayer, ghc, ghostscript, git, gnumake, gnutls,
-  hasBinary, haskellPackages, inotify-tools, jq, lib, lzip, md2pdf, msmtp,
+  hasBinary, haskellPackages, inotify-tools, jq, lib, lzip, md2pdf, msmtp, nix,
   nix-diff, nix-repl, youtube-dl, openssh, opusTools, p7zip, pamixer,
   pandocPkgs, poppler_utils, pmutils, pptp, psmisc, python, racket,
   silver-searcher, sshfsFuse, sshuttle, smbnetfs, sox, st, imagemagick,
-  tightvnc, ts, usbutils, unzip, wget, withDeps, wmname, xbindkeys, xcalib,
+  tightvnc, ts, usbutils, unzip, wget, wmname, xbindkeys, xcalib,
   xcape, xorg, zip }@args:
 
 with builtins;
@@ -17,7 +17,8 @@ with rec {
   # We assume that everything in args is a package we want to include, except
   # for the names given in this list.
   nonPackages = [
-    "buildEnv" "fuse3" "hasBinary" "haskellPackages" "lib" "withDeps" "xorg"
+    "buildEnv" "fuse3" "hasBinary" "haskellPackages" "lib" "nix" "nix-repl"
+    "xorg"
   ];
 
   # Anything we can't take as a simple argument, e.g. nested attributes
@@ -31,21 +32,17 @@ with rec {
     # These provide generally useful binaries
     (with haskellPackages; [ happy hlint pretty-show stylish-haskell ])
 
+    # We only need nix-repl for Nix 1.x, since 2.x has a built-in repl
+    (if compareVersions nix.version "2" == -1 then [ nix-repl ] else [])
+
     (with xorg; [ xmodmap xproto ])
   ];
 
   packages = extras ++ map (name: getAttr name args)
                            (filter (name: !(elem name nonPackages))
                                    (attrNames args));
-
-  pkg = buildEnv {
-    name  = "basic";
-    paths = packages;
-  };
-
-  tested = withDeps [ (hasBinary pkg "ssh") ] pkg;
 };
-{
-  pkg   = tested;
-  tests = {};
+rec {
+  pkg   = buildEnv { name  = "basic"; paths = packages; };
+  tests = hasBinary pkg "ssh";
 }
