@@ -1,16 +1,10 @@
 # Edit this configuration file to define what should be installed on
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
-with builtins;
-with rec {
-  mypkgs  = import <nixpkgs> {
-    config = import /home/chris/.nixpkgs/config.nix;
-  };
-};
-
 { config, pkgs, ... }:
-rec {
 
+with builtins;
+rec {
   # Low level/hardware stuff
 
   imports =
@@ -57,7 +51,7 @@ rec {
   hardware.pulseaudio = {
     systemWide = true;
     enable     = true;
-    package    = mypkgs.pulseaudioFull;
+    package    = pkgs.pulseaudioFull;
   };
 
   sound.mediaKeys.enable = true;
@@ -73,10 +67,10 @@ rec {
       with rec {
         format = lst: concatStringsSep "\n" (map (d: "127.0.0.1 ${d}") lst);
 
-        blockList = url: mypkgs.runCommand "blocklist.nix"
+        blockList = url: pkgs.runCommand "blocklist.nix"
           {
             inherit url;
-            buildInputs   = with mypkgs; [ jq wget ];
+            buildInputs   = with pkgs; [ jq wget ];
             SSL_CERT_FILE = /etc/ssl/certs/ca-bundle.crt;
           }
           ''
@@ -191,13 +185,13 @@ rec {
       serif     = [ "Droid Sans"      ];
     };
     fonts = [
-      mypkgs.anonymous-pro-font
-      mypkgs.droid-fonts
+      pkgs.anonymous-pro-font
+      pkgs.droid-fonts
     ];
   };
 
-  nixpkgs.config = {
-    packageOverrides = pkgs: mypkgs // {
+  /*nixpkgs.config = {
+    packageOverrides = pkgs: {
       mesa_drivers =
         with rec {
           mo = pkgs.mesa_noglu.override {
@@ -295,7 +289,7 @@ rec {
                         nix-shell -p glxinfo --run glxgears''
               patched.drivers;
     };
-  };
+  };*/
 
   nix.trustedBinaryCaches = [ "http://hydra.nixos.org/" ];
 
@@ -303,8 +297,8 @@ rec {
   # wrappers made and put into a system-wide directory when the config is
   # activated, and will be removed when switched away.
   security.wrappers = {
-    fusermount.source  = "${mypkgs.fuse}/bin/fusermount";
-    fusermount3.source = "${mypkgs.fuse3}/bin/fusermount3";
+    fusermount.source  = "${pkgs.fuse}/bin/fusermount";
+    fusermount3.source = "${pkgs.fuse3}/bin/fusermount3";
   };
 
   # List services that you want to enable:
@@ -362,7 +356,7 @@ rec {
   services.tor = { client = { enable = true; }; };
 
   services.udev =
-    with mypkgs;
+    with pkgs;
     with {
       fixKeyboard = wrap {
         name   = "usb-keyboard.sh";
@@ -409,7 +403,7 @@ rec {
 
   services.printing = {
     enable  = true;  # Switch this to enable CUPS
-    drivers = [ mypkgs.hplip mypkgs.gutenprint ];
+    drivers = [ pkgs.hplip pkgs.gutenprint ];
   };
 
   services.avahi = {
