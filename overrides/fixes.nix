@@ -7,7 +7,7 @@ with super.lib;
   overrides = {
     # Remove flaky, heavyweight SpiderMonkey dependency
     libproxy = super.libproxy.overrideDerivation (old: {
-      buildInputs  = filter (x: !(lib.hasPrefix "spidermonkey" x.name))
+      buildInputs  = filter (x: !(hasPrefix "spidermonkey" x.name))
                             old.buildInputs;
       preConfigure = replaceStrings [ ''"-DWITH_MOZJS=ON"'' ]
                                     [ ""                    ]
