@@ -28,7 +28,7 @@ with rec {
                    brittany cabal-install2 cabal2nix cifs_utils ddgr dtach
                    dvtm entr exfat file fuse get_iplayer ghc ghostscript git
                    gnumake gnutls imagemagick inotify-tools jq lzip md2pdf
-                   msmtp nix-diff youtube-dl openssh opusTools p7zip pamixer
+                   msmtp nix-diff /*youtube-dl*/ openssh opusTools p7zip pamixer
                    pandocPkgs poppler_utils pmutils pptp psmisc python
                    racket silver-searcher sshfsFuse sshuttle smbnetfs sox st
                    tightvnc ts usbutils unzip wget wmname xbindkeys xcalib
@@ -37,10 +37,12 @@ with rec {
     inherit (self.xorg) xmodmap xproto;
   };
 
+  # FIXME: Try dmenu2 instead of albert?
   graphical = self.stripOverrides (self.widgetThemes // {
     inherit (self.gnome3)      gcr;
-    inherit (self.nixpkgs1709) abiword conkeror firefox gnumeric mplayer vlc;
-    inherit (self)        acpi albert anonymous-pro-font arandr aspell audacious
+    inherit (self.nixpkgs1709) abiword audacious conkeror firefox gnumeric
+      mplayer vlc;
+    inherit (self)        acpi /*albert*/ anonymous-pro-font arandr aspell
       awf basic basket blueman cmus compton dillo droid-fonts emacsWithPkgs
       gcalcli gensgs iotop kbibtex_full keepassx leafpad lxappearance mu mupdf
       paprefs pavucontrol picard pidgin-with-plugins trayer w3m xsettingsd;
