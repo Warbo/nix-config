@@ -6,13 +6,6 @@ with rec {
   mypkgs  = import <nixpkgs> {
     config = import /home/chris/.nixpkgs/config.nix;
   };
-
-  warbo-utilities = mypkgs.warbo-utilities.override { forceLatest = true; };
-
-  myOverrides =
-    with mypkgs; lib.genAttrs customPkgNames (n: getAttr n mypkgs) // {
-      inherit warbo-utilities;
-    };
 };
 
 { config, pkgs, ... }:
@@ -148,7 +141,7 @@ rec {
       killall sshfs || true
     '';
     resumeCommands = ''
-      DISPLAY=:0 "${warbo-utilities}"/bin/keys || true
+      DISPLAY=:0 "${pkgs.warbo-utilities}"/bin/keys || true
     '';
   };
 
@@ -187,7 +180,7 @@ rec {
     # NOTE: You *could* install these individually via `nix-env -i` as root, but
     # those won't be updated by `nixos-rebuild` and aren't version controlled.
     # To see if there are any such packages, do `nix-env -q` as root.
-    systemPackages = [ mypkgs.all warbo-utilities ];
+    systemPackages = [ pkgs.all pkgs.warbo-utilities ];
   };
 
   fonts = {
@@ -429,8 +422,7 @@ rec {
   };
 
   systemd.services = import ./services.nix {
-    inherit config warbo-utilities;
-    pkgs = mypkgs;
+    inherit config pkgs;
   };
 
   # Locale, etc.
