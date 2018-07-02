@@ -348,7 +348,7 @@ with rec {
           set -e
 
           HOUR=$(date "+%H")
-          [[ "$HOUR" -gt 16 ]] || exit 1
+          [[ "$HOUR" -gt 18 ]] || exit 1
 
           "$atWork" || exit 1
           exit 0
@@ -383,7 +383,7 @@ with rec {
           }
 
           "$workingLate" || exit
-          notify "Past 5pm; half an hour until suspend"
+          notify "Past 7pm; half an hour until suspend"
           sleep 600
 
           "$workingLate" || exit
