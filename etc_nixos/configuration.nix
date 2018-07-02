@@ -24,6 +24,8 @@ rec {
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix ];
 
+  nixpkgs.overlays = import /home/chris/nix-config/overlays.nix;
+
   # Use the GRUB 2 boot loader.
   boot = trace "FIXME: Use system.activationScripts to make /boot/grub/libreboot_grub.cfg" {
     loader.grub = {
