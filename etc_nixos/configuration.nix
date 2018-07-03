@@ -415,9 +415,30 @@ rec {
     publish.workstation = true;
   };
 
-  systemd.services = import ./services.nix {
-    inherit config pkgs;
+  system.activationScripts = {
+    dotfiles = ''
+      cd /home/chris/.dotfiles || exit 1
+      for X in *
+      do
+        [[ "x$X" = "x.issues"   ]] && continue
+        [[ "x$X" = "xetc_nixos" ]] && continue
+        [[ -h "/home/chris/.$X" ]] && continue
+        [[ -e "/home/chris/.$X" ]] && {
+          echo "WARNING: Found ~/.$X but it's not a symlink" 1>&2
+          continue
+        }
+        (cd /home/chris && ln -s .dotfiles/"$X" ."$X")
+      done
+    '';
+    dotEmacs = with pkgs; ''
+      # ~/.emacs.d is currently stand alone, but we still want to hook some Nix
+      # things into it, e.g. paths to executables
+      X='(setq explicit-shell-file-name "${warbo-utilities}/bin/wrappedShell")'
+      echo "$X" > /home/chris/.emacs.d/personal/preload/wrapped-shell.el
+    '';
   };
+
+  systemd.services = import ./services.nix { inherit config pkgs; };
 
   # Locale, etc.
   i18n = {
