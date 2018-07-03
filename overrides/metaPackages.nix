@@ -24,28 +24,30 @@ with rec {
     # These provide generally useful binaries
     inherit (self.haskellPackages) happy hlint pretty-show stylish-haskell;
 
-    inherit (self) autossh artemis asv-nix bibclean bibtool binutils
+    inherit (self) alsaUtils artemis asv-nix autossh bibclean bibtool binutils
                    brittany cabal-install2 cabal2nix cifs_utils ddgr dtach
                    dvtm entr exfat file fuse get_iplayer ghc ghostscript git
-                   gnumake gnutls imagemagick inotify-tools jq lzip md2pdf
-                   msmtp nix-diff /*youtube-dl*/ openssh opusTools p7zip pamixer
+                   gnumake gnutls imagemagick inotify-tools jq libnotify lzip
+                   md2pdf msmtp nix-diff openssh opusTools p7zip pamixer
                    pandocPkgs poppler_utils pmutils pptp psmisc python
                    racket silver-searcher sshfsFuse sshuttle smbnetfs sox st
                    tightvnc ts usbutils unzip wget wmname xbindkeys xcalib
                    xcape zip;
 
+    inherit (self.nixpkgs1709) youtube-dl;
+
     inherit (self.xorg) xmodmap xproto;
   };
 
-  # FIXME: Try dmenu2 instead of albert?
-  graphical = self.stripOverrides (self.widgetThemes // {
+  graphical = trace "FIXME: Use latest packages (if build is quicker)" self.stripOverrides (self.widgetThemes // {
     inherit (self.gnome3)      gcr;
     inherit (self.nixpkgs1709) abiword audacious conkeror firefox gnumeric
       mplayer vlc;
-    inherit (self)        acpi /*albert*/ anonymous-pro-font arandr aspell
-      awf basic basket blueman cmus compton dillo droid-fonts emacsWithPkgs
-      gcalcli gensgs iotop kbibtex_full keepassx leafpad lxappearance mu mupdf
-      paprefs pavucontrol picard pidgin-with-plugins trayer w3m xsettingsd;
+    inherit (self)        acpi anonymous-pro-font arandr aspell
+      awf basic basket blueman cmus compton dillo dmenu2 droid-fonts
+      emacsWithPkgs gcalcli gensgs iotop kbibtex_full keepassx leafpad
+      lxappearance mu mupdf paprefs pavucontrol picard pidgin-with-plugins
+      trayer w3m xsettingsd;
     inherit (self.xfce) exo xfce4notifyd;
     inherit (self.xorg) xkill;
     aspellDicts = self.aspellDicts.en;
