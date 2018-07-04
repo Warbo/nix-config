@@ -1,8 +1,8 @@
 # Custom Nix Packages #
 
 This directory provides user-specific overrides for the Nix package manager. By
-naming it `~/.nixpkgs`, it will be automatically loaded by Nix; you could also
-load it separately, e.g. via an `import`.
+naming it `~/.config/nixpkgs`, it will be automatically loaded by Nix; you could
+also load it separately, e.g. via an `import`.
 
 # Layout #
 
