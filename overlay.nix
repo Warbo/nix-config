@@ -10,7 +10,7 @@ with rec {
 
   mkPkg = f: oldPkgs:
     with import (./. + "/overrides/${f}.nix") self super;
-    oldPkgs // mapAttrs (n: trace "Evaluating ${n}") overrides // {
+    oldPkgs // overrides // {
       customPkgNames = oldPkgs.customPkgNames ++ attrNames overrides;
       customTests    = oldPkgs.customTests    // { "${f}" = tests; };
     };
