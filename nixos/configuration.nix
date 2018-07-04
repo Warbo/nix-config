@@ -429,6 +429,12 @@ rec {
     publish.workstation = true;
   };
 
+  services.laminar = {
+    enable   = true;
+    bindHttp = "localhost:8008";  # Default 8080 clashes with IPFS
+    cfg      = toString /home/chris/System/Laminar;
+  };
+
   system.activationScripts = {
     dotfiles = ''
       cd /home/chris/.dotfiles || exit 1
