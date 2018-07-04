@@ -4,14 +4,28 @@
 { config, pkgs, ... }:
 
 with builtins;
+with rec {
+  nix-config =
+    with { fallback = /home/chris/Programming/Nix/nix-config; };
+    if pathExists ../overlays.nix
+       then ../.
+       else if pathExists fallback
+               then fallback
+               else null;
+};
 rec {
   # Low level/hardware stuff
 
   imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix ];
+    # Custom NixOS modules
+    map (f: ./modules + "/${f}") (attrNames (readDir ./modules)) ++
 
-  nixpkgs.overlays = import /home/chris/nix-config/overlays.nix;
+    # Include the results of the hardware scan.
+    [ ./hardware-configuration.nix ];
+
+  nixpkgs.overlays = if nix-config == null
+                        then trace "WARNING: No overlays found" []
+                        else import (nix-config + "/overlays.nix");
 
   # Use the GRUB 2 boot loader.
   boot = trace "FIXME: Use system.activationScripts to make /boot/grub/libreboot_grub.cfg" {
