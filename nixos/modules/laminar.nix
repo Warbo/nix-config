@@ -5,24 +5,43 @@ with lib;
 with rec {
   cfg = config.services.laminar;
 
-  laminar = version:
-    with {
-      revs    = {
-        "0.6" = {
-          rev    = "bbbef11";
-          sha256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
-        };
-      };
+  # Workaround for https://groups.google.com/forum/#!topic/nix-devel/fAMADzFhcFo
+  stdenv6 = with pkgs; overrideCC stdenv gcc6;
+
+  capnproto = with pkgs; stdenv6.mkDerivation {
+    name = "capnproto";
+    src  = fetchFromGitHub {
+      owner  = "capnproto";
+      repo   = "capnproto";
+      rev    = "3079784";
+      sha256 = "0d7v9310gq12qwhxbsjcdxwaz9fhyxq13x2lz8cdhm6hbsg8756z";
     };
-    pkgs.stdenv.mkDerivation {
-      inherit version;
-      name = "laminar-${version}";
-      src = pkgs.fetchFromGitHub (getAttr version revs // {
-        owner = "ohwgiles";
-        repo  = "laminar";
-      });
-      buildInputs = [ pkgs.cmake ];
+    buildInputs = [ autoconf automake libtool ];
+    patchPhase  = ''
+      cd c++/
+      autoreconf -i
+    '';
+    hardeningDisable = [ "all" ];
+  };
+
+  laminar = stdenv6.mkDerivation rec {
+    name    = "laminar-${version}";
+    version = "0.6";
+    src     = pkgs.fetchFromGitHub {
+      owner  = "ohwgiles";
+      repo   = "laminar";
+      rev    = "bbbef11";  # v0.6
+      sha256 = "07nnqccm0dgyzkj6k3gcrs6f22h2ac7hdq05zq4wjs1xdyqdksl0";
     };
+    buildInputs = [ capnproto ] ++ (with pkgs; [
+      boost cmake rapidjson replace sqlite websocketpp zlib
+    ]);
+    hardeningDisable = [ "all" ];
+    preConfigure     = ''
+      cmakeFlags="$cmakeFlags -DSYSTEMD_UNITDIR='$out/lib/systemd/system'"
+      replace 'usr/bin' 'bin' -- CMakeLists.txt
+    '';
+  };
 };
 {
   options.services.laminar = {
@@ -51,12 +70,13 @@ with rec {
     };
 
     cfg = mkOption {
-      type        = types.nullOr types.path;
-      default     = null;
+      type        = types.path;
       description = ''
-        Path to symlink as 'home'/cfg, used to control Laminar. We use a symlink
-        so that content can be managed externally, e.g. via version control,
-        without needing to rebuild the service.
+        Path to symlink as LAMINAR_HOME/cfg, used to control Laminar. We use a
+        symlink so that content can be managed externally, e.g. via version
+        control, without needing to rebuild the service. Note that raw paths
+        like './foo' will have a snapshot added to the Nix store; to prevent
+        this use a string like '"/.../foo"' or 'toString ./foo'.
       '';
     };
 
@@ -113,9 +133,13 @@ with rec {
     systemd.services.laminar = {
       description   = "Laminar continuous integration service";
       wantedBy      = [ "multi-user.target" ];
-      path          = [ cfg.package ];
+      environment   = {
+        LAMINAR_BIND_HTTP = cfg.bindHttp;
+        LAMINAR_HOME      = cfg.home;
+        LAMINAR_TITLE     = cfg.title;
+      };
+      path     = [ cfg.package ];
       preStart = ''
-        env > envvars
         mkdir -vp "${cfg.home}"
 
         if [[ -h "${cfg.home}"/cfg ]]
@@ -131,33 +155,13 @@ with rec {
         ${if cfg.custom == null
              then ""
              else ''ln -sfv "${cfg.custom}" ${cfg.home}/custom''}
+        chown -v "${cfg.user}"."${cfg.group}" "$LAMINAR_HOME"/*
       '';
       serviceConfig = {
-        User        = cfg.user;
-        Group       = cfg.group;
-        Environment = {
-          LAMINAR_BIND_HTTP = cfg.bindHttp;
-          LAMINAR_HOME      = cfg.home;
-          LAMINAR_TITLE     = cfg.title;
-        };
-        ExecStart = pkgs.writeScript "Start laminar" ''
-          #!${pkgs.bash}/bin/bash
-          set -e
-          [[ -e "$LAMINAR_HOME" ]] || {
-            echo "LAMINAR_HOME directory '$LAMINAR_HOME' doesn't exist" 1>&2
-            exit 1
-          }
-          [[ -h "$LAMINAR_HOME/cfg" ]] || {
-            echo "Laminar cfg symlink '$LAMINAR_HOME/cfg' doesn't exist" 1>&2
-            exit 1
-          }
-          CFG=$(readlink -f "$LAMINAR_HOME/cfg")
-          [[ -e "$LAMINAR_HOME" ]] || {
-            echo "Laminar cfg directory '$CFG' doesn't exist" 1>&2
-            exit 1
-          }
-          "${cfg.package}/bin/laminard"
-        '';
+        User                 = cfg.user;
+        Group                = cfg.group;
+        PermissionsStartOnly = true;  # Allow preStart to run as root
+        ExecStart            = "${cfg.package}/bin/laminard";
       };
     };
 
