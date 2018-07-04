@@ -130,6 +130,8 @@ with rec {
   };
 
   config = mkIf cfg.enable {
+    environment.systemPackages = [ laminar ];
+
     systemd.services.laminar = {
       description   = "Laminar continuous integration service";
       wantedBy      = [ "multi-user.target" ];
@@ -141,6 +143,7 @@ with rec {
       path     = [ cfg.package ];
       preStart = ''
         mkdir -vp "${cfg.home}"
+        chown -v "${cfg.user}"."${cfg.group}" "${cfg.home}"
 
         if [[ -h "${cfg.home}"/cfg ]]
         then
