@@ -11,8 +11,8 @@ with rec {
   mkPkg = f: oldPkgs:
     with import (./. + "/overrides/${f}.nix") self super;
     oldPkgs // overrides // {
-      customPkgNames = oldPkgs.customPkgNames ++ attrNames overrides;
-      customTests    = oldPkgs.customTests    // { "${f}" = tests; };
+      nix-config-names = oldPkgs.nix-config-names ++ attrNames overrides;
+      nix-config-tests = oldPkgs.nix-config-tests // { "${f}" = tests; };
     };
 };
-fold mkPkg { customTests = {}; } fileNames
+fold mkPkg { nix-config-names = []; nix-config-tests = {}; } fileNames

@@ -68,7 +68,7 @@ rec {
     pkgTests;
 
   tests = {
-    inherit customTests hackagePackageNamesDrv;
+    inherit hackagePackageNamesDrv nix-config-tests;
 
     haskell     = withDeps (attrValues haskellTests)
                            (runCommand "haskell-tests" {} ''

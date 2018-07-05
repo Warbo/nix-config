@@ -1,7 +1,7 @@
 # Used for testing and building via continuous integration (e.g. Hydra)
 with { pkgs = import <nixpkgs> { overlays = import ./overlays.nix; }; };
 {
-  inherit (pkgs) customTests;
+  inherit (pkgs) nix-config-tests;
 }
 
 /*
@@ -9,7 +9,7 @@ with rec {
   # Select our custom packages/overrides, except for those which are buried
   # in larger sets
   topLevel = pkgs:
-    genAttrs (filter (name: isDerivation (getAttr name pkgs)) customPkgNames)
+    genAttrs (filter (name: isDerivation (getAttr name pkgs)) nix-config-names)
              (name: getAttr name pkgs);
 
   select = pkgs:
