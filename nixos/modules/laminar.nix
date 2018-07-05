@@ -158,7 +158,6 @@ with rec {
         ${if cfg.custom == null
              then ""
              else ''ln -sfv "${cfg.custom}" ${cfg.home}/custom''}
-        chown -v "${cfg.user}"."${cfg.group}" "$LAMINAR_HOME"/*
       '';
       serviceConfig = {
         User                 = cfg.user;
