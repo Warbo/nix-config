@@ -34,7 +34,7 @@ with rec {
       sha256 = "07nnqccm0dgyzkj6k3gcrs6f22h2ac7hdq05zq4wjs1xdyqdksl0";
     };
     buildInputs = [ capnproto ] ++ (with pkgs; [
-      boost cmake rapidjson replace sqlite websocketpp zlib
+      boost cmake rapidjson nix-helpers.replace sqlite websocketpp zlib
     ]);
     hardeningDisable = [ "all" ];
     preConfigure     = ''
