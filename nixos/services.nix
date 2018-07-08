@@ -862,22 +862,22 @@ with rec {
       };
     };
 
-  hydra-bind =
+  inherit (lib.mapAttrs (name: port:
     with {
       paths = [ bash coreutils curl iputils openssh procps ];
       vars  = {
         inherit SSH_AUTH_SOCK;
-        pat = "ssh.*3000:localhost:3000";
+        pat = "ssh.*${port}:localhost:${port}";
       };
     };
     monitoredService {
-      name        = "hydra-bind";
+      inherit name;
       description = "Bind desktop SSH";
-      extra      = { requires   = [ "network.target" ]; };
+      extra       = { requires = [ "network.target" ]; };
       RestartSec  = 20;
       isRunning   = wrap {
         inherit paths vars;
-        name   = "hydra-bind-running";
+        name   = "${name}-running";
         script = ''
           #!/usr/bin/env bash
           pgrep -f "$pat" && exit 0
@@ -886,8 +886,7 @@ with rec {
       };
       shouldRun = areOnline;
       start     = wrap {
-        inherit paths vars;
-        name   = "hydra-bind";
+        inherit name paths vars;
         script = ''
           #!/usr/bin/env bash
           set -e
@@ -902,19 +901,21 @@ with rec {
           fi
 
           echo "Binding port"
-          ssh -f -N -A -L 3000:localhost:3000 user@localhost -p 22222
+          ssh -f -N -A -L ${port}:localhost:${port} user@localhost -p 22222
           sleep 5
         '';
       };
       stop = wrap {
         inherit paths vars;
-        name   = "hydra-bind-query";
+        name   = "${name}-query";
         script = ''
           #!/usr/bin/env bash
           pkill -f -9 "$pat" || true
         '';
       };
-    };
+    })
+    { hydra-bind = "3000"; laminar-bind = "4000"; })
+    hydra-bind laminar-bind;
 
   ssh-agent = mkService {
     description   = "Run ssh-agent";
