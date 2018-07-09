@@ -18,8 +18,8 @@ with rec {
   {
     args = {
       url    = http://chriswarbo.net/git/warbo-packages.git;
-      rev    = "c9247be";
-      sha256 = "099sk26lgh8zhfkm39zycsmr6vpr2mpx273lic04ckqcpfm4nzgr";
+      rev    = "b5cf3f2";
+      sha256 = "1z21h3r0j0w51mnwafvha86vi2dsv2grwp667ch5q4nvazf6n1sn";
     };
     path = /home/chris/Programming/Nix/warbo-packages;
   }
