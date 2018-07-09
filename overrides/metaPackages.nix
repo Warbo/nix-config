@@ -39,9 +39,10 @@ with rec {
     inherit (self.xorg) xmodmap xproto;
   };
 
-  graphical = trace "FIXME: Use latest packages (if build is quicker)" self.stripOverrides (self.widgetThemes // {
+  graphical = self.stripOverrides (self.widgetThemes // {
     inherit (self.gnome3)      gcr;
-    inherit (self.nixpkgs1709) abiword audacious conkeror firefox gnumeric
+    inherit (trace "FIXME: Use latest packages (if build is quicker)"
+                   self.nixpkgs1709) abiword audacious conkeror firefox gnumeric
       mplayer vlc;
     inherit (self)        acpi anonymous-pro-font arandr aspell
       awf basic basket blueman cmus compton dillo dmenu2 droid-fonts
