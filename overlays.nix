@@ -26,8 +26,8 @@ with rec {
   {
     args = {
       url    = http://chriswarbo.net/git/warbo-utilities.git;
-      rev    = "30af50d";
-      sha256 = "0v8fr32ivxjmgdgihgrzbsinw642sp8kyqgspaxlqvp4hdmwljx1";
+      rev    = "825659d";
+      sha256 = "1p9d6lgvzp19g23fsi2pd5lk856xs2xgpfr0gdvxnjwawbrzqad3";
     };
     path = /home/chris/warbo-utilities;
   }
