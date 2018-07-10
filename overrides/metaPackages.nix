@@ -48,7 +48,7 @@ with rec {
       awf basic basket blueman cmus compton dillo dmenu2 droid-fonts
       emacsWithPkgs gcalcli gensgs iotop kbibtex_full keepassx leafpad
       lxappearance mu mupdf paprefs pavucontrol picard pidgin-with-plugins
-      trayer w3m xsettingsd;
+      trayer uget w3m xsettingsd;
     inherit (self.xfce) exo xfce4notifyd;
     inherit (self.xorg) xkill;
     aspellDicts = self.aspellDicts.en;
