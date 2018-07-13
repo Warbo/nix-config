@@ -10,8 +10,8 @@ with rec {
   {
     args = {
       url    = http://chriswarbo.net/git/nix-helpers.git;
-      rev    = "bb75beb";
-      sha256 = "0cyp3drylrp0dvh4sll5lvi0n511grxfpmka2d5pdy4jxl0803p5";
+      rev    = "96a2fa3";
+      sha256 = "0j5xxgjbyjsj9ayj3q7b95s7gzmmahwlj27nvbmdjyrxk3dn7gxz";
     };
     path = /home/chris/Programming/Nix/nix-helpers;
   }
