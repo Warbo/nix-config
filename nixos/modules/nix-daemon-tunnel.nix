@@ -36,7 +36,7 @@ with { cfg = config.services.nix-daemon-tunnel; };
     };
   };
 
-  config = mkIf cfg.enable {
+  config = builtins.trace "FIXME: Add dependencies on nix-daemon and sshd" mkIf cfg.enable {
     systemd.services.nix-daemon-tunnel = {
       description = "Provides a socket tunnelled to nix-daemon as a user.";
       wantedBy    = [ "multi-user.target" ];
