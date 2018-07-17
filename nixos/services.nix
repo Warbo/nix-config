@@ -279,6 +279,7 @@ with rec {
       User       = "chris";
       Type       = "forking";
       Restart    = "always";
+      Timeout    = 300;
       ExecStart  = writeScript "emacs-start" ''
         #!${bash}/bin/bash
         cd "$HOME"
