@@ -418,8 +418,8 @@ rec {
   };
 
   services.printing = {
-    enable  = true;  # Switch this to enable CUPS
-    #drivers = [ pkgs.hplip pkgs.gutenprint ];
+    enable  = true;
+    drivers = [ pkgs.nixpkgs1709.hplip pkgs.nixpkgs1709.gutenprint ];
   };
 
   services.avahi = {
