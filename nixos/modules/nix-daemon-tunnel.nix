@@ -36,10 +36,11 @@ with { cfg = config.services.nix-daemon-tunnel; };
     };
   };
 
-  config = builtins.trace "FIXME: Add dependencies on nix-daemon and sshd" mkIf cfg.enable {
+  config = mkIf cfg.enable {
     systemd.services.nix-daemon-tunnel = {
       description = "Provides a socket tunnelled to nix-daemon as a user.";
       wantedBy    = [ "multi-user.target" ];
+      after       = [ "nix-daemon.service" "sshd.service" ];
       path        = [ pkgs.bash pkgs.openssh ];
       preStart    = ''
         [[ -e "${cfg.socketDir}" ]] || mkdir -p "${cfg.socketDir}"
@@ -74,7 +75,7 @@ with { cfg = config.services.nix-daemon-tunnel; };
           fi
 
           function cleanUp {
-            rm -r "${cfg.socketDir}/socket"
+            rm -f "${cfg.socketDir}/socket"
           }
           trap cleanUp EXIT
 
@@ -83,7 +84,11 @@ with { cfg = config.services.nix-daemon-tunnel; };
               -o "ExitOnForwardFailure yes" -o "ConnectTimeout 10"          \
               -nNT -L "${cfg.socketDir}/socket":"${cfg.nixDaemonSocket}"    \
               "$USER"@localhost &
-          sleep 1
+          for X in $(seq 1 60)
+          do
+            sleep 1
+            [[ -e "${cfg.socketDir}/socket" ]] && break
+          done
           chmod a+r "${cfg.socketDir}/socket"
           chmod a+w "${cfg.socketDir}/socket"
           wait
