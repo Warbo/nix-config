@@ -9,7 +9,8 @@ with rec {
                then path
                else "${remotes."${name}"}/${file}");
 
-  remotes = import ./helpers {};
+  remotes = import ./helpers.nix {};
+
   locals  = {
     nix-helpers     = /home/chris/Programming/Nix/nix-helpers;
     warbo-packages  = /home/chris/Programming/Nix/warbo-packages;
