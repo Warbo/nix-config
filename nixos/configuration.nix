@@ -334,7 +334,7 @@ rec {
   services.bitlbee.enable = true;
 
   services.ipfs = {
-    enable         = true;
+    enable         = false;  # Quite resource-hungry
     autoMount      = false;  # Mounting can cause FUSE errors
     enableGC       = true;   # Laptop, limited storage
     dataDir        = "/var/lib/ipfs/.ipfs";
