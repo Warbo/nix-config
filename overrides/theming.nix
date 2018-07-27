@@ -8,7 +8,7 @@ self: super:
     };
 
     # Force screen dimming so we can tell it's running
-    dmenu2 = self.attrsToDirs {
+    dmenu2 = self.attrsToDirs' "dmenu2" {
       bin = {
         dmenu     = "${super.dmenu2}/bin/dmenu";
         dmenu_run = self.wrap {
