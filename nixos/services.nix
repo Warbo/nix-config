@@ -249,7 +249,6 @@ with rec {
   };
 
   coolDown = mkService {
-    enable        = false;
     description   = "Suspend common resource hogs when temperature's too hot";
     path          = [ procps warbo-utilities ];
     serviceConfig = {
