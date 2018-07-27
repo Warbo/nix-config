@@ -55,6 +55,10 @@ rec {
       "acpi_osi="
       "clocksource=acpi_pm pci=use_crs"
       "consoleblank=0"
+
+      # The "cstate" determines speed vs power usage. State c3 and above produce
+      # a high-pitched whining sound on my X60s, so this disables them.
+      "processor.max_cstate=2"
     ];
   };
 
