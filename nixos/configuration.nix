@@ -35,6 +35,9 @@ rec {
       device  = "/dev/sda";
     };
 
+    # Use kernel from 17.09 to avoid system freezes which started with 18.03
+    kernelPackages = pkgs.nixpkgs1709.linuxPackages;
+
     kernelModules = trace "FIXME: Which modules are artefacts of using QEMU to install?" [
       "kvm-intel" "tun" "virtio"
 
