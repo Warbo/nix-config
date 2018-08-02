@@ -36,7 +36,6 @@ rec {
         "ghc-simple"
         "ghc-dup"
         "tip-lib"
-        "tip-haskell-frontend-main"
         "tip-haskell-frontend"
         "tasty-ant-xml"
         "tasty"

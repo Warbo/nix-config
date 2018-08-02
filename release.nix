@@ -60,7 +60,6 @@ with rec {
                 tasty                     = ghc710;
                 tasty-ant-xml             = ghc710;
                 tip-haskell-frontend      = ghc710;
-                tip-haskell-frontend-main = ghc710;
                 tip-lib                   = ghc710;
                 tip-types                 = ghc710;
                 weigh                     = ghc802;
