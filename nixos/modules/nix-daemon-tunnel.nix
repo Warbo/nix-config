@@ -51,6 +51,8 @@ with { cfg = config.services.nix-daemon-tunnel; };
       serviceConfig = {
         User                 = cfg.user;
         PermissionsStartOnly = true;  # Allow preStart to run as root
+        Restart              = "always";
+        RestartSec           = 60;
         ExecStart            = pkgs.writeScript "nix-daemon-tunnel" ''
           #!/usr/bin/env bash
           set -e
