@@ -334,6 +334,50 @@ rec {
     };
   };
 
+  # Provides keybindings by intercepting the output of each keyboard device.
+  # Unlike e.g. xbindkeys, these bindings will even work in text consoles.
+  # Note that NixOS has an audio.mediaKeys option which does a similar thing,
+  # but its 'amixer' invocations don't seem to work on my X60s laptop.
+  services.actkbd = {
+    enable   = true;
+    bindings = [
+      {
+        # Mute key
+        keys    = [ 113 ];
+        events  = [ "key" ];
+        command = toString (pkgs.wrap {
+          name   = "muteToggle";
+          paths  = with pkgs; [ bash alsaUtils ];
+          script = ''
+            #!/usr/bin/env bash
+            # Toggle mute state of 'Master'
+            amixer -q -c 0 sset Master toggle
+
+            # To get audio we need 'Master' and 'Speaker' to be unmuted. Muting
+            # 'Master' also causes 'Speaker' to mute, but unmuting it doesn't.
+            # To work around this asymmetry we always finish by unmuting
+            # 'Speaker'. The audio state thus only depends on 'Master'.
+            amixer -q -c 0 sset Speaker unmute
+          '';
+        });
+      }
+
+      {
+        # Volume down
+        keys    = [ 114 ];
+        events  = [ "key" "rep" ];
+        command = "${pkgs.alsaUtils}/bin/amixer -c 0 sset Master 1-";
+      }
+
+      {
+        # Volume up
+        keys    = [ 115 ];
+        events  = [ "key" "rep" ];
+        command = "${pkgs.alsaUtils}/bin/amixer -c 0 sset Master 1+";
+      }
+    ];
+  };
+
   services.bitlbee.enable = true;
 
   services.ipfs = {
