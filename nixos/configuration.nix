@@ -525,6 +525,8 @@ rec {
       do
         [[ "x$X" = "x.issues"   ]] && continue
         [[ "x$X" = "xetc_nixos" ]] && continue
+        [[ "x$X" = "xREADME"    ]] && continue
+        [[ "x$X" = "xcheck.sh"  ]] && continue
         [[ -h "/home/chris/.$X" ]] && continue
         [[ -e "/home/chris/.$X" ]] && {
           echo "WARNING: Found ~/.$X but it's not a symlink" 1>&2
