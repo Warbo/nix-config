@@ -24,15 +24,15 @@ with rec {
     # These provide generally useful binaries
     inherit (self.haskellPackages) happy hlint pretty-show stylish-haskell;
 
-    inherit (self) alsaUtils artemis asv-nix autossh bibclean bibtool binutils
-                   brittany cabal-install2 cifs_utils ddgr dtach dvtm entr exfat
-                   file fuse get_iplayer ghc ghostscript git gnumake gnutls
-                   imagemagick inotify-tools jq libnotify lzip md2pdf msmtp
-                   nix-diff openssh opusTools p7zip pamixer pandocPkgs
-                   pinnedCabal2nix poppler_utils pmutils pptp psmisc python
-                   racket silver-searcher sshfsFuse sshuttle smbnetfs sox st
-                   tightvnc ts usbutils unzip wget wmname xbindkeys xcalib
-                   xcape zip;
+    inherit (self) acoustidFingerprinter alsaUtils artemis asv-nix autossh
+                   bibclean bibtool binutils brittany cabal-install2 cifs_utils
+                   ddgr dtach dvtm entr exfat file fuse get_iplayer ghc
+                   ghostscript git gnumake gnutls imagemagick inotify-tools jq
+                   libnotify lzip md2pdf msmtp nix-diff openssh opusTools p7zip
+                   pamixer pandocPkgs pinnedCabal2nix poppler_utils pmutils pptp
+                   psmisc python racket silver-searcher sshfsFuse sshuttle
+                   smbnetfs sox st tightvnc ts usbutils unzip wget wmname
+                   xbindkeys xcalib xcape zip;
 
     inherit (self.nixpkgs1709) youtube-dl;
 
