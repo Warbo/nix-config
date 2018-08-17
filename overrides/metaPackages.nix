@@ -22,7 +22,8 @@ with rec {
         else {}) // {
 
     # These provide generally useful binaries
-    inherit (self.haskellPackages) happy hlint pretty-show stylish-haskell;
+    inherit (self.haskellPackages) ghcid happy hlint pretty-show
+                                   stylish-haskell;
 
     inherit (self) acoustidFingerprinter alsaUtils artemis asv-nix autossh
                    bibclean bibtool binutils brittany cabal-install2 cifs_utils
