@@ -41,14 +41,15 @@ with rec {
   };
 
   graphical = self.stripOverrides (self.widgetThemes // {
-    inherit (self.gnome3)      gcr;
-    inherit (trace "FIXME: Use latest packages (if build is quicker)"
-                   self.nixpkgs1709) abiword audacious conkeror firefox mplayer vlc;
-    inherit (self)        acpi anonymous-pro-font arandr aspell
-      awf basic basket blueman cmus compton dillo dmenu2 droid-fonts
-      emacsWithPkgs gcalcli gensgs gnumeric iotop kbibtex_full keepassx leafpad
-      lxappearance mu mupdf paprefs pavucontrol picard pidgin-with-plugins
-      trayer uget w3m xsettingsd;
+    inherit (self.gnome3)
+      gcr;
+    inherit (trace "FIXME: Use latest packages (if build is quicker)" self.nixpkgs1709)
+      abiword audacious conkeror firefox mplayer vlc;
+    inherit (self)
+      acpi anonymous-pro-font arandr aspell asunder awf basic basket blueman
+      cmus compton dillo dmenu2 droid-fonts emacsWithPkgs gcalcli gensgs
+      gnumeric iotop kbibtex_full keepassx leafpad lxappearance mu mupdf paprefs
+      pavucontrol picard pidgin-with-plugins trayer uget w3m xsettingsd;
     inherit (self.xfce) exo xfce4notifyd;
     inherit (self.xorg) xkill;
     aspellDicts = self.aspellDicts.en;
