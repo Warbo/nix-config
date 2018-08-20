@@ -1,7 +1,7 @@
 # Used for testing and building via continuous integration (e.g. Hydra)
 with { pkgs = import <nixpkgs> { overlays = import ./overlays.nix; }; };
 {
-  inherit (pkgs) nix-config-tests;
+  inherit (pkgs) all basic nix-config-tests;
 }
 
 /*
