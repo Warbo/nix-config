@@ -15,5 +15,5 @@ with super.lib;
     });
   };
 
-  tests = {};
+  tests = { inherit (self) libproxy; };
 }
