@@ -82,6 +82,9 @@ rec {
     firewall.enable                   = false;
     firewall.autoLoadConntrackHelpers = true;
 
+    # Don't rely on those from DHCP, since the ISP might MITM
+    nameservers = [ "208.67.222.222" "208.67.220.220" "8.8.8.8" ];
+
     # Block surveillance, malicious actors, time wasters, etc.
     extraHosts =
       with pkgs.lib;
