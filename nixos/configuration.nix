@@ -33,6 +33,9 @@ rec {
       enable  = true;
       version = 2;
       device  = "/dev/sda";
+
+      # Put kernels in /boot, which should help with getting LibreBoot to work
+      copyKernels = true;
     };
 
     # Use kernel from 17.09 to avoid system freezes which started with 18.03
