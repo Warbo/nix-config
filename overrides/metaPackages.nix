@@ -9,6 +9,21 @@ with builtins;
 with rec {
   inherit (super) lib;
 
+  i686Cache =
+    with rec {
+      msg = name: trace ''
+                    Using ${name} from nixpkgs 17.03, since that is cached on
+                    hydra.nixos.org, but newer i686 versions aren't.
+                  '';
+
+      get = acc: name: acc // {
+        "${name}" = getAttr name (if currentSystem == "i686-linux"
+                                     then msg name self.nixpkgs1703
+                                     else self);
+      };
+    };
+    foldl' get {};
+
   console =
     # Newer NixOS systems need fuse3 rather than fuse, but it doesn't exist
     # on older systems. We include it if available, otherwise we just warn.
@@ -25,35 +40,90 @@ with rec {
     inherit (self.haskellPackages) ghcid happy hlint pretty-show
                                    stylish-haskell;
 
-    inherit (self) acoustidFingerprinter alsaUtils artemis asv-nix autossh
-                   bibclean bibtool binutils brittany cabal-install2 cifs_utils
-                   ddgr dtach dvtm entr exfat file fuse get_iplayer ghc
-                   ghostscript git gnumake gnutls imagemagick inotify-tools jq
-                   libnotify lzip md2pdf msmtp nix-diff openssh opusTools p7zip
-                   pamixer pandocPkgs pinnedCabal2nix poppler_utils pmutils pptp
-                   psmisc python racket silver-searcher sshfsFuse sshuttle
-                   smbnetfs sox st tightvnc ts usbutils unzip wget wmname
-                   xbindkeys xcalib xcape zip;
+    inherit (self)
+      acoustidFingerprinter
+      alsaUtils
+      artemis
+      asv-nix
+      autossh
+      bibclean
+      bibtool
+      binutils
+      brittany
+      cabal-install2
+      cifs_utils
+      ddgr
+      dtach
+      dvtm
+      entr
+      exfat
+      file
+      fuse
+      get_iplayer
+      ghc
+      ghostscript
+      git
+      gnumake
+      gnutls
+      imagemagick
+      inotify-tools
+      jq
+      libnotify
+      lzip
+      md2pdf
+      msgpack-tools
+      msmtp
+      nix-diff
+      openssh
+      opusTools
+      p7zip
+      pamixer
+      pandocPkgs
+      pinnedCabal2nix
+      poppler_utils
+      pmutils
+      pptp
+      psmisc
+      python
+      racket
+      silver-searcher
+      sshfsFuse
+      sshuttle
+      smbnetfs
+      sox
+      st
+      tightvnc
+      ts
+      usbutils
+      unzip
+      wget
+      wmname
+      xbindkeys
+      xcalib
+      xcape
+      zip
+      ;
 
     inherit (self.nixpkgs1709) youtube-dl;
 
     inherit (self.xorg) xmodmap xproto;
   };
 
-  graphical = self.stripOverrides (self.widgetThemes // {
-    inherit (self.gnome3)
-      gcr;
-    inherit (trace "FIXME: Use latest packages (if build is quicker)" self.nixpkgs1709)
-      abiword audacious conkeror firefox mplayer vlc;
-    inherit (self)
-      acpi anonymous-pro-font arandr aspell asunder awf basic basket blueman
-      cmus compton dillo dmenu2 droid-fonts emacsWithPkgs gcalcli gensgs
-      gnumeric iotop kbibtex_full keepassx leafpad lxappearance mu mupdf paprefs
-      pavucontrol picard pidgin-with-plugins trayer uget w3m xsettingsd;
-    inherit (self.xfce) exo xfce4notifyd;
-    inherit (self.xorg) xkill;
-    aspellDicts = self.aspellDicts.en;
-  });
+  graphical = self.stripOverrides
+    (self.widgetThemes // i686Cache [ "libreoffice" "gimp" ] // {
+       inherit (self.gnome3)
+         gcr;
+       inherit (trace "FIXME: Use latest packages (if build is quicker)" self.nixpkgs1709)
+         abiword audacious firefox mplayer vlc;
+       inherit (self)
+         acpi anonymous-pro-font arandr aspell asunder awf basic basket blueman
+         cmus compton conkeror dillo dmenu2 droid-fonts emacsWithPkgs gcalcli
+         gensgs gnumeric iotop kbibtex_full keepassx leafpad lxappearance mu mupdf
+         paprefs pavucontrol picard pidgin-with-plugins trayer uget w3m xsettingsd;
+       inherit (self.xfce) exo xfce4notifyd;
+       inherit (self.xorg) xkill;
+       aspellDicts = self.aspellDicts.en;
+     });
 
   packages = console // graphical;
 };
