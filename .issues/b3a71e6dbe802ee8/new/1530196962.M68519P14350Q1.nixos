@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Thu, 28 Jun 2018 15:41:37 +0100
-State: new
+State: resolved
 Subject: Test that overlays are up to date
 Message-Id: <b3a71e6dbe802ee8-0-artemis@nixos>
+resolution: fixed
 
 We should move the git args in overlays/default.nix into separate files,
 then we can write tests which check whether they're up to date with HEAD
