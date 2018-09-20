@@ -476,6 +476,17 @@ rec {
     {
       extraRules = ''
         SUBSYSTEM=="usb", ACTION=="add|remove", RUN+="${fixKeyboard}"
+
+        # USB networking for OpenMoko
+        ${concatStringsSep ", " [
+          ''SUBSYSTEM=="net"''
+          ''ACTION=="add"''
+          ''DRIVERS=="?*"''
+          ''ATTRS{idProduct}=="a4a2"''
+          ''ATTRS{idVendor}=="0525"''
+          ''KERNEL=="usb*"''
+          ''NAME="openmoko0"''
+        ]}
       '';
     };
 
