@@ -3,19 +3,19 @@
 {
   nix-helpers = fetchgit {
     url    = http://chriswarbo.net/git/nix-helpers.git;
-    rev    = "35797e2";
-    sha256 = "0mj1q72sjbdalcvaqk3pk1ik9k1bgqmd5igv20ks2miwg5hr2bic";
+    rev    = "05182d0";
+    sha256 = "1h8jrjrbbab0fymssdwgzl171x6lq817sjd8hzhia7kn5mgm2fib";
   };
 
   warbo-packages = fetchgit {
     url    = http://chriswarbo.net/git/warbo-packages.git;
-    rev    = "dc24001";
-    sha256 = "1gb0d6v4k9vk83icnrzh4qai3g4wkpvd41awg76h78ih4cwx3zaf";
+    rev    = "6e4a804";
+    sha256 = "1aqp5qyvv47cpf16hyv5i41820hjymdbs3xr8czgd8hipjz601zz";
   };
 
   warbo-utilities = fetchgit {
     url    = http://chriswarbo.net/git/warbo-utilities.git;
-    rev    = "544d6dc";
-    sha256 = "1czbladdwnnjd5m3l6apm2ia2pkhp9bs1rrlsi8fggg6nbh0n6nl";
+    rev    = "49d048f";
+    sha256 = "1cdw0i53ppfa65vs0wf7n53rrhqm8aplipfg25skd2cvx8fxvxs1";
   };
 }
