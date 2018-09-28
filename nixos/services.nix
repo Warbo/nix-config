@@ -734,6 +734,8 @@ with rec {
           sshfs -o follow_symlinks                      \
                 -o allow_other                          \
                 -o IdentityFile=/home/chris/.ssh/id_rsa \
+                -o UserKnownHostsFile=/dev/null         \
+                -o StrictHostKeyChecking=no             \
                 -o debug                                \
                 -o sshfs_debug                          \
                 -o reconnect                            \
