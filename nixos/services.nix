@@ -425,7 +425,7 @@ with rec {
 
         WIFI=$(nmcli c | grep -v -- "--"  | grep -v "DEVICE" |
                          cut -d ' ' -f1   )
-        if echo "$WIFI" | grep "aa.net.uk" > /dev/null
+        if echo "$WIFI" | grep "VM4163004" > /dev/null
         then
           echo "home" > /tmp/location
           exit 0
