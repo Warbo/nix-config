@@ -457,7 +457,7 @@ with rec {
       name   = "jo-x2x-start";
       paths  = [ bash coreutils openssh warbo-utilities ];
       vars   = {
-        DISPLAY = ":0";
+        DISPLAY = ":1";
         TERM    = "xterm";
       };
       script = ''
