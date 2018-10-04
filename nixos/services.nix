@@ -221,18 +221,6 @@ with rec {
       [[ "x$LOC" = "xhome" ]] || exit 1
     '';
   };
-
-  atWork = wrap {
-    name   = "atWork";
-    paths  = [ bash ];
-    script = ''
-      #!/usr/bin/env bash
-      set -e
-
-      LOC=$(cat /tmp/location)
-      [[ "x$LOC" = "xwork" ]] || exit 1
-    '';
-  };
 };
 {
   thermald-nocheck = mkService {
@@ -338,73 +326,6 @@ with rec {
     };
   };
 
-  hometime =
-    with {
-      workingLate = wrap {
-        name   = "workingLate";
-        vars   = { inherit atWork; };
-        paths  = [ bash ];
-        script = ''
-          #!/usr/bin/env bash
-          set -e
-
-          HOUR=$(date "+%H")
-          [[ "$HOUR" -gt 18 ]] || exit 1
-
-          "$atWork" || exit 1
-          exit 0
-        '';
-      };
-    };
-    pollingService {
-      name        = "hometime";
-      description = "Count down to the end of the work day";
-      RestartSec  = 300;
-      shouldRun   = workingLate;
-      start       = wrap {
-        name  = "hometime";
-        paths = [ bash gksu libnotify iputils networkmanager pmutils ];
-        vars  = {
-          inherit workingLate;
-          DISPLAY    = ":0";
-          XAUTHORITY = "/home/chris/.Xauthority";
-        };
-        script = ''
-          #!/usr/bin/env bash
-          set -e
-
-          # Set DBus variables to make notifications appear on X display
-          MID=$(cat /etc/machine-id)
-            D=$(echo "$DISPLAY" | cut -d '.' -f1 | tr -d :)
-          source ~/.dbus/session-bus/"$MID"-"$D"
-          export DBUS_SESSION_BUS_ADDRESS
-
-          function notify {
-            notify-send -t 0 "Home Time" "$1"
-          }
-
-          "$workingLate" || exit
-          notify "Past 7pm; half an hour until suspend"
-          sleep 600
-
-          "$workingLate" || exit
-          notify "20 minutes until suspend"
-          sleep 600
-
-          "$workingLate" || exit
-          notify "10 minutes until suspend"
-          sleep 600
-
-          "$workingLate" || exit
-          notify "Suspending"
-          sleep 60
-
-          "$workingLate" || exit
-          gksudo -S pm-suspend
-        '';
-      };
-    };
-
   checkLocation = pollingService {
     name        = "check-location";
     description = "Use WiFi name to check where we are";
@@ -468,88 +389,6 @@ with rec {
       '';
     };
   };
-
-  workX2X = monitoredService {
-    name        = "work-x2x";
-    description = "Connect to X display when at work";
-    extra       = { requires = [ "network.target" ]; };
-    RestartSec  = 10;
-    isRunning   = findProcess "x2x -east";
-    shouldRun   = atWork;
-    stop        = killProcess "x2x -east";
-    start       = wrap {
-      name   = "work-x2x";
-      paths  = [ bash coreutils openssh warbo-utilities ];
-      vars   = { DISPLAY = ":0"; };
-      script = ''
-        #!/usr/bin/env bash
-        nohup ssh -Y user@localhost -p 22222 "x2x -east -to :0"
-        sleep 5
-      '';
-    };
-  };
-
-  workScreen =
-    with {
-      # "1080" means active; "disconnected" means not plugged in
-      disconnectedButActive = ''xrandr | grep "VGA1 disconnected 1080"'';
-
-      connectedButInactive = ''xrandr | grep "VGA1 connected ("'';
-    };
-    monitoredService {
-      name        = "work-screen";
-      description = "Turn on/off VGA screen";
-      extra       = { requires = [ "graphical.target" ]; };
-      RestartSec  = 10;
-      isRunning   = wrap {
-        name   = "work-screen-running";
-        paths  = [ bash nettools psmisc warbo-utilities xorg.xrandr ];
-        vars   = { DISPLAY = ":0"; };
-        script = ''
-          #!/usr/bin/env bash
-          ${connectedButInactive}  && exit 1
-          ${disconnectedButActive} && exit 0
-          exit 1 # Otherwise, assume not running
-        '';
-      };
-      shouldRun = wrap {
-        name   = "display-query";
-        paths  = [ bash nettools psmisc xorg.xrandr ];
-        vars   = { DISPLAY = ":0"; };
-        script = ''
-          #!/usr/bin/env bash
-          ${connectedButInactive}  && exit 0
-          ${disconnectedButActive} && exit 1
-          exit 1 # Otherwise, assume we shouldn't run
-        '';
-      };
-      start = wrap {
-        name   = "display-on";
-        paths  = [ bash procps psmisc warbo-utilities xorg.xrandr ];
-        vars   = { DISPLAY = ":0"; };
-        script = ''
-          #!/usr/bin/env bash
-          set -e
-          on  # Enable external monitor
-
-          # Force any X2X sessions to restart, since we've messed up X
-          pkill -f 'x2x -' || true
-        '';
-      };
-      stop = wrap {
-        name   = "display-off";
-        paths  = [ bash procps psmisc warbo-utilities xorg.xrandr ];
-        vars   = { DISPLAY = ":0"; };
-        script = ''
-          #!/usr/bin/env bash
-          set -e
-          off  # Disable external monitor
-
-          # Force any X2X sessions to restart, since we've messed up X
-          pkill -f 'x2x -' || true
-        '';
-      };
-    };
 
   inboxen = mkService {
     description   = "Fetch mail inboxes";
