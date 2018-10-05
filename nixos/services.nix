@@ -378,8 +378,9 @@ with rec {
       name   = "jo-x2x-start";
       paths  = [ bash coreutils openssh warbo-utilities ];
       vars   = {
-        DISPLAY = ":1";
-        TERM    = "xterm";
+               DISPLAY = ":0";
+        REMOTE_DISPLAY = ":1";
+        TERM           = "xterm";
       };
       script = ''
         #!/usr/bin/env bash
