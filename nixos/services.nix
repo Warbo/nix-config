@@ -586,9 +586,9 @@ with rec {
       };
     };
 
-  desktop-mount =
+  jo-mount =
     with rec {
-      dir       = "/home/chris/DesktopFiles";
+      dir       = "/home/chris/Jo";
       isRunning = sshfsHelpers.isRunning dir;
       stop      = sshfsHelpers.stop dir;
       vars      = sshfsHelpers.vars dir;
@@ -596,34 +596,29 @@ with rec {
     monitoredService {
       inherit isRunning stop;
       name        = "desktop-mount";
-      description = "Desktop files";
+      description = "Jo Chromebook mount";
       extra       = { requires = [ "network.target" ]; };
       RestartSec  = 30;
       shouldRun   = wrap {
-        name   = "desktop-mount-query";
+        name   = "jo-mount-query";
         paths  = sshfsHelpers.paths;
-        vars   = vars // { PAT = "ssh.*22222:localhost:22222"; };
+        vars   = vars // { inherit atHome; };
         script = ''
           #!/usr/bin/env bash
 
-          # Check if our port is bound
-          pgrep -f "$PAT" || exit 1
-
-          # Check if we're online
+          # We must be online
           ${online} || exit 1
 
-          # Check if the bind works
-          if timeout 10 ssh -A user@localhost -p 22222 true
-          then
-            exit 0
-          else
-            exit 1
-          fi
+          # We must be home
+          "$atHome" || exit 1
+
+          # Try to contact the pi
+          ${pingOnce} "$(${warbo-utilities}/bin/johost)" || exit 1
         '';
       };
       start = wrap {
-        name   = "desktop-mount-start";
-        paths  = sshfsHelpers.paths;
+        name   = "jo-mount-start";
+        paths  = sshfsHelpers.paths ++ [ warbo-utilities ];
         vars   = vars // { inherit stop; };
         script = ''
           #!/usr/bin/env bash
@@ -632,19 +627,16 @@ with rec {
           # Force a clean slate
           "$stop" || true
 
-          sshfs -p 22222 -o follow_symlinks                      \
-                         -o allow_other                          \
-                         -o IdentityFile=/home/chris/.ssh/id_rsa \
-                         -o debug                                \
-                         -o sshfs_debug                          \
-                         -o reconnect                            \
-                         -o ServerAliveInterval=15               \
-                         "user@localhost:/" "$dir"
-          sleep 5
-        '';
-      };
-    };
-
+          sshfs -o follow_symlinks                      \
+                -o allow_other                          \
+                -o IdentityFile=/home/chris/.ssh/id_rsa \
+                -o UserKnownHostsFile=/dev/null         \
+                -o StrictHostKeyChecking=no             \
+                -o debug                                \
+                -o sshfs_debug                          \
+                -o reconnect                            \
+                -o ServerAliveInterval=15               \
+                "jo@$(${warbo-utilities}/bin/johost):/home/jo" "$dir"
           sleep 5
         '';
       };
