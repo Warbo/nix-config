@@ -101,10 +101,9 @@ with rec {
       xbindkeys
       xcalib
       xcape
+      youtube-dl
       zip
       ;
-
-    inherit (self.nixpkgs1709) youtube-dl;
 
     inherit (self.xorg) xmodmap xproto;
   };
