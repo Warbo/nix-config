@@ -127,7 +127,6 @@ with rec {
          blueman
          cmus
          compton
-         conkeror
          dillo
          dmenu2
          droid-fonts
@@ -152,6 +151,7 @@ with rec {
          uget
          w3m
          xsettingsd;
+       inherit (trace "FIXME: Conkeror broke on 18.03+" self.nixpkgs1709) conkeror;
        inherit (self.xfce) exo xfce4notifyd;
        inherit (self.xorg) xkill;
        aspellDicts = self.aspellDicts.en;
