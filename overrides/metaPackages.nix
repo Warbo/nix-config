@@ -74,6 +74,7 @@ with rec {
       msgpack-tools
       msmtp
       nix-diff
+      nix_release
       openssh
       opusTools
       p7zip
