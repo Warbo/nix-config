@@ -20,5 +20,8 @@ then
         exit 1
     }
     echo "Checking $REPO in helpers.nix builds (e.g. for SHA256)" 1>&2
-    nix-build --no-out-link -A "$REPO" helpers.nix || exit 1
+    nix-build --no-out-link -A "$REPO" helpers.nix || {
+        echo "Failed to build $REPO" 1>&2
+        exit 1
+    }
 fi

@@ -435,7 +435,7 @@ with rec {
           done
 
           echo "Indexing maildirs for Mu" 1>&2
-          if mu index --maildir=~/Mail
+          if mu index --maildir=~/Mail --lazy-check
           then
             echo "Finished indexing" 1>&2
           else
