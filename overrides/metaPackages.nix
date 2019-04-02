@@ -107,7 +107,9 @@ with rec {
 
     inherit (self.xorg) xmodmap xproto;
 
-    inherit (trace "FIXME: Upgrade OS to 18.09" self.nixpkgs1809) youtube-dl;
+    inherit (trace "FIXME: Upgrade OS to 18.09" self.nixpkgs1809)
+      nix-top
+      youtube-dl;
   };
 
   graphical = self.stripOverrides
