@@ -53,7 +53,10 @@ rec {
       "fbcon" "i915"
     ];
 
-    kernel.sysctl."net.ipv4.tcp_sack" = 0;
+    kernel.sysctl = {
+      "net.ipv4.tcp_sack" = 0;
+      "vm.swappiness"     = 10;
+    };
 
     extraModulePackages = [ config.boot.kernelPackages.tp_smapi ];
 
