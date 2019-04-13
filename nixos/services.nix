@@ -366,31 +366,6 @@ with rec {
     };
   };
 
-  joX2X = monitoredService {
-    name        = "jo-x2x";
-    description = "Connect to X display when home";
-    extra       = { requires = [ "network.target" ]; };
-    RestartSec  = 10;
-    isRunning   = findProcess "x2x -west";
-    shouldRun   = atHome;
-    stop        = killProcess "x2x -west";
-    start       = wrap {
-      name   = "jo-x2x-start";
-      paths  = [ bash coreutils openssh warbo-utilities ];
-      vars   = {
-               DISPLAY = ":0";
-        REMOTE_DISPLAY = ":1";
-        TERM           = "xterm";
-      };
-      script = ''
-        #!/usr/bin/env bash
-        set -e
-        nohup jo
-        sleep 5
-      '';
-    };
-  };
-
   inboxen = mkService {
     description   = "Fetch mail inboxes";
     requires      = [ "network.target" ];
@@ -485,53 +460,6 @@ with rec {
     };
   };
 
-  keeptesting = mkService {
-    description   = "Run tests";
-    enable        = false;
-    serviceConfig = {
-      User       = "chris";
-      Restart    = "always";
-      RestartSec = 300;
-      ExecStart  = wrap {
-        name  = "keep-testing";
-        paths = [ bash basic nix.out warbo-utilities ];
-        vars  = {
-          LOCATE_PATH = /var/cache/locatedb;
-          NIX_PATH    = getEnv "NIX_PATH";
-          NIX_REMOTE  = getEnv "NIX_REMOTE";
-        };
-        script = ''
-          #!/usr/bin/env bash
-          set -e
-          plugged_in || exit
-          hot        && exit
-
-          cd "$HOME/System/Tests" || exit 1
-
-          # Choose one successful script at random
-          S=$(find results/pass -type f | shuf | head -n1)
-
-          # Choose one test at random
-          #T=$(shuf | head -n1)
-
-          # Choose the oldest test
-          O=$(ls -1tr results/pass | head -n1)
-
-          # Force chosen tests to be re-run
-          for TST in "$S" "$O"
-          do
-            NAME=$(basename "$TST")
-            touch results/pass/"$NAME"
-            mv results/pass/"$NAME" results/check/
-          done
-
-          # Run chosen tests, along with any existing failures
-          ./run
-        '';
-      };
-    };
-  };
-
   pi-mount =
     with rec {
       dir       = "/home/chris/Public";
@@ -581,62 +509,6 @@ with rec {
                 -o reconnect                            \
                 -o ServerAliveInterval=15               \
                 "pi@dietpi.local:/opt/shared" "$dir"
-          sleep 5
-        '';
-      };
-    };
-
-  jo-mount =
-    with rec {
-      dir       = "/home/chris/Jo";
-      isRunning = sshfsHelpers.isRunning dir;
-      stop      = sshfsHelpers.stop dir;
-      vars      = sshfsHelpers.vars dir;
-    };
-    monitoredService {
-      inherit isRunning stop;
-      name        = "desktop-mount";
-      description = "Jo Chromebook mount";
-      extra       = { requires = [ "network.target" ]; };
-      RestartSec  = 30;
-      shouldRun   = wrap {
-        name   = "jo-mount-query";
-        paths  = sshfsHelpers.paths;
-        vars   = vars // { inherit atHome; };
-        script = ''
-          #!/usr/bin/env bash
-
-          # We must be online
-          ${online} || exit 1
-
-          # We must be home
-          "$atHome" || exit 1
-
-          # Try to contact the pi
-          ${pingOnce} "$(${warbo-utilities}/bin/johost)" || exit 1
-        '';
-      };
-      start = wrap {
-        name   = "jo-mount-start";
-        paths  = sshfsHelpers.paths ++ [ warbo-utilities ];
-        vars   = vars // { inherit stop; };
-        script = ''
-          #!/usr/bin/env bash
-          set -e
-
-          # Force a clean slate
-          "$stop" || true
-
-          sshfs -o follow_symlinks                      \
-                -o allow_other                          \
-                -o IdentityFile=/home/chris/.ssh/id_rsa \
-                -o UserKnownHostsFile=/dev/null         \
-                -o StrictHostKeyChecking=no             \
-                -o debug                                \
-                -o sshfs_debug                          \
-                -o reconnect                            \
-                -o ServerAliveInterval=15               \
-                "jo@$(${warbo-utilities}/bin/johost):/home/jo" "$dir"
           sleep 5
         '';
       };
