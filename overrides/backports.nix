@@ -41,4 +41,6 @@ with builtins;
       };
       msg override;
   };
+
+  tests = {};
 }
