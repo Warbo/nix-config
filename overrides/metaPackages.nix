@@ -102,6 +102,7 @@ with rec {
       xbindkeys
       xcalib
       xcape
+      youtube-dl
       zip
       ;
 
@@ -109,7 +110,7 @@ with rec {
 
     inherit (trace "FIXME: Upgrade OS to 18.09" self.nixpkgs1809)
       nix-top
-      youtube-dl;
+      ;
   };
 
   graphical = self.stripOverrides
