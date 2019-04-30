@@ -140,6 +140,7 @@ with rec {
          gensgs
          gksu
          gnumeric
+         gv
          iotop
          kbibtex_full
          keepassx
