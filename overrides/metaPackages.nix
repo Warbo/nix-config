@@ -159,7 +159,7 @@ with rec {
        inherit (self.xfce) exo xfce4notifyd;
        inherit (self.xorg) xkill;
        aspellDicts = self.aspellDicts.en;
-       mupdf = self.without mupdf [ "bin/mupdf-gl" "bin/mupdf-x11-curl" ];
+       mupdf = self.without self.mupdf [ "bin/mupdf-gl" "bin/mupdf-x11-curl" ];
      });
 
   packages = console // graphical;
