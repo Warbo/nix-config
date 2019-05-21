@@ -285,7 +285,10 @@ rec {
     ];
   };
 
-  services.bitlbee.enable = true;
+  services.bitlbee = {
+    enable = true;
+    authMode = "Registered";
+  };
 
   services.ipfs = {
     enable         = false;  # Quite resource-hungry
