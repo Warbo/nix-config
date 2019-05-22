@@ -181,7 +181,23 @@ with rec {
                                       packages);
     };
     {
-      all   = self.hasBinary self.all   "firefox";
-      basic = self.hasBinary self.basic "ssh";
+      all      = self.hasBinary self.all   "firefox";
+      basic    = self.hasBinary self.basic "ssh";
+      removals = runCommand "removed-undesirables" { inherit (self) all; } ''
+        FAIL=0
+        for F in bin/mupdf-gl bin/mupdf-x11-curl
+        do
+          if [[ -e "$all/$F" ]]
+          then
+            FAIL=1
+            echo "Found '$F', which should have been removed" 1>&2
+        done
+        if [[ "$FAIL" -gt 0 ]]
+        then
+          echo "Removal didn't work" 1>&2
+          exit 1
+        fi
+        mkdir "$out"
+      '';
     };
 }
