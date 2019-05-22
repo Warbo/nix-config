@@ -15,4 +15,6 @@ with rec {
       nix-config-tests = oldPkgs.nix-config-tests // { "${f}" = tests; };
     };
 };
-fold mkPkg { nix-config-names = []; nix-config-tests = {}; } fileNames
+fold mkPkg
+     { nix-config-names = [ "nix-config-tests" ]; nix-config-tests = {}; }
+     fileNames
