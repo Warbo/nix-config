@@ -31,6 +31,13 @@ with rec {
         then { inherit (self) fuse3; }
         else trace "WARNING: No fuse3 found" {}) //
 
+    # xproto was replaced by xorgproto
+    (if self.xorg ? xproto
+        then { inherit (self.xorg) xproto; }
+        else if self.xorg ? xorgproto
+                then { inherit (self.xorg) xorgproto; }
+                else trace "WARNING: No xproto or xorgproto found" {}) //
+
     # This doesn't exist in older versions
     { nix-top = self.nix-top or self.nixpkgs1809.nix-top; } //
 
@@ -109,8 +116,7 @@ with rec {
       zip
       ;
 
-    inherit (self.xorg) xmodmap xproto;
-
+    inherit (self.xorg) xmodmap;
   };
 
   graphical = self.stripOverrides
