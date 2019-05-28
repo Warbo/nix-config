@@ -28,7 +28,7 @@ with super.lib;
     };
 
     # A known-good version of nixpkgs to default to, if needed
-    stableVersion = "nixpkgs1803";
+    stableVersion = "nixpkgs1903";
 
     # Imports the given nixpkgs repo with the latest version of nix-config
     withLatestCfg = nixpkgs: import nixpkgs {
