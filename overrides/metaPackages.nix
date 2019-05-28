@@ -60,7 +60,7 @@ with rec {
       bibtool
       binutils
       brittany
-      cabal-install2
+      cabal-install
       cifs_utils
       ddgr
       dtach
