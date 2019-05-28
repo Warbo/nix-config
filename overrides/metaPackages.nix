@@ -31,6 +31,9 @@ with rec {
         then { inherit (self) fuse3; }
         else trace "WARNING: No fuse3 found" {}) //
 
+    # This doesn't exist in older versions
+    { nix-top = self.nix-top or self.nixpkgs1809.nix-top; } //
+
     # We only need nix-repl for Nix 1.x, since 2.x has a built-in repl
     (if compareVersions self.nix.version "2" == -1
         then { inherit (self) nix-repl; }
@@ -108,9 +111,6 @@ with rec {
 
     inherit (self.xorg) xmodmap xproto;
 
-    inherit (trace "FIXME: Upgrade OS to 18.09" self.nixpkgs1809)
-      nix-top
-      ;
   };
 
   graphical = self.stripOverrides
