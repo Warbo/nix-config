@@ -401,6 +401,8 @@ rec {
     windowManager  = {
       default      = "xmonad";
       xmonad       = {
+        # 18.09 seems to have a broken 'hint' package
+        inherit (pkgs.nixpkgs1803) haskellPackages;
         enable                 = true;
         enableContribAndExtras = true;
       };
