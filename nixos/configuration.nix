@@ -403,7 +403,6 @@ rec {
       xmonad       = {
         enable                 = true;
         enableContribAndExtras = true;
-        extraPackages          = self: [ self.xmonad-contrib ];
       };
     };
 
