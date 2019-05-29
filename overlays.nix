@@ -17,4 +17,4 @@ with rec {
     warbo-utilities = /home/chris/warbo-utilities;
   };
 };
-[ (import ./overlay.nix) ] ++ map localOrRemote (attrNames (locals // remotes))
+map localOrRemote (attrNames (locals // remotes)) ++ [ (import ./overlay.nix) ]
