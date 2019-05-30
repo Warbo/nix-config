@@ -47,8 +47,9 @@ with rec {
         else {}) // {
 
     # These provide generally useful binaries
-    inherit (self.haskellPackages) ghcid happy hlint pretty-show
-                                   stylish-haskell;
+    inherit (self.haskellPackages) ghcid happy pretty-show;
+    inherit (trace "FIXME: yaml package broken on 18.09" self.nixpkgs1803)
+      hlint stylish-haskell;
 
     inherit (self)
       acoustidFingerprinter
