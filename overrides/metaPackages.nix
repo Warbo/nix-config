@@ -48,7 +48,8 @@ with rec {
 
     # These provide generally useful binaries
     inherit (self.haskellPackages) ghcid happy pretty-show;
-    inherit (trace "FIXME: yaml package broken on 18.09" self.nixpkgs1803)
+    inherit (trace "FIXME: yaml package broken on 18.09"
+                   self.nixpkgs1803.haskellPackages)
       hlint stylish-haskell;
 
     inherit (self)
