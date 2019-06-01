@@ -219,7 +219,17 @@ rec {
     ];
   };
 
-  nix.trustedBinaryCaches = [ "http://hydra.nixos.org/" ];
+  nix = {
+    # Defaults to 'true' in 19.03, which disallows network access in builders.
+    # We prefer "relaxed", which allows derivations to opt-out by having a
+    # '__noChroot = true' attribute.
+    useSandbox          = "relaxed";
+    trustedBinaryCaches = [ "http://hydra.nixos.org/" ];
+
+    # Non-sandboxed builds, including the __noChroot opt-out, can only be built
+    # by these users and root (if the useSandbox option isn't false).
+    trustedUsers = [ "chris" "laminar" ];
+  };
 
   # Programs which need to be setuid, etc. should be put in here. These will get
   # wrappers made and put into a system-wide directory when the config is
