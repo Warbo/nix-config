@@ -137,6 +137,12 @@ with rec {
          mplayer
          vlc
          ;
+
+       inherit (trace "FIXME: Avoiding 19.03 breakages" self.nixpkgs1809)
+         gensgs
+         picard
+         ;
+
        inherit (self)
          acpi
          anonymous-pro-font
@@ -155,7 +161,6 @@ with rec {
          emacsWithPkgs
          evince
          gcalcli
-         gensgs
          gksu
          gnumeric
          gv
@@ -167,7 +172,6 @@ with rec {
          mu
          paprefs
          pavucontrol
-         picard
          pidgin-with-plugins
          trayer
          uget
