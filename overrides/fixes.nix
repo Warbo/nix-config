@@ -13,6 +13,8 @@ with super.lib;
                                     [ ""                    ]
                                     old.preConfigure;
     });
+
+    thermald = trace "FIXME: thermald broken on 19.03" super.nixpkgs1803.thermald;
   };
 
   tests = { inherit (self) libproxy; };
