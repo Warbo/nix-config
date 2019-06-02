@@ -52,6 +52,10 @@ with rec {
                    self.nixpkgs1803.haskellPackages)
       hlint stylish-haskell;
 
+    inherit (trace "FIXME: Avoiding 19.03 breakages"
+                   self.customised.nixpkgs1809)
+      get_iplayer;
+
     inherit (self)
       acoustidFingerprinter
       alsaUtils
@@ -71,7 +75,6 @@ with rec {
       exfat
       file
       fuse
-      get_iplayer
       ghc
       ghostscript
       git
