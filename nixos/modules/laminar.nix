@@ -37,6 +37,7 @@ with rec {
       boost cmake rapidjson nix-helpers.replace sqlite websocketpp zlib
     ]);
     hardeningDisable = [ "all" ];
+    __noChroot       = true;  # TODO: Prefetch deps (e.g. vue.js)
     preConfigure     = ''
       cmakeFlags="$cmakeFlags -DSYSTEMD_UNITDIR='$out/lib/systemd/system'"
       replace 'usr/bin' 'bin' -- CMakeLists.txt
