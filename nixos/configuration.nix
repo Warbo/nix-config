@@ -408,6 +408,7 @@ rec {
     enable         = true;
     layout         = "gb";
     xkbOptions     = "ctrl:nocaps";
+    videoDrivers   = [ "intel" "i915" ];
     windowManager  = {
       default      = "xmonad";
       xmonad       = {
