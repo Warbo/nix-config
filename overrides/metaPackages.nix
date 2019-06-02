@@ -128,7 +128,9 @@ with rec {
     (self.widgetThemes // i686Cache [ "libreoffice" "gimp" ] // {
        inherit (self.gnome3)
          gcr;
-       inherit (trace "FIXME: Use latest packages (if build is quicker)" self.nixpkgs1709)
+
+       inherit (trace "FIXME: Use latest packages (if build is quicker)"
+                      self.nixpkgs1709)
          abiword
          audacious
          firefox
@@ -172,14 +174,21 @@ with rec {
          w3m
          xsettingsd
          ;
-       inherit (trace "FIXME: Conkeror broke on 18.03+" self.nixpkgs1703) conkeror;
+
+       inherit (trace "FIXME: Conkeror broke on 18.03+" self.nixpkgs1703)
+         conkeror;
+
        inherit (self.xfce)
          exo
          xfce4notifyd
          ;
+
        inherit (self.xorg) xkill;
+
        aspellDicts = self.aspellDicts.en;
-       mupdf = self.without self.mupdf [ "bin/mupdf-gl" "bin/mupdf-x11-curl" ];
+       mupdf       = self.without self.mupdf [
+         "bin/mupdf-gl" "bin/mupdf-x11-curl"
+       ];
      });
 
   packages = console // graphical;
