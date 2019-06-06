@@ -11,8 +11,6 @@ with super.lib;
     conkeror = trace "FIXME: Conkeror broke on 18.03+"
                      self.nixpkgs1703.conkeror;
 
-    #emacs-lucid = super.emacs-lucid;
-
     # Newer NixOS systems need fuse3 rather than fuse, but it doesn't exist
     # on older systems. We include it if available, otherwise we just warn.
     fuse3 = super.fuse3 or super.nothing;
