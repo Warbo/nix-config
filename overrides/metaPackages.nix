@@ -7,55 +7,10 @@ self: super:
 
 with builtins;
 with rec {
-  inherit (super) lib;
-
-  i686Cache =
-    with rec {
-      msg = name: trace ''
-                    Using ${name} from nixpkgs 17.03, since that is cached on
-                    hydra.nixos.org, but newer i686 versions aren't.
-                  '';
-
-      get = acc: name: acc // {
-        "${name}" = getAttr name (if currentSystem == "i686-linux"
-                                     then msg name self.nixpkgs1703
-                                     else self);
-      };
-    };
-    foldl' get {};
-
-  console =
-    # Newer NixOS systems need fuse3 rather than fuse, but it doesn't exist
-    # on older systems. We include it if available, otherwise we just warn.
-    (if self ? fuse3
-        then { inherit (self) fuse3; }
-        else trace "WARNING: No fuse3 found" {}) //
-
-    # xproto was replaced by xorgproto
-    (if self.xorg ? xproto
-        then { inherit (self.xorg) xproto; }
-        else if self.xorg ? xorgproto
-                then { inherit (self.xorg) xorgproto; }
-                else trace "WARNING: No xproto or xorgproto found" {}) //
-
-    # This doesn't exist in older versions
-    { nix-top = self.nix-top or self.nixpkgs1809.nix-top; } //
-
-    # We only need nix-repl for Nix 1.x, since 2.x has a built-in repl
-    (if compareVersions self.nix.version "2" == -1
-        then { inherit (self) nix-repl; }
-        else {}) // {
-
+  console = {
     # These provide generally useful binaries
     inherit (self.haskellPackages) ghcid happy pretty-show;
-    inherit (trace "FIXME: yaml package broken on 18.09"
-                   self.nixpkgs1803.haskellPackages)
-      hlint stylish-haskell;
-
-    inherit (trace "FIXME: Avoiding 19.03 breakages"
-                   self.customised.nixpkgs1809)
-      get_iplayer;
-
+    inherit (self.xorg) xmodmap;
     inherit (self)
       acoustidFingerprinter
       alsaUtils
@@ -71,15 +26,19 @@ with rec {
       ddgr
       dtach
       dvtm
+      emacs
       entr
       exfat
       file
       fuse
+      fuse3
+      get_iplayer
       ghc
       ghostscript
       git
       gnumake
       gnutls
+      hlint
       imagemagick
       inotify-tools
       jq
@@ -90,6 +49,7 @@ with rec {
       msmtp
       nix-diff
       nix_release
+      nix-top
       openssh
       opusTools
       p7zip
@@ -108,6 +68,7 @@ with rec {
       smbnetfs
       sox
       st
+      stylish-haskell
       tightvnc
       ts
       usbutils
@@ -120,47 +81,35 @@ with rec {
       youtube-dl
       zip
       ;
-
-    inherit (self.xorg) xmodmap;
   };
 
   graphical = self.stripOverrides
-    (self.widgetThemes // i686Cache [ "libreoffice" "gimp" ] // {
-       inherit (self.gnome3)
-         gcr;
-
-       inherit (trace "FIXME: Use latest packages (if build is quicker)"
-                      self.nixpkgs1709)
-         abiword
-         audacious
-         firefox
-         mplayer
-         vlc
-         ;
-
-       inherit (trace "FIXME: Avoiding 19.03 breakages" self.nixpkgs1809)
-         gensgs
-         picard
-         ;
-
+    (self.widgetThemes // {
+       inherit (self.gnome3) gcr;
+       inherit (self.xfce  ) exo xfce4notifyd;
+       inherit (self.xorg  ) xkill;
        inherit (self)
+         abiword
          acpi
          anonymous-pro-font
          arandr
-         aspell
+         aspellWithDict
          asunder
+         audacious
          awf
          basic
          basket
          blueman
          cmus
          compton
+         conkeror
          dillo
          dmenu2
          droid-fonts
-         emacsWithPkgs
          evince
+         firefoxBinary
          gcalcli
+         gensgs
          gksu
          gnumeric
          gv
@@ -169,28 +118,20 @@ with rec {
          keepassx
          leafpad
          lxappearance
+         mplayer
          mu
          paprefs
          pavucontrol
+         picard
          pidgin-with-plugins
          trayer
          uget
+         vlc
          w3m
          xsettingsd
          ;
 
-       inherit (trace "FIXME: Conkeror broke on 18.03+" self.nixpkgs1703)
-         conkeror;
-
-       inherit (self.xfce)
-         exo
-         xfce4notifyd
-         ;
-
-       inherit (self.xorg) xkill;
-
-       aspellDicts = self.aspellDicts.en;
-       mupdf       = self.without self.mupdf [
+       mupdf = self.without self.mupdf [
          "bin/mupdf-gl" "bin/mupdf-x11-curl"
        ];
      });
@@ -205,7 +146,7 @@ with rec {
   };
 
   tests =
-    with lib;
+    with super.lib;
     assert all isDerivation (attrValues packages) || self.die {
       error   = "Non-derivation in dependencies of meta-package";
       types   = mapAttrs (_: typeOf) packages;
