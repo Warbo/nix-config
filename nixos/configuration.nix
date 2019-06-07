@@ -101,27 +101,33 @@ rec {
         blockList = url: pkgs.runCommand "blocklist.nix"
           {
             inherit url;
-            buildInputs   = with pkgs; [ jq wget ];
             __noChroot    = true;
+            buildInputs   = with pkgs; [ curl ];
             SSL_CERT_FILE = /etc/ssl/certs/ca-bundle.crt;
           }
           ''
             echo "Fetching block list '$url'" 1>&2
+            curl "$url" > tmp
 
-            wget -O- "$url" | grep '^.' > tmp
+            # Keep only non-empty lines
+            grep '^.' < tmp > tmp2
+            mv tmp2 tmp
 
+            # Remove comments
             grep -v '^\s*#' < tmp > tmp2
             mv tmp2 tmp
 
+            # Collapse spaces
             sed -e 's/\s\s*/ /g' < tmp > tmp2
             mv tmp2 tmp
 
+            # Extract second field
             cut -d ' ' -f2 < tmp > tmp2
             mv tmp2 tmp
 
-            echo '['           > "$out"
-              jq -R '.' < tmp >> "$out"
-            echo ']'          >> "$out"
+            echo '['                            > "$out"
+              sed -e 's/^\(.*\)$/"\1"/g' < tmp >> "$out"
+            echo ']'                           >> "$out"
           '';
 
         general  = blockList "http://someonewhocares.org/hosts/hosts";
