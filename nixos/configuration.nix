@@ -38,8 +38,9 @@ rec {
       copyKernels = true;
     };
 
-    # Use kernel from 17.09 to avoid system freezes which started with 18.03
-    kernelPackages = pkgs.nixpkgs1709.linuxPackages;
+    kernelPackages = trace
+      "FIXME: Using old kernel to avoid freezes which started with 18.03"
+      pkgs.nixpkgs1709.linuxPackages;
 
     kernelModules = trace "FIXME: Which modules are artefacts of using QEMU to install?" [
       "kvm-intel" "tun" "virtio"
