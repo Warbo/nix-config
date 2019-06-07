@@ -211,7 +211,7 @@ rec {
     # NOTE: You *could* install these individually via `nix-env -i` as root, but
     # those won't be updated by `nixos-rebuild` and aren't version controlled.
     # To see if there are any such packages, do `nix-env -q` as root.
-    systemPackages = [ pkgs.all pkgs.warbo-utilities ];
+    systemPackages = [ pkgs.all ];
   };
 
   fonts = {
@@ -486,7 +486,6 @@ rec {
 
   systemd.services = import ./services.nix { inherit config pkgs; };
 
-  # Locale, etc.
   i18n = {
     defaultLocale = "en_GB.UTF-8";
     consoleKeyMap = "uk";

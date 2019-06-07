@@ -73,6 +73,7 @@ with rec {
       ts
       usbutils
       unzip
+      warbo-utilities
       wget
       wmname
       xbindkeys
