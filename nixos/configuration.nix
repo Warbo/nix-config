@@ -102,6 +102,7 @@ rec {
           {
             inherit url;
             buildInputs   = with pkgs; [ jq wget ];
+            __noChroot    = true;
             SSL_CERT_FILE = /etc/ssl/certs/ca-bundle.crt;
           }
           ''
