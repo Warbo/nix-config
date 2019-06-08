@@ -18,7 +18,9 @@ with super.lib;
     gensgs = trace "FIXME: Avoiding 19.03 breakages" self.nixpkgs1809.gensgs;
 
     get_iplayer = trace "FIXME: Avoiding 19.03 breakages"
-                        self.customised.nixpkgs1809.get_iplayer;
+                        super.get_iplayer.override {
+                          inherit (self.nixpkgs1809) get_iplayer;
+                        };
 
     gimp = trace ''
       FIXME: Using gimp from nixpkgs 17.03, since that is cached on
