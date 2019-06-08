@@ -1,0 +1,16 @@
+From: Chris Warburton
+Date: Sat, 08 Jun 2019 20:47:47 +0100
+State: new
+Subject: see if haskellPackages.yaml works on 19.03
+Message-Id: <d052d8b537766ff9-0-artemis@nixos>
+
+It was broken on 18.09, so we pinned a load of things to old versions.
+
+It looks like it might work on 19.03, in which case either:
+
+ - We don't need to pin those things anymore
+
+Or:
+
+ - They fail for some other reason, so we should be testing that instead
+   of yaml
