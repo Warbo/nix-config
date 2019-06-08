@@ -256,7 +256,7 @@ with rec {
 
   emacs = mkService {
     description     = "Emacs daemon";
-    path            = [ all pkgs.emacs mu sudoWrapper ];
+    path            = [ pkgs.allPkgs sudoWrapper ];
     environment     = {
       inherit SSH_AUTH_SOCK;
       COLUMNS = "80";
