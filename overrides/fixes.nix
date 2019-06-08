@@ -74,11 +74,14 @@ with rec {
         value = self.isBroken (getAttr pkg super);
       };
 
-      allStillBroken = pkgs: listToAttrs (map stillBroken pkgs);
+      stillBrokenPkgs = listToAttrs (map stillBroken [
+        "gensgs"
+        "picard"
+        "thermald"
+      ]);
     };
-    { libproxyWorks = self.libproxy; } // allStillBroken [
-      "gensgs"
-      "picard"
-      "thermald"
-    ];
+    stillBrokenPkgs // {
+      libproxyWorks                 = self.libproxy;
+      haskellYamlStillNeedsAvoiding = self.isBroken super.haskellPackages.yaml;
+    };
 }
