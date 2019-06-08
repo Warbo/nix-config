@@ -3,29 +3,33 @@ self: super:
 
 with builtins;
 with super.lib;
+with rec {
+  get = reason: name: version:
+    trace "FIXME: Taking ${name} from nixpkgs${version} because ${reason}"
+          (getAttr name (getAttr "nixpkgs${version}" self));
+
+  cached = name: get "it's cached" name "1709";
+
+  broken1903 = name: get "it's broken on 19.03" name "1809";
+};
 {
   overrides = {
-    audacious = trace "FIXME: Use latest packages (if build is quicker)"
-                      self.nixpkgs1709.audacious;
+    audacious = cached "audacious";
 
-    conkeror = trace "FIXME: Conkeror broke on 18.03+"
-                     self.nixpkgs1703.conkeror;
+    conkeror = get "it's broken on 18.03+" "conkeror" "1703";
 
     # Newer NixOS systems need fuse3 rather than fuse, but it doesn't exist
     # on older systems. We include it if available, otherwise we just warn.
     fuse3 = super.fuse3 or super.nothing;
 
-    gensgs = trace "FIXME: Avoiding 19.03 breakages" self.nixpkgs1809.gensgs;
+    gensgs = broken1903 "gensgs";
 
     get_iplayer = trace "FIXME: Avoiding 19.03 breakages"
                         super.get_iplayer.override {
                           inherit (self.nixpkgs1809) get_iplayer;
                         };
 
-    gimp = trace ''
-      FIXME: Using gimp from nixpkgs 17.03, since that is cached on
-      hydra.nixos.org, but newer i686 versions aren't.
-    '' self.nixpkgs1709.gimp;
+    gimp = cached "gimp";
 
     hlint = trace "FIXME: Haskell yaml package broken on 18.09"
                   self.nixpkgs1803.haskellPackages.hlint;
@@ -40,29 +44,23 @@ with super.lib;
                                     old.preConfigure;
     });
 
-    libreoffice = trace ''
-      FIXME: Using libreoffice from nixpkgs 17.03, since that is cached on
-      hydra.nixos.org, but newer i686 versions aren't.
-    '' self.nixpkgs1709.libreoffice;
+    libreoffice = cached "libreoffice";
 
-    mplayer = trace "FIXME: Use latest packages (if build is quicker)"
-                    self.nixpkgs1709.mplayer;
+    mplayer = cached "mplayer";
 
     # We only need nix-repl for Nix 1.x, since 2.x has a built-in repl
     nix-repl = if compareVersions self.nix.version "2" == -1
                   then super.nix-repl
                   else nothing;
 
-    picard = trace "FIXME: Avoiding 19.03 breakages" self.nixpkgs1809.picard;
+    picard = broken1903 "picard";
 
     stylish-haskell = trace "FIXME: Haskell yaml package broken on 18.09"
                             self.nixpkgs1803.haskellPackages.stylish-haskell;
 
-    thermald = trace "FIXME: thermald broken on 19.03"
-                     super.nixpkgs1803.thermald;
+    thermald = broken1903 "thermald";
 
-    vlc = trace "FIXME: Use latest packages (if build is quicker)"
-                self.nixpkgs1709.vlc;
+    vlc = cached "vlc";
 
     # xproto was replaced by xorgproto
     xorgproto = super.xorg.xorgproto or super.xorg.xproto;
