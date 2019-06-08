@@ -6,175 +6,243 @@
 self: super:
 
 with builtins;
-with rec {
-  console = {
-    # These provide generally useful binaries
-    inherit (self.haskellPackages) ghcid happy pretty-show;
-    inherit (self.xorg) xmodmap;
-    inherit (self)
-      acoustidFingerprinter
-      alsaUtils
-      artemis
-      asv-nix
-      autossh
-      bibclean
-      bibtool
-      binutils
-      brittany
-      cabal-install
-      cifs_utils
-      ddgr
-      dtach
-      dvtm
-      emacs
-      entr
-      exfat
-      file
-      fuse
-      fuse3
-      get_iplayer
-      ghc
-      ghostscript
-      git
-      gnumake
-      gnutls
-      hlint
-      imagemagick
-      inotify-tools
-      jq
-      libnotify
-      lzip
-      md2pdf
-      msgpack-tools
-      msmtp
-      nix-diff
-      nix_release
-      nix-top
-      openssh
-      opusTools
-      p7zip
-      pamixer
-      pandocPkgs
-      pinnedCabal2nix
-      poppler_utils
-      pmutils
-      pptp
-      psmisc
-      python
-      racket
-      silver-searcher
-      sshfsFuse
-      sshuttle
-      smbnetfs
-      sox
-      st
-      stylish-haskell
-      tightvnc
-      ts
-      usbutils
-      unzip
-      warbo-utilities
-      wget
-      wmname
-      xbindkeys
-      xcalib
-      xcape
-      youtube-dl
-      zip
-      ;
+with super.lib;
+with {
+  go = name: paths:
+    assert all isDerivation (attrValues paths) || self.die {
+    inherit name;
+    error   = "Non-derivation in dependencies of meta-package";
+    types   = mapAttrs (_: typeOf) paths;
+    nonDrvs = mapAttrs (_: typeOf)
+                       (filterAttrs (_: x: !(isDerivation x))
+                                    paths);
   };
-
-  graphical = self.stripOverrides
-    (self.widgetThemes // {
-       inherit (self.gnome3) gcr;
-       inherit (self.xfce  ) exo xfce4notifyd;
-       inherit (self.xorg  ) xkill;
-       inherit (self)
-         abiword
-         acpi
-         anonymous-pro-font
-         arandr
-         aspellWithDict
-         asunder
-         audacious
-         awf
-         basic
-         basket
-         blueman
-         cmus
-         compton
-         conkeror
-         dillo
-         dmenu2
-         droid-fonts
-         evince
-         firefoxBinary
-         gcalcli
-         gensgs
-         gksu
-         gnumeric
-         gv
-         iotop
-         kbibtex_full
-         keepassx
-         leafpad
-         lxappearance
-         mplayer
-         mu
-         paprefs
-         pavucontrol
-         picard
-         pidgin-with-plugins
-         trayer
-         uget
-         vlc
-         w3m
-         xsettingsd
-         ;
-
-       mupdf = self.without self.mupdf [
-         "bin/mupdf-gl" "bin/mupdf-x11-curl"
-       ];
-     });
-
-  packages = console // graphical;
+  self.buildEnv { inherit name; paths = attrValues paths; };
 };
-
 {
-  overrides = {
-    all   = self.buildEnv { name  = "all";   paths = attrValues graphical; };
-    basic = self.buildEnv { name  = "basic"; paths = attrValues console;   };
+  # Packages before a ### are included in the ones after
+  overrides = mapAttrs go {
+    haskellCli = {
+      inherit (self.haskellPackages)
+        ghcid
+        happy
+        pretty-show
+        ;
+      inherit (self)
+        brittany
+        cabal-install
+        ghc
+        hlint
+        pinnedCabal2nix
+        stylish-haskell
+        ;
+    };
+
+    ###
+
+    devCli = {
+      inherit (self)
+        artemis
+        asv-nix
+        git
+        gnumake
+        haskellCli
+        jq
+        msgpack-tools
+        nix-diff
+        nix_release
+        nix-top
+        python
+        racket
+        silver-searcher
+        ;
+    };
+
+    docCli = {
+      inherit (self)
+        anonymous-pro-font
+        bibclean
+        bibtool
+        droid-fonts
+        ghostscript
+        md2pdf
+        pandocPkgs
+        poppler_utils
+        ;
+      aspell = self.aspellWithDicts (dicts: [ dicts.en ]);
+    };
+
+    docGui = {
+      inherit (self)
+        abiword
+        basket
+        evince
+        gnumeric
+        gv
+        kbibtex_full
+        leafpad
+        mu
+        ;
+      mupdf = self.without self.mupdf [ "bin/mupdf-gl" "bin/mupdf-x11-curl" ];
+    };
+
+    mediaCli = {
+      inherit (self)
+        acoustidFingerprinter
+        alsaUtils
+        imagemagick
+        ffmpeg
+        opusTools
+        sox
+        ;
+    };
+
+    mediaGui = {
+      inherit (self)
+        audacious
+        cmus
+        mplayer
+        pamixer
+        paprefs
+        pavucontrol
+        picard
+        vlc
+        ;
+    };
+
+    netCli = {
+      inherit (self)
+        autossh
+        cifs_utils
+        ddgr
+        #gcalcli
+        get_iplayer
+        gnutls
+        msmtp
+        openssh
+        pptp
+        sshfsFuse
+        sshuttle
+        smbnetfs
+        tightvnc
+        w3m
+        wget
+        youtube-dl
+        ;
+    };
+
+    netGui = {
+      inherit (self)
+        conkeror
+        dillo
+        firefoxBinary
+        pidgin-with-plugins
+        uget
+        ;
+    };
+
+    sysCli = {
+      inherit (self.xorg) xmodmap;
+      inherit (self)
+        acpi
+        binutils
+        dtach
+        dvtm
+        emacs
+        entr
+        exfat
+        file
+        fuse
+        fuse3
+        inotify-tools
+        libnotify
+        lzip
+        p7zip
+        pmutils
+        psmisc
+        st
+        ts
+        usbutils
+        unzip
+        warbo-utilities
+        wmname
+        xbindkeys
+        xcalib
+        xcape
+        zip
+        ;
+    };
+
+    sysGui = self.widgetThemes // {
+      inherit (self.gnome3) gcr;
+      inherit (self.xfce  ) exo xfce4notifyd;
+      inherit (self.xorg  ) xkill;
+      inherit (self)
+        arandr
+        asunder
+        awf
+        blueman
+        compton
+        dmenu2
+        gensgs
+        gksu
+        iotop
+        keepassx
+        lxappearance
+        trayer
+        xsettingsd
+        ;
+    };
+
+    ###
+
+    allCli = {
+      inherit (self)
+        devCli
+        docCli
+        mediaCli
+        netCli
+        sysCli
+        ;
+    };
+
+    allGui = {
+      inherit (self)
+        docGui
+        mediaGui
+        netGui
+        sysGui
+        ;
+    };
+
+    ###
+
+    allPkgs = {
+      inherit (self) allCli allGui;
+    };
   };
 
-  tests =
-    with super.lib;
-    assert all isDerivation (attrValues packages) || self.die {
-      error   = "Non-derivation in dependencies of meta-package";
-      types   = mapAttrs (_: typeOf) packages;
-      nonDrvs = mapAttrs (_: typeOf)
-                         (filterAttrs (_: x: !(isDerivation x))
-                                      packages);
-    };
-    {
-      all      = self.hasBinary self.all   "firefox";
-      basic    = self.hasBinary self.basic "ssh";
-      removals = self.runCommand "removed-undesirables" { inherit (self) all; }
-        ''
-          FAIL=0
-          for F in bin/mupdf-gl bin/mupdf-x11-curl
-          do
-            if [[ -e "$all/$F" ]]
-            then
-              FAIL=1
-              echo "Found '$F', which should have been removed" 1>&2
-            fi
-          done
-          if [[ "$FAIL" -gt 0 ]]
+  tests = {
+    all      = self.hasBinary self.allPkgs "firefox";
+    basic    = self.hasBinary self.allCli  "ssh";
+    removals = self.runCommand "removed-undesirables"
+      { inherit (self) allPkgs; }
+      ''
+        FAIL=0
+        for F in bin/mupdf-gl bin/mupdf-x11-curl
+        do
+          if [[ -e "$all/$F" ]]
           then
-            echo "Removal didn't work" 1>&2
-            exit 1
+            FAIL=1
+            echo "Found '$F', which should have been removed" 1>&2
           fi
-          mkdir "$out"
-        '';
-    };
+        done
+        if [[ "$FAIL" -gt 0 ]]
+        then
+          echo "Removal didn't work" 1>&2
+          exit 1
+        fi
+        mkdir "$out"
+      '';
+  };
 }
