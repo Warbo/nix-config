@@ -29,15 +29,15 @@ with {
       inherit (self.haskellPackages)
         ghcid
         happy
+        hlint
         pretty-show
+        stylish-haskell
         ;
       inherit (self)
         brittany
         cabal-install
         ghc
-        hlint
         pinnedCabal2nix
-        stylish-haskell
         ;
     };
 

@@ -31,9 +31,6 @@ with rec {
 
     gimp = cached "gimp";
 
-    hlint = trace "FIXME: Haskell yaml package broken on 18.09"
-                  self.nixpkgs1803.haskellPackages.hlint;
-
     libproxy = trace ''FIXME: Removing flaky, heavyweight SpiderMonkey
                        dependency from libproxy''
                      super.libproxy.overrideDerivation (old: {
@@ -54,9 +51,6 @@ with rec {
                   else nothing;
 
     picard = broken1903 "picard";
-
-    stylish-haskell = trace "FIXME: Haskell yaml package broken on 18.09"
-                            self.nixpkgs1803.haskellPackages.stylish-haskell;
 
     thermald = broken1903 "thermald";
 
