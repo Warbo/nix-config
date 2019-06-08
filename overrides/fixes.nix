@@ -66,5 +66,19 @@ with rec {
     xorgproto = super.xorg.xorgproto or super.xorg.xproto;
   };
 
-  tests = { inherit (self) libproxy; };
+  tests =
+    with super.lib;
+    with rec {
+      stillBroken = pkg: {
+        name  = "${pkg}StillNeedsOverride";
+        value = self.isBroken (getAttr pkg super);
+      };
+
+      allStillBroken = pkgs: listToAttrs (map stillBroken pkgs);
+    };
+    { libproxyWorks = self.libproxy; } // allStillBroken [
+      "gensgs"
+      "picard"
+      "thermald"
+    ];
 }
