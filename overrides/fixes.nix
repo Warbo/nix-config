@@ -54,7 +54,7 @@ with rec {
 
     racket = trace ''FIXME: Taking racket from nixpkgs 16.09, since it's
                      broken on i686 for newer versions''
-                   nixpkgs1609.racket;
+                   self.nixpkgs1609.racket;
 
     thermald = broken1903 "thermald";
 
