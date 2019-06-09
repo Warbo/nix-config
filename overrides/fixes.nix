@@ -52,6 +52,10 @@ with rec {
 
     picard = broken1903 "picard";
 
+    racket = trace ''FIXME: Taking racket from nixpkgs 16.09, since it's
+                     broken on i686 for newer versions''
+                   nixpkgs1609.racket;
+
     thermald = broken1903 "thermald";
 
     vlc = cached "vlc";
@@ -74,7 +78,7 @@ with rec {
         "thermald"
       ]);
     };
-    stillBrokenPkgs // {
+    stillBrokenPkgs // self.checkRacket.checkWhetherBroken // {
       libproxyWorks                 = self.libproxy;
       haskellYamlStillNeedsAvoiding = self.isBroken super.haskellPackages.yaml;
     };
