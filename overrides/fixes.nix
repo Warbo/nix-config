@@ -67,16 +67,19 @@ with rec {
   tests =
     with super.lib;
     with rec {
-      stillBroken = pkg: {
-        name  = "${pkg}StillNeedsOverride";
-        value = self.isBroken (getAttr pkg super);
+      stillBroken = name: pkg: {
+        name  = "${name}StillNeedsOverride";
+        value = self.isBroken pkg;
       };
 
-      stillBrokenPkgs = listToAttrs (map stillBroken [
-        "gensgs"
-        "picard"
-        "thermald"
-      ]);
+      stillBrokenPkgs = mapAttrs' stillBroken {
+        inherit (super)
+          gensgs
+          picard
+          thermald
+          ;
+        inherit (super.qt5) qtbase;
+      };
     };
     stillBrokenPkgs // self.checkRacket.checkWhetherBroken // {
       libproxyWorks                 = self.libproxy;
