@@ -37,7 +37,7 @@ with {
         brittany
         cabal-install
         ghc
-        pinnedCabal2nix
+        cabal2nix
         ;
     };
 
