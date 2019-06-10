@@ -82,7 +82,6 @@ with rec {
       };
     };
     stillBrokenPkgs // self.checkRacket.checkWhetherBroken // {
-      libproxyWorks                 = self.libproxy;
-      haskellYamlStillNeedsAvoiding = self.isBroken super.haskellPackages.yaml;
+      libproxyWorks = self.libproxy;
     };
 }
