@@ -81,6 +81,16 @@ with rec {
 
     thermald = broken1903 "thermald";
 
+    v4l_utils = trace
+      (concatStringsSep " " [
+        "FIXME: Redefining v4l_utils to avoid problems evaluating with"
+        "pinned qt5 fix. This should be removed once qt5 is working."
+      ])
+      self.newScope
+      self.qt5
+      "${<nixpkgs/pkgs/os-specific/linux/v4l-utils>}"
+      {};
+
     vlc = cached "vlc";
 
     # xproto was replaced by xorgproto
