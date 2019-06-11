@@ -50,7 +50,6 @@ with rec {
                   then super.nix-repl
                   else nothing;
 
-    picard = broken1903 "picard";
     qt5 = get "build is broken (bootstrap related?) on 18.03+" "qt5" "1709";
 
     racket = trace ''FIXME: Taking racket from nixpkgs 16.09, since it's
