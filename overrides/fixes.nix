@@ -50,6 +50,26 @@ with rec {
                   then super.nix-repl
                   else nothing;
 
+    python3Packages = super.python3Packages.override
+      (oldAttrs: {
+        overrides = (           super.lib.composeExtensions or
+                     self.nixpkgs1803.lib.composeExtensions)
+          (oldAttrs.overrides or (self: super: {}))
+          (pelf: puper: {
+            pyqt5 = trace "FIXME: Overriding pyqt5 to plumb in overridden Qt5"
+                          puper.pyqt5.override {
+              inherit (self.qt5)
+                qmake
+                qtbase
+                qtconnectivity
+                qtsvg
+                qtwebengine
+                qtwebsockets
+                ;
+            };
+          });
+      });
+
     qt5 = get (concatStringsSep " " [
       "build is broken (bootstrap related?) on 18.03+"
       "(see https://groups.google.com/forum/#!topic/nix-devel/fAMADzFhcFo)"
