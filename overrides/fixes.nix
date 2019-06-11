@@ -50,7 +50,10 @@ with rec {
                   then super.nix-repl
                   else nothing;
 
-    qt5 = get "build is broken (bootstrap related?) on 18.03+" "qt5" "1709";
+    qt5 = get (concatStringsSep " " [
+      "build is broken (bootstrap related?) on 18.03+"
+      "(see https://groups.google.com/forum/#!topic/nix-devel/fAMADzFhcFo)"
+    ]) "qt5" "1709";
 
     racket = trace ''FIXME: Taking racket from nixpkgs 16.09, since it's
                      broken on i686 for newer versions''
