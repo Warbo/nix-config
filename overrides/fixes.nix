@@ -75,7 +75,6 @@ with rec {
       stillBrokenPkgs = mapAttrs' stillBroken {
         inherit (super)
           gensgs
-          picard
           thermald
           ;
         inherit (super.qt5) qtbase;
