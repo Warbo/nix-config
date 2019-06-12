@@ -11,35 +11,65 @@
 self: super:
 
 with builtins;
+with super.lib;
 {
   overrides = {
     youtube-dl =
       with rec {
-        ourV = "2019.04.24";
+        ourV = "2019.06.08";
 
-        override = self.nixpkgs1903.youtube-dl.overrideDerivation (old: {
+        override = super.youtube-dl.overrideDerivation (old: {
           name    = "youtube-dl-${ourV}";
           version = ourV;
           src     = fetchurl {
-            url    = "https://yt-dl.org/downloads/${ourV}/youtube-dl-${ourV}.tar.gz";
-            sha256 = "1kzz3y2q6798mwn20i69imf48kb04gx3rznfl06hb8qv5zxm9gqz";
+            sha256 = "0dq8k28bl48xrnzf3mpi7lwyfiq8v2f78sy6py4jbiynxh38ani7";
+            url    = concatStrings [
+              "https://yt-dl.org/downloads/" ourV "/youtube-dl-" ourV ".tar.gz"
+            ];
           };
         });
 
         latestPackage = (getAttr self.latest self).youtube-dl;
 
-        needOverride = compareVersions ourV latestPackage.version == 1;
+        latestRelease = import (self.runCommand "youtube-dl-release.nix"
+          {
+            __noChroot    = true;
+            buildInputs   = [ self.wget ];
+            url           = "";
+            SSL_CERT_FILE = "${self.cacert}/etc/ssl/certs/ca-bundle.crt";
+          }
+          ''
+            wget -O- 'https://ytdl-org.github.io/youtube-dl/download.html' |
+              grep -o '[^"]*\.tar\.gz'                                     |
+              head -n1                                                     |
+              grep -o 'youtube-dl-.*\.tar.gz'                              |
+              cut -d - -f3                                                 |
+              cut -d . -f 1-3                                              |
+              sed -e 's/\(.*\)/"\1"/g'                              > "$out"
+              #|| echo "1" > "$out"
+          '');
 
-        msg = if needOverride then (x: x) else trace (toJSON {
-          overrideVersion = ourV;
-          latestPackaged  = latestPackage.version;
-          warning = ''
-            FIX${""}ME: Our updated youtube-dl override is older than one in
-            nixpkgs. We should remove our override and use the packaged one.
-          '';
-        });
+        warnIf = version: pred: msgBits:
+          if pred (compareVersions ourV version)
+             then (x: x)
+             else trace (toJSON {
+               inherit latestRelease;
+               overrideVersion = ourV;
+               latestPackaged  = latestPackage.version;
+               warning         = concatStringsSep " " msgBits;
+             });
+
+        needOverride = warnIf latestPackage.version (x: x == 1) [
+          "FIX${""}ME: Our updated youtube-dl override is older than one in"
+          "nixpkgs. We should remove our override and use the upstream version."
+        ];
+
+        needUpdate   = warnIf latestRelease (x: x > -1) [
+          "Our youtube-dl override is out of date. If it doesn't work, YouTube"
+          "might have changed their API, which the update might fix."
+        ];
       };
-      msg override;
+      needOverride (needUpdate override);
   };
 
   tests = {};
