@@ -50,25 +50,10 @@ with rec {
                   then super.nix-repl
                   else nothing;
 
-    python3Packages = super.python3Packages.override
-      (oldAttrs: {
-        overrides = (           super.lib.composeExtensions or
-                     self.nixpkgs1803.lib.composeExtensions)
-          (oldAttrs.overrides or (self: super: {}))
-          (pelf: puper: {
-            pyqt5 = trace "FIXME: Overriding pyqt5 to plumb in overridden Qt5"
-                          puper.pyqt5.override {
-              inherit (self.qt5)
-                qmake
-                qtbase
-                qtconnectivity
-                qtsvg
-                qtwebengine
-                qtwebsockets
-                ;
-            };
-          });
-      });
+    # This depends on pyqt5, which in turn depends on qt5 that is broken on
+    # 19.03. Plumbing our qt5 override through these ends up with
+    # "ImportError: libQt5Core.so.5" in picard's test suite.
+    picard = broken1903 "picard";
 
     qt5 = get (concatStringsSep " " [
       "build is broken (bootstrap related?) on 18.03+"
@@ -111,6 +96,27 @@ with rec {
           thermald
           ;
         inherit (super.qt5) qtbase;
+
+        picard = super.picard.override (old: {
+          python3Packages = super.python3Packages.override
+            (oldAttrs: {
+              overrides = (           super.lib.composeExtensions or
+                           self.nixpkgs1803.lib.composeExtensions)
+                (oldAttrs.overrides or (self: super: {}))
+                (pelf: puper: {
+                  pyqt5 = puper.pyqt5.override {
+                    inherit (self.qt5)
+                      qmake
+                      qtbase
+                      qtconnectivity
+                      qtsvg
+                      qtwebengine
+                      qtwebsockets
+                      ;
+                  };
+                });
+            });
+        });
       };
     };
     stillBrokenPkgs // self.checkRacket.checkWhetherBroken // {
