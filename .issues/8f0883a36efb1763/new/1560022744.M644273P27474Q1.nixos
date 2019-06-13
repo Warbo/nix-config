@@ -1,7 +1,8 @@
 From: Chris Warburton
 Date: Sat, 08 Jun 2019 20:38:43 +0100
-State: new
+State: resolved
 Subject: Move Racket override to fixes.nix
 Message-Id: <8f0883a36efb1763-0-artemis@nixos>
+resolution: fixed
 
 It should really be a system-level choice

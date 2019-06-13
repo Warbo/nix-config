@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Thu, 13 Jun 2019 00:36:57 +0100
+Subject: Re: Add smoke tests for important basic/all packages
+Message-Id: <a7b5c8ba485c0ca9-c3a553c56910bc3c-artemis@nixos>
+References: <a7b5c8ba485c0ca9-0-artemis@nixos>
+In-Reply-To: <a7b5c8ba485c0ca9-0-artemis@nixos>
+
+We do this for conkeror now

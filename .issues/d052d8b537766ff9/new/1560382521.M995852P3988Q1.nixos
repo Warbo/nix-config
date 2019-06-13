@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Thu, 13 Jun 2019 00:35:13 +0100
+Subject: Re: see if haskellPackages.yaml works on 19.03
+Message-Id: <d052d8b537766ff9-e103326ad6bb673f-artemis@nixos>
+References: <d052d8b537766ff9-0-artemis@nixos>
+In-Reply-To: <d052d8b537766ff9-0-artemis@nixos>
+
+It does

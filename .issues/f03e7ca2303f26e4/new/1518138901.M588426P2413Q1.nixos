@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Fri, 09 Feb 2018 01:11:27 +0000
-State: new
+State: resolved
 Subject: Bumping hackage breaks cabal
 Message-Id: <f03e7ca2303f26e4-0-artemis@nixos>
+resolution: fixed
 
 I tried bumping mkStableHackageDb.nix with the following:
 

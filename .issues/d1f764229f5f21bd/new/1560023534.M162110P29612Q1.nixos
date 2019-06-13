@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Sat, 08 Jun 2019 20:51:09 +0100
-State: new
+State: resolved
 Subject: Override qtbase
 Message-Id: <d1f764229f5f21bd-0-artemis@nixos>
+resolution: fixed
 
 We're overriding picard, when really we should be overriding qtbase.
 

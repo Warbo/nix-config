@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Thu, 28 Sep 2017 17:43:48 +0100
-State: new
+State: resolved
 Subject: Encapsulate repoSource?
 Message-Id: <d5cba503026a5cc6-0-artemis@nixos>
+resolution: fixed
 
 Maybe we should make it a function, which accepts a name and returns the
 relevant URL, i.e. prepending whichever source we decided, and suffixing

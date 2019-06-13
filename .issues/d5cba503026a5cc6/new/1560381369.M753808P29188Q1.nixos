@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Thu, 13 Jun 2019 00:15:50 +0100
+Subject: Re: Encapsulate repoSource?
+Message-Id: <d5cba503026a5cc6-dc03fb6f65740731-artemis@nixos>
+References: <d5cba503026a5cc6-0-artemis@nixos>
+In-Reply-To: <d5cba503026a5cc6-0-artemis@nixos>
+
+Seems better off as it is

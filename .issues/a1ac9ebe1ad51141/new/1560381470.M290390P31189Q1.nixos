@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Thu, 13 Jun 2019 00:17:32 +0100
+Subject: Re: haskellRelease needs to take system packages into account
+Message-Id: <a1ac9ebe1ad51141-c669f735babbd399-artemis@nixos>
+References: <a1ac9ebe1ad51141-0-artemis@nixos>
+In-Reply-To: <a1ac9ebe1ad51141-0-artemis@nixos>
+
+I found haskellRelease too complicated so removed it

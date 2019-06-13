@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Wed, 31 Jan 2018 14:01:06 +0000
-State: new
+State: resolved
 Subject: Add smoke tests for important basic/all packages
 Message-Id: <a7b5c8ba485c0ca9-0-artemis@nixos>
+resolution: fixed
 
 Sometimes things break at runtime, e.g. a Firefox update might break
 Conkeror, etc.

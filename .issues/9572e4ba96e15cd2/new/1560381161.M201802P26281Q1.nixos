@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Thu, 13 Jun 2019 00:12:28 +0100
+Subject: Re: Cached cabal new-build
+Message-Id: <9572e4ba96e15cd2-a1aa210d67062ef0-artemis@nixos>
+References: <9572e4ba96e15cd2-0-artemis@nixos>
+In-Reply-To: <9572e4ba96e15cd2-0-artemis@nixos>
+
+We now use new upstream nixpkgs Haskell stuff

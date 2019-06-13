@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Fri, 27 Apr 2018 01:32:16 +0100
-State: new
+State: resolved
 Subject: Cached cabal new-build
 Message-Id: <9572e4ba96e15cd2-0-artemis@nixos>
+resolution: fixed
 
 Cabal 2 breaks a bunch of stuff, but does present an opportunity.
 

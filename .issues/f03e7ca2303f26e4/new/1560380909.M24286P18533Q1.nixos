@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Thu, 13 Jun 2019 00:08:10 +0100
+Subject: Re: Bumping hackage breaks cabal
+Message-Id: <f03e7ca2303f26e4-b63278d1cbbb27f2-artemis@nixos>
+References: <f03e7ca2303f26e4-0-artemis@nixos>
+In-Reply-To: <f03e7ca2303f26e4-0-artemis@nixos>
+
+We don't use these Haskell functions anymore

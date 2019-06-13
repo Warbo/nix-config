@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Thu, 08 Feb 2018 17:50:16 +0000
-State: new
+State: resolved
 Subject: Use newer cabal-install in haskellPkgDeps
 Message-Id: <f2933673003213d8-0-artemis@nixos>
+resolution: fixed
 
 It's currently hard-coded to nixpkgs1609 because cabal 2.0 seems to
 break stuff.

@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Fri, 27 Apr 2018 16:15:03 +0100
-State: new
+State: resolved
 Subject: haskellRelease needs to take system packages into account
 Message-Id: <a1ac9ebe1ad51141-0-artemis@nixos>
+resolution: fixed
 
 Some Haskell packages (e.g. zlib) require system packages (e.g. zlib).
 Since there's a name clash, we need to figure out which of the arguments

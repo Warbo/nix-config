@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Wed, 11 Apr 2018 14:52:48 +0100
-State: new
+State: resolved
 Subject: Make it simple to use fixed, latest and <path> deps
 Message-Id: <c1e4ee1a8ba1b000-0-artemis@nixos>
+resolution: fixed
 
 It's nice to give projects a release.nix file so they can be built and
 tested on Hydra. It's also nice to run those builds against different

@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Thu, 13 Jun 2019 00:11:30 +0100
+Subject: Re: Bump up our Haskell infrastructure
+Message-Id: <bb588be5d3359aa9-bed97f7f5b276f77-artemis@nixos>
+References: <bb588be5d3359aa9-0-artemis@nixos>
+In-Reply-To: <bb588be5d3359aa9-0-artemis@nixos>
+
+We now use the new Haskell stuff in nixpkgs

@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Thu, 13 Jun 2019 00:07:26 +0100
+Subject: Re: Use newer cabal-install in haskellPkgDeps
+Message-Id: <f2933673003213d8-8b14cee8182c7edf-artemis@nixos>
+References: <f2933673003213d8-0-artemis@nixos>
+In-Reply-To: <f2933673003213d8-0-artemis@nixos>
+
+We no longer use haskellPkgDeps

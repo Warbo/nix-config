@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Thu, 15 Jun 2017 18:34:33 +0100
-State: new
+State: resolved
 Subject: Add shouldFail dependencies to overridden packages
 Message-Id: <a81642404be2276f-0-artemis@nixos>
+resolution: fixed
 
 At the moment, our overrides are monotonically increasing: package 'foo'
 fails to build, so we provide 'foo.override ...' which builds

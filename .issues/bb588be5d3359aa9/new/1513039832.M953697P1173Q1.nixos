@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Tue, 12 Dec 2017 00:48:54 +0000
-State: new
+State: resolved
 Subject: Bump up our Haskell infrastructure
 Message-Id: <bb588be5d3359aa9-0-artemis@nixos>
+resolution: fixed
 
 See
 https://www.reddit.com/r/NixOS/comments/7h8np7/stack_or_cabal_which_one_is_more_preferable_for/
