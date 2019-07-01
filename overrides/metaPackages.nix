@@ -30,6 +30,7 @@ with {
         ghcid
         happy
         hlint
+        nix-derivation
         pretty-show
         stylish-haskell
         ;
