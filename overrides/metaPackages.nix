@@ -59,6 +59,7 @@ with {
         python
         racket
         silver-searcher
+        xidel
         ;
     };
 
