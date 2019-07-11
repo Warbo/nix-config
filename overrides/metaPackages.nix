@@ -82,10 +82,12 @@ with {
         abiword
         basket
         evince
+        gimp
         gnumeric
         gv
         kbibtex_full
         leafpad
+        libreoffice
         mu
         ;
       mupdf = self.without self.mupdf [ "bin/mupdf-gl" "bin/mupdf-x11-curl" ];
