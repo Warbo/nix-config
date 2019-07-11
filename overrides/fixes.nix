@@ -8,7 +8,7 @@ with rec {
     trace "FIXME: Taking ${name} from nixpkgs${version} because ${reason}"
           (getAttr name (getAttr "nixpkgs${version}" self));
 
-  cached = name: get "it's cached" name "1709";
+  cached = name: get "it's cached" name "1703";
 
   broken1903 = name: get "it's broken on 19.03" name "1809";
 };
