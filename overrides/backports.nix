@@ -34,6 +34,7 @@ with super.lib;
         latestRelease = import (self.runCommand "youtube-dl-release.nix"
           {
             __noChroot    = true;
+            cacheBuster   = toString currentTime;
             buildInputs   = [ self.wget ];
             url           = "";
             SSL_CERT_FILE = "${self.cacert}/etc/ssl/certs/ca-bundle.crt";
