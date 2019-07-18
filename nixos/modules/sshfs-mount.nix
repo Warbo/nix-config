@@ -48,12 +48,17 @@ with rec {
 
   cfg        = config.services.sshfsMounts;
 
+  # Generate the Bash boilerplate to get the $1th element of the named array.
+  # Note that we automatically pluralise and quote.
+  get = name: ''"''${${name}s[$1]}"'';
+
   RestartSec = 30;
 
   toVar      = var: ''
     ${var}s=(${concatStringsSep " " (map (getAttr var) cfg.mounts)}
   '';
 };
+assert get "foo" == ''"''${foos[$1]}"'';
 {
   options.services.sshfsMounts = {
     mounts = mkOption {
@@ -97,7 +102,7 @@ with rec {
           n=${toString (length cfg.mounts - 1)}
 
           function stop {
-            LP="''${localPaths[$1]}"
+            LP=${get "localPath"}
             pkill -f -9 "sshfs.*$LP"
             "${config.security.wrapperDir}/fusermount" -u -z "$LP"
           }
@@ -122,13 +127,13 @@ with rec {
             [[ "$ATHOME" -eq 1 ]] || return 1
 
             # Try to contact this host
-            "${config.security.wrapperDir}/ping" -c 1 "''${remoteHosts[$1]}" ||
-              return 1
+            RH=${get "remoteHost"}
+            pingOnce "$RH" || return 1
             return 0
           }
 
           function isRunning {
-            dir="''${localPaths[$1]}"
+            dir=${get "localPath"}
 
             # If we can't list what's in the directory then we don't count as
             # running, even if the processes exist, etc.
@@ -147,7 +152,7 @@ with rec {
 
           function startOrStop {
             # Take an action (start or stop) as appropriate
-            name="''${names[$1]}"
+            name=${get "name"}
             if shouldRun "$1"
             then
               echo "Starting '$name'" 1>&2
@@ -164,11 +169,11 @@ with rec {
           function start {
             stop "$1" || true
 
-                   key="''${key[$1]}"
-             localPath="''${localPaths[$1]}"
-            remoteUser="''${remoteUsers[$1]}"
-            remoteHost="''${remoteHosts[$1]}"
-            remotePath="''${remotePaths[$1]}"
+                   key=${get "key"       }
+             localPath=${get "localPath" }
+            remoteUser=${get "remoteUser"}
+            remoteHost=${get "remoteHost"}
+            remotePath=${get "remotePath"}
 
             sshfs -o follow_symlinks              \
                   -o allow_other                  \
@@ -179,8 +184,12 @@ with rec {
                   -o sshfs_debug                  \
                   -o reconnect                    \
                   -o ServerAliveInterval=15       \
-                  "$remoteUser@$remoteHost:$remotePath" "localPath"
+                  "$remoteUser@$remoteHost:$remotePath" "$localPath"
             sleep 1
+          }
+
+          function pingOnce {
+            "${config.security.wrapperDir}/ping" -c 1 "$@"
           }
 
           # Make a long-running process, since 'start' exits immediately
@@ -188,7 +197,7 @@ with rec {
           do
             # Check online state once, rather than per mount
             ONLINE=0
-            ${online} && ONLINE=1
+            pingOnce google.com 1>/dev/null 2>/dev/null && ONLINE=1
 
             ATHOME=0
             [[ "$ONLINE" -eq 1 ]] && "$atHome" && ATHOME=1
