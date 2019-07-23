@@ -190,12 +190,12 @@ with {
         awf
         blueman
         compton
-        dmenu2
         gensgs
         gksu
         iotop
         keepassx
         lxappearance
+        rofi
         trayer
         xsettingsd
         ;
