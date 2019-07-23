@@ -20,7 +20,7 @@ with rec {
 
     # Newer NixOS systems need fuse3 rather than fuse, but it doesn't exist
     # on older systems. We include it if available, otherwise we just warn.
-    fuse3 = super.fuse3 or super.nothing;
+    fuse3 = super.fuse3 or self.nothing;
 
     gensgs = broken1903 "gensgs";
 
@@ -48,7 +48,7 @@ with rec {
     # We only need nix-repl for Nix 1.x, since 2.x has a built-in repl
     nix-repl = if compareVersions self.nix.version "2" == -1
                   then super.nix-repl
-                  else nothing;
+                  else self.nothing;
 
     # This depends on pyqt5, which in turn depends on qt5 that is broken on
     # 19.03. Plumbing our qt5 override through these ends up with
