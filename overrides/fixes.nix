@@ -33,7 +33,7 @@ with rec {
 
     keepassx-community = trace
       "FIXME: Overriding dependencies of keepassx-community to avoid broken Qt"
-      (super.keepassx-community.override (old: {
+      super.keepassx-community.override (old: {
         inherit (self.nixpkgs1709)
           cmake
           curl
@@ -54,17 +54,17 @@ with rec {
         inherit (self.nixpkgs1709.xorg)
           libXi
           libXtst;
-      }));
+      });
 
-    libproxy = trace ''FIXME: Removing flaky, heavyweight SpiderMonkey
-                       dependency from libproxy''
-                     super.libproxy.overrideDerivation (old: {
-      buildInputs  = filter (x: !(hasPrefix "spidermonkey" x.name))
-                            old.buildInputs;
-      preConfigure = replaceStrings [ ''"-DWITH_MOZJS=ON"'' ]
-                                    [ ""                    ]
-                                    old.preConfigure;
-    });
+    libproxy = trace
+      "FIXME: Removing flaky, heavyweight SpiderMonkey dependency from libproxy"
+      super.libproxy.overrideDerivation (old: {
+        buildInputs  = filter (x: !(hasPrefix "spidermonkey" x.name))
+                              old.buildInputs;
+        preConfigure = replaceStrings [ ''"-DWITH_MOZJS=ON"'' ]
+                                      [ ""                    ]
+                                      old.preConfigure;
+      });
 
     libreoffice = cached "libreoffice";
 
