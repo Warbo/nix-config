@@ -193,7 +193,7 @@ with {
         gensgs
         gksu
         iotop
-        keepassx
+        keepassx-community
         lxappearance
         rofi
         trayer
