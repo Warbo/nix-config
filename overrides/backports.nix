@@ -51,14 +51,16 @@ with super.lib;
           '');
 
         warnIf = version: pred: msgBits:
-          if pred (compareVersions ourV version)
-             then (x: x)
-             else trace (toJSON {
-               inherit latestRelease;
-               overrideVersion = ourV;
-               latestPackaged  = latestPackage.version;
-               warning         = concatStringsSep " " msgBits;
-             });
+          if self.onlineCheck
+             then if pred (compareVersions ourV version)
+                     then (x: x)
+                     else trace (toJSON {
+                       inherit latestRelease;
+                       overrideVersion = ourV;
+                       latestPackaged  = latestPackage.version;
+                       warning         = concatStringsSep " " msgBits;
+                     })
+             else trace "Skipping youtube-dl check" (x: x);
 
         needOverride = warnIf latestPackage.version (x: x == 1) [
           "FIX${""}ME: Our updated youtube-dl override is older than one in"

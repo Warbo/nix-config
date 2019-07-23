@@ -24,7 +24,7 @@ with rec {
 
     gensgs = broken1903 "gensgs";
 
-    get_iplayer = trace "FIXME: Avoiding 19.03 breakages"
+    get_iplayer = trace "FIXME: Overriding get_iplayer to avoid 19.03 breakages"
                         super.get_iplayer.override {
                           inherit (self.nixpkgs1809) get_iplayer;
                         };
