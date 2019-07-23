@@ -31,6 +31,31 @@ with rec {
 
     gimp = cached "gimp";
 
+    keepassx-community = trace
+      "FIXME: Overriding dependencies of keepassx-community to avoid broken Qt"
+      (super.keepassx-community.override (old: {
+        inherit (self.nixpkgs1709)
+          cmake
+          curl
+          glibcLocales
+          libargon2
+          libgcrypt
+          libgpgerror
+          libmicrohttpd
+          libsodium
+          libyubikey
+          stdenv
+          yubikey-personalization
+          zlib;
+        inherit (self.nixpkgs1709.qt5)
+          qtbase
+          qttools
+          qtx11extras;
+        inherit (self.nixpkgs1709.xorg)
+          libXi
+          libXtst;
+      }));
+
     libproxy = trace ''FIXME: Removing flaky, heavyweight SpiderMonkey
                        dependency from libproxy''
                      super.libproxy.overrideDerivation (old: {
