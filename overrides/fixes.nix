@@ -33,7 +33,7 @@ with rec {
 
     keepassx-community = trace
       "FIXME: Overriding dependencies of keepassx-community to avoid broken Qt"
-      super.keepassx-community.override (old: {
+      (super.keepassx-community.override (old: {
         inherit (self.nixpkgs1709)
           cmake
           curl
@@ -54,6 +54,26 @@ with rec {
         inherit (self.nixpkgs1709.xorg)
           libXi
           libXtst;
+      })).overrideAttrs (old: rec {
+        name        = "keepassxc-${version}";
+        version     = "2.4.3";
+        buildInputs = old.buildInputs ++ [
+          self.nixpkgs1709.pkgconfig    # Needed to find qrencode
+          self.qt5.qtsvg self.nixpkgs1709.qrencode  # New dependencies
+        ];
+        checkPhase = ''
+          export LC_ALL="en_US.UTF-8"
+          export QT_QPA_PLATFORM=offscreen
+          export QT_PLUGIN_PATH="${with self.nixpkgs1709.qt5.qtbase;
+                                   "${bin}/${qtPluginPrefix}"}"
+          make test ARGS+="-E testgui --output-on-failure"
+        '';
+        patches = [];  # One patch is Mac-only, other has been included in src
+        src     = self.unpack (self.fetchurl {
+          url    = "https://github.com/keepassxreboot/keepassxc/releases/" +
+                   "download/${version}/keepassxc-${version}-src.tar.xz";
+          sha256 = "0d17izx6qvcsxsxlsmaa17rgn38fvxsp5yzqqf4pc11i44cm5jfp";
+        });
       });
 
     libproxy = trace
