@@ -123,7 +123,7 @@ with {
         autossh
         cifs_utils
         ddgr
-        #gcalcli
+        gcalcli
         get_iplayer
         gnutls
         msmtp
