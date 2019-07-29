@@ -119,6 +119,7 @@ with {
 
     netCli = {
       inherit (self)
+        aria2
         autossh
         cifs_utils
         ddgr
