@@ -306,6 +306,15 @@ rec {
     ];
   };
 
+  services.avahi = {
+    enable   = true;
+    nssmdns  = true;
+    hostName = "nixos";
+    publish.enable      = true;
+    publish.addresses   = true;
+    publish.workstation = true;
+  };
+
   services.bitlbee = {
     enable = true;
     authMode = "Registered";
@@ -343,11 +352,22 @@ rec {
     '';
   };
 
+  services.laminar = {
+    enable   = true;
+    bindHttp = "localhost:8008";  # Default 8080 clashes with IPFS
+    cfg      = toString /home/chris/System/Laminar;
+  };
+
   services.nix-daemon-tunnel.enable = true;
 
   services.openssh = {
     enable     = true;
     forwardX11 = true;
+  };
+
+  services.printing = {
+    enable  = true;
+    drivers = [ pkgs.nixpkgs1709.hplip pkgs.nixpkgs1709.gutenprint ];
   };
 
   # Laptop power management
@@ -440,26 +460,6 @@ rec {
       };
       sessionCommands = "/home/chris/.xsession";
     };
-  };
-
-  services.printing = {
-    enable  = true;
-    drivers = [ pkgs.nixpkgs1709.hplip pkgs.nixpkgs1709.gutenprint ];
-  };
-
-  services.avahi = {
-    enable   = true;
-    nssmdns  = true;
-    hostName = "nixos";
-    publish.enable      = true;
-    publish.addresses   = true;
-    publish.workstation = true;
-  };
-
-  services.laminar = {
-    enable   = true;
-    bindHttp = "localhost:8008";  # Default 8080 clashes with IPFS
-    cfg      = toString /home/chris/System/Laminar;
   };
 
   system.activationScripts = {
