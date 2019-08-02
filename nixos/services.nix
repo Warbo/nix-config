@@ -109,64 +109,7 @@ with rec {
       };
       mkService (generalConfig // { inherit serviceConfig; });
 
-  findProcess = pat: wrap {
-    name   = "find-process";
-    paths  = [ bash procps psutils ];
-    vars   = { inherit pat; };
-    script = ''
-      #!/usr/bin/env bash
-      pgrep -f "$pat"
-    '';
-  };
-
-  killProcess = pat: wrap {
-    name   = "kill-process";
-    paths  = [ bash procps psutils ];
-    vars   = { inherit pat; };
-    script = ''
-      #!/usr/bin/env bash
-      pkill "$pat"
-    '';
-  };
-
   SSH_AUTH_SOCK = "/run/user/1000/ssh-agent";
-
-  sshfsHelpers = rec {
-    paths = [ bash coreutils fuse fuse3 iputils openssh procps sshfsFuse
-              (utillinux.bin or utillinux) ];
-
-    vars = dir: {
-      inherit dir SSH_AUTH_SOCK;
-      DISPLAY = ":0"; # For potential ssh passphrase dialogues
-    };
-
-    stop  = dir: wrap {
-      inherit paths;
-      name = "sshfuse-unmount";
-      vars = { inherit dir; };
-      script = ''
-        #!/usr/bin/env bash
-        pkill -f -9 "sshfs.*$dir"
-        "${config.security.wrapperDir}/fusermount" -u -z "$dir"
-      '';
-    };
-
-    isRunning = dir: wrap {
-      name   = "desktop-is-mounted";
-      paths  = sshfsHelpers.paths;
-      vars   = vars dir // { checkProc = findProcess "sshfs.*${dir}"; };
-      script = ''
-        #!/usr/bin/env bash
-        set -e
-
-        # If we can't list what's in the directory then we don't count as
-        # running, even if the processes exist, etc.
-        ls "$dir" 1> /dev/null 2> /dev/null || exit 1
-
-        "$checkProc" || exit 1
-      '';
-    };
-  };
 
   mkService = opts:
     with rec {
@@ -199,28 +142,6 @@ with rec {
   pingOnce  = "${config.security.wrapperDir}/ping -c 1";
 
   online    = "${pingOnce} google.com 1>/dev/null 2>/dev/null";
-
-  areOnline = wrap {
-    name   = "are-online";
-    paths  = [ bash ];
-    script = ''
-      #!/usr/bin/env bash
-      ${online} && exit 0
-      exit 1
-    '';
-  };
-
-  atHome = wrap {
-    name   = "atHome";
-    paths  = [ bash ];
-    script = ''
-      #!/usr/bin/env bash
-      set -e
-
-      LOC=$(cat /tmp/location)
-      [[ "x$LOC" = "xhome" ]] || exit 1
-    '';
-  };
 };
 {
   thermald-nocheck = mkService {
@@ -459,60 +380,6 @@ with rec {
       };
     };
   };
-
-  pi-mount =
-    with rec {
-      dir       = "/home/chris/Public";
-      isRunning = sshfsHelpers.isRunning dir;
-      stop      = sshfsHelpers.stop dir;
-      vars      = sshfsHelpers.vars dir;
-    };
-    monitoredService {
-      inherit isRunning stop;
-      name        = "pi-mount";
-      description = "Raspberry pi mount";
-      extra       = { requires = [ "network.target" ]; };
-      RestartSec  = 30;
-      shouldRun   = wrap {
-        name   = "desktop-mount-query";
-        paths  = sshfsHelpers.paths;
-        vars   = vars // { inherit atHome; };
-        script = ''
-          #!/usr/bin/env bash
-
-          # We must be online
-          ${online} || exit 1
-
-          # We must be home
-          "$atHome" || exit 1
-
-          # Try to contact the pi
-          ${pingOnce} dietpi.local || exit 1
-        '';
-      };
-      start = wrap {
-        name   = "pi-mount-start";
-        paths  = sshfsHelpers.paths;
-        vars   = vars // { inherit stop; };
-        script = ''
-          #!/usr/bin/env bash
-
-          "$stop" || true
-
-          sshfs -o follow_symlinks                      \
-                -o allow_other                          \
-                -o IdentityFile=/home/chris/.ssh/id_rsa \
-                -o UserKnownHostsFile=/dev/null         \
-                -o StrictHostKeyChecking=no             \
-                -o debug                                \
-                -o sshfs_debug                          \
-                -o reconnect                            \
-                -o ServerAliveInterval=15               \
-                "pi@dietpi.local:/opt/shared" "$dir"
-          sleep 5
-        '';
-      };
-    };
 
   ssh-agent = mkService {
     description   = "Run ssh-agent";

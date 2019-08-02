@@ -3,15 +3,15 @@
 with builtins // lib;
 with rec {
   args = with types; {
-    key = mkOption {
+    privateKey = mkOption {
       description = "Path of the SSH private key to use";
       example     = "/home/bob/.ssh/id_rsa";
-      type        = str;
+      type        = path;
     };
     localPath = mkOption {
       description = "Mount point for this share";
       example     = "/home/bob/mounts/alice";
-      type        = str;
+      type        = path;
     };
     localUser = mkOption {
       description = "User we should run as on this machine (e.g. for keys)";
@@ -31,13 +31,13 @@ with rec {
     remotePath = mkOption {
       description = "Path on remote host we should mount";
       example     = "/home/alice/shared";
-      type        = str;
+      type        = path;
     };
     remotePort = mkOption {
-      default     = null;
+      default     = 22;
       description = "Port to use for SSH; null defaults to 22";
       example     = "8888";
-      type        = nullOr port;
+      type        = port;
     };
     remoteUser = mkOption {
       description = "User we should log in as on the remote machine";
@@ -55,7 +55,8 @@ with rec {
   RestartSec = 30;
 
   toVar      = var: ''
-    ${var}s=(${concatStringsSep " " (map (getAttr var) cfg.mounts)}
+    ${var}s=(${concatStringsSep " " (map (x: toString (getAttr var x))
+                                         cfg.mounts)})
   '';
 };
 assert get "foo" == ''"''${foos[$1]}"'';
@@ -64,7 +65,7 @@ assert get "foo" == ''"''${foos[$1]}"'';
     mounts = mkOption {
       default     = [];
       description = "SSHFS mounts to create and monitor";
-      type        = with types; listOf (submodule args);
+      type        = with types; listOf (submodule { options = args; });
     };
   };
 
@@ -80,14 +81,14 @@ assert get "foo" == ''"''${foos[$1]}"'';
         User    = "chris";
         Type    = "simple";
       };
-      script = toString (wrap {
+      script = "${pkgs.wrap {
         name = "sshfsMount-runner";
         vars = {
           DISPLAY       = ":0";  # For potential ssh passphrase dialogues
           secs          = toString RestartSec;
           SSH_AUTH_SOCK = "/run/user/1000/ssh-agent";
         };
-        paths = [
+        paths = with pkgs; [
           bash coreutils fuse fuse3 iputils openssh procps sshfsFuse
           (utillinux.bin or utillinux)
         ];
@@ -156,10 +157,10 @@ assert get "foo" == ''"''${foos[$1]}"'';
             if shouldRun "$1"
             then
               echo "Starting '$name'" 1>&2
-              "$start" "$i"
+              start "$1"
             else
               echo "Stopping '$name'" 1>&2
-              "$stop"
+              stop "$1"
             fi
 
             # Bail out if we're not in a sensible state
@@ -169,15 +170,16 @@ assert get "foo" == ''"''${foos[$1]}"'';
           function start {
             stop "$1" || true
 
-                   key=${get "key"       }
+            privateKey=${get "privateKey"}
              localPath=${get "localPath" }
             remoteUser=${get "remoteUser"}
             remoteHost=${get "remoteHost"}
             remotePath=${get "remotePath"}
+            remotePort=${get "remotePort"}
 
             sshfs -o follow_symlinks              \
                   -o allow_other                  \
-                  -o IdentityFile="$key"          \
+                  -o IdentityFile="$privateKey"   \
                   -o UserKnownHostsFile=/dev/null \
                   -o StrictHostKeyChecking=no     \
                   -o debug                        \
@@ -200,7 +202,14 @@ assert get "foo" == ''"''${foos[$1]}"'';
             pingOnce google.com 1>/dev/null 2>/dev/null && ONLINE=1
 
             ATHOME=0
-            [[ "$ONLINE" -eq 1 ]] && "$atHome" && ATHOME=1
+            if [[ "$ONLINE" -eq 1 ]]
+            then
+              if [[ -e /tmp/location ]]
+              then
+                LOC=$(cat /tmp/location)
+                [[ "x$LOC" = "xhome" ]] && ATHOME=1
+              fi
+            fi
 
             # Iff we've become inconsistent, trigger an action
             for i in $(seq 0 "$n")
@@ -210,7 +219,7 @@ assert get "foo" == ''"''${foos[$1]}"'';
             sleep "$secs"
           done
         '';
-      });
+      }}";
     };
   };
 }
