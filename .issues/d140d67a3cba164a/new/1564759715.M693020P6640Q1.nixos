@@ -1,0 +1,19 @@
+From: Chris Warburton
+Date: Fri, 02 Aug 2019 16:23:51 +0100
+State: new
+Subject: Turn contents of services.nix into modules
+Message-Id: <d140d67a3cba164a-0-artemis@nixos>
+
+The whole "monitoredService" and kin work well enough, but they just add
+complexity to the system.
+
+We should pull out each of these services into its own NixOS module. I've
+already done this with pi-mount (now services.sshMounts).
+
+In the future we might want to investigate systemd's native
+monitoring/restarting abilities, rather than using our own polling scripts.
+That can wait though. (The reason we don't use the systemd stuff at the moment
+is that services can end up disabled if they "fail" a certain number of times in
+a row; for our purposes those aren't "failures", they're just state changes;
+e.g. if we go offline we shouldn't have SSHFS mounted; when we get back online
+they should be mounted again; etc.)
