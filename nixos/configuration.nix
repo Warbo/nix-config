@@ -70,8 +70,10 @@ rec {
       # a high-pitched whining sound on my X60s, so this disables them.
       "processor.max_cstate=2"
 
-      # Prevents warnings about "Nobody cared"
-      "irqpoll"
+      # Turning this on prevents warnings about "Nobody cared", but causes a
+      # bunch of "hpet1: lost 5900 rtc interrupts" messages and instability.
+      # Keep it off for now. See https://lists.gt.net/linux/kernel/2575040
+      #"irqpoll"
     ];
   };
 
