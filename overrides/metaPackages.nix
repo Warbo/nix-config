@@ -166,6 +166,7 @@ with {
         libnotify
         lzip
         p7zip
+        pciutils
         pmutils
         psmisc
         st
