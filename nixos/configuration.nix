@@ -514,8 +514,8 @@ rec {
   users.extraUsers.chris = {
     name        = "chris";
     group       = "users";
-    extraGroups = [ "wheel" "voice" "networkmanager" "fuse" "dialout" "atd"
-                    "audio" "docker" "pulse" ];
+    extraGroups = [ "atd" "audio" "dialout" "docker" "fuse" "netdev"
+                    "networkmanager" "pulse" "voice" "wheel" ];
     uid         = 1000;
     createHome  = true;
     home        = "/home/chris";
