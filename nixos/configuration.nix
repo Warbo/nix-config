@@ -51,7 +51,7 @@ rec {
       "nf_conntrack_pptp"
 
       # Needed for virtual consoles to work
-      "fbcon" "i915"
+      "fbcon" "intel_agp" "i915" "drm_kms_helper"
     ];
 
     kernel.sysctl = {
