@@ -38,6 +38,8 @@ rec {
       copyKernels = true;
     };
 
+    # FIXME: We would like the latest kernel but kernel modesetting doesn't work
+    # kernelPackages = pkgs.linuxPackages_latest;
     kernelPackages = trace
       "FIXME: Using old kernel to avoid freezes which started with 18.03"
       pkgs.nixpkgs1709.linuxPackages;
@@ -65,6 +67,10 @@ rec {
       "acpi_osi="
       "clocksource=acpi_pm pci=use_crs"
       "consoleblank=0"
+
+      # Use this when modesetting gets dodgy; it at least gives us VT1
+      #(trace "FIXME: Kernel modesettin disabled due to framebuffer crashin"
+      #       "nomodeset")
 
       # The "cstate" determines speed vs power usage. State c3 and above produce
       # a high-pitched whining sound on my X60s, so this disables them.
