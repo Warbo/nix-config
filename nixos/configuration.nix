@@ -23,6 +23,7 @@ rec {
     # Include the results of the hardware scan.
     [ ./hardware-configuration.nix ];
 
+  nixpkgs.config.allowUnfree = true;
   nixpkgs.overlays = if nix-config == null
                         then trace "WARNING: No overlays found" []
                         else import (nix-config + "/overlays.nix");
