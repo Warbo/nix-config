@@ -29,60 +29,109 @@ rec {
                         else import (nix-config + "/overlays.nix");
 
   # Use the GRUB 2 boot loader.
-  boot = trace "FIXME: Use system.activationScripts to make /boot/grub/libreboot_grub.cfg" {
-    loader.grub = {
-      enable  = true;
-      version = 2;
-      device  = "/dev/sda";
+  boot =
+    with {
+      mods = trace "FIXME: Which modules are artefacts of using QEMU to install?" [
+        "kvm-intel"
+        "tun"
+        "virtio"
+        "coretemp"
+        "ext4"
+        "usb_storage"
+        "ehci_pci"
+        "ahci"
+        "xhci_hcd"
+        "dm_mod"
 
-      # Put kernels in /boot, which should help with getting LibreBoot to work
-      copyKernels = true;
+        # VPN-related, see https://github.com/NixOS/nixpkgs/issues/22947
+        "nf_conntrack_pptp"
+
+        # Needed for virtual consoles to work, and for early KMS
+        "fbcon"
+        "drm_kms_helper"
+        "intel_agp"
+        "i915"
+      ];
     };
+    {
+      # 4 is reasonable, 7 is everything
+      consoleLogLevel = 4;
 
-    # FIXME: We would like the latest kernel but kernel modesetting doesn't work
-    # kernelPackages = pkgs.linuxPackages_latest;
-    kernelPackages = trace
-      "FIXME: Using old kernel to avoid freezes which started with 18.03"
-      pkgs.nixpkgs1709.linuxPackages;
+      loader.grub = {
+        enable      = true;
+        version     = 2;
+        device      = "/dev/sda";
+        copyKernels = true;
+      };
 
-    kernelModules = trace "FIXME: Which modules are artefacts of using QEMU to install?" [
-      "kvm-intel" "tun" "virtio"
+      initrd = {
+        # Always loaded
+        kernelModules          = mods;
+        # Loaded on-demand (if/when the matching hardware is spotted)
+        availableKernelModules = mods;
+      };
 
-      "coretemp"
+      # FIXME: We would like the latest kernel but kernel modesetting doesn't
+      # work
+      #kernelPackages = pkgs.linuxPackages_latest;
 
-      # VPN-related, see https://github.com/NixOS/nixpkgs/issues/22947
-      "nf_conntrack_pptp"
+      # Linux 4.17 contains patch 073cd78 which may help avoid some kernel oops
+      # that we're hitting frequently with Linux 4.9 from nixpkgs17.03 on x60s
+      kernelPackages = pkgs.nixpkgs1809.linuxPackages_latest;
 
-      # Needed for virtual consoles to work
-      "fbcon" "intel_agp" "i915" "drm_kms_helper"
-    ];
+      kernelModules            = mods;
+      blacklistedKernelModules = [ "snd_pcsp" "pcspkr" ];
 
-    kernel.sysctl = {
-      "net.ipv4.tcp_sack" = 0;
-      "vm.swappiness"     = 10;
+      kernel.sysctl = {
+        "net.ipv4.tcp_sack" = 0;
+        "vm.swappiness"     = 10;
+      };
+
+      extraModulePackages = [ config.boot.kernelPackages.tp_smapi ];
+
+      kernelParams = [
+        "acpi_osi="
+        "clocksource=acpi_pm"
+        "pci=use_crs"
+        "consoleblank=0"
+
+        # The "cstate" determines speed vs power usage. State c3 and above
+        # produce a high-pitched whining sound on my X60s, so this disables them
+        "processor.max_cstate=2"
+
+        # Turning this on prevents warnings about "Nobody cared", but causes a
+        # bunch of "hpet1: lost 5900 rtc interrupts" messages and instability.
+        # Keep it off for now. See https://lists.gt.net/linux/kernel/2575040
+        #"irqpoll"
+
+        # FIXME: Every kernel option below here is an attempt to make 5.x work
+        # without i915 KMS crashing the system at boot. Remove them once we've
+        # got that working.
+        #"acpi_backlight=native"
+
+        # Avoid spurious display connectors throwing off KMS
+        # "video=TV-1:d"
+        # "video=S-VIDEO-1:d"
+
+        # "i915.fastboot=0"
+        # "xforcevesa"
+        # "i915.modeset=0"
+        # "video=efifb"
+        # "i915.enable_execlists=0"
+        # "acpi=off"
+        # "intel_iommu=off"
+        # "intel_iommu=off,igfx_off"
+        # "iommu=off"
+        # "i915.enable_rc6=0"
+        # "i915.enable_psr=0"
+        # "drm.edid_firmware=edid/1024x768.bin"
+        # "video=LVDS-1:1024x768"
+
+        # Use this when modesetting gets dodgy; it at least gives us VT1
+        #(trace "FIXME: Kernel modesettin disabled due to framebuffer crashin"
+        #       "nomodeset")
+      ];
     };
-
-    extraModulePackages = [ config.boot.kernelPackages.tp_smapi ];
-
-    kernelParams = [
-      "acpi_osi="
-      "clocksource=acpi_pm pci=use_crs"
-      "consoleblank=0"
-
-      # Use this when modesetting gets dodgy; it at least gives us VT1
-      #(trace "FIXME: Kernel modesettin disabled due to framebuffer crashin"
-      #       "nomodeset")
-
-      # The "cstate" determines speed vs power usage. State c3 and above produce
-      # a high-pitched whining sound on my X60s, so this disables them.
-      "processor.max_cstate=2"
-
-      # Turning this on prevents warnings about "Nobody cared", but causes a
-      # bunch of "hpet1: lost 5900 rtc interrupts" messages and instability.
-      # Keep it off for now. See https://lists.gt.net/linux/kernel/2575040
-      #"irqpoll"
-    ];
-  };
 
   hardware.bluetooth.enable = false;
 
@@ -467,7 +516,7 @@ rec {
     enable         = true;
     layout         = "gb";
     xkbOptions     = "ctrl:nocaps";
-    videoDrivers   = [ "intel" "i915" ];
+    videoDrivers   = [ "intel" "i915" "vesa" "vga" "fbdev" ];
     windowManager  = {
       default      = "xmonad";
       xmonad       = {
