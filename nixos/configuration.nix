@@ -233,7 +233,7 @@ rec {
       serif     = [ "Droid Sans"      ];
     };
     fonts = [
-      pkgs.anonymous-pro-font
+      pkgs.anonymousPro
       pkgs.droid-fonts
     ];
   };

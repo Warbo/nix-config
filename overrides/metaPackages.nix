@@ -65,7 +65,7 @@ with {
 
     docCli = {
       inherit (self)
-        anonymous-pro-font
+        anonymousPro
         bibclean
         bibtool
         droid-fonts
