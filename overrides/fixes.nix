@@ -100,9 +100,15 @@ with rec {
       "(see https://groups.google.com/forum/#!topic/nix-devel/fAMADzFhcFo)"
     ]) "qt5" "1709";
 
-    racket = trace ''FIXME: Taking racket from nixpkgs 16.09, since it's
-                     broken on i686 for newer versions''
-                   self.nixpkgs1609.racket;
+    # We need to override the happy-path 'racket' package, taking it from super
+    # to avoid infinite loops.
+    racket = self.checkedRacket.override {
+      racket = trace (concatStringsSep " " [
+                       "WARNING: checkedRacket didn't use its fallback package."
+                       "This might indicate that checkedRacket is not needed"
+                       "any more."])
+                     super.racket;
+    };
 
     thermald = broken1903 "thermald";
 
