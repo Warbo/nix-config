@@ -235,6 +235,9 @@ rec {
     fonts = [
       pkgs.anonymousPro
       pkgs.droid-fonts
+      pkgs.liberation_ttf
+      pkgs.terminus_font
+      pkgs.ttf_bitstream_vera
     ];
   };
 
