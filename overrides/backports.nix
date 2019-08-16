@@ -16,13 +16,13 @@ with super.lib;
   overrides = {
     youtube-dl =
       with rec {
-        ourV = "2019.07.30";
+        ourV = "2019.08.13";
 
         override = super.youtube-dl.overrideDerivation (old: {
           name    = "youtube-dl-${ourV}";
           version = ourV;
           src     = fetchurl {
-            sha256 = "0nb5xvq4aq0az8y5wb54zp5q4qzfhs7rcb39yp6j5q8jyjp9kzwy";
+            sha256 = "0b94hrhbqa7jhn91pxsbphg2ylwkpkknb2y4v4sczp7rjvgmjgdj";
             url    = concatStrings [
               "https://yt-dl.org/downloads/" ourV "/youtube-dl-" ourV ".tar.gz"
             ];
