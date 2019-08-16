@@ -40,14 +40,13 @@ with super.lib;
             SSL_CERT_FILE = "${self.cacert}/etc/ssl/certs/ca-bundle.crt";
           }
           ''
-            wget -O- 'https://ytdl-org.github.io/youtube-dl/download.html' |
-              grep -o '[^"]*\.tar\.gz'                                     |
-              head -n1                                                     |
-              grep -o 'youtube-dl-.*\.tar.gz'                              |
-              cut -d - -f3                                                 |
-              cut -d . -f 1-3                                              |
-              sed -e 's/\(.*\)/"\1"/g'                              > "$out"
-              #|| echo "1" > "$out"
+            wget -q -O- 'https://ytdl-org.github.io/youtube-dl/download.html' |
+              grep -o '[^"]*\.tar\.gz'                                        |
+              head -n1                                                        |
+              grep -o 'youtube-dl-.*\.tar.gz'                                 |
+              cut -d - -f3                                                    |
+              cut -d . -f 1-3                                                 |
+              sed -e 's/\(.*\)/"\1"/g' > "$out"
           '');
 
         warnIf = version: pred: msgBits:
