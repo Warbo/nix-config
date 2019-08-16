@@ -1,0 +1,63 @@
+{
+    // The version of the config file format.  Do not change, unless
+    // you know what you are doing.
+    "version": 1,
+
+    // The name of the project being benchmarked
+    "project": "nix-config",
+
+    // The project's homepage
+    "project_url": "http://chriswarbo.net/projects/nix-config.html",
+
+    // The URL or local path of the source code repository for the
+    // project being benchmarked
+    "repo": "http://chriswarbo.net/git/nix-config.git",
+
+    // List of branches to benchmark
+    "branches": ["master"],
+
+    // The DVCS being used
+    "dvcs": "git",
+
+    // For providing environment types, etc.
+    "plugins": [ "asv_nix" ],
+
+    // The tool to use to create environments
+    "environment_type": "nix",
+
+    // timeout in seconds for installing any dependencies in environment
+    // defaults to 10 min
+    //"install_timeout": 600,
+
+    // The matrix of dependencies to test.  Each key is the name of a
+    // dependency and the values distinguish different versions. These will be
+    // given as arguments to the builders. There's only one 'dir', so we use
+    // 'null' as the version.
+    "matrix": { "dir": [ "null" ] },
+
+    // These build the dependencies specified in matrix. 'dir' is the path of
+    // the checkout we're running from, i.e. the rev doing the measuring, not
+    // the rev being measured.
+    "builders": { "dir": "args: args.dir" },
+
+    // This builds the benchmarking environment. We take its definitions from
+    // 'dir', which is the checkout we're running from (i.e. $PWD). This
+    // ensures that every revision will be benchmarked in the same way.
+    "installer": "args: import ''${args.dir}/benchmarks'' args",
+
+    // The directory (relative to the current directory) that benchmarks are
+    // stored in
+    "benchmark_dir": "./benchmarks",
+
+    // The directory (relative to the current directory) to cache the Python
+    // environments in
+    "env_dir": ".asv/env",
+
+    // The directory (relative to the current directory) that raw benchmark
+    // results are stored in
+    "results_dir": ".asv/results",
+
+    // The directory (relative to the current directory) that the html tree
+    // should be written to
+    "html_dir": ".asv/html"
+}
