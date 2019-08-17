@@ -71,13 +71,13 @@ rec {
         availableKernelModules = mods;
       };
 
-      # FIXME: We would like the latest kernel but kernel modesetting doesn't
-      # work
-      #kernelPackages = pkgs.linuxPackages_latest;
-
-      # Linux 4.17 contains patch 073cd78 which may help avoid some kernel oops
-      # that we're hitting frequently with Linux 4.9 from nixpkgs17.03 on x60s
-      kernelPackages = pkgs.nixpkgs1809.linuxPackages_latest;
+      # We want at least Linux 4.17, since it contains commit 073cd78 which
+      # seems to prevent some regular "kernel oops" I was hitting with the i915
+      # driver in Linux 4.9.
+      kernelPackages = trace (concatStringsSep " " [
+                               "FIXME: We would like the latest kernel but"
+                               "kernel mode setting doesn't work for i915"])
+                           pkgs.nixpkgs1809.linuxPackages_latest;
 
       kernelModules            = mods;
       blacklistedKernelModules = [ "snd_pcsp" "pcspkr" ];
@@ -126,10 +126,7 @@ rec {
         # "i915.enable_psr=0"
         # "drm.edid_firmware=edid/1024x768.bin"
         # "video=LVDS-1:1024x768"
-
-        # Use this when modesetting gets dodgy; it at least gives us VT1
-        #(trace "FIXME: Kernel modesettin disabled due to framebuffer crashin"
-        #       "nomodeset")
+        # "nomodeset"
       ];
     };
 
