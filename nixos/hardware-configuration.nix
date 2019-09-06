@@ -35,9 +35,13 @@
     };
 
   swapDevices = [
-    { device = "/var/swapfile";
+    # Always make a file of a few GB, in case the partition isn't available
+    {
+      device = "/var/swapfile";
       size = 5000; # MB
     }
+    # Swap partition: bug, might be faster than a file; might not be available
+    { device = "/dev/disk/by-uuid/d77fba25-d351-453c-83bc-18f51cde563c"; }
   ];
 
   nix.maxJobs = 2;
