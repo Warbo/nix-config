@@ -177,13 +177,27 @@ assert get "foo" == ''"''${foos[$1]}"'';
             remotePath=${get "remotePath"}
             remotePort=${get "remotePort"}
 
-            sshfs -o follow_symlinks              \
-                  -o allow_other                  \
-                  -o IdentityFile="$privateKey"   \
-                  -o UserKnownHostsFile=/dev/null \
-                  -o StrictHostKeyChecking=no     \
-                  -o reconnect                    \
-                  -o ServerAliveInterval=15       \
+            sshfs -o ${concatStringsSep "," [
+                         # Since we're not interactive, we need to avoid some
+                         # common annoyances (e.g. when DHCP leases change)
+
+                         # Don't complain about unseen hosts
+                         "UserKnownHostsFile=/dev/null"
+
+                         # Don't complain about changed keys
+                         "StrictHostKeyChecking=no"
+
+                         # Give the keyfile explicitly, rather than looking in ~
+                         "IdentityFile=\"$privateKey\""
+
+                         # Reliability
+                         "reconnect"
+                         "ServerAliveInterval=15"
+
+                         # Make mounted filesystem more useful
+                         "follow_symlinks"
+                         "allow_other"
+                     ]} \
                   "$remoteUser@$remoteHost:$remotePath" "$localPath"
             sleep 1
           }
