@@ -197,6 +197,12 @@ assert get "foo" == ''"''${foos[$1]}"'';
                          # Make mounted filesystem more useful
                          "follow_symlinks"
                          "allow_other"
+
+                         # Speed
+                         "cache_timeout=115200"
+                         "attr_timeout=115200"
+                         "no_readahead"
+                         "Cipher=chacha20-poly1305@openssh.com"
                      ]} \
                   "$remoteUser@$remoteHost:$remotePath" "$localPath"
             sleep 1
