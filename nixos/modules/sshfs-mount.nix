@@ -182,8 +182,6 @@ assert get "foo" == ''"''${foos[$1]}"'';
                   -o IdentityFile="$privateKey"   \
                   -o UserKnownHostsFile=/dev/null \
                   -o StrictHostKeyChecking=no     \
-                  -o debug                        \
-                  -o sshfs_debug                  \
                   -o reconnect                    \
                   -o ServerAliveInterval=15       \
                   "$remoteUser@$remoteHost:$remotePath" "$localPath"
