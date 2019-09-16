@@ -1,0 +1,13 @@
+From: Chris Warburton
+Date: Mon, 16 Sep 2019 01:36:49 +0100
+State: new
+Subject: Use emacs-overlay
+Message-Id: <b501b48da874b253-0-artemis@nixos>
+
+Use the emacs-overlay project to provide our Emacs package. We can also
+have it read Emacs packages from use-package calls in our Emacs configuration.
+
+Note that we shouldn't use the git versions; only the properly released Emacs
+versions.
+
+See https://github.com/nix-community/emacs-overlay
