@@ -434,6 +434,7 @@ rec {
     mounts = [
       {
         name       = "pi";
+        canary     = "TV";
         privateKey = "/home/chris/.ssh/id_rsa";
         localPath  = "/home/chris/Public";
         localUser  = "chris";

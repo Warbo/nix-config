@@ -3,6 +3,11 @@
 with builtins // lib;
 with rec {
   args = with types; {
+    canary = mkOption {
+      description = "A known path to check exists inside the mount";
+      example     = "backups/foo.tar.gz";
+      type        = str;
+    };
     privateKey = mkOption {
       description = "Path of the SSH private key to use";
       example     = "/home/bob/.ssh/id_rsa";
@@ -135,12 +140,18 @@ assert get "foo" == ''"''${foos[$1]}"'';
 
           function isRunning {
             dir=${get "localPath"}
+            canary=${get "canary"}
 
             # If we can't list what's in the directory then we don't count as
             # running, even if the processes exist, etc.
             ls "$dir" 1> /dev/null 2> /dev/null || return 1
 
+            # If we don't see our canary, assume that we're not mounted
+            [[ -e "$dir/$canary" ]] || return 1
+
+            # Look for an sshfs command involving this directory
             pgrep -f "sshfs.*$dir" || return 1
+
             return 0
           }
 
