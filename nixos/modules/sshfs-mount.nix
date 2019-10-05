@@ -210,6 +210,9 @@ assert get "foo" == ''"''${foos[$1]}"'';
                          "allow_other"
 
                          # Speed
+                         "cache=yes"
+                         "kernel_cache"
+                         "compression=no"
                          "cache_timeout=115200"
                          "attr_timeout=115200"
                          "no_readahead"
