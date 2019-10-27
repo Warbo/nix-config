@@ -337,7 +337,7 @@ rec {
           name   = "muteToggle";
           paths  = with pkgs; [ bash alsaUtils ];
           script = ''
-            #!/usr/bin/env bash
+            #!${pkgs.bash}/bin/bash
             # Toggle mute state of 'Master'
             amixer -q -c 0 sset Master toggle
 
@@ -485,7 +485,7 @@ rec {
         name   = "usb-keyboard.sh";
         paths  = [ bash coreutils ];
         script = ''
-          #!/usr/bin/env bash
+          #!${bash}/bin/bash
           # Requests that the keyboard be fixed. Running 'keys' from here seems
           # to fail (even with DISPLAY, etc. set) so we instead just log a
           # request in /tmp and rely on 'key_poller' to spot it.

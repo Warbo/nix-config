@@ -98,7 +98,7 @@ assert get "foo" == ''"''${foos[$1]}"'';
           (utillinux.bin or utillinux)
         ];
         script = ''
-          #!/usr/bin/env bash
+          #!${pkgs.bash}/bin/bash
           set -e
 
           # Turn service options into bash variables

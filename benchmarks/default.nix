@@ -18,7 +18,7 @@ fixed.mkBin {
   paths  = with fixed; [ (python3.withPackages (p: [])) ];
   vars   = {};
   script = ''
-    #!/usr/bin/env bash
+    #!${fixed.bash}/bin/bash
     exec python3 "$@"
   '';
 }

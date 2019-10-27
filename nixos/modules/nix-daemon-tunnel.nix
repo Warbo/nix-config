@@ -54,7 +54,7 @@ with { cfg = config.services.nix-daemon-tunnel; };
         Restart              = "always";
         RestartSec           = 60;
         ExecStart            = pkgs.writeScript "nix-daemon-tunnel" ''
-          #!/usr/bin/env bash
+          #!${pkgs.bash}/bin/bash
           set -e
 
           if [[ "x$USER" = "xnixbuildtrampoline" ]]

@@ -48,7 +48,7 @@ with rec {
             };
             paths  = [ bash fail ];
             script = ''
-              #!/usr/bin/env bash
+              #!${bash}/bin/bash
               set -e
 
               # Stopping on exit puts us in a known state
@@ -151,7 +151,7 @@ with rec {
       name   = "thermald-nocheck";
       paths  = [ bash thermald ];
       script = ''
-        #!/usr/bin/env bash
+        #!${bash}/bin/bash
         exec thermald --no-daemon --dbus-enable --ignore-cpuid-check
       '';
     };
@@ -168,7 +168,7 @@ with rec {
         name  = "cool-now";
         paths = [ bash warbo-utilities ];
         script = ''
-          #!/usr/bin/env bash
+          #!${bash}/bin/bash
           coolDown
         '';
       };
@@ -223,13 +223,13 @@ with rec {
             name   = "session";
             paths  = [ bash dvtm ];
             script = ''
-              #!/usr/bin/env bash
+              #!${bash}/bin/bash
               exec dvtm -M -m ^b
             '';
           };
         };
         script = ''
-          #!/usr/bin/env bash
+          #!${bash}/bin/bash
           cd "$HOME"
           exec dtach -A "$HOME/.sesh" -r winch "$session"
         '';
@@ -257,7 +257,7 @@ with rec {
       name   = "setLocation";
       paths  = [ bash networkmanager ];
       script = ''
-        #!/usr/bin/env bash
+        #!${bash}/bin/bash
         set -e
 
         ${online} || {
@@ -298,7 +298,7 @@ with rec {
         name   = "inboxen-start";
         paths  = [ bash coreutils iputils isync mu procps psutils gnused ];
         script = ''
-          #!/usr/bin/env bash
+          #!${bash}/bin/bash
           set -e
           ${online} || exit
           CODE=0
@@ -371,7 +371,7 @@ with rec {
         name   = "mail-backup";
         paths  = [ bash coreutils iputils isync ];
         script = ''
-          #!/usr/bin/env bash
+          #!${bash}/bin/bash
           set -e
           ${online} || exit
           timeout -s 9 3600 mbsync --verbose gmail-backup
@@ -391,7 +391,7 @@ with rec {
         name   = "ssh-agent-start";
         paths  = [ bash openssh ];
         script = ''
-          #!/usr/bin/env bash
+          #!${bash}/bin/bash
           set -e
           [[ -e /run/user/1000/ssh-agent ]] && exit
 
@@ -403,7 +403,7 @@ with rec {
         paths  = [ bash openssh ];
         vars   = { inherit SSH_AUTH_SOCK; };
         script = ''
-          #!/usr/bin/env bash
+          #!${bash}/bin/bash
           ssh-agent -k
         '';
       };
@@ -423,7 +423,7 @@ with rec {
         name   = "kill-network-filesystems";
         paths  = [ bash psmisc];
         script = ''
-          #!/usr/bin/env bash
+          #!${bash}/bin/bash
           killall -9 sshfs || true
         '';
       };
@@ -444,7 +444,7 @@ with rec {
         name   = "wifipower";
         paths  = [ bash iw ];
         script = ''
-          #!/usr/bin/env bash
+          #!${bash}/bin/bash
           iw dev wlp2s0 set power_save off
         '';
       };
