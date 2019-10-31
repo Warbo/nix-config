@@ -51,7 +51,7 @@ with rec {
           libXtst;
       })).overrideAttrs (old: rec {
         name        = "keepassxc-${version}";
-        version     = "2.4.3";
+        version     = "2.5.0";
         buildInputs = old.buildInputs ++ [
           self.nixpkgs1709.pkgconfig    # Needed to find qrencode
           self.qt5.qtsvg self.nixpkgs1709.qrencode  # New dependencies
@@ -67,7 +67,7 @@ with rec {
         src     = self.unpack (self.fetchurl {
           url    = "https://github.com/keepassxreboot/keepassxc/releases/" +
                    "download/${version}/keepassxc-${version}-src.tar.xz";
-          sha256 = "0d17izx6qvcsxsxlsmaa17rgn38fvxsp5yzqqf4pc11i44cm5jfp";
+          sha256 = "10bq2934xqpjpr99wbjg2vwmi73fcq0419cb3v78n2kj5fbwwnb3";
         });
       });
 
