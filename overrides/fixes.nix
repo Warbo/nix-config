@@ -26,50 +26,87 @@ with rec {
 
     gimp = cached "gimp";
 
-    keepassx-community = trace
-      "FIXME: Overriding dependencies of keepassx-community to avoid broken Qt"
-      (super.keepassx-community.override (old: {
-        inherit (self.nixpkgs1709)
-          cmake
-          curl
-          glibcLocales
-          libargon2
-          libgcrypt
-          libgpgerror
-          libmicrohttpd
-          libsodium
-          libyubikey
-          stdenv
-          yubikey-personalization
-          zlib;
-        inherit (self.nixpkgs1709.qt5)
-          qtbase
-          qttools
-          qtx11extras;
-        inherit (self.nixpkgs1709.xorg)
-          libXi
-          libXtst;
-      })).overrideAttrs (old: rec {
-        name        = "keepassxc-${version}";
-        version     = "2.5.0";
-        buildInputs = old.buildInputs ++ [
-          self.nixpkgs1709.pkgconfig    # Needed to find qrencode
-          self.qt5.qtsvg self.nixpkgs1709.qrencode  # New dependencies
-        ];
-        checkPhase = ''
-          export LC_ALL="en_US.UTF-8"
-          export QT_QPA_PLATFORM=offscreen
-          export QT_PLUGIN_PATH="${with self.nixpkgs1709.qt5.qtbase;
-                                   "${bin}/${qtPluginPrefix}"}"
-          make test ARGS+="-E testgui --output-on-failure"
-        '';
-        patches = [];  # One patch is Mac-only, other has been included in src
+    keepassx-community =
+      with rec {
+        version = "2.5.0";
         src     = self.unpack (self.fetchurl {
           url    = "https://github.com/keepassxreboot/keepassxc/releases/" +
                    "download/${version}/keepassxc-${version}-src.tar.xz";
           sha256 = "10bq2934xqpjpr99wbjg2vwmi73fcq0419cb3v78n2kj5fbwwnb3";
         });
-      });
+
+        latest = import (self.runCommand "latest-keepassxc"
+          {
+            __noChroot  = true;
+            buildInputs = [ self.utillinux self.wget self.xidel ];
+            nix         = self.writeScript "read-version.nix" ''
+              with builtins;
+              readFile ./version.txt
+            '';
+            pat = "//a[contains(text(),'Latest release')]/../..//a/@href";
+            url = https://github.com/keepassxreboot/keepassxc/releases/latest;
+          }
+          ''
+            mkdir "$out"
+            #cp "$nix" "$out/default.nix"
+            wget -q --no-check-certificate -O- "$url" |
+              xidel - -q -e "$pat"                    |
+              grep tag                                |
+              rev                                     |
+              cut -d / -f1                            |
+              rev                                     |
+              sed -e 's/^/"/g' -e 's/$/"/g' > "$out/default.nix"
+          '');
+
+        # Use known-good dependencies, to avoid broken Qt, etc.
+        fixedDeps = super.keepassx-community.override (old: {
+          inherit (self.nixpkgs1709)
+            cmake
+            curl
+            glibcLocales
+            libargon2
+            libgcrypt
+            libgpgerror
+            libmicrohttpd
+            libsodium
+            libyubikey
+            stdenv
+            yubikey-personalization
+            zlib;
+          inherit (self.nixpkgs1709.qt5)
+            qtbase
+            qttools
+            qtx11extras;
+          inherit (self.nixpkgs1709.xorg)
+            libXi
+            libXtst;
+        });
+
+        updated = fixedDeps.overrideAttrs (old: rec {
+          inherit src version;
+          name        = "keepassxc-${version}";
+          buildInputs = old.buildInputs ++ [
+            self.nixpkgs1709.pkgconfig                # Needed to find qrencode
+            self.qt5.qtsvg self.nixpkgs1709.qrencode  # New dependencies
+          ];
+          checkPhase = ''
+            export LC_ALL="en_US.UTF-8"
+            export QT_QPA_PLATFORM=offscreen
+            export QT_PLUGIN_PATH="${with self.nixpkgs1709.qt5.qtbase;
+                                     "${bin}/${qtPluginPrefix}"}"
+            make test ARGS+="-E testgui --output-on-failure"
+          '';
+          patches = [];  # One patch is Mac-only, other has been included in src
+        });
+      };
+      trace "FIXME: Overriding deps of keepassx-community to avoid broken Qt"
+            (if self.onlineCheck && (compareVersions version latest != 0)
+                then trace (toJSON {
+                       inherit latest version;
+                       warning = "KeePassXC version doesn't match latest";
+                     })
+                else (x: x))
+            updated;
 
     libproxy = trace
       "FIXME: Removing flaky, heavyweight SpiderMonkey dependency from libproxy"
