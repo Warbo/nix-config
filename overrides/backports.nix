@@ -16,8 +16,8 @@ with super.lib;
   overrides = {
     youtube-dl =
       with rec {
-        ourV   = "2019.09.28";
-        sha256 = "0nrk0bk6lksnmng8lwhcpkc57iibzjjamlqz8rxjpsw6dnzxz82h";
+        ourV   = "2019.10.29";
+        sha256 = "1lq6ycjbx07831s24yx42q6m6svas4mf02vbszw0965dbbzs7vp4";
 
         override = super.youtube-dl.overrideDerivation (old: {
           name    = "youtube-dl-${ourV}";
