@@ -25,3 +25,11 @@ then
         exit 1
     }
 fi
+
+# Warn if things aren't their latest versions
+for P in firefoxBinary get_iplayer keepassx-community youtube-dl
+do
+    echo "Checking if $P warns about being out of date" 1>&2
+    echo "with import <nixpkgs> { overlays = import ./overlays.nix; }; $P" |
+        nix repl
+done
