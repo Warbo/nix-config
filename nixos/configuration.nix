@@ -211,7 +211,8 @@ rec {
         ];
       };
       ''
-        127.0.0.1 nixos
+        127.0.0.1     nixos
+        192.168.1.202 phone
         ${trace ''
           FIXME: Faking texLive mirror source. See
           https://github.com/NixOS/nixpkgs/issues/24683#issuecomment-314631069
