@@ -53,6 +53,7 @@ with {
           buildInputs = [
             (self.aspellWithDicts (dicts: [ dicts.en ]))
             self.emacs
+            self.git
           ];
           GIT_SSL_CAINFO = "${self.cacert}/etc/ssl/certs/ca-bundle.crt";
           LANG           = "en_GB.UTF-8";
