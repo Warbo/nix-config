@@ -18,11 +18,11 @@ with super.lib;
       with rec {
         # Update this as needed
         tag    = "v3.23";
-        sha256 = "04sm2i910cvy38zdsd1kax7i3f1mp93hcbzjmvi4hj3sdxlf1799";
-
+        sha256 = "1wpin02sjs52217l8im343qlcprnkdwrx9s0i4ljk7bwn2j2laha";
         src    = versionTest self.fetchurl {
           inherit sha256;
-          url = "https://github.com/get-iplayer/get_iplayer/archive/${tag}.tar.gz";
+          url =
+            "https://github.com/get-iplayer/get_iplayer/archive/${tag}.tar.gz";
         };
 
         latestVersion = import (self.runCommand "latest-get_iplayer.nix"
