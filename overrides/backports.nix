@@ -14,6 +14,83 @@ with builtins;
 with super.lib;
 {
   overrides = {
+    get_iplayer =
+      with rec {
+        # Update this as needed
+        tag    = "v3.23";
+        sha256 = "04sm2i910cvy38zdsd1kax7i3f1mp93hcbzjmvi4hj3sdxlf1799";
+
+        src    = versionTest self.fetchurl {
+          inherit sha256;
+          url = "https://github.com/get-iplayer/get_iplayer/archive/${tag}.tar.gz";
+        };
+
+        latestVersion = import (self.runCommand "latest-get_iplayer.nix"
+          {
+            __noChroot  = true;
+            buildInputs = with self; [ wget xidel ];
+            cacheBuster = toString currentTime;
+            expr        = concatStringsSep "/" [
+              ''//a[contains(text(), "Latest release")]''
+              ".."
+              ".."
+              ''/a[contains(@href, "releases/tag")]''
+              "text()"
+            ];
+
+            SSL_CERT_FILE = "${self.cacert}/etc/ssl/certs/ca-bundle.crt";
+
+            url = "https://github.com/get-iplayer/get_iplayer/releases";
+          }
+          ''
+            wget -q -O releases.html "$url" || {
+              echo "Couldn't download releases page, skipping test" 1>&2
+              echo '"0"' > "$out"
+            }
+
+            LATEST=$(xidel - -q -e "$expr" < releases.html)
+            echo "\"$LATEST\"" > "$out"
+          '');
+
+        versionTest = if self.onlineCheck &&
+                         compareVersions tag latestVersion == -1
+                         then trace (toJSON {
+                           inherit latestVersion tag;
+                           WARNING = "Newer get_iplayer available";
+                         })
+                         else (x: x);
+
+        get_iplayer_real = { ffmpeg, get_iplayer, perlPackages }:
+          self.stdenv.lib.overrideDerivation get_iplayer
+            (oldAttrs : {
+              inherit src;
+              name                  = "get_iplayer-${tag}";
+              propagatedBuildInputs = oldAttrs.propagatedBuildInputs ++ [
+                perlPackages.LWPProtocolHttps
+                perlPackages.XMLSimple
+                ffmpeg
+              ];
+            });
+
+        mkPkg = { ffmpeg, get_iplayer, perlPackages }: self.buildEnv {
+          name  = "get_iplayer";
+          paths = [
+            (get_iplayer_real { inherit ffmpeg get_iplayer perlPackages; })
+            ffmpeg
+            perlPackages.LWPProtocolHttps
+            perlPackages.XMLSimple
+          ];
+        };
+
+        # Some dependencies seem to be missing, so bundle them in with get_iplayer
+        pkg = makeOverridable mkPkg {
+          inherit (super) ffmpeg get_iplayer perlPackages;
+        };
+
+        test = self.hasBinary pkg "get_iplayer";
+      };
+      self.withDeps [ test ] pkg;
+
     youtube-dl =
       with rec {
         ourV   = "2019.10.29";
