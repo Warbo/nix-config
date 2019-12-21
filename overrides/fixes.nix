@@ -16,8 +16,6 @@ with rec {
   overrides = {
     audacious = cached "audacious";
 
-    conkeror = get "it's broken on 18.03+" "conkeror" "1703";
-
     # Newer NixOS systems need fuse3 rather than fuse, but it doesn't exist
     # on older systems. We include it if available, otherwise we just warn.
     fuse3 = super.fuse3 or self.nothing;

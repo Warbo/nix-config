@@ -141,7 +141,6 @@ with {
 
     netGui = {
       inherit (self)
-        conkeror
         dillo
         firefoxBinary
         pidgin-with-plugins
