@@ -17,8 +17,8 @@ with super.lib;
     get_iplayer =
       with rec {
         # Update this as needed
-        tag    = "v3.23";
-        sha256 = "1wpin02sjs52217l8im343qlcprnkdwrx9s0i4ljk7bwn2j2laha";
+        tag    = "v3.24";
+        sha256 = "0gl8ibsl5m9dyx7x0ibnv3z4530v4s75npsyimf9ls20rq1a0qfq";
         src    = versionTest self.fetchurl {
           inherit sha256;
           url =
