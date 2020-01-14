@@ -37,16 +37,11 @@ with rec {
           {
             __noChroot  = true;
             buildInputs = [ self.utillinux self.wget self.xidel ];
-            nix         = self.writeScript "read-version.nix" ''
-              with builtins;
-              readFile ./version.txt
-            '';
             pat = "//a[contains(text(),'Latest release')]/../..//a/@href";
             url = https://github.com/keepassxreboot/keepassxc/releases/latest;
           }
           ''
             mkdir "$out"
-            #cp "$nix" "$out/default.nix"
             wget -q --no-check-certificate -O- "$url" |
               xidel - -q -e "$pat"                    |
               grep tag                                |
