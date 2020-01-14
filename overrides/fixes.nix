@@ -26,11 +26,11 @@ with rec {
 
     keepassx-community =
       with rec {
-        version = "2.5.0";
+        version = "2.5.2";
         src     = self.unpack (self.fetchurl {
           url    = "https://github.com/keepassxreboot/keepassxc/releases/" +
                    "download/${version}/keepassxc-${version}-src.tar.xz";
-          sha256 = "10bq2934xqpjpr99wbjg2vwmi73fcq0419cb3v78n2kj5fbwwnb3";
+          sha256 = "0lvwc3nxyz7d7vymb6cmgwxylb9g6gsjnq247vbh4lk1ifjir58j";
         });
 
         latest = import (self.runCommand "latest-keepassxc"
