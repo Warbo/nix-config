@@ -89,7 +89,7 @@ with rec {
                  export QT_QPA_PLATFORM=offscreen
                  export QT_PLUGIN_PATH="${with self.nixpkgs1709.qt5.qtbase;
                                           "${bin}/${qtPluginPrefix}"}"
-                 #make test ARGS+="-E testgui --output-on-failure"
+                 make test ARGS+="-E testgui --output-on-failure"
                ''
                else trace ''
                  FIXME: keepassxc tests disabled due to:
