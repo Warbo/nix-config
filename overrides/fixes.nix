@@ -123,9 +123,9 @@ with rec {
                 else (x: x))
             # Provide the untested version, but also ensure that the tested
             # version is indeed still failing
-            withDeps' "keepassxc-unchecked"
-                      [ (isBroken (updated true)) ]
-                      (updated false);
+            self.withDeps' "keepassxc-unchecked"
+                           [ (self.isBroken (updated true)) ]
+                           (updated false);
 
     libproxy = trace
       "FIXME: Removing flaky, heavyweight SpiderMonkey dependency from libproxy"
