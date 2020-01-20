@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Mon, 20 Jan 2020 17:16:40 +0000
+Subject: Re: Add IPFS fallbacks for latestGit and other URLs
+Message-Id: <9b01b08f5a9652b9-c36bcfce723f2b08-artemis@nixos>
+References: <9b01b08f5a9652b9-0-artemis@nixos>
+In-Reply-To: <9b01b08f5a9652b9-0-artemis@nixos>
+
+Better suited to nix-helpers

@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Mon, 20 Jan 2020 17:17:13 +0000
+Subject: Re: Use autossh NixOS module for tunnels?
+Message-Id: <bdc7746ed742a0da-b187d1087e41e388-artemis@nixos>
+References: <bdc7746ed742a0da-0-artemis@nixos>
+In-Reply-To: <bdc7746ed742a0da-0-artemis@nixos>
+
+We're not tunnelling anymore

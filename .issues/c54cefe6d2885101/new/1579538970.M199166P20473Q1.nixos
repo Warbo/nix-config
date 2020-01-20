@@ -1,0 +1,22 @@
+From: Chris Warburton
+Date: Mon, 20 Jan 2020 16:44:23 +0000
+Subject: Re: Look into Haskell packageSourceOverrides
+Message-Id: <c54cefe6d2885101-fed5704968f9acea-artemis@nixos>
+References: <c54cefe6d2885101-0-artemis@nixos>
+In-Reply-To: <c54cefe6d2885101-0-artemis@nixos>
+
+Not really actionable.
+
+For particular applications, e.g. panpipe, I think we're better off with
+IOHK's haskell.nix approach, since that solves dependencies using Cabal,
+which has two advantages:
+
+ - We don't need to manually specify versions for dependencies, etc.
+ - If the solution chosen by Cabal doesn't work, that's a problem with
+   the package's version bounds, not with the way it's been packaged for
+   Nix; the "correct" fix is to change those bounds.
+
+For those cases where we are overriding the Nixpkgs haskellPackages set,
+I don't think packageSourceOverrides would be enough. For example, some
+packages get their test suite disabled, others get extra dependencies
+added, etc. which seems to be more general than this function allows.

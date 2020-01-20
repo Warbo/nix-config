@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Mon, 20 Jan 2020 16:42:55 +0000
+Subject: Re: Add a fetchIpfs function
+Message-Id: <93b977b47fb8f5db-ae2cc16935da8cdb-artemis@nixos>
+References: <93b977b47fb8f5db-0-artemis@nixos>
+In-Reply-To: <93b977b47fb8f5db-0-artemis@nixos>
+
+More appropriate for nix-helpers

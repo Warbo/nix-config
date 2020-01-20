@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Mon, 09 Apr 2018 10:06:57 +0100
-State: new
+State: resolved
 Subject: Add a fetchIpfs function
 Message-Id: <93b977b47fb8f5db-0-artemis@nixos>
+resolution: fixed
 
 Takes a hash. It should look for a /ipfs directory, if not found it
 should look for a localhost HTTP API and fall back to ipfs.io.

@@ -1,0 +1,15 @@
+From: Chris Warburton
+Date: Mon, 20 Jan 2020 17:13:36 +0000
+Subject: Re: Try to depend on imported derivations
+Message-Id: <d5cf905e3a631c13-d63e7d1bc5902a12-artemis@nixos>
+References: <d5cf905e3a631c13-0-artemis@nixos>
+In-Reply-To: <d5cf905e3a631c13-0-artemis@nixos>
+
+This is a bit too vague in scope. We're better off keeping it in mind as
+a "design pattern", rather than thinking of it as a one-off task. In
+particular, we no longer use the 'haskellPkgDeps' and friends mentioned
+in the original issue, since the haskell.nix infrastructure from IOHK
+does a better job and is maintained by other people.
+
+Hence I'm closing this off as not requiring any specific work right now,
+even though it's an important issue to keep in mind in the future.

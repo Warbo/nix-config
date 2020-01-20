@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Sun, 29 Apr 2018 22:25:32 +0100
-State: new
+State: resolved
 Subject: Look into Haskell packageSourceOverrides
 Message-Id: <c54cefe6d2885101-0-artemis@nixos>
+resolution: fixed
 
 From nixpkgs 18.03, we can do the following:
 

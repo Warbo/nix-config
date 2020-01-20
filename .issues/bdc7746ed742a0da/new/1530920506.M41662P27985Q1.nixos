@@ -1,7 +1,8 @@
 From: Chris Warburton
 Date: Sat, 07 Jul 2018 00:40:54 +0100
-State: new
+State: resolved
 Subject: Use autossh NixOS module for tunnels?
 Message-Id: <bdc7746ed742a0da-0-artemis@nixos>
+resolution: fixed
 
 Looks like it should work, without our complex monitoring, etc.

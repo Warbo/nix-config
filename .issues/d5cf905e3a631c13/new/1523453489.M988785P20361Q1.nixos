@@ -1,8 +1,9 @@
 From: Chris Warburton
 Date: Wed, 11 Apr 2018 14:17:12 +0100
-State: new
+State: resolved
 Subject: Try to depend on imported derivations
 Message-Id: <d5cf905e3a631c13-0-artemis@nixos>
+resolution: fixed
 
 Sometimes we'll import the result of a derivation, e.g. a Haskell
 package might come from the result of runCabal2nix, and that result may
