@@ -161,6 +161,7 @@ with {
         file
         fuse
         fuse3
+        haskell-tng
         inotify-tools
         libnotify
         lzip
