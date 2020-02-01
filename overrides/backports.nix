@@ -102,20 +102,15 @@ with super.lib;
 
         latestRelease = import (self.runCommand "youtube-dl-release.nix"
           {
-            __noChroot    = true;
-            cacheBuster   = toString currentTime;
-            buildInputs   = [ self.wget ];
-            url           = "";
-            SSL_CERT_FILE = "${self.cacert}/etc/ssl/certs/ca-bundle.crt";
+            page = fetchurl https://ytdl-org.github.io/youtube-dl/download.html;
           }
           ''
-            wget -q -O- 'https://ytdl-org.github.io/youtube-dl/download.html' |
-              grep -o '[^"]*\.tar\.gz'                                        |
-              head -n1                                                        |
-              grep -o 'youtube-dl-.*\.tar.gz'                                 |
-              cut -d - -f3                                                    |
-              cut -d . -f 1-3                                                 |
-              sed -e 's/\(.*\)/"\1"/g' > "$out"
+            grep   -o '[^"]*\.tar\.gz' < "$page" |
+              head -n1                           |
+              grep -o 'youtube-dl-.*\.tar.gz'    |
+              cut  -d - -f3                      |
+              cut  -d . -f 1-3                   |
+              sed  -e 's/\(.*\)/"\1"/g'          > "$out"
           '');
 
         warnIf = version: pred: msgBits:
