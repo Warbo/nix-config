@@ -27,9 +27,7 @@ with super.lib;
 
         latestVersion = import (self.runCommand "latest-get_iplayer.nix"
           {
-            __noChroot  = true;
-            buildInputs = with self; [ wget xidel ];
-            cacheBuster = toString currentTime;
+            buildInputs = [ self.xidel ];
             expr        = concatStringsSep "/" [
               ''//a[contains(text(), "Latest release")]''
               ".."
@@ -38,17 +36,10 @@ with super.lib;
               "text()"
             ];
 
-            SSL_CERT_FILE = "${self.cacert}/etc/ssl/certs/ca-bundle.crt";
-
-            url = "https://github.com/get-iplayer/get_iplayer/releases";
+            page = fetchurl https://github.com/get-iplayer/get_iplayer/releases;
           }
           ''
-            wget -q -O releases.html "$url" || {
-              echo "Couldn't download releases page, skipping test" 1>&2
-              echo '"0"' > "$out"
-            }
-
-            LATEST=$(xidel - -q -e "$expr" < releases.html)
+            LATEST=$(xidel - -q -e "$expr" < "$page")
             echo "\"$LATEST\"" > "$out"
           '');
 
