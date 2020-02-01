@@ -35,19 +35,18 @@ with rec {
 
         latest = import (self.runCommand "latest-keepassxc"
           {
-            __noChroot  = true;
-            buildInputs = [ self.utillinux self.wget self.xidel ];
-            pat = "//a[contains(text(),'Latest release')]/../..//a/@href";
-            url = https://github.com/keepassxreboot/keepassxc/releases/latest;
+            buildInputs = [ self.utillinux self.xidel ];
+            pat  = "//a[contains(text(),'Latest release')]/../..//a/@href";
+            page = fetchurl
+              https://github.com/keepassxreboot/keepassxc/releases/latest;
           }
           ''
             mkdir "$out"
-            wget -q --no-check-certificate -O- "$url" |
-              xidel - -q -e "$pat"                    |
-              grep tag                                |
-              rev                                     |
-              cut -d / -f1                            |
-              rev                                     |
+            xidel - -q -e "$pat" < "$page"  |
+              grep tag                      |
+              rev                           |
+              cut -d / -f1                  |
+              rev                           |
               sed -e 's/^/"/g' -e 's/$/"/g' > "$out/default.nix"
           '');
 
