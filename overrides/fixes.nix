@@ -11,6 +11,20 @@ with rec {
   cached = name: get "it's cached" name "1703";
 
   broken1903 = name: get "it's broken on 19.03" name "1809";
+
+  # Avoid haskellPackages, since it's a fragile truce between many different
+  # packages, and often requires a bunch of manual overrides. In contrast,
+  # haskell-nix uses Cabal to solve dependencies automatically per-package.
+  # TODO: Check for latest versions
+  haskellPkg =
+    with { hn = self.haskell-nix {}; };
+    { ghc         ? hn.buildPackages.pkgs.haskell-nix.compiler.ghc865
+    , index-state ? "2020-01-11T00:00:00Z"
+    , type        ? "hackage-package"
+    , ...
+    }@args: (getAttr type hn.haskell-nix) (removeAttrs args [ "type" ] // {
+      inherit ghc index-state;
+    });
 };
 {
   overrides = {
@@ -22,7 +36,17 @@ with rec {
 
     gensgs = broken1903 "gensgs";
 
+    ghcid = (haskellPkg {
+      name    = "ghcid";
+      version = "0.7.5";
+    }).components.exes.ghcid;
+
     gimp = cached "gimp";
+
+    hlint = (haskellPkg {
+      name    = "hlint";
+      version = "2.2.2";
+    }).components.exes.hlint;
 
     keepassx-community =
       with rec {
@@ -164,6 +188,11 @@ with rec {
                        "any more."])
                      super.racket;
     };
+
+    stylish-haskell = (haskellPkg {
+      name    = "stylish-haskell";
+      version = "0.9.2.2";
+    }).components.exes.stylish-haskell;
 
     thermald = broken1903 "thermald";
 

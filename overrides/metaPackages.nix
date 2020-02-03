@@ -27,18 +27,18 @@ with {
   overrides = mapAttrs go {
     haskellCli = {
       inherit (self.haskellPackages)
-        ghcid
         happy
-        hlint
         nix-derivation
         pretty-show
-        stylish-haskell
         ;
       inherit (self)
         brittany
         cabal-install
         ghc
         cabal2nix
+        ghcid
+        hlint
+        stylish-haskell
         ;
     };
 
