@@ -35,7 +35,6 @@ with {
         brittany
         cabal-install
         ghc
-        cabal2nix
         ghcid
         hlint
         stylish-haskell
