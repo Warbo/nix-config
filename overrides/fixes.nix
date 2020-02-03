@@ -16,15 +16,20 @@ with rec {
   # packages, and often requires a bunch of manual overrides. In contrast,
   # haskell-nix uses Cabal to solve dependencies automatically per-package.
   # TODO: Check for latest versions
-  haskellPkg =
+  haskellPkgs =
     with { hn = self.haskell-nix {}; };
-    { ghc         ? hn.buildPackages.pkgs.haskell-nix.compiler.ghc865
-    , index-state ? "2020-01-11T00:00:00Z"
-    , type        ? "hackage-package"
-    , ...
-    }@args: (getAttr type hn.haskell-nix) (removeAttrs args [ "type" ] // {
-      inherit ghc index-state;
-    });
+    mapAttrs ({ ghc         ? hn.buildPackages.pkgs.haskell-nix.compiler.ghc865
+              , index-state ? "2020-01-11T00:00:00Z"
+              , type        ? "hackage-package"
+              , ...
+              }@args: (getAttr type hn.haskell-nix)
+                        (removeAttrs args [ "type" ] // {
+                          inherit ghc index-state;
+                        })) {
+      ghcid           = { name = "ghcid";           version = "0.7.5";   };
+      hlint           = { name = "hlint";           version = "2.2.2";   };
+      stylish-haskell = { name = "stylish-haskell"; version = "0.9.2.2"; };
+    };
 };
 {
   overrides = {
@@ -36,17 +41,11 @@ with rec {
 
     gensgs = broken1903 "gensgs";
 
-    ghcid = (haskellPkg {
-      name    = "ghcid";
-      version = "0.7.5";
-    }).components.exes.ghcid;
+    ghcid = haskellPkgs.ghcid.components.exes.ghcid;
 
     gimp = cached "gimp";
 
-    hlint = (haskellPkg {
-      name    = "hlint";
-      version = "2.2.2";
-    }).components.exes.hlint;
+    hlint = haskellPkgs.hlint.components.exes.hlint;
 
     keepassx-community =
       with rec {
@@ -193,10 +192,8 @@ with rec {
                      super.racket;
     };
 
-    stylish-haskell = (haskellPkg {
-      name    = "stylish-haskell";
-      version = "0.9.2.2";
-    }).components.exes.stylish-haskell;
+    stylish-haskell =
+      haskellPkgs.stylish-haskell.components.exes.stylish-haskell;
 
     thermald = broken1903 "thermald";
 
@@ -253,8 +250,10 @@ with rec {
             });
         });
       };
+
+      haskellTests = mapAttrs (_: p: p.components.tests) haskellPkgs;
     };
-    stillBrokenPkgs // self.checkRacket.checkWhetherBroken // {
+    stillBrokenPkgs // self.checkRacket.checkWhetherBroken // haskellTests // {
       libproxyWorks = self.libproxy;
     };
 }
