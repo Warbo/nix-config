@@ -28,7 +28,6 @@ with {
     haskellCli = {
       inherit (self.haskellPackages)
         happy
-        nix-derivation
         pretty-show
         ;
       inherit (self)
@@ -37,6 +36,7 @@ with {
         ghc
         ghcid
         hlint
+        pretty-derivation
         stylish-haskell
         ;
     };
