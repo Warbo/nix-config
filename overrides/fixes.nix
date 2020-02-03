@@ -200,6 +200,7 @@ with rec {
 
     thermald = broken1903 "thermald";
 
+    v4l-utils = self.v4l_utils;
     v4l_utils = trace
       (concatStringsSep " " [
         "FIXME: Redefining v4l_utils to avoid problems evaluating with"
