@@ -162,6 +162,10 @@ with rec {
 
     libreoffice = cached "libreoffice";
 
+    libupnp = super.libupnp.overrideAttrs (old: {
+      configureFlags = (old.configureFlags or []) ++ [ "--disable-largefile" ];
+    });
+
     mplayer = cached "mplayer";
 
     # We only need nix-repl for Nix 1.x, since 2.x has a built-in repl
