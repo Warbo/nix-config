@@ -142,9 +142,17 @@ with {
       inherit (self)
         dillo
         firefoxBinary
-        pidgin-with-plugins
         uget
         ;
+      pidgin-with-plugins = self.pidgin.override {
+        plugins = with self; [
+          pidgin-otr
+          # We disable gstreamer and farstream by default, to avoid problems
+          # with dependencies (e.g. v4l-utils). Our config should fix those, so
+          # we should use the unaltered pidgin definition.
+          (pidgin-privacy-please.override { overrideGstreamer = false; })
+        ];
+      };
     };
 
     sysCli = {
