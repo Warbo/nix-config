@@ -205,6 +205,7 @@ with {
         keepassx-community
         lxappearance
         rofi
+        sqlitebrowser
         trayer
         xsettingsd
         ;
