@@ -169,11 +169,6 @@ with rec {
     # "ImportError: libQt5Core.so.5" in picard's test suite.
     picard = broken1903 "picard";
 
-    qt5 = get (concatStringsSep " " [
-      "build is broken (bootstrap related?) on 18.03+"
-      "(see https://groups.google.com/forum/#!topic/nix-devel/fAMADzFhcFo)"
-    ]) "qt5" "1709";
-
     # We need to override the happy-path 'racket' package, taking it from super
     # to avoid infinite loops.
     racket = self.checkedRacket.override {
@@ -219,8 +214,6 @@ with rec {
           gensgs
           thermald
           ;
-        inherit (super.qt5) qtbase;
-
         picard = super.picard.override (old: {
           python3Packages = super.python3Packages.override
             (oldAttrs: {
