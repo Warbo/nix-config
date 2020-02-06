@@ -18,11 +18,12 @@ with rec {
   # TODO: Check for latest versions
   haskellPkgs =
     with { hn = self.haskell-nix {}; };
-    mapAttrs ({ ghc         ? hn.buildPackages.pkgs.haskell-nix.compiler.ghc865
-              , index-state ? "2020-01-11T00:00:00Z"
-              , type        ? "hackage-package"
-              , ...
-              }@args: (getAttr type hn.haskell-nix)
+    mapAttrs
+      (_: { ghc         ? hn.buildPackages.pkgs.haskell-nix.compiler.ghc865
+          , index-state ? "2020-01-11T00:00:00Z"
+          , type        ? "hackage-package"
+          , ...
+          }@args: (getAttr type hn.haskell-nix)
                         (removeAttrs args [ "type" ] // {
                           inherit ghc index-state;
                         })) {
