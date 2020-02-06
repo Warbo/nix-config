@@ -152,8 +152,6 @@ with rec {
       "${<nixpkgs/pkgs/os-specific/linux/v4l-utils>}"
       {};
 
-    vlc = cached "vlc";
-
     # xproto was replaced by xorgproto
     xorgproto = super.xorg.xorgproto or super.xorg.xproto;
   };
