@@ -141,6 +141,20 @@ with rec {
 
     thermald = broken1903 "thermald";
 
+    xorg = super.xorg // {
+      # Bump driver to avoid https://bugs.freedesktop.org/show_bug.cgi?id=109689
+      xf86videointel = super.xorg.xf86videointel.overrideAttrs (old:
+        with { rev = "f66d3954"; };
+        {
+          name = "xf86-video-intel-${rev}";
+          src  = self.fetchgit {
+            inherit rev;
+            url    = "https://gitlab.freedesktop.org/" +
+                     "xorg/driver/xf86-video-intel.git";
+            sha256 = "14rwbbn06l8qpx7s5crxghn80vgcx8jmfc7qvivh72d81r0kvywl";
+          };
+        });
+    };
 
     # xproto was replaced by xorgproto
     xorgproto = super.xorg.xorgproto or super.xorg.xproto;
@@ -158,6 +172,9 @@ with rec {
         inherit (super)
           gensgs
           thermald
+          ;
+        inherit (super.xorg)
+          xf86videointel
           ;
       };
 
