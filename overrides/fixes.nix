@@ -164,11 +164,6 @@ with rec {
                   then super.nix-repl
                   else self.nothing;
 
-    # This depends on pyqt5, which in turn depends on qt5 that is broken on
-    # 19.03. Plumbing our qt5 override through these ends up with
-    # "ImportError: libQt5Core.so.5" in picard's test suite.
-    picard = broken1903 "picard";
-
     # We need to override the happy-path 'racket' package, taking it from super
     # to avoid infinite loops.
     racket = self.checkedRacket.override {
@@ -214,26 +209,6 @@ with rec {
           gensgs
           thermald
           ;
-        picard = super.picard.override (old: {
-          python3Packages = super.python3Packages.override
-            (oldAttrs: {
-              overrides = (           super.lib.composeExtensions or
-                           self.nixpkgs1803.lib.composeExtensions)
-                (oldAttrs.overrides or (self: super: {}))
-                (pelf: puper: {
-                  pyqt5 = puper.pyqt5.override {
-                    inherit (self.qt5)
-                      qmake
-                      qtbase
-                      qtconnectivity
-                      qtsvg
-                      qtwebengine
-                      qtwebsockets
-                      ;
-                  };
-                });
-            });
-        });
       };
 
       haskellTests = mapAttrs (_: p: p.components.tests) haskellPkgs;
