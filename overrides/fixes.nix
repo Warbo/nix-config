@@ -150,15 +150,6 @@ with rec {
                            [ (self.isBroken (updated true)) ]
                            (updated false);
 
-    libproxy = trace
-      "FIXME: Removing flaky, heavyweight SpiderMonkey dependency from libproxy"
-      super.libproxy.overrideDerivation (old: {
-        buildInputs  = filter (x: !(hasPrefix "spidermonkey" x.name))
-                              old.buildInputs;
-        preConfigure = replaceStrings [ ''"-DWITH_MOZJS=ON"'' ]
-                                      [ ""                    ]
-                                      old.preConfigure;
-      });
 
     libreoffice = cached "libreoffice";
 
