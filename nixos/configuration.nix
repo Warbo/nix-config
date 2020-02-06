@@ -74,10 +74,41 @@ rec {
       # We want at least Linux 4.17, since it contains commit 073cd78 which
       # seems to prevent some regular "kernel oops" I was hitting with the i915
       # driver in Linux 4.9.
-      kernelPackages = trace (concatStringsSep " " [
-                               "FIXME: We would like the latest kernel but"
-                               "kernel mode setting doesn't work for i915"])
-                           pkgs.nixpkgs1809.linuxPackages_latest;
+      kernelPackages =
+        with rec {
+          # Some modules, like prl-tools, make assertions about the kernel
+          # version, which started failing when we upgraded to NixOS 19.09.
+          # Overriding these doesn't seem to work, so we take the nuclear option
+          # and patch them out of all-packages.nix.
+          unasserted = pkgs.run {
+            name   = "nixpkgs-unasserted";
+            vars   = {
+              broken = concatStringsSep " " [
+                "blcr"
+                "e1000e"
+                "jool"
+                "prl-tools"
+              ];
+              repo = pkgs.repo1809;
+            };
+            script = ''
+              cp -r "$repo" "$out"
+              chmod +w -R "$out"
+              for NAME in $broken
+              do
+                sed -e "s@\($NAME *= *\).*;@\1null;@g" \
+                    -i "$out/pkgs/top-level/all-packages.nix"
+              done
+            '';
+          };
+
+          patched = import unasserted {};
+        };
+        trace ''
+          FIXME: We would like the latest kernel but kernel mode setting doesn't
+          work for i915.
+        ''
+        patched.linuxPackages_latest;
 
       kernelModules            = mods;
       blacklistedKernelModules = [ "snd_pcsp" "pcspkr" ];
