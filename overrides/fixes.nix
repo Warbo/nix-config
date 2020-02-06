@@ -74,31 +74,7 @@ with rec {
               sed -e 's/^/"/g' -e 's/$/"/g' > "$out/default.nix"
           '');
 
-        # Use known-good dependencies, to avoid broken Qt, etc.
-        fixedDeps = super.keepassx-community.override (old: {
-          inherit (self.nixpkgs1709)
-            cmake
-            curl
-            glibcLocales
-            libargon2
-            libgcrypt
-            libgpgerror
-            libmicrohttpd
-            libsodium
-            libyubikey
-            stdenv
-            yubikey-personalization
-            zlib;
-          inherit (self.nixpkgs1709.qt5)
-            qtbase
-            qttools
-            qtx11extras;
-          inherit (self.nixpkgs1709.xorg)
-            libXi
-            libXtst;
-        });
-
-        updated = check: fixedDeps.overrideAttrs (old: rec {
+        updated = check: super.keepassx-community.overrideAttrs (old: rec {
           inherit src version;
           name        = "keepassxc-${version}";
           buildInputs = old.buildInputs ++ [
@@ -110,46 +86,32 @@ with rec {
                then ''
                  export LC_ALL="en_US.UTF-8"
                  export QT_QPA_PLATFORM=offscreen
-                 export QT_PLUGIN_PATH="${with self.nixpkgs1709.qt5.qtbase;
+                 export QT_PLUGIN_PATH="${with self.qt5.qtbase;
                                           "${bin}/${qtPluginPrefix}"}"
                  make test ARGS+="-E testgui --output-on-failure"
                ''
                else trace ''
                  FIXME: keepassxc tests disabled due to:
-                   ========= Received signal, dumping stack ==============
-                   ========= End of stack trace ==============
-                   QFATAL : TestCli::testEdit() Test function timed out
-                   FAIL!  : TestCli::testEdit() Received a fatal error.
-                   Loc: [Unknown file(0)]
-                   Totals: 15 passed, 1 failed, 1 skipped, 0 blacklisted, 305867ms
-                   ********* Finished testing of TestCli *********
-
-
-                   97% tests passed, 1 tests failed out of 34
-
-                   Total Test time (real) = 402.62 sec
-
-                   The following tests FAILED:
-                   34 - testcli (OTHER_FAULT)
-                   Errors while running CTest
-                   make: *** [Makefile:96: test] Error 8
+                     === Received signal at function time: 300000ms, total time: 301016ms, dumping stack ===
+                     === End of stack trace ===
+                     QFATAL : TestCli::testAdd() Test function timed out
+                     FAIL!  : TestCli::testAdd() Received a fatal error.
+                     Loc: [Unknown file(0)]
                  '' ''echo "FIXME: Tests disabled" 1>&2'';
           patches = [];  # One patch is Mac-only, other has been included in src
         });
       };
-      trace "FIXME: Overriding deps of keepassx-community to avoid broken Qt"
-            (if self.onlineCheck && (compareVersions version latest != 0)
-                then trace (toJSON {
-                       inherit latest version;
-                       warning = "KeePassXC version doesn't match latest";
-                     })
-                else (x: x))
-            # Provide the untested version, but also ensure that the tested
-            # version is indeed still failing
-            self.withDeps' "keepassxc-unchecked"
-                           [ (self.isBroken (updated true)) ]
-                           (updated false);
-
+      (if self.onlineCheck && (compareVersions version latest != 0)
+          then trace (toJSON {
+                 inherit latest version;
+                 warning = "KeePassXC version doesn't match latest";
+               })
+          else (x: x))
+      # Provide the untested version, but also ensure that the tested
+      # version is indeed still failing
+      self.withDeps' "keepassxc-unchecked"
+                     [ (self.isBroken (updated true)) ]
+                     (updated false);
 
     libreoffice = cached "libreoffice";
 
