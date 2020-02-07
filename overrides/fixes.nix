@@ -170,7 +170,9 @@ with rec {
 
       stillBrokenPkgs = mapAttrs' stillBroken {
         inherit (super)
+          audacious
           gensgs
+          libreoffice
           thermald
           ;
         inherit (super.xorg)
