@@ -44,8 +44,6 @@ with rec {
 
     ghcid = haskellPkgs.ghcid.components.exes.ghcid;
 
-    gimp = cached "gimp";
-
     hlint = haskellPkgs.hlint.components.exes.hlint;
 
     keepassx-community =
@@ -118,8 +116,6 @@ with rec {
     libupnp = super.libupnp.overrideAttrs (old: {
       configureFlags = (old.configureFlags or []) ++ [ "--disable-largefile" ];
     });
-
-    mplayer = cached "mplayer";
 
     # We only need nix-repl for Nix 1.x, since 2.x has a built-in repl
     nix-repl = if compareVersions self.nix.version "2" == -1
