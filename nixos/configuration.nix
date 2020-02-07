@@ -594,6 +594,8 @@ rec {
     '';
   };
 
+  system.stateVersion = "19.03";
+
   systemd.services = import ./services.nix { inherit config pkgs; };
 
   i18n = {
