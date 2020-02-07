@@ -169,7 +169,7 @@ with rec {
         paths = [ bash warbo-utilities ];
         script = ''
           #!${bash}/bin/bash
-          coolDown
+          coolDown 2> /dev/null
         '';
       };
     };
