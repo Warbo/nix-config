@@ -4,13 +4,12 @@ self: super:
 with builtins;
 with super.lib;
 with rec {
-  get = reason: name: version:
-    trace "FIXME: Taking ${name} from nixpkgs${version} because ${reason}"
+  get = version: name:
+    trace "FIXME: Taking ${name} from nixpkgs${version} as it's broken on 19.09"
           (getAttr name (getAttr "nixpkgs${version}" self));
 
-  cached = name: get "it's cached" name "1703";
-
-  broken1903 = name: get "it's broken on 19.03" name "1809";
+  from1703 = get "1703";
+  from1809 = get "1809";
 
   # Avoid haskellPackages, since it's a fragile truce between many different
   # packages, and often requires a bunch of manual overrides. In contrast,
@@ -34,13 +33,13 @@ with rec {
 };
 {
   overrides = {
-    audacious = cached "audacious";
+    audacious = from1703 "audacious";
 
     # Newer NixOS systems need fuse3 rather than fuse, but it doesn't exist
     # on older systems. We include it if available, otherwise we just warn.
     fuse3 = super.fuse3 or self.nothing;
 
-    gensgs = broken1903 "gensgs";
+    gensgs = from1809 "gensgs";
 
     ghcid = haskellPkgs.ghcid.components.exes.ghcid;
 
@@ -111,7 +110,7 @@ with rec {
                      [ (self.isBroken (updated true)) ]
                      (updated false);
 
-    libreoffice = cached "libreoffice";
+    libreoffice = from1703 "libreoffice";
 
     libupnp = super.libupnp.overrideAttrs (old: {
       configureFlags = (old.configureFlags or []) ++ [ "--disable-largefile" ];
@@ -135,7 +134,7 @@ with rec {
     stylish-haskell =
       haskellPkgs.stylish-haskell.components.exes.stylish-haskell;
 
-    thermald = broken1903 "thermald";
+    thermald = from1809 "thermald";
 
     xorg = super.xorg // {
       # Bump driver to avoid https://bugs.freedesktop.org/show_bug.cgi?id=109689
