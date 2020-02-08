@@ -167,11 +167,15 @@ with rec {
         inherit (super)
           audacious
           gensgs
-          libreoffice
           thermald
           ;
         inherit (super.xorg)
           xf86videointel
+          ;
+        # super.libreoffice is just a wrapper; its libreoffice attribute is the
+        # derivation which fails to build.
+        inherit (super.libreoffice)
+          libreoffice
           ;
       };
 
