@@ -96,6 +96,7 @@ with {
       inherit (self)
         acoustidFingerprinter
         alsaUtils
+        get_iplayer
         imagemagick
         ffmpeg
         opusTools
@@ -123,7 +124,6 @@ with {
         cifs_utils
         ddgr
         gcalcli
-        get_iplayer
         gnutls
         msmtp
         openssh
