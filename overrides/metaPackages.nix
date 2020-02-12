@@ -71,6 +71,11 @@ with {
         xidel
         vim
         zip
+        ;
+    };
+
+    devGui  = {
+      inherit (self)
         emacs
         sqlitebrowser
         ;
@@ -230,6 +235,7 @@ with {
 
     allGui = {
       inherit (self)
+        devGui
         docGui
         mediaGui
         netGui
