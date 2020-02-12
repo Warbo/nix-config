@@ -110,6 +110,12 @@ with {
       mupdf = self.without self.mupdf [ "bin/mupdf-gl" "bin/mupdf-x11-curl" ];
     };
 
+    games = {
+      inherit (self)
+        gensgs
+        ;
+    };
+
     mediaCli = {
       inherit (self)
         acoustidFingerprinter
@@ -209,7 +215,6 @@ with {
         awf
         blueman
         compton
-        gensgs
         gksu
         iotop
         keepassx-community
@@ -237,6 +242,7 @@ with {
       inherit (self)
         devGui
         docGui
+        games
         mediaGui
         netGui
         sysGui
