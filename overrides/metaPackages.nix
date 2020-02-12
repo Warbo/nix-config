@@ -48,8 +48,10 @@ with {
       inherit (self)
         artemis
         asv-nix
+        awscli
         dvtm
         file
+        gcc
         git
         gnumake
         haskellCli
@@ -59,9 +61,11 @@ with {
         nix-diff
         nix_release
         nix-top
+        openjdk
         p7zip
         python
         racket
+        sbt
         silver-searcher
         unzip
         xidel
