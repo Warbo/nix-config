@@ -35,6 +35,7 @@ with {
         cabal-install
         ghc
         ghcid
+        haskell-tng
         hlint
         pretty-derivation
         stylish-haskell
@@ -47,18 +48,27 @@ with {
       inherit (self)
         artemis
         asv-nix
+        dvtm
+        file
         git
         gnumake
         haskellCli
         jq
+        lzip
         msgpack-tools
         nix-diff
         nix_release
         nix-top
+        p7zip
         python
         racket
         silver-searcher
+        unzip
         xidel
+        vim
+        zip
+        emacs
+        sqlitebrowser
         ;
     };
 
@@ -87,7 +97,6 @@ with {
         kbibtex_full
         leafpad
         libreoffice
-        mu
         ;
       mupdf = self.without self.mupdf [ "bin/mupdf-gl" "bin/mupdf-x11-curl" ];
     };
@@ -101,6 +110,7 @@ with {
         ffmpeg
         opusTools
         sox
+        youtube-dl
         ;
     };
 
@@ -121,20 +131,16 @@ with {
       inherit (self)
         aria2
         autossh
-        cifs_utils
         ddgr
         gcalcli
         gnutls
+        mu
         msmtp
-        openssh
         pptp
-        sshfsFuse
         sshuttle
-        smbnetfs
         tightvnc
         w3m
         wget
-        youtube-dl
         ;
     };
 
@@ -160,32 +166,27 @@ with {
       inherit (self)
         acpi
         binutils
+        cifs_utils
         dtach
-        dvtm
-        emacs
         entr
         exfat
-        file
         fuse
         fuse3
-        haskell-tng
         inotify-tools
         libnotify
-        lzip
-        p7zip
+        openssh
         pciutils
         pmutils
         psmisc
-        st
+        smbnetfs
+        sshfsFuse
         ts
         usbutils
-        unzip
         warbo-utilities
         wmname
         xbindkeys
         xcalib
         xcape
-        zip
         ;
     };
 
@@ -205,7 +206,7 @@ with {
         keepassx-community
         lxappearance
         rofi
-        sqlitebrowser
+        st
         trayer
         xsettingsd
         ;
