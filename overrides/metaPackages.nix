@@ -8,6 +8,8 @@ self: super:
 with builtins;
 with super.lib;
 with {
+  nonMac = attrs: if match ".*-darwin" currentSystem == null then attrs else {};
+
   go = name: paths:
     assert all isDerivation (attrValues paths) || self.die {
       inherit name;
@@ -57,20 +59,23 @@ with {
         haskellCli
         jq
         lzip
-        msgpack-tools
         nix-diff
         nix_release
         nix-top
         openjdk
         p7zip
         python
-        racket
         sbt
         silver-searcher
         unzip
-        xidel
         vim
         zip
+        ;
+    } // nonMac {
+      inherit (self)
+        msgpack-tools
+        racket
+        xidel
         ;
     };
 
@@ -95,12 +100,11 @@ with {
       aspell = self.aspellWithDicts (dicts: [ dicts.en ]);
     };
 
-    docGui = {
+    docGui = {} // nonMac {
       inherit (self)
         abiword
         basket
         evince
-        gimp
         gnumeric
         gv
         kbibtex_full
@@ -133,6 +137,7 @@ with {
       inherit (self)
         audacious
         cmus
+        gimp
         mplayer
         pamixer
         paprefs
@@ -147,15 +152,18 @@ with {
         aria2
         autossh
         ddgr
-        gcalcli
         gnutls
         mu
-        msmtp
-        pptp
-        sshuttle
         tightvnc
         w3m
         wget
+        ;
+    } // nonMac {
+      inherit (self)
+        gcalcli
+        msmtp
+        pptp
+        sshuttle
         ;
     };
 
