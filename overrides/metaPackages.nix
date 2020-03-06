@@ -50,7 +50,10 @@ with {
       inherit (self)
         artemis
         asv-nix
+        aws-sam-cli
         awscli
+        binutils
+        coreutils
         dvtm
         file
         gcc
@@ -69,8 +72,12 @@ with {
         silver-searcher
         unzip
         vim
+        xz
         zip
         ;
+        inherit (self.python3Packages)
+          black
+          ;
     } // nonMac {
       inherit (self)
         msgpack-tools
@@ -188,7 +195,6 @@ with {
       inherit (self.xorg) xmodmap;
       inherit (self)
         acpi
-        binutils
         cifs_utils
         dtach
         entr
