@@ -67,7 +67,7 @@ with {
         nix-top
         openjdk
         p7zip
-        python
+        python  # TODO: We should be using python3 now
         sbt
         silver-searcher
         unzip
