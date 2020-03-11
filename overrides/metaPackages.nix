@@ -69,6 +69,7 @@ with {
         p7zip
         python  # TODO: We should be using python3 now
         sbt
+        scala
         silver-searcher
         unzip
         vim
