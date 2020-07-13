@@ -55,6 +55,7 @@ with {
         binutils
         coreutils
         dvtm
+        entr
         file
         gcc
         git
@@ -198,7 +199,6 @@ with {
         acpi
         cifs_utils
         dtach
-        entr
         exfat
         fuse
         fuse3
