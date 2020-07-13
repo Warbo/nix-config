@@ -63,6 +63,7 @@ with {
         haskellCli
         jq
         lzip
+        metals
         nix-diff
         nix_release
         nix-top
