@@ -47,13 +47,7 @@ with rec {
 
     keepassx-community =
       with rec {
-        version = "2.6.0";
-        src     = fetchTarball {
-          url    = "https://github.com/keepassxreboot/keepassxc/releases/" +
-                   "download/${version}/keepassxc-${version}-src.tar.xz";
-          sha256 = "058l1zz174r3zgvhzr88k69znfv0shq212jzf5nvz7vqmxbin82y";
-        };
-
+        source = self.sources.keepassx-community;
         latest = import (self.runCommand "latest-keepassxc"
           {
             buildInputs = [ self.utillinux self.xidel ];
@@ -72,9 +66,11 @@ with rec {
           '');
 
         updated = check: super.keepassx-community.overrideAttrs (old: rec {
-          inherit src version;
+          inherit (source) version;
           name        = "keepassxc-${version}";
+          src         = source.outPath;
           buildInputs = old.buildInputs ++ [
+            self.asciidoctor                          # Needed for documentation
             self.nixpkgs1709.pkgconfig                # Needed to find qrencode
             self.qt5.qtsvg self.nixpkgs1709.qrencode  # New dependencies
           ];
@@ -98,9 +94,10 @@ with rec {
           patches = [];  # One patch is Mac-only, other has been included in src
         });
       };
-      (if self.onlineCheck && (compareVersions version latest != 0)
+      (if self.onlineCheck && (compareVersions source.version latest != 0)
           then trace (toJSON {
-                 inherit latest version;
+                 inherit latest;
+                 inherit (source) version;
                  warning = "KeePassXC version doesn't match latest";
                })
           else (x: x))

@@ -8,6 +8,13 @@
         "url_template": "https://github.com/get-iplayer/get_iplayer/archive/<version>.tar.gz",
         "version": "v3.26"
     },
+    "keepassx-community": {
+        "sha256": "0fpx6pq336g1xwjl5yzvsky6vqvaa38zb8pwkgswph9slybkvlnh",
+        "type": "file",
+        "url": "https://github.com/keepassxreboot/keepassxc/releases/download/2.6.0/keepassxc-2.6.0-src.tar.xz",
+        "url_template": "https://github.com/keepassxreboot/keepassxc/releases/download/<version>/keepassxc-<version>-src.tar.xz",
+        "version": "2.6.0"
+    },
     "niv": {
         "branch": "master",
         "description": "Easy dependency management for Nix projects",
