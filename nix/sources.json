@@ -31,5 +31,12 @@
         "type": "tarball",
         "url": "https://github.com/NixOS/nixpkgs/archive/1dadefec574531f021bddc85ca3c9bc81fd52899.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "youtube-dl": {
+        "sha256": "1n2kg2dl651la355m53csbpb7vxm4ql35lk86c3d17r43ml0lwfz",
+        "type": "tarball",
+        "url": "https://yt-dl.org/downloads/2020.06.16/youtube-dl-2020.06.16.tar.gz",
+        "url_template": "https://yt-dl.org/downloads/<version>/youtube-dl-<version>.tar.gz",
+        "version": "2020.06.16"
     }
 }

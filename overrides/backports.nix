@@ -78,18 +78,12 @@ with super.lib;
 
     youtube-dl =
       with rec {
-        ourV   = "2020.06.16";
-        sha256 = "1fgqi8pvw13p79gl38lnpl7ifa7cwxhzk53c6lmjsk1yhz5455m9";
+        src = self.sources.youtube-dl;
 
         override = super.youtube-dl.overrideDerivation (old: {
-          name    = "youtube-dl-${ourV}";
-          version = ourV;
-          src     = fetchurl {
-            inherit sha256;
-            url    = concatStrings [
-              "https://yt-dl.org/downloads/" ourV "/youtube-dl-" ourV ".tar.gz"
-            ];
-          };
+          inherit (src) version;
+          name = "youtube-dl-${src.version}";
+          src  = src.outPath;
         });
 
         latestPackage = (getAttr self.latest self).youtube-dl;
@@ -109,11 +103,11 @@ with super.lib;
 
         warnIf = version: pred: msgBits:
           if self.onlineCheck
-             then if pred (compareVersions ourV version)
+             then if pred (compareVersions src.version version)
                      then (x: x)
                      else trace (toJSON {
                        inherit latestRelease;
-                       overrideVersion = ourV;
+                       overrideVersion = src.version;
                        latestPackaged  = latestPackage.version;
                        warning         = concatStringsSep " " msgBits;
                      })
