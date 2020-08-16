@@ -16,14 +16,7 @@ with super.lib;
   overrides = {
     get_iplayer =
       with rec {
-        # Update this as needed
-        tag    = "v3.26";
-        sha256 = "01kv0ax35897wrc1720jgj1pi1wshfmfq93izzrxf43rnk60bh9f";
-        src    = versionTest self.fetchurl {
-          inherit sha256;
-          url =
-            "https://github.com/get-iplayer/get_iplayer/archive/${tag}.tar.gz";
-        };
+        src = self.sources.get_iplayer;
 
         latestVersion = import (self.runCommand "latest-get_iplayer.nix"
           {
@@ -44,9 +37,10 @@ with super.lib;
           '');
 
         versionTest = if self.onlineCheck &&
-                         compareVersions tag latestVersion == -1
+                         compareVersions src.version latestVersion == -1
                          then trace (toJSON {
-                           inherit latestVersion tag;
+                           inherit latestVersion;
+                           inherit (src) version;
                            WARNING = "Newer get_iplayer available";
                          })
                          else (x: x);
@@ -54,8 +48,8 @@ with super.lib;
         get_iplayer_real = { ffmpeg, get_iplayer, perlPackages }:
           self.stdenv.lib.overrideDerivation get_iplayer
             (oldAttrs : {
-              inherit src;
-              name                  = "get_iplayer-${tag}";
+              name                  = "get_iplayer-${src.version}";
+              src                   = src.outPath;
               propagatedBuildInputs = oldAttrs.propagatedBuildInputs ++ [
                 perlPackages.LWPProtocolHttps
                 perlPackages.XMLSimple
@@ -64,7 +58,7 @@ with super.lib;
             });
 
         mkPkg = { ffmpeg, get_iplayer, perlPackages }: self.buildEnv {
-          name  = "get_iplayer";
+          name  = "get_iplayer-${src.version}";
           paths = [
             (get_iplayer_real { inherit ffmpeg get_iplayer perlPackages; })
             ffmpeg
