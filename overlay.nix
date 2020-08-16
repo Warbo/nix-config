@@ -9,12 +9,17 @@ with rec {
                           (attrNames (readDir ./overrides)));
 
   mkPkg = f: oldPkgs:
-    with import (./. + "/overrides/${f}.nix") self super;
-    oldPkgs // overrides // {
-      nix-config-names = oldPkgs.nix-config-names ++ attrNames overrides;
-      nix-config-tests = oldPkgs.nix-config-tests // { "${f}" = tests; };
+    with { this = import (./. + "/overrides/${f}.nix") self super; };
+    oldPkgs // this.overrides // {
+      nix-config-checks = oldPkgs.nix-config-checks // (this.checks or {});
+      nix-config-names  = oldPkgs.nix-config-names ++ attrNames this.overrides;
+      nix-config-tests  = oldPkgs.nix-config-tests // { "${f}" = this.tests; };
     };
 };
 fold mkPkg
-     { nix-config-names = [ "nix-config-tests" ]; nix-config-tests = {}; }
-     fileNames
+  {
+    nix-config-checks = {};
+    nix-config-names  = [ "nix-config-tests" ];
+    nix-config-tests  = {};
+  }
+  fileNames
