@@ -85,13 +85,19 @@ with super.lib;
           name = "youtube-dl-${src.version}";
           src  = src.outPath;
         });
+      };
+      foldl' (x: msg: trace msg x) override self.nix-config-checks.youtube-dl;
+  };
+
+  checks = {
+    youtube-dl =
+      with rec {
+        ourVersion = self.sources.youtube-dl.version;
 
         latestPackage = (getAttr self.latest self).youtube-dl;
 
         latestRelease = import (self.runCommand "youtube-dl-release.nix"
-          {
-            page = fetchurl https://ytdl-org.github.io/youtube-dl/download.html;
-          }
+          { page = fetchurl https://ytdl-org.github.io/youtube-dl/download.html; }
           ''
             grep   -o '[^"]*\.tar\.gz' < "$page" |
               head -n1                           |
@@ -103,28 +109,23 @@ with super.lib;
 
         warnIf = version: pred: msgBits:
           if self.onlineCheck
-             then if pred (compareVersions src.version version)
-                     then (x: x)
-                     else trace (toJSON {
+             then if pred (compareVersions ourVersion version)
+                     then []
+                     else [ (toJSON {
                        inherit latestRelease;
-                       overrideVersion = src.version;
+                       overrideVersion = ourVersion;
                        latestPackaged  = latestPackage.version;
                        warning         = concatStringsSep " " msgBits;
-                     })
-             else trace "Skipping youtube-dl check" (x: x);
-
-        needOverride = warnIf latestPackage.version (x: x == 1) [
-          "FIX${""}ME: Our updated youtube-dl override is older than one in"
-          "nixpkgs. We should remove our override and use the upstream version."
-        ];
-
-        needUpdate   = warnIf latestRelease (x: x > -1) [
-          "Our youtube-dl override is out of date. If it doesn't work, YouTube"
-          "might have changed their API, which the update might fix."
-        ];
+                     }) ]
+             else trace "Skipping youtube-dl check" [];
       };
-      needOverride (needUpdate override);
+      warnIf latestPackage.version (x: x == 1) [
+        "FIX${""}ME: Our updated youtube-dl override is older than one in"
+        "nixpkgs. We should remove our override and use the upstream version."
+      ] ++
+      warnIf latestRelease (x: x > -1) [
+        "Our youtube-dl override is out of date. If it doesn't work, YouTube"
+        "might have changed their API, which the update might fix."
+      ];
   };
-
-  tests = {};
 }

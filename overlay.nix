@@ -13,13 +13,19 @@ with rec {
     oldPkgs // this.overrides // {
       nix-config-checks = oldPkgs.nix-config-checks // (this.checks or {});
       nix-config-names  = oldPkgs.nix-config-names ++ attrNames this.overrides;
-      nix-config-tests  = oldPkgs.nix-config-tests // { "${f}" = this.tests; };
+      nix-config-tests  = oldPkgs.nix-config-tests // {
+        "${f}" = this.tests or {};
+      };
     };
 };
 fold mkPkg
   {
     nix-config-checks = {};
-    nix-config-names  = [ "nix-config-tests" ];
+    nix-config-names  = [ "nix-config-checks" "nix-config-tests" ];
     nix-config-tests  = {};
+    nix-config-check  = foldl'
+      (result: msg: trace msg false)
+      true
+      (concatLists (attrValues self.nix-config-checks));
   }
   fileNames

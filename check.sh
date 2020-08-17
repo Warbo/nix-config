@@ -26,8 +26,11 @@ then
     }
 fi
 
-# Warn if things aren't their latest versions
-for P in firefoxBinary get_iplayer keepassx-community youtube-dl
+# Fail if checks don't pass
+EXPR='(import ./nix).nix-config-check || abort "Checks failed"'
+nix-instantiate --eval -E "$EXPR" > /dev/null
+
+for P in firefoxBinary get_iplayer keepassx-community
 do
     echo "Checking if $P warns about being out of date" 1>&2
     echo "with import <nixpkgs> { overlays = import ./overlays.nix; }; $P" |

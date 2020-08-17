@@ -35,6 +35,4 @@ with super.lib;
       overlays = import "${self.latestNixCfg}/overlays.nix";
     };
   };
-
-  tests = {};
 }
