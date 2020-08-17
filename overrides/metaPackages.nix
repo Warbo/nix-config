@@ -170,7 +170,6 @@ with {
         autossh
         ddgr
         gnutls
-        mu
         tightvnc
         w3m
         wget
@@ -179,6 +178,7 @@ with {
       inherit (self)
         gcalcli
         msmtp
+        mu
         pptp
         sshuttle
         ;
