@@ -14,6 +14,8 @@ with builtins;
 with super.lib;
 {
   overrides = {
+    firefoxBinary = self.makeFirefoxBinary self.sources.firefox.outPath;
+
     get_iplayer =
       with rec {
         src = self.sources.get_iplayer;

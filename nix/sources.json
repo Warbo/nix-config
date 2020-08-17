@@ -1,4 +1,11 @@
 {
+    "firefox": {
+        "sha256": "1rl4pl75bb3nl8h7nk7hm65xczjbaq8w2vxl4and7723401lq6wa",
+        "type": "file",
+        "url": "https://archive.mozilla.org/pub/firefox/releases/79.0/linux-i686/en-GB/firefox-79.0.tar.bz2",
+        "url_template": "https://archive.mozilla.org/pub/firefox/releases/<version>/linux-i686/en-GB/firefox-<version>.tar.bz2",
+        "version": "79.0"
+    },
     "get_iplayer": {
         "description": "A utility for downloading TV and radio programmes from BBC iPlayer and BBC Sounds",
         "homepage": "https://github.com/get-iplayer/get_iplayer/wiki",
@@ -48,7 +55,7 @@
     "warbo-packages": {
         "ref": "master",
         "repo": "http://chriswarbo.net/git/warbo-packages.git",
-        "rev": "e325b63ab875833aad5df1a40f1abdd7b709d0b3",
+        "rev": "33deb2b919ddfd5f578ee426bab7af906c2315e5",
         "type": "git"
     },
     "warbo-utilities": {
