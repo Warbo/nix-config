@@ -92,6 +92,10 @@ with {
     devGui  = {
       inherit (self)
         emacs
+         ;
+    } // nonMac {
+      inherit (self)
+        mysql-workbench
         sqlitebrowser
         ;
     };
@@ -104,10 +108,13 @@ with {
         droid-fonts
         ghostscript
         md2pdf
-        pandocPkgs
         poppler_utils
         ;
       aspell = self.aspellWithDicts (dicts: [ dicts.en ]);
+    } // nonMac {
+      inherit (self)
+        pandocPkgs
+        ;
     };
 
     docGui = {} // nonMac {
@@ -213,11 +220,14 @@ with {
         sshfsFuse
         ts
         usbutils
-        warbo-utilities
         wmname
         xbindkeys
         xcalib
         xcape
+        ;
+    } // nonMac {
+      inherit (self)
+        warbo-utilities
         ;
     };
 
