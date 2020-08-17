@@ -1,4 +1,4 @@
-with import ./. {};
-runCommand "benchmark-env" {
-  buildInputs = [ asv-nix ];
+with import ./nix;
+runCommand "config-env" {
+  buildInputs = [ asv-nix niv ];
 } "exit 1"

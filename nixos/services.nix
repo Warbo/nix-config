@@ -144,6 +144,8 @@ with rec {
   online   = "${pingOnce} google.com 1>/dev/null 2>/dev/null";
 };
 {
+  accounts-daemon.restartIfChanged = false;
+
   thermald-nocheck = mkService {
     description = "Thermal Daemon Service";
     wantedBy    = [ "multi-user.target" ];

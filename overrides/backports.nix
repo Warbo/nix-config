@@ -10,52 +10,23 @@
 #    such pinned versions to break in the future.
 self: super:
 
-with builtins;
-with super.lib;
+with {
+  inherit (builtins) compareVersions fetchurl foldl' getAttr toJSON;
+  inherit (super.lib) concatStringsSep makeOverridable optional;
+};
 {
   overrides = {
+    firefoxBinary = self.makeFirefoxBinary self.sources.firefox;
+
     get_iplayer =
       with rec {
-        # Update this as needed
-        tag    = "v3.25";
-        sha256 = "0qvx5f1n4kqazm0sykagv1d83v31hxy38vaf4a4n4ka92al7iqia";
-        src    = versionTest self.fetchurl {
-          inherit sha256;
-          url =
-            "https://github.com/get-iplayer/get_iplayer/archive/${tag}.tar.gz";
-        };
-
-        latestVersion = import (self.runCommand "latest-get_iplayer.nix"
-          {
-            buildInputs = [ self.xidel ];
-            expr        = concatStringsSep "/" [
-              ''//a[contains(text(), "Latest release")]''
-              ".."
-              ".."
-              ''/a[contains(@href, "releases/tag")]''
-              "text()"
-            ];
-
-            page = fetchurl https://github.com/get-iplayer/get_iplayer/releases;
-          }
-          ''
-            LATEST=$(xidel - -q -e "$expr" < "$page")
-            echo "\"$LATEST\"" > "$out"
-          '');
-
-        versionTest = if self.onlineCheck &&
-                         compareVersions tag latestVersion == -1
-                         then trace (toJSON {
-                           inherit latestVersion tag;
-                           WARNING = "Newer get_iplayer available";
-                         })
-                         else (x: x);
+        src = self.sources.get_iplayer;
 
         get_iplayer_real = { ffmpeg, get_iplayer, perlPackages }:
           self.stdenv.lib.overrideDerivation get_iplayer
             (oldAttrs : {
-              inherit src;
-              name                  = "get_iplayer-${tag}";
+              name                  = "get_iplayer-${src.version}";
+              src                   = src.outPath;
               propagatedBuildInputs = oldAttrs.propagatedBuildInputs ++ [
                 perlPackages.LWPProtocolHttps
                 perlPackages.XMLSimple
@@ -64,7 +35,7 @@ with super.lib;
             });
 
         mkPkg = { ffmpeg, get_iplayer, perlPackages }: self.buildEnv {
-          name  = "get_iplayer";
+          name  = "get_iplayer-${src.version}";
           paths = [
             (get_iplayer_real { inherit ffmpeg get_iplayer perlPackages; })
             ffmpeg
@@ -84,26 +55,76 @@ with super.lib;
 
     youtube-dl =
       with rec {
-        ourV   = "2020.01.24";
-        sha256 = "1zrnbjnwv315f9a83lk5c0gl4ianvp6q2kinxvqlv604sabcq78b";
+        src = self.sources.youtube-dl;
 
         override = super.youtube-dl.overrideDerivation (old: {
-          name    = "youtube-dl-${ourV}";
-          version = ourV;
-          src     = fetchurl {
-            inherit sha256;
-            url    = concatStrings [
-              "https://yt-dl.org/downloads/" ourV "/youtube-dl-" ourV ".tar.gz"
-            ];
-          };
+          inherit (src) version;
+          name = "youtube-dl-${src.version}";
+          src  = src.outPath;
         });
+      };
+      foldl' (x: msg: trace msg x) override self.nix-config-checks.youtube-dl;
+  };
+
+  checks = {
+    firefoxBinary =
+      with {
+        latest = import (self.runCommand "latest-firefox-version.nix"
+          {
+            page = fetchurl https://www.mozilla.org/en-US/firefox/releases;
+          }
+          ''
+            grep -o 'data-latest-firefox="[^"]*"' < "$page" |
+            grep -o '".*"' > "$out"
+          '');
+
+        version = self.sources.firefox.version;
+      };
+      optional
+        (self.onlineCheck && compareVersions version latest == -1)
+        (toJSON {
+          inherit latest version;
+          WARNING = "Newer Firefox is out";
+        });
+
+    get_iplayer =
+      with rec {
+        src = self.sources.get_iplayer;
+
+        latestVersion = import (self.runCommand "latest-get_iplayer.nix"
+          {
+            buildInputs = [ self.xidel ];
+            expr        = concatStringsSep "/" [
+              ''//a[contains(text(), "Latest release")]''
+              ".."
+              ".."
+              ''/a[contains(@href, "releases/tag")]''
+              "text()"
+            ];
+
+            page = fetchurl https://github.com/get-iplayer/get_iplayer/releases;
+          }
+          ''
+            LATEST=$(xidel - -q -e "$expr" < "$page")
+            echo "\"$LATEST\"" > "$out"
+          '');
+      };
+      optional
+        (self.onlineCheck && compareVersions src.version latestVersion == -1)
+        (toJSON {
+          inherit latestVersion;
+          inherit (src) version;
+          WARNING = "Newer get_iplayer available";
+        });
+
+    youtube-dl =
+      with rec {
+        ourVersion = self.sources.youtube-dl.version;
 
         latestPackage = (getAttr self.latest self).youtube-dl;
 
         latestRelease = import (self.runCommand "youtube-dl-release.nix"
-          {
-            page = fetchurl https://ytdl-org.github.io/youtube-dl/download.html;
-          }
+          { page = fetchurl https://ytdl-org.github.io/youtube-dl/download.html; }
           ''
             grep   -o '[^"]*\.tar\.gz' < "$page" |
               head -n1                           |
@@ -115,28 +136,23 @@ with super.lib;
 
         warnIf = version: pred: msgBits:
           if self.onlineCheck
-             then if pred (compareVersions ourV version)
-                     then (x: x)
-                     else trace (toJSON {
+             then if pred (compareVersions ourVersion version)
+                     then []
+                     else [ (toJSON {
                        inherit latestRelease;
-                       overrideVersion = ourV;
+                       overrideVersion = ourVersion;
                        latestPackaged  = latestPackage.version;
                        warning         = concatStringsSep " " msgBits;
-                     })
-             else trace "Skipping youtube-dl check" (x: x);
-
-        needOverride = warnIf latestPackage.version (x: x == 1) [
-          "FIX${""}ME: Our updated youtube-dl override is older than one in"
-          "nixpkgs. We should remove our override and use the upstream version."
-        ];
-
-        needUpdate   = warnIf latestRelease (x: x > -1) [
-          "Our youtube-dl override is out of date. If it doesn't work, YouTube"
-          "might have changed their API, which the update might fix."
-        ];
+                     }) ]
+             else trace "Skipping youtube-dl check" [];
       };
-      needOverride (needUpdate override);
+      warnIf latestPackage.version (x: x == 1) [
+        "FIX${""}ME: Our updated youtube-dl override is older than one in"
+        "nixpkgs. We should remove our override and use the upstream version."
+      ] ++
+      warnIf latestRelease (x: x > -1) [
+        "Our youtube-dl override is out of date. If it doesn't work, YouTube"
+        "might have changed their API, which the update might fix."
+      ];
   };
-
-  tests = {};
 }

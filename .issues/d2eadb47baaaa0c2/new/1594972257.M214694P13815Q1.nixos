@@ -1,0 +1,8 @@
+From: Chris Warburton
+Date: Fri, 17 Jul 2020 08:50:32 +0100
+State: resolved
+Subject: Use niv
+Message-Id: <d2eadb47baaaa0c2-0-artemis@nixos>
+resolution: fixed
+
+Rather than bumping git repos manually, we can use niv

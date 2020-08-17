@@ -224,6 +224,7 @@ with {
         xbindkeys
         xcalib
         xcape
+        xpra
         ;
     } // nonMac {
       inherit (self)

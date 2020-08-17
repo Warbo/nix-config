@@ -41,6 +41,4 @@ self: super:
       });
     };
   };
-
-  tests = {};
 }

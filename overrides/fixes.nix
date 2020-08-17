@@ -47,34 +47,14 @@ with rec {
 
     keepassx-community =
       with rec {
-        version = "2.5.3";
-        src     = fetchTarball {
-          url    = "https://github.com/keepassxreboot/keepassxc/releases/" +
-                   "download/${version}/keepassxc-${version}-src.tar.xz";
-          sha256 = "06ixlm8r596k92l5jfy1x9js0rwhjxjgcgxql5am65xjwja56lag";
-        };
-
-        latest = import (self.runCommand "latest-keepassxc"
-          {
-            buildInputs = [ self.utillinux self.xidel ];
-            pat  = "//a[contains(text(),'Latest release')]/../..//a/@href";
-            page = fetchurl
-              https://github.com/keepassxreboot/keepassxc/releases/latest;
-          }
-          ''
-            mkdir "$out"
-            xidel - -q -e "$pat" < "$page"  |
-              grep tag                      |
-              rev                           |
-              cut -d / -f1                  |
-              rev                           |
-              sed -e 's/^/"/g' -e 's/$/"/g' > "$out/default.nix"
-          '');
+        source = self.sources.keepassx-community;
 
         updated = check: super.keepassx-community.overrideAttrs (old: rec {
-          inherit src version;
+          inherit (source) version;
           name        = "keepassxc-${version}";
+          src         = source.outPath;
           buildInputs = old.buildInputs ++ [
+            self.asciidoctor                          # Needed for documentation
             self.nixpkgs1709.pkgconfig                # Needed to find qrencode
             self.qt5.qtsvg self.nixpkgs1709.qrencode  # New dependencies
           ];
@@ -98,12 +78,6 @@ with rec {
           patches = [];  # One patch is Mac-only, other has been included in src
         });
       };
-      (if self.onlineCheck && (compareVersions version latest != 0)
-          then trace (toJSON {
-                 inherit latest version;
-                 warning = "KeePassXC version doesn't match latest";
-               })
-          else (x: x))
       # Provide the untested version, but also ensure that the tested
       # version is indeed still failing
       self.withDeps' "keepassxc-unchecked"
@@ -184,4 +158,35 @@ with rec {
     stillBrokenPkgs // self.checkRacket.checkWhetherBroken // haskellTests // {
       libproxyWorks = self.libproxy;
     };
+
+  checks = {
+    keepassx-community =
+      with {
+        latest = import (self.runCommand "latest-keepassxc"
+          {
+            buildInputs = [ self.utillinux self.xidel ];
+            pat  = "//a[contains(text(),'Latest release')]/../..//a/@href";
+            page = fetchurl
+              https://github.com/keepassxreboot/keepassxc/releases/latest;
+          }
+          ''
+            mkdir "$out"
+            xidel - -q -e "$pat" < "$page"  |
+              grep tag                      |
+              rev                           |
+              cut -d / -f1                  |
+              rev                           |
+              sed -e 's/^/"/g' -e 's/$/"/g' > "$out/default.nix"
+          '');
+
+        source = self.sources.keepassx-community;
+      };
+      self.lib.optional
+        (self.onlineCheck && (compareVersions source.version latest != 0))
+        (toJSON {
+          inherit latest;
+          inherit (source) version;
+          warning = "KeePassXC version doesn't match latest";
+        });
+  };
 }

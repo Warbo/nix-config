@@ -21,5 +21,4 @@ with rec {
            })
            (filter (hasPrefix "repo") (attrNames self.pinnedNixpkgs)));
   };
-  tests = {};
 }

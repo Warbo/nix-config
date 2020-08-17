@@ -1,0 +1,74 @@
+{
+    "firefox": {
+        "sha256": "1rl4pl75bb3nl8h7nk7hm65xczjbaq8w2vxl4and7723401lq6wa",
+        "type": "file",
+        "url": "https://archive.mozilla.org/pub/firefox/releases/79.0/linux-i686/en-GB/firefox-79.0.tar.bz2",
+        "url_template": "https://archive.mozilla.org/pub/firefox/releases/<version>/linux-i686/en-GB/firefox-<version>.tar.bz2",
+        "version": "79.0"
+    },
+    "get_iplayer": {
+        "description": "A utility for downloading TV and radio programmes from BBC iPlayer and BBC Sounds",
+        "homepage": "https://github.com/get-iplayer/get_iplayer/wiki",
+        "sha256": "0lsz5hz1ia5j612540rb0f31y7j2k5gf7x5i43l8k06b90wi73d6",
+        "type": "tarball",
+        "url": "https://github.com/get-iplayer/get_iplayer/archive/v3.26.tar.gz",
+        "url_template": "https://github.com/get-iplayer/get_iplayer/archive/<version>.tar.gz",
+        "version": "v3.26"
+    },
+    "keepassx-community": {
+        "sha256": "0fpx6pq336g1xwjl5yzvsky6vqvaa38zb8pwkgswph9slybkvlnh",
+        "type": "file",
+        "url": "https://github.com/keepassxreboot/keepassxc/releases/download/2.6.0/keepassxc-2.6.0-src.tar.xz",
+        "url_template": "https://github.com/keepassxreboot/keepassxc/releases/download/<version>/keepassxc-<version>-src.tar.xz",
+        "version": "2.6.0"
+    },
+    "niv": {
+        "branch": "master",
+        "description": "Easy dependency management for Nix projects",
+        "homepage": "https://github.com/nmattia/niv",
+        "owner": "nmattia",
+        "repo": "niv",
+        "rev": "e82eb322ea32a747a51c431d7787221bcc6d9038",
+        "sha256": "1fy4dcr05d80diwlxmh42xnjm5ki1pkbky38smvlqjaky2y2f71f",
+        "type": "tarball",
+        "url": "https://github.com/nmattia/niv/archive/e82eb322ea32a747a51c431d7787221bcc6d9038.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "nix-helpers": {
+        "ref": "master",
+        "repo": "http://chriswarbo.net/git/nix-helpers.git",
+        "rev": "3d2368912e16801798024e357a0046fd723b13a2",
+        "type": "git"
+    },
+    "nixpkgs": {
+        "branch": "nixos-19.09",
+        "description": "A read-only mirror of NixOS/nixpkgs tracking the released channels. Send issues and PRs to",
+        "homepage": "https://github.com/NixOS/nixpkgs",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "1dadefec574531f021bddc85ca3c9bc81fd52899",
+        "sha256": "0csm7nycb8p990jl1mj20mg79lxpfg2xcplndcg1dbqclgw1wmqd",
+        "type": "tarball",
+        "url": "https://github.com/NixOS/nixpkgs/archive/1dadefec574531f021bddc85ca3c9bc81fd52899.tar.gz",
+        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
+    },
+    "warbo-packages": {
+        "ref": "master",
+        "repo": "http://chriswarbo.net/git/warbo-packages.git",
+        "rev": "00d3386b048d99deb6bef52d5fd5e2881336d3c6",
+        "type": "git"
+    },
+    "warbo-utilities": {
+        "ref": "master",
+        "repo": "http://chriswarbo.net/git/warbo-utilities.git",
+        "rev": "45ccc7b114877eb68b2554d3374480e4a4a59631",
+        "type": "git"
+    },
+    "youtube-dl": {
+        "sha256": "1wiibjj7knha72n2gr31b9vmgkycsz7icw4mm0hx9frb2pslizd6",
+        "type": "tarball",
+        "url": "https://yt-dl.org/downloads/2020.07.28/youtube-dl-2020.07.28.tar.gz",
+        "url_template": "https://yt-dl.org/downloads/<version>/youtube-dl-<version>.tar.gz",
+        "version": "2020.07.28"
+    }
+}

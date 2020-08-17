@@ -13,5 +13,4 @@ self: super:
         zuki-theme;
     };
   };
-  tests = {};
 }

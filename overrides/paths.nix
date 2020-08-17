@@ -18,6 +18,4 @@ with builtins;
                  then toString dir
                  else "http://chriswarbo.net/git";
   };
-
-  tests = {};
 }
