@@ -10,8 +10,10 @@
 #    such pinned versions to break in the future.
 self: super:
 
-with builtins;
-with super.lib;
+with {
+  inherit (builtins) compareVersions fetchurl getAttr toJSON;
+  inherit (super.lib) concatStringsSep optional;
+};
 {
   overrides = {
     firefoxBinary = self.makeFirefoxBinary self.sources.firefox.outPath;
@@ -65,6 +67,26 @@ with super.lib;
   };
 
   checks = {
+    firefoxBinary =
+      with {
+        latest = import (self.runCommand "latest-firefox-version.nix"
+          {
+            page = fetchurl https://www.mozilla.org/en-US/firefox/releases;
+          }
+          ''
+            grep -o 'data-latest-firefox="[^"]*"' < "$page" |
+            grep -o '".*"' > "$out"
+          '');
+
+        version = self.sources.firefox.version;
+      };
+      optional
+        (self.onlineCheck && compareVersions version latest == -1)
+        (toJSON {
+          inherit latest version;
+          WARNING = "Newer Firefox is out";
+        });
+
     get_iplayer =
       with rec {
         src = self.sources.get_iplayer;
@@ -87,7 +109,7 @@ with super.lib;
             echo "\"$LATEST\"" > "$out"
           '');
       };
-      self.lib.optional
+      optional
         (self.onlineCheck && compareVersions src.version latestVersion == -1)
         (toJSON {
           inherit latestVersion;
