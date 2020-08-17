@@ -11,12 +11,12 @@
 self: super:
 
 with {
-  inherit (builtins) compareVersions fetchurl getAttr toJSON;
-  inherit (super.lib) concatStringsSep optional;
+  inherit (builtins) compareVersions fetchurl foldl' getAttr toJSON;
+  inherit (super.lib) concatStringsSep makeOverridable optional;
 };
 {
   overrides = {
-    firefoxBinary = self.makeFirefoxBinary self.sources.firefox.outPath;
+    firefoxBinary = self.makeFirefoxBinary self.sources.firefox;
 
     get_iplayer =
       with rec {
