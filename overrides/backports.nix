@@ -18,33 +18,6 @@ with super.lib;
       with rec {
         src = self.sources.get_iplayer;
 
-        latestVersion = import (self.runCommand "latest-get_iplayer.nix"
-          {
-            buildInputs = [ self.xidel ];
-            expr        = concatStringsSep "/" [
-              ''//a[contains(text(), "Latest release")]''
-              ".."
-              ".."
-              ''/a[contains(@href, "releases/tag")]''
-              "text()"
-            ];
-
-            page = fetchurl https://github.com/get-iplayer/get_iplayer/releases;
-          }
-          ''
-            LATEST=$(xidel - -q -e "$expr" < "$page")
-            echo "\"$LATEST\"" > "$out"
-          '');
-
-        versionTest = if self.onlineCheck &&
-                         compareVersions src.version latestVersion == -1
-                         then trace (toJSON {
-                           inherit latestVersion;
-                           inherit (src) version;
-                           WARNING = "Newer get_iplayer available";
-                         })
-                         else (x: x);
-
         get_iplayer_real = { ffmpeg, get_iplayer, perlPackages }:
           self.stdenv.lib.overrideDerivation get_iplayer
             (oldAttrs : {
@@ -90,6 +63,36 @@ with super.lib;
   };
 
   checks = {
+    get_iplayer =
+      with rec {
+        src = self.sources.get_iplayer;
+
+        latestVersion = import (self.runCommand "latest-get_iplayer.nix"
+          {
+            buildInputs = [ self.xidel ];
+            expr        = concatStringsSep "/" [
+              ''//a[contains(text(), "Latest release")]''
+              ".."
+              ".."
+              ''/a[contains(@href, "releases/tag")]''
+              "text()"
+            ];
+
+            page = fetchurl https://github.com/get-iplayer/get_iplayer/releases;
+          }
+          ''
+            LATEST=$(xidel - -q -e "$expr" < "$page")
+            echo "\"$LATEST\"" > "$out"
+          '');
+      };
+      self.lib.optional
+        (self.onlineCheck && compareVersions src.version latestVersion == -1)
+        (toJSON {
+          inherit latestVersion;
+          inherit (src) version;
+          WARNING = "Newer get_iplayer available";
+        });
+
     youtube-dl =
       with rec {
         ourVersion = self.sources.youtube-dl.version;
