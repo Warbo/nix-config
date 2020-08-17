@@ -1,9 +1,10 @@
-with builtins;
 with rec {
-  remotes       = import ./helpers.nix {};
-  importOverlay = name: import "${getAttr name remotes}/overlay.nix";
+  inherit (builtins) concatLists getAttr map;
+  getOverlay = name: self: super:
+    import "${getAttr name super.sources}/overlay.nix" self super;
 };
-map importOverlay [ "nix-helpers" "warbo-packages" "warbo-utilities" ] ++ [
-  (self: _: { sources = import ./nix/sources.nix; })
-  (import ./overlay.nix)
+concatLists [
+  [ (self: _: { sources = import ./nix/sources.nix; }) ]
+  (map getOverlay [ "nix-helpers" "warbo-packages" "warbo-utilities" ])
+  [ (import ./overlay.nix) ]
 ]

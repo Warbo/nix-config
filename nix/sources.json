@@ -27,6 +27,12 @@
         "url": "https://github.com/nmattia/niv/archive/e82eb322ea32a747a51c431d7787221bcc6d9038.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "nix-helpers": {
+        "ref": "master",
+        "repo": "http://chriswarbo.net/git/nix-helpers.git",
+        "rev": "3d2368912e16801798024e357a0046fd723b13a2",
+        "type": "git"
+    },
     "nixpkgs": {
         "branch": "nixos-19.09",
         "description": "A read-only mirror of NixOS/nixpkgs tracking the released channels. Send issues and PRs to",
@@ -39,11 +45,23 @@
         "url": "https://github.com/NixOS/nixpkgs/archive/1dadefec574531f021bddc85ca3c9bc81fd52899.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
+    "warbo-packages": {
+        "ref": "master",
+        "repo": "http://chriswarbo.net/git/warbo-packages.git",
+        "rev": "e325b63ab875833aad5df1a40f1abdd7b709d0b3",
+        "type": "git"
+    },
+    "warbo-utilities": {
+        "ref": "master",
+        "repo": "http://chriswarbo.net/git/warbo-utilities.git",
+        "rev": "45ccc7b114877eb68b2554d3374480e4a4a59631",
+        "type": "git"
+    },
     "youtube-dl": {
-        "sha256": "1n2kg2dl651la355m53csbpb7vxm4ql35lk86c3d17r43ml0lwfz",
+        "sha256": "1wiibjj7knha72n2gr31b9vmgkycsz7icw4mm0hx9frb2pslizd6",
         "type": "tarball",
-        "url": "https://yt-dl.org/downloads/2020.06.16/youtube-dl-2020.06.16.tar.gz",
+        "url": "https://yt-dl.org/downloads/2020.07.28/youtube-dl-2020.07.28.tar.gz",
         "url_template": "https://yt-dl.org/downloads/<version>/youtube-dl-<version>.tar.gz",
-        "version": "2020.06.16"
+        "version": "2020.07.28"
     }
 }
