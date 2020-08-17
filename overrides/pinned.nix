@@ -15,10 +15,12 @@ self: super: {
           got  = src.rev;
           want = self.gitHead { url = src.repo; };
         };
-        self.lib.optional (got != want) (builtins.toJSON {
-          inherit got name want;
-          warning = "Pinned repo is out of date";
-        });
+        self.lib.optional
+          (self.onlineCheck && (got != want))
+          (builtins.toJSON {
+            inherit got name want;
+            warning = "Pinned repo is out of date";
+          });
     };
     {
       nix-helpers = latestRev "nix-helpers";
