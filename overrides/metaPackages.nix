@@ -202,6 +202,7 @@ with {
         xbindkeys
         xcalib
         xcape
+        xpra
         ;
     };
 
