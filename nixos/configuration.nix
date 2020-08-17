@@ -334,6 +334,11 @@ rec {
     trustedUsers = [ "chris" "laminar" ];
   };
 
+  programs = {
+    iotop.enable = true;
+    qt5ct.enable = true;  # Non-DE Qt config GUI
+  };
+
   # Programs which need to be setuid, etc. should be put in here. These will get
   # wrappers made and put into a system-wide directory when the config is
   # activated, and will be removed when switched away.
