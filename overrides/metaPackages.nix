@@ -64,6 +64,7 @@ with {
         jq
         lzip
         metals
+        niv
         nix-diff
         nix_release
         nix-top
