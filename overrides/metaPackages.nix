@@ -69,7 +69,7 @@ with {
         nix-top
         openjdk
         p7zip
-        python  # TODO: We should be using python3 now
+        python
         sbt
         scala
         silver-searcher
