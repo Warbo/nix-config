@@ -64,6 +64,7 @@ with {
         haskellCli
         jq
         lzip
+        niv
         nix-diff
         nix_release
         nix-top
