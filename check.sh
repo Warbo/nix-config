@@ -10,4 +10,4 @@ done
 
 # Fail if checks don't pass
 EXPR='(import ./nix).nix-config-check || abort "Checks failed"'
-nix-instantiate --read-write-mode --eval -E "$EXPR" > /dev/null
+nix-instantiate --show-trace --read-write-mode --eval -E "$EXPR" > /dev/null
