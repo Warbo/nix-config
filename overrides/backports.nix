@@ -16,6 +16,8 @@ with {
 };
 {
   overrides = {
+    inherit (import self.sources.niv {}) niv;
+
     firefoxBinary = self.makeFirefoxBinary self.sources.firefox;
 
     get_iplayer =
