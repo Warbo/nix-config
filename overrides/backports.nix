@@ -68,93 +68,87 @@ with {
       foldl' (x: msg: trace msg x) override self.nix-config-checks.youtube-dl;
   };
 
-  checks = {
-    firefoxBinary =
-      with {
-        latest = import (self.runCommand "latest-firefox-version.nix"
-          {
-            page = fetchurl https://www.mozilla.org/en-US/firefox/releases;
-          }
-          ''
-            grep -o 'data-latest-firefox="[^"]*"' < "$page" |
-            grep -o '".*"' > "$out"
-          '');
+  checks =
+    with {
+      latestRev = name:
+        with rec {
+          src  = builtins.getAttr name self.sources;
+          got  = src.rev;
+          want = self.gitHead { url = src.repo; };
+        };
+        self.lib.optional
+          (self.onlineCheck && (got != want))
+          (builtins.toJSON {
+            inherit got name want;
+            warning = "Pinned repo is out of date";
+          });
 
-        version = self.sources.firefox.version;
+      checkPage = { extra ? [], name, script, url, version }:
+        with {
+          latest = import (self.runCommand "latest-${name}.nix"
+                            { page = fetchurl url; }
+                            script);
+        };
+        extra ++ optional
+          (self.onlineCheck && compareVersions version latest == -1)
+          (toJSON {
+            inherit latest version;
+            WARNING = "Newer ${name} is available";
+          });
+    };
+    {
+      firefoxBinary = checkPage {
+        inherit (self.sources.firefox) version;
+        name   = "firefox";
+        url    = https://www.mozilla.org/en-US/firefox/releases;
+        script = ''
+          grep -o 'data-latest-firefox="[^"]*"' < "$page" |
+          grep -o '".*"' > "$out"
+        '';
       };
-      optional
-        (self.onlineCheck && compareVersions version latest == -1)
-        (toJSON {
-          inherit latest version;
-          WARNING = "Newer Firefox is out";
-        });
 
-    get_iplayer =
-      with rec {
-        src = self.sources.get_iplayer;
-
-        latestVersion = import (self.runCommand "latest-get_iplayer.nix"
-          {
-            buildInputs = [ self.xidel ];
-            expr        = concatStringsSep "/" [
-              ''//a[contains(text(), "Latest release")]''
-              ".."
-              ".."
-              ''/a[contains(@href, "releases/tag")]''
-              "text()"
-            ];
-
-            page = fetchurl https://github.com/get-iplayer/get_iplayer/releases;
-          }
-          ''
-            LATEST=$(xidel - -q -e "$expr" < "$page")
-            echo "\"$LATEST\"" > "$out"
-          '');
+      get_iplayer = checkPage {
+        inherit (self.sources.get_iplayer) version;
+        name   = "get_iplayer";
+        url    = https://github.com/get-iplayer/get_iplayer/releases;
+        script = ''
+          EXPR='${concatStringsSep "/" [
+            ''//a[contains(text(), "Latest release")]''
+            ".."
+            ".."
+            ''/a[contains(@href, "releases/tag")]''
+            "text()"
+          ]}'
+          LATEST=$("${self.xidel}/bin/xidel" - -q -e "$EXPR" < "$page")
+          echo "\"$LATEST\"" > "$out"
+        '';
       };
-      optional
-        (self.onlineCheck && compareVersions src.version latestVersion == -1)
-        (toJSON {
-          inherit latestVersion;
-          inherit (src) version;
-          WARNING = "Newer get_iplayer available";
-        });
 
-    youtube-dl =
-      with rec {
-        ourVersion = self.sources.youtube-dl.version;
+      nix-helpers     = latestRev "nix-helpers";
+      warbo-packages  = latestRev "warbo-packages";
+      warbo-utilities = latestRev "warbo-utilities";
 
-        latestPackage = (getAttr self.latest self).youtube-dl;
-
-        latestRelease = import (self.runCommand "youtube-dl-release.nix"
-          { page = fetchurl https://ytdl-org.github.io/youtube-dl/download.html; }
-          ''
-            grep   -o '[^"]*\.tar\.gz' < "$page" |
-              head -n1                           |
-              grep -o 'youtube-dl-.*\.tar.gz'    |
-              cut  -d - -f3                      |
-              cut  -d . -f 1-3                   |
-              sed  -e 's/\(.*\)/"\1"/g'          > "$out"
-          '');
-
-        warnIf = version: pred: msgBits:
-          if self.onlineCheck
-             then if pred (compareVersions ourVersion version)
-                     then []
-                     else [ (toJSON {
-                       inherit latestRelease;
-                       overrideVersion = ourVersion;
-                       latestPackaged  = latestPackage.version;
-                       warning         = concatStringsSep " " msgBits;
-                     }) ]
-             else trace "Skipping youtube-dl check" [];
+      youtube-dl = checkPage {
+        inherit (self.sources.youtube-dl) version;
+        name   = "youtube-dl";
+        url    = https://ytdl-org.github.io/youtube-dl/download.html;
+        script = ''
+          grep   -o '[^"]*\.tar\.gz' < "$page" |
+            head -n1                           |
+            grep -o 'youtube-dl-.*\.tar.gz'    |
+            cut  -d - -f3                      |
+            cut  -d . -f 1-3                   |
+            sed  -e 's/\(.*\)/"\1"/g'          > "$out"
+        '';
+        extra =
+          with {
+            ours     = self.sources.youtube-dl.version;
+            packaged = (getAttr self.latest self).youtube-dl.version;
+          };
+          optional (compareVersions ours packaged < 1) (toJSON {
+            inherit ours packaged;
+            WARNING = "New youtube-dl is in nixpkgs";
+          });
       };
-      warnIf latestPackage.version (x: x == 1) [
-        "FIX${""}ME: Our updated youtube-dl override is older than one in"
-        "nixpkgs. We should remove our override and use the upstream version."
-      ] ++
-      warnIf latestRelease (x: x > -1) [
-        "Our youtube-dl override is out of date. If it doesn't work, YouTube"
-        "might have changed their API, which the update might fix."
-      ];
   };
 }
