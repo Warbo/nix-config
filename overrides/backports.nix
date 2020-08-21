@@ -11,8 +11,8 @@
 self: super:
 
 with {
-  inherit (builtins) compareVersions fetchurl foldl' getAttr toJSON;
-  inherit (super.lib) concatStringsSep makeOverridable mapAttrs optional;
+  inherit (builtins) compareVersions fetchurl foldl' getAttr mapAttrs toJSON;
+  inherit (super.lib) concatStringsSep genAttrs makeOverridable optional;
 };
 {
   overrides = {
@@ -69,26 +69,17 @@ with {
   };
 
   checks =
-    with {
-      latestRev = name:
-        with rec {
-          src  = builtins.getAttr name self.sources;
-          got  = src.rev;
-          want = self.gitHead { url = src.repo; };
-        };
-        self.lib.optional
-          (self.onlineCheck && (got != want))
-          (builtins.toJSON {
-            inherit got name want;
-            warning = "Pinned repo is out of date";
-          });
-    };
-    {
-      nix-helpers     = latestRev "nix-helpers";
-      warbo-packages  = latestRev "warbo-packages";
-      warbo-utilities = latestRev "warbo-utilities";
-    }
-  //
+    genAttrs [ "nix-helpers" "warbo-packages" "warbo-utilities" ] (name:
+      with rec {
+        src  = getAttr name self.sources;
+        got  = src.rev;
+        want = self.gitHead { url = src.repo; };
+      };
+      optional (self.onlineCheck && (got != want)) (toJSON {
+        inherit got name want;
+        warning = "Pinned repo is out of date";
+      }))
+    //
     mapAttrs
       (name: { extra ? [], script, url, version }:
         with {
