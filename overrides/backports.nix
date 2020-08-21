@@ -12,7 +12,7 @@ self: super:
 
 with {
   inherit (builtins) compareVersions fetchurl foldl' getAttr toJSON;
-  inherit (super.lib) concatStringsSep makeOverridable optional;
+  inherit (super.lib) concatStringsSep makeOverridable mapAttrs optional;
 };
 {
   overrides = {
@@ -82,8 +82,15 @@ with {
             inherit got name want;
             warning = "Pinned repo is out of date";
           });
-
-      checkPage = { extra ? [], name, script, url, version }:
+    };
+    {
+      nix-helpers     = latestRev "nix-helpers";
+      warbo-packages  = latestRev "warbo-packages";
+      warbo-utilities = latestRev "warbo-utilities";
+    }
+  //
+    mapAttrs
+      (name: { extra ? [], script, url, version }:
         with {
           latest = import (self.runCommand "latest-${name}.nix"
                             { page = fetchurl url; }
@@ -94,61 +101,54 @@ with {
           (toJSON {
             inherit latest version;
             WARNING = "Newer ${name} is available";
-          });
-    };
-    {
-      firefoxBinary = checkPage {
-        inherit (self.sources.firefox) version;
-        name   = "firefox";
-        url    = https://www.mozilla.org/en-US/firefox/releases;
-        script = ''
-          grep -o 'data-latest-firefox="[^"]*"' < "$page" |
-          grep -o '".*"' > "$out"
-        '';
-      };
+          }))
+      {
+        firefoxBinary = {
+          inherit (self.sources.firefox) version;
+          url    = https://www.mozilla.org/en-US/firefox/releases;
+          script = ''
+            grep -o 'data-latest-firefox="[^"]*"' < "$page" |
+            grep -o '".*"' > "$out"
+          '';
+        };
 
-      get_iplayer = checkPage {
-        inherit (self.sources.get_iplayer) version;
-        name   = "get_iplayer";
-        url    = https://github.com/get-iplayer/get_iplayer/releases;
-        script = ''
-          EXPR='${concatStringsSep "/" [
-            ''//a[contains(text(), "Latest release")]''
-            ".."
-            ".."
-            ''/a[contains(@href, "releases/tag")]''
-            "text()"
-          ]}'
-          LATEST=$("${self.xidel}/bin/xidel" - -q -e "$EXPR" < "$page")
-          echo "\"$LATEST\"" > "$out"
-        '';
-      };
+        get_iplayer = {
+          inherit (self.sources.get_iplayer) version;
+          url    = https://github.com/get-iplayer/get_iplayer/releases;
+          script = ''
+            EXPR='${concatStringsSep "/" [
+              ''//a[contains(text(), "Latest release")]''
+              ".."
+              ".."
+              ''/a[contains(@href, "releases/tag")]''
+              "text()"
+            ]}'
+            LATEST=$("${self.xidel}/bin/xidel" - -q -e "$EXPR" < "$page")
+            echo "\"$LATEST\"" > "$out"
+          '';
+        };
 
-      nix-helpers     = latestRev "nix-helpers";
-      warbo-packages  = latestRev "warbo-packages";
-      warbo-utilities = latestRev "warbo-utilities";
-
-      youtube-dl = checkPage {
-        inherit (self.sources.youtube-dl) version;
-        name   = "youtube-dl";
-        url    = https://ytdl-org.github.io/youtube-dl/download.html;
-        script = ''
-          grep   -o '[^"]*\.tar\.gz' < "$page" |
-            head -n1                           |
-            grep -o 'youtube-dl-.*\.tar.gz'    |
-            cut  -d - -f3                      |
-            cut  -d . -f 1-3                   |
-            sed  -e 's/\(.*\)/"\1"/g'          > "$out"
-        '';
-        extra =
-          with {
-            ours     = self.sources.youtube-dl.version;
-            packaged = (getAttr self.latest self).youtube-dl.version;
-          };
-          optional (compareVersions ours packaged < 1) (toJSON {
-            inherit ours packaged;
-            WARNING = "New youtube-dl is in nixpkgs";
-          });
-      };
-  };
+        youtube-dl = {
+          inherit (self.sources.youtube-dl) version;
+          url    = https://ytdl-org.github.io/youtube-dl/download.html;
+          script = ''
+            grep   -o '[^"]*\.tar\.gz' < "$page" |
+              head -n1                           |
+              grep -o 'youtube-dl-.*\.tar.gz'    |
+              cut  -d - -f3                      |
+              cut  -d . -f 1-3                   |
+              sed  -e 's/\(.*\)/"\1"/g'          > "$out"
+          '';
+          extra =
+            with {
+              ours     = self.sources.youtube-dl.version;
+              packaged = (getAttr self.latest self).youtube-dl.version;
+            };
+            optional (compareVersions ours packaged < 1) (toJSON {
+              inherit ours packaged;
+              WARNING = "New youtube-dl is in nixpkgs";
+            });
+        };
+    }
+  ;
 }
