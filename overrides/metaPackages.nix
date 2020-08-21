@@ -8,7 +8,8 @@ self: super:
 with builtins;
 with super.lib;
 with {
-  nonMac = attrs: if match ".*-darwin" currentSystem == null then attrs else {};
+  nonMac  = attrs: if match ".*-darwin" currentSystem == null then attrs else {};
+  onlyMac = attrs: if match ".*-darwin" currentSystem == null then {} else attrs;
 
   go = name: paths:
     assert all isDerivation (attrValues paths) || self.die {
@@ -63,7 +64,6 @@ with {
         haskellCli
         jq
         lzip
-        metals
         nix-diff
         nix_release
         nix-top
@@ -81,6 +81,10 @@ with {
         inherit (self.python3Packages)
           black
           ;
+    } // onlyMac {
+      inherit (self)
+        metals
+        ;
     } // nonMac {
       inherit (self)
         msgpack-tools
