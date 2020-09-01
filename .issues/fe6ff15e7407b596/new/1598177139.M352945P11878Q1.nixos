@@ -1,0 +1,19 @@
+From: Chris Warburton
+Date: Sun, 23 Aug 2020 10:59:43 +0100
+State: new
+Subject: Haskell breakages on 32bit
+Message-Id: <fe6ff15e7407b596-0-artemis@nixos>
+
+GHC bug https://gitlab.haskell.org/ghc/ghc/-/issues/17950
+
+This affects the locking used by cabal-install, e.g.
+https://github.com/haskell/cabal/issues/6602
+
+It seems to come from the 'lukko' library:
+https://github.com/phadej/lukko/issues/15
+
+This certainly affects anything using haskell.nix
+
+If the workaround of compiling cabal with 'lukko -ofd-locking' can be easily
+implemented, e.g. via some minimal override, then it might be worth doing. It
+would trigger a lot of rebuilding though.
