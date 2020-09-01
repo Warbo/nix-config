@@ -53,9 +53,9 @@
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "warbo-packages": {
-        "ref": "master",
+        "branch": "master",
         "repo": "http://chriswarbo.net/git/warbo-packages.git",
-        "rev": "00d3386b048d99deb6bef52d5fd5e2881336d3c6",
+        "rev": "77bedd59bc6293f7d49525912415cf07e6edb8af",
         "type": "git"
     },
     "warbo-utilities": {
