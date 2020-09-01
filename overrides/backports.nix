@@ -16,7 +16,8 @@ with {
 };
 {
   overrides = {
-    inherit (import self.sources.niv {}) niv;
+    # Take nix-helper's Niv version
+    niv = self.pinnedNiv;
 
     firefoxBinary = self.makeFirefoxBinary self.sources.firefox;
 
