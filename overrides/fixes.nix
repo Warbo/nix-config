@@ -53,7 +53,7 @@ with rec {
         updated = check: super.keepassx-community.overrideAttrs (old: rec {
           inherit (source) version;
           name        = "keepassxc-${version}";
-          src         = source.outPath;
+          src         = self.linkTo { name = name + ".tar.xz"; path = source; };
           buildInputs = old.buildInputs ++ [
             self.asciidoctor                          # Needed for documentation
             self.nixpkgs1709.pkgconfig                # Needed to find qrencode

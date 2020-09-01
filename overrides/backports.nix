@@ -29,7 +29,7 @@ with {
           self.stdenv.lib.overrideDerivation get_iplayer
             (oldAttrs : {
               name                  = "get_iplayer-${src.version}";
-              src                   = src.outPath;
+              src                   = src;
               propagatedBuildInputs = oldAttrs.propagatedBuildInputs ++ [
                 perlPackages.LWPProtocolHttps
                 perlPackages.XMLSimple
@@ -63,7 +63,7 @@ with {
         override = super.youtube-dl.overrideDerivation (old: {
           inherit (src) version;
           name = "youtube-dl-${src.version}";
-          src  = src.outPath;
+          src  = src;
         });
       };
       foldl' (x: msg: trace msg x) override self.nix-config-checks.youtube-dl;
