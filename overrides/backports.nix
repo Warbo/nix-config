@@ -19,11 +19,11 @@ with {
     # Take nix-helper's Niv version
     niv = self.pinnedNiv;
 
-    firefoxBinary = self.makeFirefoxBinary self.sources.firefox;
+    firefoxBinary = self.makeFirefoxBinary self.nix-config-sources.firefox;
 
     get_iplayer =
       with rec {
-        src = self.sources.get_iplayer;
+        src = self.nix-config-sources.get_iplayer;
 
         get_iplayer_real = { ffmpeg, get_iplayer, perlPackages }:
           self.stdenv.lib.overrideDerivation get_iplayer
@@ -58,7 +58,7 @@ with {
 
     youtube-dl =
       with rec {
-        src = self.sources.youtube-dl;
+        src = self.nix-config-sources.youtube-dl;
 
         override = super.youtube-dl.overrideDerivation (old: {
           inherit (src) version;
@@ -72,7 +72,7 @@ with {
   checks =
     genAttrs [ "nix-helpers" "warbo-packages" "warbo-utilities" ] (name:
       with rec {
-        src  = getAttr name self.sources;
+        src  = getAttr name self.nix-config-sources;
         got  = src.rev;
         want = self.gitHead { url = src.repo; };
       };
@@ -96,7 +96,7 @@ with {
           }))
       {
         firefoxBinary = {
-          inherit (self.sources.firefox) version;
+          inherit (self.nix-config-sources.firefox) version;
           url    = https://www.mozilla.org/en-US/firefox/releases;
           script = ''
             grep -o 'data-latest-firefox="[^"]*"' < "$page" |
@@ -105,7 +105,7 @@ with {
         };
 
         get_iplayer = {
-          inherit (self.sources.get_iplayer) version;
+          inherit (self.nix-config-sources.get_iplayer) version;
           url    = https://github.com/get-iplayer/get_iplayer/releases;
           script = ''
             EXPR='${concatStringsSep "/" [
@@ -121,7 +121,7 @@ with {
         };
 
         youtube-dl = {
-          inherit (self.sources.youtube-dl) version;
+          inherit (self.nix-config-sources.youtube-dl) version;
           url    = https://ytdl-org.github.io/youtube-dl/download.html;
           script = ''
             grep   -o '[^"]*\.tar\.gz' < "$page" |
@@ -133,7 +133,7 @@ with {
           '';
           extra =
             with {
-              ours     = self.sources.youtube-dl.version;
+              ours     = self.nix-config-sources.youtube-dl.version;
               packaged = (getAttr self.latest self).youtube-dl.version;
             };
             optional (compareVersions ours packaged < 1) (toJSON {

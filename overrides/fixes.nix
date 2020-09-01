@@ -47,7 +47,7 @@ with rec {
 
     keepassx-community =
       with rec {
-        source = self.sources.keepassx-community;
+        source = self.nix-config-sources.keepassx-community;
 
         updated = check: super.keepassx-community.overrideAttrs (old: rec {
           inherit (source) version;
@@ -179,7 +179,7 @@ with rec {
               sed -e 's/^/"/g' -e 's/$/"/g' > "$out/default.nix"
           '');
 
-        source = self.sources.keepassx-community;
+        source = self.nix-config-sources.keepassx-community;
       };
       self.lib.optional
         (self.onlineCheck && (compareVersions source.version latest != 0))
