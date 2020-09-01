@@ -194,6 +194,7 @@ with {
         dillo
         firefoxBinary
         uget
+        x11vnc
         ;
       pidgin-with-plugins = self.pidgin.override {
         plugins = with self; [
