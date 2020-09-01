@@ -1,10 +1,10 @@
 {
     "firefox": {
-        "sha256": "1rl4pl75bb3nl8h7nk7hm65xczjbaq8w2vxl4and7723401lq6wa",
+        "sha256": "1f557r8ds3vv9blj1i245xsy5iz5hvmdiyvfxwp5l1k50vzj8pj3",
         "type": "file",
-        "url": "https://archive.mozilla.org/pub/firefox/releases/79.0/linux-i686/en-GB/firefox-79.0.tar.bz2",
+        "url": "https://archive.mozilla.org/pub/firefox/releases/80.0.1/linux-i686/en-GB/firefox-80.0.1.tar.bz2",
         "url_template": "https://archive.mozilla.org/pub/firefox/releases/<version>/linux-i686/en-GB/firefox-<version>.tar.bz2",
-        "version": "79.0"
+        "version": "80.0.1"
     },
     "get_iplayer": {
         "description": "A utility for downloading TV and radio programmes from BBC iPlayer and BBC Sounds",
