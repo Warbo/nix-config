@@ -1,9 +1,10 @@
 # Override broken or non-optimal packages from <nixpkgs> and elsewhere
 self: super:
 
-with builtins;
-with super.lib;
 with rec {
+  inherit (builtins) compareVersions getAttr trace;
+  inherit (super.lib) mapAttrs;
+
   get = version: name:
     trace "FIXME: Taking ${name} from nixpkgs${version} as it's broken on 19.09"
           (getAttr name (getAttr "nixpkgs${version}" self));
@@ -166,7 +167,7 @@ with rec {
           {
             buildInputs = [ self.utillinux self.xidel ];
             pat  = "//a[contains(text(),'Latest release')]/../..//a/@href";
-            page = fetchurl
+            page = builtins.fetchurl
               https://github.com/keepassxreboot/keepassxc/releases/latest;
           }
           ''
