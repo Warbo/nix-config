@@ -40,18 +40,6 @@
         "rev": "02ce022217fe649fbe2cd77b18445935ef2089b5",
         "type": "git"
     },
-    "nixpkgs": {
-        "branch": "nixos-19.09",
-        "description": "A read-only mirror of NixOS/nixpkgs tracking the released channels. Send issues and PRs to",
-        "homepage": "https://github.com/NixOS/nixpkgs",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "1dadefec574531f021bddc85ca3c9bc81fd52899",
-        "sha256": "0csm7nycb8p990jl1mj20mg79lxpfg2xcplndcg1dbqclgw1wmqd",
-        "type": "tarball",
-        "url": "https://github.com/NixOS/nixpkgs/archive/1dadefec574531f021bddc85ca3c9bc81fd52899.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
     "warbo-packages": {
         "branch": "master",
         "repo": "http://chriswarbo.net/git/warbo-packages.git",
