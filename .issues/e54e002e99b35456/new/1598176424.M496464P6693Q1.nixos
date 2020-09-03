@@ -1,0 +1,7 @@
+From: Chris Warburton
+Date: Sun, 23 Aug 2020 10:53:29 +0100
+State: new
+Subject: Activate mosh
+Message-Id: <e54e002e99b35456-0-artemis@nixos>
+
+It should be nicer than SSH

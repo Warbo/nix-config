@@ -1,9 +1,10 @@
 # Override broken or non-optimal packages from <nixpkgs> and elsewhere
 self: super:
 
-with builtins;
-with super.lib;
 with rec {
+  inherit (builtins) compareVersions getAttr trace;
+  inherit (super.lib) mapAttrs;
+
   get = version: name:
     trace "FIXME: Taking ${name} from nixpkgs${version} as it's broken on 19.09"
           (getAttr name (getAttr "nixpkgs${version}" self));
@@ -47,12 +48,12 @@ with rec {
 
     keepassx-community =
       with rec {
-        source = self.sources.keepassx-community;
+        source = self.nix-config-sources.keepassx-community;
 
         updated = check: super.keepassx-community.overrideAttrs (old: rec {
           inherit (source) version;
           name        = "keepassxc-${version}";
-          src         = source.outPath;
+          src         = self.linkTo { name = name + ".tar.xz"; path = source; };
           buildInputs = old.buildInputs ++ [
             self.asciidoctor                          # Needed for documentation
             self.nixpkgs1709.pkgconfig                # Needed to find qrencode
@@ -166,7 +167,7 @@ with rec {
           {
             buildInputs = [ self.utillinux self.xidel ];
             pat  = "//a[contains(text(),'Latest release')]/../..//a/@href";
-            page = fetchurl
+            page = builtins.fetchurl
               https://github.com/keepassxreboot/keepassxc/releases/latest;
           }
           ''
@@ -179,7 +180,7 @@ with rec {
               sed -e 's/^/"/g' -e 's/$/"/g' > "$out/default.nix"
           '');
 
-        source = self.sources.keepassx-community;
+        source = self.nix-config-sources.keepassx-community;
       };
       self.lib.optional
         (self.onlineCheck && (compareVersions source.version latest != 0))

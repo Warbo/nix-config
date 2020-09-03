@@ -1,10 +1,10 @@
 {
     "firefox": {
-        "sha256": "1rl4pl75bb3nl8h7nk7hm65xczjbaq8w2vxl4and7723401lq6wa",
+        "sha256": "1f557r8ds3vv9blj1i245xsy5iz5hvmdiyvfxwp5l1k50vzj8pj3",
         "type": "file",
-        "url": "https://archive.mozilla.org/pub/firefox/releases/79.0/linux-i686/en-GB/firefox-79.0.tar.bz2",
+        "url": "https://archive.mozilla.org/pub/firefox/releases/80.0.1/linux-i686/en-GB/firefox-80.0.1.tar.bz2",
         "url_template": "https://archive.mozilla.org/pub/firefox/releases/<version>/linux-i686/en-GB/firefox-<version>.tar.bz2",
-        "version": "79.0"
+        "version": "80.0.1"
     },
     "get_iplayer": {
         "description": "A utility for downloading TV and radio programmes from BBC iPlayer and BBC Sounds",
@@ -16,11 +16,11 @@
         "version": "v3.26"
     },
     "keepassx-community": {
-        "sha256": "0fpx6pq336g1xwjl5yzvsky6vqvaa38zb8pwkgswph9slybkvlnh",
+        "sha256": "1j4cmj5mv13m5b4ig950yas8ayybakqs366lp1cimmzw8ycparml",
         "type": "file",
-        "url": "https://github.com/keepassxreboot/keepassxc/releases/download/2.6.0/keepassxc-2.6.0-src.tar.xz",
+        "url": "https://github.com/keepassxreboot/keepassxc/releases/download/2.6.1/keepassxc-2.6.1-src.tar.xz",
         "url_template": "https://github.com/keepassxreboot/keepassxc/releases/download/<version>/keepassxc-<version>-src.tar.xz",
-        "version": "2.6.0"
+        "version": "2.6.1"
     },
     "niv": {
         "branch": "master",
@@ -28,40 +28,28 @@
         "homepage": "https://github.com/nmattia/niv",
         "owner": "nmattia",
         "repo": "niv",
-        "rev": "e82eb322ea32a747a51c431d7787221bcc6d9038",
-        "sha256": "1fy4dcr05d80diwlxmh42xnjm5ki1pkbky38smvlqjaky2y2f71f",
+        "rev": "d13bf5ff11850f49f4282d59b25661c45a851936",
+        "sha256": "06hg0i173dia99bcv8si8qqwdw0ymbngsilz2s182d4afsnylq5z",
         "type": "tarball",
-        "url": "https://github.com/nmattia/niv/archive/e82eb322ea32a747a51c431d7787221bcc6d9038.tar.gz",
+        "url": "https://github.com/nmattia/niv/archive/d13bf5ff11850f49f4282d59b25661c45a851936.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nix-helpers": {
-        "ref": "master",
+        "branch": "master",
         "repo": "http://chriswarbo.net/git/nix-helpers.git",
-        "rev": "3d2368912e16801798024e357a0046fd723b13a2",
+        "rev": "02ce022217fe649fbe2cd77b18445935ef2089b5",
         "type": "git"
     },
-    "nixpkgs": {
-        "branch": "nixos-19.09",
-        "description": "A read-only mirror of NixOS/nixpkgs tracking the released channels. Send issues and PRs to",
-        "homepage": "https://github.com/NixOS/nixpkgs",
-        "owner": "NixOS",
-        "repo": "nixpkgs",
-        "rev": "1dadefec574531f021bddc85ca3c9bc81fd52899",
-        "sha256": "0csm7nycb8p990jl1mj20mg79lxpfg2xcplndcg1dbqclgw1wmqd",
-        "type": "tarball",
-        "url": "https://github.com/NixOS/nixpkgs/archive/1dadefec574531f021bddc85ca3c9bc81fd52899.tar.gz",
-        "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
     "warbo-packages": {
-        "ref": "master",
+        "branch": "master",
         "repo": "http://chriswarbo.net/git/warbo-packages.git",
-        "rev": "00d3386b048d99deb6bef52d5fd5e2881336d3c6",
+        "rev": "97af4a063fe927e2804d2fb7ab88e5bd837199a7",
         "type": "git"
     },
     "warbo-utilities": {
-        "ref": "master",
+        "branch": "master",
         "repo": "http://chriswarbo.net/git/warbo-utilities.git",
-        "rev": "45ccc7b114877eb68b2554d3374480e4a4a59631",
+        "rev": "f77deeb2f1ac4caf46586ab1978c2e6859ccdbe5",
         "type": "git"
     },
     "youtube-dl": {

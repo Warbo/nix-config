@@ -8,7 +8,8 @@ self: super:
 with builtins;
 with super.lib;
 with {
-  nonMac = attrs: if match ".*-darwin" currentSystem == null then attrs else {};
+  nonMac  = attrs: if match ".*-darwin" currentSystem == null then attrs else {};
+  onlyMac = attrs: if match ".*-darwin" currentSystem == null then {} else attrs;
 
   go = name: paths:
     assert all isDerivation (attrValues paths) || self.die {
@@ -63,14 +64,13 @@ with {
         haskellCli
         jq
         lzip
-        metals
         niv
         nix-diff
         nix_release
         nix-top
         openjdk
         p7zip
-        python  # TODO: We should be using python3 now
+        python
         sbt
         scala
         silver-searcher
@@ -82,6 +82,10 @@ with {
         inherit (self.python3Packages)
           black
           ;
+    } // onlyMac {
+      inherit (self)
+        metals
+        ;
     } // nonMac {
       inherit (self)
         msgpack-tools
@@ -190,6 +194,7 @@ with {
         dillo
         firefoxBinary
         uget
+        x11vnc
         ;
       pidgin-with-plugins = self.pidgin.override {
         plugins = with self; [
