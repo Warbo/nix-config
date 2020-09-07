@@ -27,9 +27,6 @@ with super.lib;
       stable = { unsafeSkip = true; };
     };
 
-    # A known-good version of nixpkgs to default to, if needed
-    stableVersion = "nixpkgs1909";
-
     # Imports the given nixpkgs repo with the latest version of nix-config
     withLatestCfg = nixpkgs: import nixpkgs {
       overlays = import "${self.latestNixCfg}/overlays.nix";
