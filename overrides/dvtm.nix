@@ -1,10 +1,4 @@
-# Packages with our own custom patches, for things other than breakages (i.e.
-# not backports or issues that should be resolved upstream). For example, some
-# projects are configured at build time rather than reading config files at
-# runtime (e.g. suckless projects)
-self: super:
-
-{
+self: super: {
   overrides = {
     dvtm = super.dvtm.override {
       callPackage = f: args: super.callPackage f (args // {
