@@ -33,7 +33,7 @@ with {
       extra =
         with {
         ours     = self.nix-config-sources.youtube-dl.version;
-        packaged = (getAttr self.latest self).youtube-dl.version;
+        packaged = self.nixpkgsLatest.youtube-dl.version;
       };
       optional (compareVersions ours packaged < 1) (toJSON {
         inherit ours packaged;
