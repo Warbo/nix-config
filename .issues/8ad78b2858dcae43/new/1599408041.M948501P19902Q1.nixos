@@ -1,0 +1,9 @@
+From: Chris Warburton
+Date: Sun, 06 Sep 2020 16:59:19 +0100
+State: new
+Subject: Turn overlays into standalone packages
+Message-Id: <8ad78b2858dcae43-0-artemis@nixos>
+
+Using separate overlays is pretty arbitrary. We might as well take the same
+approach as nix-helpers and warbo-packages and put each definition in its own
+separate file.
