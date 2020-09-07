@@ -56,17 +56,18 @@ with {
       };
       self.withDeps [ test ] pkg;
 
-    youtube-dl =
-      with rec {
-        src = self.nix-config-sources.youtube-dl;
-
-        override = super.youtube-dl.overrideDerivation (old: {
-          inherit (src) version;
-          name = "youtube-dl-${src.version}";
-          src  = src;
-        });
+    nix-config-version-check = name: { extra ? [], script, url, version }:
+      with {
+        latest = import (self.runCommand "latest-${name}.nix"
+                                         { page = fetchurl url; }
+                                         script);
       };
-      foldl' (x: msg: trace msg x) override self.nix-config-checks.youtube-dl;
+      extra ++ optional
+        (self.onlineCheck && compareVersions version latest == -1)
+        (toJSON {
+          inherit latest version;
+          WARNING = "Newer ${name} is available";
+        });
   };
 
   checks =
@@ -81,19 +82,7 @@ with {
         warning = "Pinned repo is out of date";
       }))
     //
-    mapAttrs
-      (name: { extra ? [], script, url, version }:
-        with {
-          latest = import (self.runCommand "latest-${name}.nix"
-                            { page = fetchurl url; }
-                            script);
-        };
-        extra ++ optional
-          (self.onlineCheck && compareVersions version latest == -1)
-          (toJSON {
-            inherit latest version;
-            WARNING = "Newer ${name} is available";
-          }))
+    mapAttrs self.nix-config-version-check
       {
         firefoxBinary = {
           inherit (self.nix-config-sources.firefox) version;
@@ -118,28 +107,6 @@ with {
             LATEST=$("${self.xidel}/bin/xidel" - -q -e "$EXPR" < "$page")
             echo "\"$LATEST\"" > "$out"
           '';
-        };
-
-        youtube-dl = {
-          inherit (self.nix-config-sources.youtube-dl) version;
-          url    = https://ytdl-org.github.io/youtube-dl/download.html;
-          script = ''
-            grep   -o '[^"]*\.tar\.gz' < "$page" |
-              head -n1                           |
-              grep -o 'youtube-dl-.*\.tar.gz'    |
-              cut  -d - -f3                      |
-              cut  -d . -f 1-3                   |
-              sed  -e 's/\(.*\)/"\1"/g'          > "$out"
-          '';
-          extra =
-            with {
-              ours     = self.nix-config-sources.youtube-dl.version;
-              packaged = (getAttr self.latest self).youtube-dl.version;
-            };
-            optional (compareVersions ours packaged < 1) (toJSON {
-              inherit ours packaged;
-              WARNING = "New youtube-dl is in nixpkgs";
-            });
         };
     }
   ;
