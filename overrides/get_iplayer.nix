@@ -1,7 +1,7 @@
 self: super:
 
 with {
-  inherit (super.lib) concatStringsSep mapAttrs;
+  inherit (super.lib) concatStringsSep makeOverridable mapAttrs;
 };
 {
   overrides = {
