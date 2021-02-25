@@ -306,13 +306,16 @@ with rec {
           CODE=0
 
           echo "Fetching mail" 1>&2
-          if timeout -s 9 3600 mbsync --verbose gmail dundee
-          then
-            echo "Finished syncing" 1>&2
-          else
-            echo "Error syncing" 1>&2
-            CODE=1
-          fi
+          for INBOX in gmail dundee
+          do
+            if timeout -s 9 1800 mbsync --verbose "$INBOX"
+            then
+              echo "Finished syncing $INBOX" 1>&2
+            else
+              echo "Error syncing $INBOX" 1>&2
+              CODE=1
+            fi
+          done
 
           # Try waiting for existing mu processes to die
           for RETRY in $(seq 1 20)
