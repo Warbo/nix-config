@@ -9,11 +9,11 @@
     "get_iplayer": {
         "description": "A utility for downloading TV and radio programmes from BBC iPlayer and BBC Sounds",
         "homepage": "https://github.com/get-iplayer/get_iplayer/wiki",
-        "sha256": "0lsz5hz1ia5j612540rb0f31y7j2k5gf7x5i43l8k06b90wi73d6",
+        "sha256": "077y31gg020wjpx5pcivqgkqawcjxh5kjnvq97x2gd7i3wwc30qi",
         "type": "tarball",
-        "url": "https://github.com/get-iplayer/get_iplayer/archive/v3.26.tar.gz",
+        "url": "https://github.com/get-iplayer/get_iplayer/archive/v3.27.tar.gz",
         "url_template": "https://github.com/get-iplayer/get_iplayer/archive/<version>.tar.gz",
-        "version": "v3.26"
+        "version": "v3.27"
     },
     "keepassx-community": {
         "sha256": "1j4cmj5mv13m5b4ig950yas8ayybakqs366lp1cimmzw8ycparml",
