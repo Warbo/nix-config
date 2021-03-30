@@ -1,10 +1,10 @@
 {
     "firefox": {
-        "sha256": "0f1b6yfjrvjsdvgf2xffq0zmh21xjz1x98qwmpx7f2anlw1dm0kc",
+        "sha256": "1xlpwrxlwapgnhd9jq3k4za5zffzgdjpc8dwx89swwr8c14y1x6b",
         "type": "file",
-        "url": "https://archive.mozilla.org/pub/firefox/releases/86.0/linux-i686/en-GB/firefox-86.0.tar.bz2",
+        "url": "https://archive.mozilla.org/pub/firefox/releases/87.0/linux-i686/en-GB/firefox-87.0.tar.bz2",
         "url_template": "https://archive.mozilla.org/pub/firefox/releases/<version>/linux-i686/en-GB/firefox-<version>.tar.bz2",
-        "version": "86.0"
+        "version": "87.0"
     },
     "get_iplayer": {
         "description": "A utility for downloading TV and radio programmes from BBC iPlayer and BBC Sounds",
@@ -37,7 +37,7 @@
     "nix-helpers": {
         "branch": "master",
         "repo": "http://chriswarbo.net/git/nix-helpers.git",
-        "rev": "295f5db7a8c6fdf3d55a29fad265531bed776d0c",
+        "rev": "43a621ca76e81881052b4e16e571b6fcdd01d860",
         "type": "git"
     },
     "warbo-packages": {
