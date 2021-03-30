@@ -49,14 +49,14 @@
     "warbo-utilities": {
         "branch": "master",
         "repo": "http://chriswarbo.net/git/warbo-utilities.git",
-        "rev": "f77deeb2f1ac4caf46586ab1978c2e6859ccdbe5",
+        "rev": "4cf1d86caa264a9f5d004885e4a9e7e9d5e9c168",
         "type": "git"
     },
     "youtube-dl": {
-        "sha256": "01b0k2j4911qfab2dh3njhii1v2m4spvnihd89gz5icg7d6744wh",
+        "sha256": "0f9i8vqznz7d9c5hmpfgiry1w8b5gs5rlzm2g0gf9wfqk7hih3nj",
         "type": "tarball",
-        "url": "https://yt-dl.org/downloads/2021.02.22/youtube-dl-2021.02.22.tar.gz",
+        "url": "https://yt-dl.org/downloads/2021.03.25/youtube-dl-2021.03.25.tar.gz",
         "url_template": "https://yt-dl.org/downloads/<version>/youtube-dl-<version>.tar.gz",
-        "version": "2021.02.22"
+        "version": "2021.03.25"
     }
 }
