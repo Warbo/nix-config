@@ -43,7 +43,7 @@
     "warbo-packages": {
         "branch": "master",
         "repo": "http://chriswarbo.net/git/warbo-packages.git",
-        "rev": "97af4a063fe927e2804d2fb7ab88e5bd837199a7",
+        "rev": "d48e0ebc608d99713aad6456aeb5963c967114d0",
         "type": "git"
     },
     "warbo-utilities": {
