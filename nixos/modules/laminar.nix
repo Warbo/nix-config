@@ -168,18 +168,22 @@ with rec {
       };
     };
 
-    users.extraGroups = optional (cfg.group == "laminar") {
-      name = "laminar";
+    users.extraGroups = optionalAttrs (cfg.group == "laminar") {
+      laminar = {
+        name = "laminar";
+      };
     };
 
-    users.extraUsers = optional (cfg.user == "laminar") {
-      name            = "laminar";
-      description     = "Laminar User.";
-      isNormalUser    = true;
-      createHome      = false;
-      group           = cfg.group;
-      extraGroups     = cfg.extraGroups;
-      useDefaultShell = true;
+    users.extraUsers = optionalAttrs (cfg.user == "laminar") {
+      "${cfg.user}" = {
+        name            = "laminar";
+        description     = "Laminar User.";
+        isNormalUser    = true;
+        createHome      = false;
+        group           = cfg.group;
+        extraGroups     = cfg.extraGroups;
+        useDefaultShell = true;
+      };
     };
   };
 }
