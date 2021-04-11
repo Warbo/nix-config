@@ -100,7 +100,6 @@ with {
          ;
     } // nonMac {
       inherit (self)
-        mysql-workbench
         sqlitebrowser
         ;
     };
