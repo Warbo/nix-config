@@ -10,7 +10,7 @@ self: super: {
           src         = self.linkTo { name = name + ".tar.xz"; path = source; };
           buildInputs = old.buildInputs ++ [
             self.asciidoctor                          # Needed for documentation
-            self.nixpkgs1709.pkgconfig                # Needed to find qrencode
+            self.pkgconfig                            # Needed to find qrencode
             self.qt5.qtsvg self.nixpkgs1709.qrencode  # New dependencies
           ];
           checkPhase =
