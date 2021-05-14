@@ -53,10 +53,10 @@
         "type": "git"
     },
     "youtube-dl": {
-        "sha256": "13v0h0akb1wvzcf1rpr5c45s2pllm5kys94ffnvqgyycyp4lwky4",
+        "sha256": "0qpx2nvnbbaw8nnazjikmk08x2540mgj7j11r7gw6fh9lcc9xgjq",
         "type": "tarball",
-        "url": "https://yt-dl.org/downloads/2021.04.07/youtube-dl-2021.04.07.tar.gz",
+        "url": "https://yt-dl.org/downloads/2021.04.26/youtube-dl-2021.04.26.tar.gz",
         "url_template": "https://yt-dl.org/downloads/<version>/youtube-dl-<version>.tar.gz",
-        "version": "2021.04.07"
+        "version": "2021.04.26"
     }
 }
