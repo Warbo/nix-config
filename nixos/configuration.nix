@@ -335,6 +335,7 @@ rec {
   };
 
   programs = {
+    gnupg.agent.enable = true;
     iotop.enable = true;
     mosh.enable  = true;
     qt5ct.enable = true;  # Non-DE Qt config GUI
