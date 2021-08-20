@@ -16,11 +16,11 @@
         "version": "v3.27"
     },
     "keepassx-community": {
-        "sha256": "0azq20rqsx7axrigha4qh81ipvhqnnlb27w3xdjg5z4h3jky4dp5",
+        "sha256": "1qm4a1k11vy35mrzbzcc7lwlpmjzw18a2zy7z93rqa4vqcdb20rn",
         "type": "file",
-        "url": "https://github.com/keepassxreboot/keepassxc/releases/download/2.6.4/keepassxc-2.6.4-src.tar.xz",
+        "url": "https://github.com/keepassxreboot/keepassxc/releases/download/2.6.6/keepassxc-2.6.6-src.tar.xz",
         "url_template": "https://github.com/keepassxreboot/keepassxc/releases/download/<version>/keepassxc-<version>-src.tar.xz",
-        "version": "2.6.4"
+        "version": "2.6.6"
     },
     "niv": {
         "branch": "master",
