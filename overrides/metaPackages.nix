@@ -55,6 +55,7 @@ with {
         awscli
         binutils
         coreutils
+        direnv
         dvtm
         entr
         file
