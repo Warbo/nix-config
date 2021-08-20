@@ -48,7 +48,7 @@ with {
         ours     = self.nix-config-sources.youtube-dl.version;
         packaged = self.nixpkgsLatest.youtube-dl.version;
       };
-      optional (compareVersions ours packaged < 1) (toJSON {
+      optional (compareVersions ours packaged < 0) (toJSON {
         inherit ours packaged;
         WARNING = "New youtube-dl is in nixpkgs";
       });
