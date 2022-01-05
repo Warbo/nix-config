@@ -143,4 +143,6 @@ with {
   };
 
   sound.mediaKeys.enable = true;
+
+  networking.hostname = "nixos";
 }

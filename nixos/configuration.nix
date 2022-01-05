@@ -40,7 +40,6 @@ rec {
   hardware.enableAllFirmware = true;
 
   networking = {
-    hostName                          = "nixos";
     firewall.enable                   = false;
     firewall.autoLoadConntrackHelpers = true;
 
