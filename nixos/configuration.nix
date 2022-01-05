@@ -105,7 +105,7 @@ rec {
         ];
       };
       ''
-        127.0.0.1     nixos
+        127.0.0.1     ${config.networking.hostname}
         192.168.1.202 phone
         ${trace ''
           FIXME: Faking texLive mirror source. See
