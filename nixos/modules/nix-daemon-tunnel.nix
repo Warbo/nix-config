@@ -98,14 +98,16 @@ with { cfg = config.services.nix-daemon-tunnel; };
       };
     };
 
-    users.extraUsers = optional (cfg.user == "nixbuildtrampoline") {
-      name            = cfg.user;
-      description     = "User to tunnel nix-daemon connections through.";
-      isNormalUser    = true;
-      createHome      = true;
-      home            = cfg.socketDir;
-      group           = "users";
-      useDefaultShell = true;
+    users.extraUsers = optionalAttrs (cfg.user == "nixbuildtrampoline") {
+      "${cfg.user}" = {
+        name            = cfg.user;
+        description     = "User to tunnel nix-daemon connections through.";
+        isNormalUser    = true;
+        createHome      = true;
+        home            = cfg.socketDir;
+        group           = "users";
+        useDefaultShell = true;
+      };
     };
   };
 }

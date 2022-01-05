@@ -36,6 +36,14 @@ with rec {
   overrides = {
     audacious = from1703 "audacious";
 
+    cabal-install = (self.haskellPackages.override (old: {
+      overrides = helf: huper: {
+        aeson      = self.haskell.lib.dontCheck huper.aeson;
+        lens-aeson = self.haskell.lib.dontCheck huper.lens-aeson;
+        SHA        = self.haskell.lib.dontCheck huper.SHA;
+      };
+    })).cabal-install;
+
     # Newer NixOS systems need fuse3 rather than fuse, but it doesn't exist
     # on older systems. We include it if available, otherwise we just warn.
     fuse3 = super.fuse3 or self.nothing;

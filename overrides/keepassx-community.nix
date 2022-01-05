@@ -1,7 +1,4 @@
-self: super:
-
-with { inherit (builtins) compareVersions; };
-{
+self: super: {
   overrides = {
     keepassx-community =
       with rec {
@@ -13,7 +10,7 @@ with { inherit (builtins) compareVersions; };
           src         = self.linkTo { name = name + ".tar.xz"; path = source; };
           buildInputs = old.buildInputs ++ [
             self.asciidoctor                          # Needed for documentation
-            self.nixpkgs1709.pkgconfig                # Needed to find qrencode
+            self.pkgconfig                            # Needed to find qrencode
             self.qt5.qtsvg self.nixpkgs1709.qrencode  # New dependencies
           ];
           checkPhase =
@@ -44,34 +41,24 @@ with { inherit (builtins) compareVersions; };
 
   };
 
-  checks = {
-    keepassx-community =
-      with {
-        latest = import (self.runCommand "latest-keepassxc"
-          {
-            buildInputs = [ self.utillinux self.xidel ];
-            pat  = "//a[contains(text(),'Latest release')]/../..//a/@href";
-            page = builtins.fetchurl
-              https://github.com/keepassxreboot/keepassxc/releases/latest;
-          }
-          ''
-            mkdir "$out"
-            xidel - -q -e "$pat" < "$page"  |
-              grep tag                      |
-              rev                           |
-              cut -d / -f1                  |
-              rev                           |
-              sed -e 's/^/"/g' -e 's/$/"/g' > "$out/default.nix"
-          '');
-
-        source = self.nix-config-sources.keepassx-community;
-      };
-      super.lib.optional
-        (self.onlineCheck && (compareVersions source.version latest != 0))
-        (toJSON {
-          inherit latest;
-          inherit (source) version;
-          warning = "KeePassXC version doesn't match latest";
-        });
+  checks = super.lib.mapAttrs self.nix-config-version-check {
+    keepassx-community = {
+      inherit (self.nix-config-sources.keepassx-community) version;
+      url    = https://github.com/keepassxreboot/keepassxc/releases/latest;
+      script =
+        with {
+          pat = "//a[contains(text(),'Latest release')]/../..//a/@href";
+          rev = "${self.utillinux}/bin/rev";
+        };
+        ''
+          mkdir "$out"
+          "${self.xidel}/bin/xidel" - -q -e "${pat}" < "$page" |
+          grep tag                                             |
+          "${rev}"                                             |
+          cut -d / -f1                                         |
+          "${rev}"                                             |
+          sed -e 's/^/"/g' -e 's/$/"/g' > "$out/default.nix"
+        '';
+    };
   };
 }

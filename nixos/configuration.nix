@@ -141,11 +141,11 @@ rec {
       ];
 
       # Find the mouse
-      XCURSOR_PATH = [
-        "~/.icons"
-        "~/.nix-profile/share/icons"
-        "/var/run/current-system/sw/share/icons"
-      ];
+      # XCURSOR_PATH = [
+      #   "~/.icons"
+      #   "~/.nix-profile/share/icons"
+      #   "/var/run/current-system/sw/share/icons"
+      # ];
     };
 
     # Packages to install in system profile.
@@ -184,6 +184,7 @@ rec {
   };
 
   programs = {
+    gnupg.agent.enable = true;
     iotop.enable = true;
     mosh.enable  = true;
     qt5ct.enable = true;  # Non-DE Qt config GUI
@@ -292,20 +293,22 @@ rec {
 
   systemd.services = import ./services.nix { inherit config pkgs; };
 
-  i18n = {
-    defaultLocale = "en_GB.UTF-8";
-    consoleKeyMap = "uk";
-  };
+  console.keyMap     = "uk";
+  i18n.defaultLocale = "en_GB.UTF-8";
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
-  users.extraUsers.chris = {
-    name        = "chris";
-    group       = "users";
-    extraGroups = [ "atd" "audio" "dialout" "docker" "fuse" "netdev"
-                    "networkmanager" "pulse" "voice" "wheel" ];
-    uid         = 1000;
-    createHome  = true;
-    home        = "/home/chris";
-    shell       = "/run/current-system/sw/bin/bash";
+  users = {
+    extraUsers = {
+      chris = {
+        name        = "chris";
+        group       = "users";
+        extraGroups = [ "atd" "audio" "dialout" "docker" "fuse" "netdev"
+          "networkmanager" "pulse" "voice" "wheel" ];
+        uid         = 1000;
+        createHome  = true;
+        home        = "/home/chris";
+        shell       = "/run/current-system/sw/bin/bash";
+      };
+    };
   };
 }

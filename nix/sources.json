@@ -1,26 +1,26 @@
 {
     "firefox": {
-        "sha256": "1f557r8ds3vv9blj1i245xsy5iz5hvmdiyvfxwp5l1k50vzj8pj3",
+        "sha256": "04h6gmqw8sj2qdjqyq8csg3ljbdvkikpp25bh5y3nckfwy3yhl2k",
         "type": "file",
-        "url": "https://archive.mozilla.org/pub/firefox/releases/80.0.1/linux-i686/en-GB/firefox-80.0.1.tar.bz2",
+        "url": "https://archive.mozilla.org/pub/firefox/releases/88.0.1/linux-i686/en-GB/firefox-88.0.1.tar.bz2",
         "url_template": "https://archive.mozilla.org/pub/firefox/releases/<version>/linux-i686/en-GB/firefox-<version>.tar.bz2",
-        "version": "80.0.1"
+        "version": "88.0.1"
     },
     "get_iplayer": {
         "description": "A utility for downloading TV and radio programmes from BBC iPlayer and BBC Sounds",
         "homepage": "https://github.com/get-iplayer/get_iplayer/wiki",
-        "sha256": "0lsz5hz1ia5j612540rb0f31y7j2k5gf7x5i43l8k06b90wi73d6",
+        "sha256": "077y31gg020wjpx5pcivqgkqawcjxh5kjnvq97x2gd7i3wwc30qi",
         "type": "tarball",
-        "url": "https://github.com/get-iplayer/get_iplayer/archive/v3.26.tar.gz",
+        "url": "https://github.com/get-iplayer/get_iplayer/archive/v3.27.tar.gz",
         "url_template": "https://github.com/get-iplayer/get_iplayer/archive/<version>.tar.gz",
-        "version": "v3.26"
+        "version": "v3.27"
     },
     "keepassx-community": {
-        "sha256": "1j4cmj5mv13m5b4ig950yas8ayybakqs366lp1cimmzw8ycparml",
+        "sha256": "0azq20rqsx7axrigha4qh81ipvhqnnlb27w3xdjg5z4h3jky4dp5",
         "type": "file",
-        "url": "https://github.com/keepassxreboot/keepassxc/releases/download/2.6.1/keepassxc-2.6.1-src.tar.xz",
+        "url": "https://github.com/keepassxreboot/keepassxc/releases/download/2.6.4/keepassxc-2.6.4-src.tar.xz",
         "url_template": "https://github.com/keepassxreboot/keepassxc/releases/download/<version>/keepassxc-<version>-src.tar.xz",
-        "version": "2.6.1"
+        "version": "2.6.4"
     },
     "mobile-nixos": {
       "branch": "master",
@@ -34,35 +34,35 @@
         "homepage": "https://github.com/nmattia/niv",
         "owner": "nmattia",
         "repo": "niv",
-        "rev": "d13bf5ff11850f49f4282d59b25661c45a851936",
-        "sha256": "06hg0i173dia99bcv8si8qqwdw0ymbngsilz2s182d4afsnylq5z",
+        "rev": "af958e8057f345ee1aca714c1247ef3ba1c15f5e",
+        "sha256": "1qjavxabbrsh73yck5dcq8jggvh3r2jkbr6b5nlz5d9yrqm9255n",
         "type": "tarball",
-        "url": "https://github.com/nmattia/niv/archive/d13bf5ff11850f49f4282d59b25661c45a851936.tar.gz",
+        "url": "https://github.com/nmattia/niv/archive/af958e8057f345ee1aca714c1247ef3ba1c15f5e.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
     "nix-helpers": {
         "branch": "master",
         "repo": "http://chriswarbo.net/git/nix-helpers.git",
-        "rev": "02ce022217fe649fbe2cd77b18445935ef2089b5",
+        "rev": "43a621ca76e81881052b4e16e571b6fcdd01d860",
         "type": "git"
     },
     "warbo-packages": {
         "branch": "master",
         "repo": "http://chriswarbo.net/git/warbo-packages.git",
-        "rev": "97af4a063fe927e2804d2fb7ab88e5bd837199a7",
+        "rev": "01aea9eb68725aace0d8dda0d27f11413ff545bb",
         "type": "git"
     },
     "warbo-utilities": {
         "branch": "master",
         "repo": "http://chriswarbo.net/git/warbo-utilities.git",
-        "rev": "f77deeb2f1ac4caf46586ab1978c2e6859ccdbe5",
+        "rev": "4cf1d86caa264a9f5d004885e4a9e7e9d5e9c168",
         "type": "git"
     },
     "youtube-dl": {
-        "sha256": "149r499vah09y6nq95756lcdhnwmg5rzqlamsyvfzxs7c0xd52nd",
+        "sha256": "0qpx2nvnbbaw8nnazjikmk08x2540mgj7j11r7gw6fh9lcc9xgjq",
         "type": "tarball",
-        "url": "https://yt-dl.org/downloads/2020.09.06/youtube-dl-2020.09.06.tar.gz",
+        "url": "https://yt-dl.org/downloads/2021.04.26/youtube-dl-2021.04.26.tar.gz",
         "url_template": "https://yt-dl.org/downloads/<version>/youtube-dl-<version>.tar.gz",
-        "version": "2020.09.06"
+        "version": "2021.04.26"
     }
 }

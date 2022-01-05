@@ -1,7 +1,20 @@
 self: super:
 with {
-  inherit (builtins) compareVersions fetchurl foldl' getAttr mapAttrs toJSON;
-  inherit (super.lib) concatStringsSep genAttrs makeOverridable optional;
+  inherit (builtins)
+    compareVersions
+    fetchurl
+    foldl'
+    getAttr
+    mapAttrs
+    toJSON
+    trace
+    ;
+  inherit (super.lib)
+    concatStringsSep
+    genAttrs
+    makeOverridable
+    optional
+    ;
 };
 {
   overrides = {
