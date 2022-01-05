@@ -115,9 +115,6 @@ rec {
         ${format (import facebook)}
         ${format timewasters}
       '';
-
-    networkmanager.enable = true;
-    enableIPv6            = false;
   };
 
   powerManagement = {

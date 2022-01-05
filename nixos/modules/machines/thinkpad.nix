@@ -144,5 +144,9 @@ with {
 
   sound.mediaKeys.enable = true;
 
-  networking.hostname = "nixos";
+  networking = {
+    hostname              = "nixos";
+    networkmanager.enable = true;
+    enableIPv6            = false;  # TODO: Why?
+  };
 }
