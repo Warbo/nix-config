@@ -202,7 +202,7 @@ rec {
   services.avahi = {
     enable   = true;
     nssmdns  = true;
-    hostName = "nixos";
+    hostName = config.networking.hostname;
     publish.enable      = true;
     publish.addresses   = true;
     publish.workstation = true;
