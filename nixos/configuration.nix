@@ -15,6 +15,11 @@ with rec {
 };
 rec {
   # Low level/hardware stuff
+  machine = {
+    i686-linux    = "thinkpad";
+    aarch64-linux = "pinephone";
+    x86_64-darwin = "macbook";
+  }."${config.system}" or null;
 
   imports =
     # Custom NixOS modules
