@@ -261,30 +261,8 @@ rec {
   services.tor = { client = { enable = true; }; };
 
   services.xserver = {
-    enable         = true;
-    layout         = "gb";
-    xkbOptions     = "ctrl:nocaps";
-    videoDrivers   = [ "intel" "i915" "vesa" "vga" "fbdev" ];
-    windowManager  = {
-      default      = "xmonad";
-      xmonad       = {
-        # 18.09 seems to have a broken 'hint' package
-        inherit (pkgs.nixpkgs1803) haskellPackages;
-        enable                 = true;
-        enableContribAndExtras = true;
-      };
-    };
-
-    desktopManager.default = "none";
-
-    # Log in automatically as "chris"
-    displayManager = {
-      auto = {
-        enable = true;
-        user   = "chris";
-      };
-      sessionCommands = "/home/chris/.xsession";
-    };
+    layout     = "gb";
+    xkbOptions = "ctrl:nocaps";
   };
 
   system.activationScripts = {
