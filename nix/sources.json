@@ -22,6 +22,12 @@
         "url_template": "https://github.com/keepassxreboot/keepassxc/releases/download/<version>/keepassxc-<version>-src.tar.xz",
         "version": "2.6.1"
     },
+    "mobile-nixos": {
+      "branch": "master",
+      "repo": "https://github.com/NixOS/mobile-nixos.git",
+      "rev": "8a105e177632f0fbc4ca28ee0195993baf0dcf9a",
+      "type": "git"
+    },
     "niv": {
         "branch": "master",
         "description": "Easy dependency management for Nix projects",
