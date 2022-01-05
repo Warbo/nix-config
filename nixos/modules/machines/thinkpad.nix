@@ -1,6 +1,6 @@
 { config, lib, pkgs, ... }:
 with {
-  inherit (builtins) trace;
+  inherit (builtins) toString trace;
 };
 {
   boot =
@@ -160,4 +160,69 @@ with {
       DISPLAY=:0 "${pkgs.warbo-utilities}"/bin/keys || true
     '';
   };
+
+  services.acpid = {
+    enable = true;
+    handlers = {
+      mute = {
+        event = "button/mute.*";
+        action = "amixer set Master toggle";
+      };
+    };
+  };
+
+  # Provides keybindings by intercepting the output of each keyboard device.
+  # Unlike e.g. xbindkeys, these bindings will even work in text consoles.
+  # Note that NixOS has an audio.mediaKeys option which does a similar thing,
+  # but its 'amixer' invocations don't seem to work on my X60s laptop.
+  services.actkbd = {
+    enable   = true;
+    bindings = [
+      {
+        # Mute key
+        keys    = [ 113 ];
+        events  = [ "key" ];
+        command = toString (pkgs.wrap {
+          name   = "muteToggle";
+          paths  = with pkgs; [ bash alsaUtils ];
+          script = ''
+            #!${pkgs.bash}/bin/bash
+            # Toggle mute state of 'Master'
+            amixer -q -c 0 sset Master toggle
+
+            # To get audio we need 'Master' and 'Speaker' to be unmuted. Muting
+            # 'Master' also causes 'Speaker' to mute, but unmuting it doesn't.
+            # To work around this asymmetry we always finish by unmuting
+            # 'Speaker'. The audio state thus only depends on 'Master'.
+            amixer -q -c 0 sset Speaker unmute
+          '';
+        });
+      }
+
+      {
+        # Volume down
+        keys    = [ 114 ];
+        events  = [ "key" "rep" ];
+        command = "${pkgs.alsaUtils}/bin/amixer -c 0 sset Master 1-";
+      }
+
+      {
+        # Volume up
+        keys    = [ 115 ];
+        events  = [ "key" "rep" ];
+        command = "${pkgs.alsaUtils}/bin/amixer -c 0 sset Master 1+";
+      }
+    ];
+  };
+
+  services.laminar = {
+    enable   = true;
+    bindHttp = "localhost:8008";  # Default 8080 clashes with IPFS
+    cfg      =
+      with {
+        dir = /home/chris/System/Laminar;
+      };
+      assert pathExists dir; toString dir;
+  };
+
 }
