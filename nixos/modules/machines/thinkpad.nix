@@ -28,6 +28,7 @@ with {
       ];
     };
     {
+      # Use the GRUB 2 boot loader.
       loader.grub = {
         enable      = true;
         version     = 2;
@@ -130,4 +131,16 @@ with {
         # "nomodeset"
       ];
     };
+
+  hardware.bluetooth.enable = false;
+
+  hardware.cpu.intel.updateMicrocode = true;
+
+  hardware.pulseaudio = {
+    systemWide = true;
+    enable     = true;
+    package    = pkgs.pulseaudioFull;
+  };
+
+  sound.mediaKeys.enable = true;
 }

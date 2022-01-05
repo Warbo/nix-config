@@ -33,27 +33,11 @@ rec {
                         then trace "WARNING: No overlays found" []
                         else import (nix-config + "/overlays.nix");
 
-  # Use the GRUB 2 boot loader.
-  boot =
 
-    {
-      # 4 is reasonable, 7 is everything
-      consoleLogLevel = 4;
-    };
-
-  hardware.bluetooth.enable = false;
-
-  hardware.cpu.intel.updateMicrocode = true;
+  # 4 is reasonable, 7 is everything
+  boot.consoleLogLevel = 4;
 
   hardware.enableAllFirmware = true;
-
-  hardware.pulseaudio = {
-    systemWide = true;
-    enable     = true;
-    package    = pkgs.pulseaudioFull;
-  };
-
-  sound.mediaKeys.enable = true;
 
   networking = {
     hostName                          = "nixos";
