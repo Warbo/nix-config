@@ -240,4 +240,66 @@ with {
     ];
   };
 
+  # Laptop power management
+  services.tlp = {
+    enable = true;
+    extraConfig = ''
+      # See https://linrunner.de/en/tlp/docs/tlp-configuration.html
+
+      # Force battery mode rather than AC
+      TLP_DEFAULT_MODE=BAT
+      TLP_PERSISTENT_DEFAULT=1
+
+      # Powersave keeps CPU underclocked to avoid overheating, see 'tlp-stat -p'
+      CPU_SCALING_GOVERNOR_ON_AC=powersave
+      CPU_SCALING_GOVERNOR_ON_BAT=powersave
+
+      # Underclock to avoid overheating
+      CPU_SCALING_MIN_FREQ_ON_AC=0         # Default (1000000)
+      CPU_SCALING_MAX_FREQ_ON_AC=1333000   # Rather than 1666000
+      CPU_SCALING_MIN_FREQ_ON_BAT=0        # Default (1000000)
+      CPU_SCALING_MAX_FREQ_ON_BAT=1333000  # Rather than 1666000
+
+      # Try using one CPU when near idle
+      SCHED_POWERSAVE_ON_AC=1
+      SCHED_POWERSAVE_ON_BAT=1
+
+      # Prefer powersaving
+      ENERGY_PERF_POLICY_ON_AC=powersave
+      ENERGY_PERF_POLICY_ON_BAT=powersave
+    '';
+  };
+
+  services.udev =
+    with pkgs;
+    with {
+      fixKeyboard = wrap {
+        name   = "usb-keyboard.sh";
+        paths  = [ bash coreutils ];
+        script = ''
+          #!${bash}/bin/bash
+          # Requests that the keyboard be fixed. Running 'keys' from here seems
+          # to fail (even with DISPLAY, etc. set) so we instead just log a
+          # request in /tmp and rely on 'key_poller' to spot it.
+          date '+%s' > /tmp/keys-last-ask
+        '';
+      };
+    };
+    {
+      extraRules = ''
+        SUBSYSTEM=="usb", ACTION=="add|remove", RUN+="${fixKeyboard}"
+
+        # USB networking for OpenMoko
+        ${concatStringsSep ", " [
+          ''SUBSYSTEM=="net"''
+          ''ACTION=="add"''
+          ''DRIVERS=="?*"''
+          ''ATTRS{idProduct}=="a4a2"''
+          ''ATTRS{idVendor}=="0525"''
+          ''KERNEL=="usb*"''
+          ''NAME="openmoko0"''
+        ]}
+      '';
+    };
+
 }
