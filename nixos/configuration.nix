@@ -257,21 +257,6 @@ rec {
     drivers = [ pkgs.nixpkgs1709.hplip pkgs.nixpkgs1709.gutenprint ];
   };
 
-  services.sshfsMounts = {
-    mounts = [
-      {
-        name       = "pi";
-        canary     = "TV";
-        privateKey = "/home/chris/.ssh/id_rsa";
-        localPath  = "/home/chris/Public";
-        localUser  = "chris";
-        remoteHost = "dietpi.local";
-        remotePath = "/opt/shared";
-        remoteUser = "pi";
-      }
-    ];
-  };
-
   # Laptop power management
   services.tlp = {
     enable = true;
