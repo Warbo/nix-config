@@ -149,4 +149,15 @@ with {
     networkmanager.enable = true;
     enableIPv6            = false;  # TODO: Why?
   };
+
+  powerManagement = {
+    enable            = true;
+    powerDownCommands = ''
+      umount -at cifs
+      killall sshfs || true
+    '';
+    resumeCommands = ''
+      DISPLAY=:0 "${pkgs.warbo-utilities}"/bin/keys || true
+    '';
+  };
 }

@@ -117,17 +117,6 @@ rec {
       '';
   };
 
-  powerManagement = {
-    enable            = true;
-    powerDownCommands = ''
-      umount -at cifs
-      killall sshfs || true
-    '';
-    resumeCommands = ''
-      DISPLAY=:0 "${pkgs.warbo-utilities}"/bin/keys || true
-    '';
-  };
-
   time = {
     timeZone = "Europe/London";
   };
