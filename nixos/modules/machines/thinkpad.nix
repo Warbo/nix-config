@@ -326,4 +326,6 @@ with {
       sessionCommands = "/home/chris/.xsession";
     };
   };
+
+  system.stateVersion = "19.03";
 }
