@@ -1,13 +1,8 @@
 { config, lib, pkgs, ... }:
 with {
-  macbook = {
-  };
-
-  pinephone = {
-
-  };
-
-  thinkpad = import ./machines/thinkpad.nix { inherit config lib pkgs; };
+  macbook   = {};
+  pinephone = import ../machines/pinephone.nix { inherit config lib pkgs; };
+  thinkpad  = import ../machines/thinkpad.nix  { inherit config lib pkgs; };
 };
 {
   options.machine = lib.mkOption {
@@ -17,13 +12,11 @@ with {
     '';
   };
 
-  imports =
-    if config.machine == "pinephone"
-       then [
-         (import "${
-           (import ../nix/sources.nix).mobile-nixos.outPath
-         }/lib/configuration.nix" { device = "pine64-pinephone"; }) ]
-       else [];
+  imports = /*lib.mkIf (config.machine == "pinephone") [
+    (import "${
+      (import ../nix/sources.nix).mobile-nixos.outPath
+    }/lib/configuration.nix" { device = "pine64-pinephone"; })
+  ];*/ [];
 
   config = lib.mkMerge [
     (lib.mkIf (config.machine or "" == "macbook"  ) macbook  )
