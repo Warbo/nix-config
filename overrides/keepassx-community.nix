@@ -47,17 +47,15 @@ self: super: {
       url    = https://github.com/keepassxreboot/keepassxc/releases/latest;
       script =
         with {
-          pat = "//a[contains(text(),'Latest release')]/../..//a/@href";
+          pat = "//head//title";
           rev = "${self.utillinux}/bin/rev";
         };
         ''
           mkdir "$out"
           "${self.xidel}/bin/xidel" - -q -e "${pat}" < "$page" |
-          grep tag                                             |
-          "${rev}"                                             |
-          cut -d / -f1                                         |
-          "${rev}"                                             |
-          sed -e 's/^/"/g' -e 's/$/"/g' > "$out/default.nix"
+          grep -o '[0-9.]*'                          |
+          head                                       |
+          sed -e 's/^/"/g' -e 's/$/"/g'              > "$out/default.nix"
         '';
     };
   };
