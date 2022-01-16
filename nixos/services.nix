@@ -182,6 +182,7 @@ with rec {
     path            = [ pkgs.allPkgs sudoWrapper ];
     environment     = {
       inherit SSH_AUTH_SOCK;
+      TERM    = "xterm-256color";
       COLUMNS = "80";
     };
     reloadIfChanged = true;  # As opposed to restarting
