@@ -22,6 +22,12 @@
         "url_template": "https://github.com/keepassxreboot/keepassxc/releases/download/<version>/keepassxc-<version>-src.tar.xz",
         "version": "2.6.6"
     },
+    "mobile-nixos": {
+        "branch": "master",
+        "repo": "https://github.com/NixOS/mobile-nixos.git",
+        "rev": "8a105e177632f0fbc4ca28ee0195993baf0dcf9a",
+        "type": "git"
+    },
     "niv": {
         "branch": "master",
         "description": "Easy dependency management for Nix projects",
@@ -43,13 +49,13 @@
     "warbo-packages": {
         "branch": "master",
         "repo": "http://chriswarbo.net/git/warbo-packages.git",
-        "rev": "61107623a010219ba7c84cc6a75c7b8e722f2fdb",
+        "rev": "e5bbf6f983e5d61fff28b7e80107fcb4b37abec5",
         "type": "git"
     },
     "warbo-utilities": {
         "branch": "master",
         "repo": "http://chriswarbo.net/git/warbo-utilities.git",
-        "rev": "43abf7bf184f3797f3704ce649fa7a26ee901caf",
+        "rev": "0862da4e06464f42d00c41aaee18dad8597811b7",
         "type": "git"
     },
     "youtube-dl": {
