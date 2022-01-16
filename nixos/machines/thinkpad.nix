@@ -319,7 +319,7 @@ with {
 
     # Log in automatically as "chris"
     displayManager = {
-      auto = {
+      autoLogin = {
         enable = true;
         user   = "chris";
       };
