@@ -55,7 +55,7 @@ with {
           unasserted = pkgs.run {
             name   = "nixpkgs-unasserted";
             vars   = {
-              broken = concatStringsSep " " [
+              broken = builtins.concatStringsSep " " [
                 "blcr"
                 "e1000e"
                 "jool"
@@ -290,7 +290,7 @@ with {
         SUBSYSTEM=="usb", ACTION=="add|remove", RUN+="${fixKeyboard}"
 
         # USB networking for OpenMoko
-        ${concatStringsSep ", " [
+        ${builtins.concatStringsSep ", " [
           ''SUBSYSTEM=="net"''
           ''ACTION=="add"''
           ''DRIVERS=="?*"''
