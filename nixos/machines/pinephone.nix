@@ -1,5 +1,5 @@
 { config, lib, pkgs, ... }: {
-  networking.hostname = "pinephone";
+  networking.hostName = "pinephone";
 
   # Phone UI
   programs.phosh.enable = true;

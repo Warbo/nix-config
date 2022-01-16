@@ -105,7 +105,7 @@ rec {
         ];
       };
       ''
-        127.0.0.1     ${config.networking.hostname}
+        127.0.0.1     ${config.networking.hostName}
         192.168.1.202 phone
         ${trace ''
           FIXME: Faking texLive mirror source. See
@@ -201,9 +201,9 @@ rec {
   # List services that you want to enable:
 
   services.avahi = {
-    enable   = true;
-    nssmdns  = true;
-    hostName = config.networking.hostname;
+    inherit (config.networking) hostName;
+    enable              = true;
+    nssmdns             = true;
     publish.enable      = true;
     publish.addresses   = true;
     publish.workstation = true;
