@@ -300,14 +300,17 @@ rec {
   users = {
     extraUsers = {
       chris = {
-        name        = "chris";
-        group       = "users";
-        extraGroups = [ "atd" "audio" "dialout" "docker" "fuse" "netdev"
-          "networkmanager" "pulse" "voice" "wheel" ];
-        uid         = 1000;
-        createHome  = true;
-        home        = "/home/chris";
-        shell       = "/run/current-system/sw/bin/bash";
+        name         = "chris";
+        group        = "users";
+        uid          = 1000;
+        createHome   = true;
+        home         = "/home/chris";
+        shell        = "/run/current-system/sw/bin/bash";
+        isNormalUser = true;
+        extraGroups  = [
+          "atd" "audio" "dialout" "docker" "fuse" "netdev" "networkmanager"
+          "pulse" "voice" "wheel"
+        ];
       };
     };
   };
