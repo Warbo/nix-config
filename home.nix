@@ -18,19 +18,16 @@
   # The home.packages option allows you to install Nix packages into your
   # environment.
   home.packages = [
-    # # Adds the 'hello' command to your environment. It prints a friendly
-    # # "Hello, world!" when run.
-    # pkgs.hello
-
     pkgs.awscli
-    #pkgs.cmus
-    #pkgs.gnome.gnome-tweaks
-    #pkgs.nix-top
+    pkgs.cmus
+    pkgs.gnome.gnome-tweaks
+    pkgs.nix-top
     pkgs.screen
     pkgs.taskspooler
+    pkgs.vlc
     pkgs.w3m
-    #pkgs.waypipe
-    #pkgs.weston
+    pkgs.waypipe
+    pkgs.weston
     pkgs.wlr-randr
 
     # # It is sometimes useful to fine-tune packages, for example, by applying
