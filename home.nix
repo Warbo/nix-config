@@ -17,8 +17,68 @@
 
   # The home.packages option allows you to install Nix packages into your
   # environment.
-  home.packages = [
-    pkgs.awscli
+  home.packages =
+    with rec {
+      aws-login = pkgs.writeShellScriptBin "aws-login" ''
+        set -e
+
+        # Creates a temporary folder for AWS credentials, populates it using
+        # secrets taken from the Pass database, and gets a temporary session
+        # token from AWS. This way, the only permanent way our credentials are
+        # stored is in Pass's encrypted database; and applications are only
+        # exposed to temporary tokens, rather than the underlying secrets.
+
+        PATH="${pkgs.coreutils}/bin:${pkgs.gnused}/bin:${pkgs.jq}/bin:$PATH"
+
+        DIR=$(mktemp -d)
+        cleanup() {
+          rm -rf "$DIR"
+        }
+        trap cleanup EXIT
+
+        export AWS_SHARED_CREDENTIALS_FILE="$DIR/creds"
+
+        CREDS=$(${pkgs.pass}/bin/pass automation/aws_s3 | sed -e 's@//.*@@g')
+        echo "$CREDS" | jq -r '[
+          "[default]\naws_access_key_id=",
+          .AccessKeyId,
+          "\naws_secret_access_key=",
+          .SecretAccessKey,
+          "\n"
+        ] | join("")' > "$AWS_SHARED_CREDENTIALS_FILE"
+
+        ${pkgs.awscli}/bin/aws sts get-session-token --output json --query \
+          'Credentials.[AccessKeyId,SecretAccessKey,SessionToken,Expiration]' |
+          jq '{
+            "Version": 1,
+            "AccessKeyId": .[0],
+            "SecretAccessKey": .[1],
+            "SessionToken": .[2],
+            "Expiration": .[3]
+          }'
+      '';
+
+      with-aws-creds = pkgs.writeShellScriptBin "with-aws-creds" ''
+        set -e
+
+        # Runs a given command, using aws-login to obtain an AWS access token.
+        # This avoids permanently storing credentials in plaintext.
+
+        PATH="${pkgs.coreutils}/bin:$PATH"
+
+        DIR=$(mktemp -d)
+        cleanup() {
+          rm -rf "$DIR"
+        }
+        trap cleanup EXIT
+
+        export AWS_CONFIG_FILE="$DIR/config"
+        printf '[default]\ncredential_process=%s' \
+               "${aws-login}/bin/aws-login" > "$AWS_CONFIG_FILE"
+        "$@"
+      '';
+    };
+    [
     pkgs.cmus
     pkgs.gnome.gnome-tweaks
     pkgs.nix-top
@@ -30,11 +90,12 @@
     pkgs.weston
     pkgs.wlr-randr
 
-    # # It is sometimes useful to fine-tune packages, for example, by applying
-    # # overrides. You can do that directly here, just don't forget the
-    # # parentheses. Maybe you want to install Nerd Fonts with a limited number of
-    # # fonts?
-    # (pkgs.nerdfonts.override { fonts = [ "FantasqueSansMono" ]; })
+    # Wrappers/helpers for AWS CLI, which avoid storing credentials in plaintext
+    aws-login
+    with-aws-creds
+    (pkgs.writeShellScriptBin "aws" ''
+      ${with-aws-creds}/bin/with-aws-creds ${pkgs.awscli}/bin/aws "$@"
+    '')
 
     (pkgs.writeShellScriptBin "yt" ''
       set -e
