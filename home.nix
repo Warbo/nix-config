@@ -102,10 +102,10 @@
           "layout.css.devPixelsPerPx" = "-1";
 
           # Various UI settings
+          "browser.compactmode.show" = true;
           "browser.theme.content-theme" = 0;
           "browser.theme.toolbar-theme" = 0;
           "browser.uidensity" = 1;
-          "browser.compactmode.show" = true;
           "extensions.activeThemeID" = "firefox-compact-dark@mozilla.org";
           "font.internaluseonly.changed" = true;
           "font.name.serif.x-western" = "Liberation Sans";
@@ -115,8 +115,8 @@
           "widget.gtk.overlay-scrollbars.enabled" = false;
 
           # Privacy, anti-tracking, etc.
-          "general.useragent.override" = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:98.0) Gecko/20100101 Firefox/98.0";
           "browser.contentblocking.category" = "strict";
+          "general.useragent.override" = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:98.0) Gecko/20100101 Firefox/98.0";
           "privacy.clearOnShutdown.cookies" = false;
           "privacy.clearOnShutdown.sessions" = false;
           "privacy.history.custom" = true;
@@ -155,8 +155,8 @@
 
     git = {
       enable = true;
-      userName = "Chris Warburton";
       userEmail = "chriswarbo@gmail.com";
+      userName = "Chris Warburton";
     };
 
     home-manager = {
@@ -185,7 +185,6 @@ https://github.com/nix-community/home-manager/blob/master/modules/programs/mu.ni
       enable = true;
       startWithUserSession = true;
       defaultEditor = true;
-
     };
   };
 }
