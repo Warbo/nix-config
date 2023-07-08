@@ -144,8 +144,12 @@
     foot = {
       enable = true;
       settings = {
-        main.initial-window-mode = "maximized";
+        colors = {
+          background = "111111";
+          foreground = "CCCCCC";
+        };
         csd.hide-when-maximized = "yes";
+        main.initial-window-mode = "maximized";
       };
     };
 
