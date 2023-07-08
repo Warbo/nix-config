@@ -88,11 +88,6 @@
     firefox = {
       enable = true;
       profiles.default = {
-        search = {
-          default = "DuckDuckGo";
-          engines.Bing.metaData.hidden = true;
-          engines.Google.metaData.hidden = true;
-        };
         settings = {
           "browser.aboutConfig.showWarning" = false;
           "extensions.pictureinpicture.enable_picture_in_picture_overrides" = true;
