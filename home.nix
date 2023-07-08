@@ -36,12 +36,15 @@
     # # fonts?
     # (pkgs.nerdfonts.override { fonts = [ "FantasqueSansMono" ]; })
 
-    # # You can also create simple shell scripts directly inside your
-    # # configuration. For example, this adds a command 'my-hello' to your
-    # # environment:
-    # (pkgs.writeShellScriptBin "my-hello" ''
-    #   echo "Hello, ${config.home.username}!"
-    # '')
+    (pkgs.writeShellScriptBin "yt" ''
+      set -e
+
+      # Put YouTube video in a download queue
+      cd ~/Downloads/VIDEOS || exit 1  # Save to Downloads/VIDEOS
+      # Use best quality less than 600p (avoids massive filesize)
+      ${pkgs.taskspooler}/bin/ts \
+        ${pkgs.yt-dlp}/bin/yt-dlp -f 'b[height<600]' "$@"
+    '')
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
