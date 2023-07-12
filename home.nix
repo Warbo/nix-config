@@ -300,6 +300,7 @@
 
     htop.enable = true;
     jq.enable = true;
+    jujutsu.enable = true;
 
     /* TODO: Add these:
 https://github.com/nix-community/home-manager/blob/master/modules/programs/mbsync.nix
