@@ -180,6 +180,10 @@
   # if you don't want to manage your shell through Home Manager.
   home.sessionVariables = {
     QT_QPA_PLATFORMTHEME = "qt5ct";
+
+    NIX_PATH = pkgs.lib.concatStringsSep ":" [
+      "nixpkgs=/nix/var/nix/profiles/per-user/root/channels/nixpkgs"
+    ];
   };
 
   # These three ensure our Nix .desktop files appear in desktops/menus
