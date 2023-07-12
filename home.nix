@@ -275,4 +275,40 @@ https://github.com/nix-community/home-manager/blob/master/modules/programs/mu.ni
       defaultEditor = true;
     };
   };
+
+  dconf.settings = with {
+    inherit (lib.hm.gvariant) mkDouble mkUint32;
+  };
+    {
+    "org/gnome/desktop/interface" = {
+      clock-show-date = true;
+      clock-show-weekday = true;
+      color-scheme = "prefer-dark";
+      enable-animations = false;
+      font-antialiasing = "grayscale";
+      font-hinting = "slight";
+      font-name = "Droid Sans 9";
+      gtk-key-theme = "Emacs";
+      monospace-font-name = "Iosevka 9";
+      show-battery-percentage = true;
+      # Works well with 1.25x on PinePhone screen and 0.75x on monitor (via R&R)
+      text-scaling-factor = 1.33;
+    };
+    "org/gnome/desktop/session" = {
+      idle-delay = mkUint32 300;
+    };
+    "org/gnome/desktop/wm/preferences".focus-mode = "sloppy";
+    "org/gnome/desktop/screensaver" = {
+      # Phosh screen lock can mess up when plugging in external monitors, so
+      # disable it completely (the pin-entry doesn't appear on the monitor, but
+      # is still focused and hence capturing keyboard entry)
+      lock-enabled = false;
+      lock-delay = mkUint32 3600;
+      picture-options = "none";
+    };
+    "org/gnome/desktop/applications/terminal" = {
+      exec = "${pkgs.foot}/bin/foot";
+      exec-arg = "";
+    };
+    };
 }
