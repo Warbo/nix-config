@@ -80,7 +80,6 @@
     };
     [
     pkgs.cmus
-    pkgs.gnome.gnome-tweaks
     pkgs.nix-top
       pkgs.rsync
     pkgs.screen
