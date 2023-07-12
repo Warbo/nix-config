@@ -156,6 +156,12 @@
         [[ -f ~/.bashrc ]] && . ~/.bashrc
       '';
     };
+
+    browserpass = {
+      enable = true;
+      browsers = [ "firefox" ];
+    };
+
     direnv.enable = true;
 
     emacs = {
@@ -253,6 +259,13 @@ https://github.com/nix-community/home-manager/blob/master/modules/programs/mbsyn
 https://github.com/nix-community/home-manager/blob/master/modules/programs/msmtp.nix
 https://github.com/nix-community/home-manager/blob/master/modules/programs/mu.nix
 */
+
+    password-store = {
+      enable = true;
+      package = pkgs.pass.withExtensions (exts: [ exts.pass-otp ]);
+      settings.PASSWORD_STORE_DIR = "$HOME/.password-store";
+    };
+
     rtorrent.enable = true;
 
     ssh = {
