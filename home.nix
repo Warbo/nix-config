@@ -80,6 +80,7 @@
     };
     [
     pkgs.cmus
+    pkgs.libreoffice
     pkgs.nix-top
       pkgs.rsync
     pkgs.screen
