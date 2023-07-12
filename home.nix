@@ -100,57 +100,60 @@
       };
         skulpture-qt4;
 
-      mkSkulptureQt56 = { cmake, extra-cmake-modules, qmake, qtbase, mkDerivation }: mkDerivation {
-        name = "skulpture-qt6";
-        buildInputs = [ cmake extra-cmake-modules qtbase qmake ];
-        src = pkgs.fetchFromGitHub {
-          owner = "mireq";
-          repo = "skulpture";
-          rev = "0cbe7aa";
-          hash = "sha256-qPk7YC/rPdWDyaBPXIN0ovZuEUlNqqjlH0IhoPx7HPg=";
+      mkSkulptureQt56 =
+        { cmake, extra-cmake-modules, qmake, qtbase, mkDerivation }:
+        mkDerivation {
+          name = "skulpture-qt6";
+          buildInputs = [ cmake extra-cmake-modules qtbase qmake ];
+          src = pkgs.fetchFromGitHub {
+            owner = "mireq";
+            repo = "skulpture";
+            rev = "0cbe7aa";
+            hash = "sha256-qPk7YC/rPdWDyaBPXIN0ovZuEUlNqqjlH0IhoPx7HPg=";
+          };
         };
-      };
     };
     [
       pkgs.libsForQt5.qt5ct
       pkgs.qt6Packages.qt6ct
-      pkgs.adwaita-qt
-      pkgs.libsForQt5.qtstyleplugins
+      #pkgs.adwaita-qt
+      #pkgs.libsForQt5.qtstyleplugins
       pkgs.qtstyleplugin-kvantum-qt4
       pkgs.libsForQt5.qtstyleplugin-kvantum
       pkgs.qt6Packages.qtstyleplugin-kvantum
       #skulptureQt4
       #(pkgs.libsForQt5.callPackage mkSkulptureQt56 {})
 
-    pkgs.cmus
-    pkgs.libreoffice
-    pkgs.nix-top
+      #pkgs.cmus
+      pkgs.libreoffice
+      pkgs.nix-top
+      pkgs.nixfmt
       pkgs.rsync
-    pkgs.screen
-    pkgs.taskspooler
-    pkgs.vlc
-    pkgs.w3m
-    pkgs.waypipe
-      pkgs.weston
+      pkgs.screen
+      pkgs.taskspooler
+      pkgs.vlc
+      pkgs.w3m
+      #pkgs.waypipe
+      #pkgs.weston
       pkgs.wget
-    pkgs.wlr-randr
+      pkgs.wlr-randr
 
-    # Wrappers/helpers for AWS CLI, which avoid storing credentials in plaintext
-    aws-login
-    with-aws-creds
-    (pkgs.writeShellScriptBin "aws" ''
-      ${with-aws-creds}/bin/with-aws-creds ${pkgs.awscli}/bin/aws "$@"
-    '')
+      # Wrappers/helpers for AWS CLI, to avoid storing credentials in plaintext
+      aws-login
+      with-aws-creds
+      (pkgs.writeShellScriptBin "aws" ''
+        ${with-aws-creds}/bin/with-aws-creds ${pkgs.awscli}/bin/aws "$@"
+      '')
 
-    (pkgs.writeShellScriptBin "yt" ''
-      set -e
+      (pkgs.writeShellScriptBin "yt" ''
+        set -e
 
-      # Put YouTube video in a download queue
-      cd ~/Downloads/VIDEOS || exit 1  # Save to Downloads/VIDEOS
-      # Use best quality less than 600p (avoids massive filesize)
-      ${pkgs.taskspooler}/bin/ts \
-        ${pkgs.yt-dlp}/bin/yt-dlp -f 'b[height<600]' "$@"
-    '')
+        # Put YouTube video in a download queue
+        cd ~/Downloads/VIDEOS || exit 1  # Save to Downloads/VIDEOS
+        # Use best quality less than 600p (avoids massive filesize)
+        ${pkgs.taskspooler}/bin/ts \
+          ${pkgs.yt-dlp}/bin/yt-dlp -f 'b[height<600]' "$@"
+      '')
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
@@ -213,6 +216,7 @@
 
     emacs = {
       enable = true;
+      # "Pure GTK" version has crisper font rendering on Wayland
       package = pkgs.emacs-pgtk;
     };
 
@@ -294,7 +298,13 @@
       enable = true;
       path = fetchTarball {
         sha256 = "sha256:0dfshsgj93ikfkcihf4c5z876h4dwjds998kvgv7sqbfv0z6a4bc";
-        url = "https://github.com/nix-community/home-manager/archive/release-23.05.tar.gz";
+        url = pkgs.lib.concatStringsSep "/" [
+          "https://github.com"
+          "nix-community"
+          "home-manager"
+          "archive"
+          "release-23.05.tar.gz"
+        ];
       };
     };
 
@@ -337,40 +347,38 @@ https://github.com/nix-community/home-manager/blob/master/modules/programs/mu.ni
     };
   };
 
-  dconf.settings = with {
-    inherit (lib.hm.gvariant) mkDouble mkUint32;
-  };
+  dconf.settings = with { inherit (lib.hm.gvariant) mkDouble mkUint32; };
     {
-    "org/gnome/desktop/interface" = {
-      clock-show-date = true;
-      clock-show-weekday = true;
-      color-scheme = "prefer-dark";
-      enable-animations = false;
-      font-antialiasing = "grayscale";
-      font-hinting = "slight";
-      font-name = "Droid Sans 9";
-      gtk-key-theme = "Emacs";
-      monospace-font-name = "Iosevka 9";
-      show-battery-percentage = true;
-      # Works well with 1.25x on PinePhone screen and 0.75x on monitor (via R&R)
-      text-scaling-factor = 1.33;
-    };
-    "org/gnome/desktop/session" = {
-      idle-delay = mkUint32 300;
-    };
-    "org/gnome/desktop/wm/preferences".focus-mode = "sloppy";
-    "org/gnome/desktop/screensaver" = {
-      # Phosh screen lock can mess up when plugging in external monitors, so
-      # disable it completely (the pin-entry doesn't appear on the monitor, but
-      # is still focused and hence capturing keyboard entry)
-      lock-enabled = false;
-      lock-delay = mkUint32 3600;
-      picture-options = "none";
-    };
-    "org/gnome/desktop/applications/terminal" = {
-      exec = "${pkgs.foot}/bin/foot";
-      exec-arg = "";
-    };
+      "org/gnome/desktop/interface" = {
+        clock-show-date = true;
+        clock-show-weekday = true;
+        color-scheme = "prefer-dark";
+        enable-animations = false;
+        font-antialiasing = "grayscale";
+        font-hinting = "slight";
+        font-name = "Droid Sans 9";
+        gtk-key-theme = "Emacs";
+        monospace-font-name = "Iosevka 9";
+        show-battery-percentage = true;
+        # Works with 1.25x on PinePhone screen and 0.75x on monitor (via R&R)
+        text-scaling-factor = 1.33;
+      };
+      "org/gnome/desktop/session" = {
+        idle-delay = mkUint32 300;
+      };
+      "org/gnome/desktop/wm/preferences".focus-mode = "sloppy";
+      "org/gnome/desktop/screensaver" = {
+        # Phosh screen lock can mess up when plugging in external monitors, so
+        # disable it completely (the pin-entry doesn't appear on the monitor,
+        # but is still focused and hence capturing keyboard entry)
+        lock-enabled = false;
+        lock-delay = mkUint32 3600;
+        picture-options = "none";
+      };
+      # "org/gnome/desktop/applications/terminal" = {
+      #   exec = "${pkgs.foot}/bin/foot";
+      #   exec-arg = "";
+      # };
     };
 
   # qt = {
