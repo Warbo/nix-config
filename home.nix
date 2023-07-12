@@ -82,6 +82,7 @@
     pkgs.cmus
     pkgs.gnome.gnome-tweaks
     pkgs.nix-top
+      pkgs.rsync
     pkgs.screen
     pkgs.taskspooler
     pkgs.vlc
