@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, lib, ... }:
 
 {
   # Home Manager needs a bit of information about you and the paths it should
@@ -77,8 +77,51 @@
                "${aws-login}/bin/aws-login" > "$AWS_CONFIG_FILE"
         "$@"
       '';
+
+      skulptureQt4 = with rec {
+        warbo-packages = fetchGit {
+          url = "file:///home/manjaro/repos/warbo-packages";
+        };
+
+        nix-helpers = fetchGit {
+          url = "file:///home/manjaro/repos/nix-helpers";
+        };
+        inherit (pkgs.callPackage "${warbo-packages}/packages/skulpture" {
+          fail = pkgs.writeShellScriptBin "fail" "echo $* 1>&2; exit 1";
+          getSource = import "${warbo-packages}/util/getSource.nix" {
+            warbo-packages-sources =
+              import "${warbo-packages}/packages/warbo-packages-sources" {};
+          };
+          skipMac = _: x: x;
+          inherit (import "${nix-helpers}/nixpkgs.nix" { inherit (pkgs) lib; })
+            nixpkgs1709;
+        })
+          skulpture-qt4;
+      };
+        skulpture-qt4;
+
+      mkSkulptureQt56 = { cmake, extra-cmake-modules, qmake, qtbase, mkDerivation }: mkDerivation {
+        name = "skulpture-qt6";
+        buildInputs = [ cmake extra-cmake-modules qtbase qmake ];
+        src = pkgs.fetchFromGitHub {
+          owner = "mireq";
+          repo = "skulpture";
+          rev = "0cbe7aa";
+          hash = "sha256-qPk7YC/rPdWDyaBPXIN0ovZuEUlNqqjlH0IhoPx7HPg=";
+        };
+      };
     };
     [
+      pkgs.libsForQt5.qt5ct
+      pkgs.qt6Packages.qt6ct
+      pkgs.adwaita-qt
+      pkgs.libsForQt5.qtstyleplugins
+      pkgs.qtstyleplugin-kvantum-qt4
+      pkgs.libsForQt5.qtstyleplugin-kvantum
+      pkgs.qt6Packages.qtstyleplugin-kvantum
+      #skulptureQt4
+      #(pkgs.libsForQt5.callPackage mkSkulptureQt56 {})
+
     pkgs.cmus
     pkgs.libreoffice
     pkgs.nix-top
@@ -136,7 +179,7 @@
   #
   # if you don't want to manage your shell through Home Manager.
   home.sessionVariables = {
-    # EDITOR = "emacs";
+    QT_QPA_PLATFORMTHEME = "qt5ct";
   };
 
   # These three ensure our Nix .desktop files appear in desktops/menus
@@ -324,4 +367,9 @@ https://github.com/nix-community/home-manager/blob/master/modules/programs/mu.ni
       exec-arg = "";
     };
     };
+
+  # qt = {
+  #   enable = true;
+  #   platformTheme = "qt5ct";
+  # };
 }
