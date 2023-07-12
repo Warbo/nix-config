@@ -148,6 +148,14 @@
 
   # Let Home Manager install and manage itself.
   programs = {
+    bash = {
+      enable = true;
+      bashrcExtra = builtins.readFile ../../bashrc;
+      profileExtra = ''
+        # Inherited from pre-Home-Manager config; not sure if needed
+        [[ -f ~/.bashrc ]] && . ~/.bashrc
+      '';
+    };
     direnv.enable = true;
 
     emacs = {
