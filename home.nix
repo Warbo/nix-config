@@ -88,7 +88,8 @@
     pkgs.vlc
     pkgs.w3m
     pkgs.waypipe
-    pkgs.weston
+      pkgs.weston
+      pkgs.wget
     pkgs.wlr-randr
 
     # Wrappers/helpers for AWS CLI, which avoid storing credentials in plaintext
