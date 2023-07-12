@@ -254,8 +254,18 @@ https://github.com/nix-community/home-manager/blob/master/modules/programs/msmtp
 https://github.com/nix-community/home-manager/blob/master/modules/programs/mu.nix
 */
     rtorrent.enable = true;
-    yt-dlp.enable = true;
 
+    ssh = {
+      enable = true;
+      matchBlocks."chriswarbo.net" = {
+          #HostName 35.179.11.29
+          #User admin
+          #PubkeyAcceptedKeyTypes +ssh-rsa
+          #IdentityFile ~/LightsailDefaultKey-eu-west-2.pem
+      };
+    };
+
+    yt-dlp.enable = true;
   };
 
   services = {
