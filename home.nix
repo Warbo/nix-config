@@ -1,6 +1,6 @@
 { config, pkgs, lib, ... }:
 
-{
+with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
   home.username = "manjaro";
