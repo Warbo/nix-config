@@ -77,9 +77,9 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
                "${aws-login}/bin/aws-login" > "$AWS_CONFIG_FILE"
         "$@"
       '';
+  }; [
+    fix
 
-    };
-    [
       pkgs.qtstyleplugin-kvantum-qt4
       pkgs.libsForQt5.qtstyleplugin-kvantum
       pkgs.qt6Packages.qtstyleplugin-kvantum
