@@ -317,8 +317,6 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
         gtk-key-theme = "Emacs";
         monospace-font-name = "Iosevka 9";
         show-battery-percentage = true;
-        # Works with 1.25x on PinePhone screen and 0.75x on monitor (via R&R)
-        text-scaling-factor = 1.33;
       };
       "org/gnome/desktop/session" = {
         idle-delay = mkUint32 300;
