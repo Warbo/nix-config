@@ -313,7 +313,7 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
         enable-animations = false;
         font-antialiasing = "grayscale";
         font-hinting = "slight";
-        font-name = "Droid Sans 9";
+      font-name = "Droid Sans 11";
         monospace-font-name = "Iosevka 9";
         show-battery-percentage = true;
       };
