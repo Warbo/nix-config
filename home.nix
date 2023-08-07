@@ -17,8 +17,7 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
 
   # The home.packages option allows you to install Nix packages into your
   # environment.
-  home.packages =
-    with rec {
+  home.packages = with rec {
       aws-login = pkgs.writeShellScriptBin "aws-login" ''
         set -e
 
@@ -142,18 +141,16 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
   #
   # if you don't want to manage your shell through Home Manager.
   home.sessionVariables = {
-    NIX_PATH = pkgs.lib.concatStringsSep ":" [
-      "nixpkgs=/nix/var/nix/profiles/per-user/root/channels/nixpkgs"
-    ];
+    NIX_PATH = pkgs.lib.concatStringsSep ":"
+      [ "nixpkgs=/nix/var/nix/profiles/per-user/root/channels/nixpkgs" ];
     QT_STYLE_OVERRIDE = "kvantum";
   };
 
   # These three ensure our Nix .desktop files appear in desktops/menus
   targets.genericLinux.enable = true;
   xdg.mime.enable = true;
-  xdg.systemDirs.data = [
-    "${config.home.homeDirectory}/.nix-profile/share/applications"
-  ];
+  xdg.systemDirs.data =
+    [ "${config.home.homeDirectory}/.nix-profile/share/applications" ];
 
   # Let Home Manager install and manage itself.
   programs = {
@@ -184,7 +181,8 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
       profiles.default = {
         settings = {
           "browser.aboutConfig.showWarning" = false;
-          "extensions.pictureinpicture.enable_picture_in_picture_overrides" = true;
+          "extensions.pictureinpicture.enable_picture_in_picture_overrides" =
+            true;
 
           # This is required to prevent menus flickering and becoming unusable
           # TODO: Find relevant bug report
@@ -210,7 +208,8 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
 
           # Privacy, anti-tracking, etc.
           "browser.contentblocking.category" = "strict";
-          "general.useragent.override" = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:98.0) Gecko/20100101 Firefox/98.0";
+          "general.useragent.override" =
+            "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:98.0) Gecko/20100101 Firefox/98.0";
           "privacy.clearOnShutdown.cookies" = false;
           "privacy.clearOnShutdown.sessions" = false;
           "privacy.history.custom" = true;
@@ -272,10 +271,10 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
     jujutsu.enable = true;
 
     /* TODO: Add these:
-https://github.com/nix-community/home-manager/blob/master/modules/programs/mbsync.nix
-https://github.com/nix-community/home-manager/blob/master/modules/programs/msmtp.nix
-https://github.com/nix-community/home-manager/blob/master/modules/programs/mu.nix
-*/
+       https://github.com/nix-community/home-manager/blob/master/modules/programs/mbsync.nix
+       https://github.com/nix-community/home-manager/blob/master/modules/programs/msmtp.nix
+       https://github.com/nix-community/home-manager/blob/master/modules/programs/mu.nix
+    */
 
     password-store = {
       enable = true;
@@ -306,8 +305,7 @@ https://github.com/nix-community/home-manager/blob/master/modules/programs/mu.ni
     };
   };
 
-  dconf.settings = with { inherit (lib.hm.gvariant) mkDouble mkUint32; };
-    {
+  dconf.settings = with { inherit (lib.hm.gvariant) mkDouble mkUint32; }; {
       "org/gnome/desktop/interface" = {
         clock-show-date = true;
         clock-show-weekday = true;
