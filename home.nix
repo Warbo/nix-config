@@ -317,9 +317,7 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
         monospace-font-name = "Iosevka 9";
         show-battery-percentage = true;
       };
-      "org/gnome/desktop/session" = {
-        idle-delay = mkUint32 300;
-      };
+    "org/gnome/desktop/session" = { idle-delay = mkUint32 300; };
       "org/gnome/desktop/wm/preferences".focus-mode = "sloppy";
       "org/gnome/desktop/screensaver" = {
         # Phosh screen lock can mess up when plugging in external monitors, so
@@ -329,9 +327,5 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
         lock-delay = mkUint32 3600;
         picture-options = "none";
       };
-      # "org/gnome/desktop/applications/terminal" = {
-      #   exec = "${pkgs.foot}/bin/foot";
-      #   exec-arg = "";
-      # };
     };
 }
