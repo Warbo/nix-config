@@ -84,9 +84,9 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
       pkgs.libsForQt5.qtstyleplugin-kvantum
       pkgs.qt6Packages.qtstyleplugin-kvantum
 
-      #pkgs.cmus
+    pkgs.cmus
       pkgs.libreoffice
-      pkgs.nix-top
+    #pkgs.nix-top
       pkgs.nixfmt
       pkgs.rsync
       pkgs.screen
@@ -99,11 +99,11 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
       pkgs.wlr-randr
 
       # Wrappers/helpers for AWS CLI, to avoid storing credentials in plaintext
-      aws-login
-      with-aws-creds
-      (pkgs.writeShellScriptBin "aws" ''
-        ${with-aws-creds}/bin/with-aws-creds ${pkgs.awscli}/bin/aws "$@"
-      '')
+    #aws-login
+    #with-aws-creds
+    #(pkgs.writeShellScriptBin "aws" ''
+    #  ${with-aws-creds}/bin/with-aws-creds ${pkgs.awscli}/bin/aws "$@"
+    #'')
 
       (pkgs.writeShellScriptBin "yt" ''
         set -e
@@ -283,7 +283,7 @@ https://github.com/nix-community/home-manager/blob/master/modules/programs/mu.ni
       settings.PASSWORD_STORE_DIR = "$HOME/.password-store";
     };
 
-    rtorrent.enable = true;
+    #rtorrent.enable = true;
 
     ssh = {
       enable = true;
