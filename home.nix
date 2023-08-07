@@ -328,4 +328,26 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
         picture-options = "none";
       };
     };
+
+  systemd.user = with {
+  }; {
+    services = {
+      fix-monitor = {
+        Unit.Description = "Re-jig external monitor";
+        Service = {
+          Type = "oneshot";
+          RemainAfterExit = "no";
+          ExecStart = "${fix}/bin/fix";
+          Environment = [
+            # We want to use wlr-randr to alter the existing Wayland display; this
+            # requires setting a few env vars (hardcoded, but doesn't seem tooooo
+            # bad...).
+            "XDG_RUNTIME_DIR=/run/user/1000/"
+            "WAYLAND_DISPLAY=wayland-0"
+            "DISPLAY=:0"
+          ];
+        };
+      };
+    };
+  };
 }
