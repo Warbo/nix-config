@@ -18,101 +18,101 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
   # The home.packages option allows you to install Nix packages into your
   # environment.
   home.packages = with rec {
-      aws-login = pkgs.writeShellScriptBin "aws-login" ''
-        set -e
+    aws-login = pkgs.writeShellScriptBin "aws-login" ''
+      set -e
 
-        # Creates a temporary folder for AWS credentials, populates it using
-        # secrets taken from the Pass database, and gets a temporary session
-        # token from AWS. This way, the only permanent way our credentials are
-        # stored is in Pass's encrypted database; and applications are only
-        # exposed to temporary tokens, rather than the underlying secrets.
+      # Creates a temporary folder for AWS credentials, populates it using
+      # secrets taken from the Pass database, and gets a temporary session
+      # token from AWS. This way, the only permanent way our credentials are
+      # stored is in Pass's encrypted database; and applications are only
+      # exposed to temporary tokens, rather than the underlying secrets.
 
-        PATH="${pkgs.coreutils}/bin:${pkgs.gnused}/bin:${pkgs.jq}/bin:$PATH"
+      PATH="${pkgs.coreutils}/bin:${pkgs.gnused}/bin:${pkgs.jq}/bin:$PATH"
 
-        DIR=$(mktemp -d)
-        cleanup() {
-          rm -rf "$DIR"
-        }
-        trap cleanup EXIT
+      DIR=$(mktemp -d)
+      cleanup() {
+        rm -rf "$DIR"
+      }
+      trap cleanup EXIT
 
-        export AWS_SHARED_CREDENTIALS_FILE="$DIR/creds"
+      export AWS_SHARED_CREDENTIALS_FILE="$DIR/creds"
 
-        CREDS=$(${pkgs.pass}/bin/pass automation/aws_s3 | sed -e 's@//.*@@g')
-        echo "$CREDS" | jq -r '[
-          "[default]\naws_access_key_id=",
-          .AccessKeyId,
-          "\naws_secret_access_key=",
-          .SecretAccessKey,
-          "\n"
-        ] | join("")' > "$AWS_SHARED_CREDENTIALS_FILE"
+      CREDS=$(${pkgs.pass}/bin/pass automation/aws_s3 | sed -e 's@//.*@@g')
+      echo "$CREDS" | jq -r '[
+        "[default]\naws_access_key_id=",
+        .AccessKeyId,
+        "\naws_secret_access_key=",
+        .SecretAccessKey,
+        "\n"
+      ] | join("")' > "$AWS_SHARED_CREDENTIALS_FILE"
 
-        ${pkgs.awscli}/bin/aws sts get-session-token --output json --query \
-          'Credentials.[AccessKeyId,SecretAccessKey,SessionToken,Expiration]' |
-          jq '{
-            "Version": 1,
-            "AccessKeyId": .[0],
-            "SecretAccessKey": .[1],
-            "SessionToken": .[2],
-            "Expiration": .[3]
-          }'
-      '';
+      ${pkgs.awscli}/bin/aws sts get-session-token --output json --query \
+        'Credentials.[AccessKeyId,SecretAccessKey,SessionToken,Expiration]' |
+        jq '{
+          "Version": 1,
+          "AccessKeyId": .[0],
+          "SecretAccessKey": .[1],
+          "SessionToken": .[2],
+          "Expiration": .[3]
+        }'
+    '';
 
-      with-aws-creds = pkgs.writeShellScriptBin "with-aws-creds" ''
-        set -e
+    with-aws-creds = pkgs.writeShellScriptBin "with-aws-creds" ''
+      set -e
 
-        # Runs a given command, using aws-login to obtain an AWS access token.
-        # This avoids permanently storing credentials in plaintext.
+      # Runs a given command, using aws-login to obtain an AWS access token.
+      # This avoids permanently storing credentials in plaintext.
 
-        PATH="${pkgs.coreutils}/bin:$PATH"
+      PATH="${pkgs.coreutils}/bin:$PATH"
 
-        DIR=$(mktemp -d)
-        cleanup() {
-          rm -rf "$DIR"
-        }
-        trap cleanup EXIT
+      DIR=$(mktemp -d)
+      cleanup() {
+        rm -rf "$DIR"
+      }
+      trap cleanup EXIT
 
-        export AWS_CONFIG_FILE="$DIR/config"
-        printf '[default]\ncredential_process=%s' \
-               "${aws-login}/bin/aws-login" > "$AWS_CONFIG_FILE"
-        "$@"
-      '';
+      export AWS_CONFIG_FILE="$DIR/config"
+      printf '[default]\ncredential_process=%s' \
+             "${aws-login}/bin/aws-login" > "$AWS_CONFIG_FILE"
+      "$@"
+    '';
   }; [
     fix
 
-      pkgs.qtstyleplugin-kvantum-qt4
-      pkgs.libsForQt5.qtstyleplugin-kvantum
-      pkgs.qt6Packages.qtstyleplugin-kvantum
+    pkgs.qtstyleplugin-kvantum-qt4
+    pkgs.libsForQt5.qtstyleplugin-kvantum
+    pkgs.qt6Packages.qtstyleplugin-kvantum
 
     pkgs.cmus
-      pkgs.libreoffice
+    pkgs.libreoffice
     #pkgs.nix-top
-      pkgs.nixfmt
-      pkgs.rsync
-      pkgs.screen
-      pkgs.taskspooler
-      pkgs.vlc
-      pkgs.w3m
-      #pkgs.waypipe
-      #pkgs.weston
-      pkgs.wget
-      pkgs.wlr-randr
+    pkgs.nixfmt
+    pkgs.rsync
+    pkgs.screen
+    pkgs.taskspooler
+    pkgs.vlc
+    pkgs.w3m
+    #pkgs.waypipe
+    #pkgs.weston
+    pkgs.wget
+    pkgs.wlr-randr
 
-      # Wrappers/helpers for AWS CLI, to avoid storing credentials in plaintext
+    # Wrappers/helpers for AWS CLI, to avoid storing credentials in plaintext
     #aws-login
     #with-aws-creds
     #(pkgs.writeShellScriptBin "aws" ''
     #  ${with-aws-creds}/bin/with-aws-creds ${pkgs.awscli}/bin/aws "$@"
     #'')
 
-      (pkgs.writeShellScriptBin "yt" ''
-        set -e
+    (pkgs.writeShellScriptBin "yt" ''
+      set -e
 
-        # Put YouTube video in a download queue
-        cd ~/Downloads/VIDEOS || exit 1  # Save to Downloads/VIDEOS
-        # Use best quality less than 600p (avoids massive filesize)
-        ${pkgs.taskspooler}/bin/ts \
-          ${pkgs.yt-dlp}/bin/yt-dlp -f 'b[height<600]' "$@"
-      '')
+      # Put YouTube video in a download queue
+      cd ~/Downloads/VIDEOS || exit 1  # Save to Downloads/VIDEOS
+      # Use best quality less than 600p (avoids massive filesize)
+      ${pkgs.taskspooler}/bin/ts \
+        ${pkgs.yt-dlp}/bin/yt-dlp -f 'b[height<600]' "$@"
+    '')
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
@@ -287,10 +287,10 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
     ssh = {
       enable = true;
       matchBlocks."chriswarbo.net" = {
-          #HostName 35.179.11.29
-          #User admin
-          #PubkeyAcceptedKeyTypes +ssh-rsa
-          #IdentityFile ~/LightsailDefaultKey-eu-west-2.pem
+        #HostName 35.179.11.29
+        #User admin
+        #PubkeyAcceptedKeyTypes +ssh-rsa
+        #IdentityFile ~/LightsailDefaultKey-eu-west-2.pem
       };
     };
 
@@ -306,28 +306,28 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
   };
 
   dconf.settings = with { inherit (lib.hm.gvariant) mkDouble mkUint32; }; {
-      "org/gnome/desktop/interface" = {
-        clock-show-date = true;
-        clock-show-weekday = true;
-        color-scheme = "prefer-dark";
-        enable-animations = false;
-        font-antialiasing = "grayscale";
-        font-hinting = "slight";
+    "org/gnome/desktop/interface" = {
+      clock-show-date = true;
+      clock-show-weekday = true;
+      color-scheme = "prefer-dark";
+      enable-animations = false;
+      font-antialiasing = "grayscale";
+      font-hinting = "slight";
       font-name = "Droid Sans 11";
-        monospace-font-name = "Iosevka 9";
-        show-battery-percentage = true;
-      };
-    "org/gnome/desktop/session" = { idle-delay = mkUint32 300; };
-      "org/gnome/desktop/wm/preferences".focus-mode = "sloppy";
-      "org/gnome/desktop/screensaver" = {
-        # Phosh screen lock can mess up when plugging in external monitors, so
-        # disable it completely (the pin-entry doesn't appear on the monitor,
-        # but is still focused and hence capturing keyboard entry)
-        lock-enabled = false;
-        lock-delay = mkUint32 3600;
-        picture-options = "none";
-      };
+      monospace-font-name = "Iosevka 9";
+      show-battery-percentage = true;
     };
+    "org/gnome/desktop/session" = { idle-delay = mkUint32 300; };
+    "org/gnome/desktop/wm/preferences".focus-mode = "sloppy";
+    "org/gnome/desktop/screensaver" = {
+      # Phosh screen lock can mess up when plugging in external monitors, so
+      # disable it completely (the pin-entry doesn't appear on the monitor,
+      # but is still focused and hence capturing keyboard entry)
+      lock-enabled = false;
+      lock-delay = mkUint32 3600;
+      picture-options = "none";
+    };
+  };
 
   systemd.user = with {
   }; {
