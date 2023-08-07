@@ -314,7 +314,6 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
         font-antialiasing = "grayscale";
         font-hinting = "slight";
         font-name = "Droid Sans 9";
-        gtk-key-theme = "Emacs";
         monospace-font-name = "Iosevka 9";
         show-battery-percentage = true;
       };
