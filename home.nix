@@ -104,6 +104,10 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
     #  ${with-aws-creds}/bin/with-aws-creds ${pkgs.awscli}/bin/aws "$@"
     #'')
 
+    (pkgs.writeShellScriptBin "pop" ''
+      paplay /usr/share/sounds/freedesktop/stereo/message.oga
+    '')
+
     (pkgs.writeShellScriptBin "yt" ''
       set -e
 
