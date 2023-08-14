@@ -334,6 +334,38 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
   };
 
   systemd.user = with {
+    runIfEmpty = pkgs.writeScript "runIfEmpty.sh" ''
+      #!${pkgs.bash}/bin/bash
+      set -e
+      # Runs a given command, if a directory is empty/non-existent
+
+      # First arg is the path of a directory (or a symlink to one)
+      DIR="$1"
+      shift
+
+      # Returns successfully if the DIR directory is empty
+      empty() {
+        FOUND=$(ls -1 "$DIR" | wc -l)
+        [[ "$FOUND" -eq 0 ]] && return 0
+        return 1
+      }
+
+      # Determine whether we need to run or not
+      GO=0
+      if [[ -h "$DIR" ]]
+      then
+        # Run if $DIR is a symlink to an empty dir, or has a non-existent target
+        [[ -e "$DIR" ]] && empty && GO=1
+        [[ -e "$DIR" ]] || GO=1
+      else
+        # Run if $DIR is an empty directory
+        empty && GO=1
+      fi
+
+      # Run or not
+      [[ "$GO" -eq 0 ]] && exit 0
+      exec "$@"
+    '';
   }; {
     services = {
       fix-monitor = {
@@ -351,6 +383,48 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
             "DISPLAY=:0"
           ];
         };
+      };
+
+      dietpi-smb = {
+        Unit = {
+          Description = "Mount DietPi's shared folder read-only via SMB";
+          After = [ "home-wifi-connected.target" ];
+          PartOf = [ "home-wifi-connected.target" ];
+          BindsTo = [ "home-wifi-connected.target" ];
+          Requires = [ "home-wifi-connected.target" ];
+        };
+        Service = with { path = "smb://dietpi.local/shared"; }; {
+          Type = "oneshot";
+          RemainAfterExit = "yes";
+          ExecStart = "${runIfEmpty} /home/manjaro/Shared gio mount -a ${path}";
+          ExecStop = "gio mount -u ${path}";
+          Restart = "on-failure";
+        };
+        Install = { };
+      };
+      dietpi-sftp = {
+        Unit = {
+          Description = "Mount DietPi's root folder read/write via SFTP";
+          After = [ "home-wifi-connected.target" ];
+          PartOf = [ "home-wifi-connected.target" ];
+          BindsTo = [ "home-wifi-connected.target" ];
+          Requires = [ "home-wifi-connected.target" ];
+        };
+        Service = with { path = "sftp://pi@dietpi.local/"; }; {
+          Type = "oneshot";
+          RemainAfterExit = "yes";
+          ExecStart = "${runIfEmpty} /home/manjaro/DietPi gio mount ${path}";
+          ExecStop = "gio mount -u ${path}";
+          Restart = "on-failure";
+        };
+        Install = { };
+      };
+    };
+
+    targets.home-wifi-connected = {
+      Unit = {
+        Description = "On home WiFi network";
+        Wants = [ "dietpi-smb.service" "dietpi-sftp.service" ];
       };
     };
   };
