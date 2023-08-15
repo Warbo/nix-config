@@ -23,6 +23,9 @@ XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/run/user/$(id -u)/}"
 WAYLAND_DISPLAY="${WAYLAND_DISPLAY:-wayland-0}"
 DISPLAY="${DISPLAY:-:0}"
 
+# Bring home-wifi-connected.target up or down, as appropriate
+/home/manjaro/.manjaro_fixes/dispatcher.d/95-home.sh || true
+
 # Udev can trigger this script 'too quickly', before new monitors appear in the
 # wlr-randr output. This 'sleep' statement is a lazy way to work around it!
 sleep 5
