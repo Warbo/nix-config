@@ -42,21 +42,21 @@ then
     # causes some applications to misbehave (e.g. Firefox changes DPI wildly),
     # so we only use a different *refresh rate*. We also turn the phone screen
     # on and off, to try and avoid mirrored sections of the screen disappearing!
-    wlr-randr --output DSI-1 --on
+    wlr-randr --output DSI-1 --on || true
     sleep 1
     wlr-randr --output HDMI-A-1 --on \
               --mode 1920x1080@60 \
-              --transform 270 \
-              --scale 1.0
+              --transform 90 \
+              --scale 1.0 || true
     sleep 1
 
     # Now set the config we want; only monitor on, since GPU struggles with both
-    wlr-randr --output DSI-1 --off
+    wlr-randr --output DSI-1 --off || true
     sleep 1
     wlr-randr --output HDMI-A-1 --on \
               --mode 1920x1080@50 \
-              --transform 270 \
-              --scale 1.0
+              --transform 90 \
+              --scale 1.0 || true
 
     # Turn down the font scaling to fit more on screen (since it's not dinky,
     # and we're not jabbing it with our fat fingers)
