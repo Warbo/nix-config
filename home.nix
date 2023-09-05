@@ -98,11 +98,11 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
     pkgs.wlr-randr
 
     # Wrappers/helpers for AWS CLI, to avoid storing credentials in plaintext
-    #aws-login
-    #with-aws-creds
-    #(pkgs.writeShellScriptBin "aws" ''
-    #  ${with-aws-creds}/bin/with-aws-creds ${pkgs.awscli}/bin/aws "$@"
-    #'')
+    aws-login
+    with-aws-creds
+    (pkgs.writeShellScriptBin "aws" ''
+      ${with-aws-creds}/bin/with-aws-creds ${pkgs.awscli}/bin/aws "$@"
+    '')
 
     (pkgs.writeShellScriptBin "pop" ''
       paplay /usr/share/sounds/freedesktop/stereo/message.oga
