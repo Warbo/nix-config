@@ -88,6 +88,7 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
     #pkgs.gmpc
     #pkgs.libreoffice
     pkgs.nixfmt
+    pkgs.rclone
     pkgs.rsync
     pkgs.screen
     pkgs.taskspooler
