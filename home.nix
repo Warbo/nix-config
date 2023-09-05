@@ -84,7 +84,6 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
     pkgs.qt6Packages.qtstyleplugin-kvantum
 
     pkgs.libreoffice
-    #pkgs.nix-top
     pkgs.ario
     #pkgs.cmus
     #pkgs.gmpc
@@ -94,8 +93,6 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
     pkgs.taskspooler
     pkgs.vlc
     pkgs.w3m
-    #pkgs.waypipe
-    #pkgs.weston
     pkgs.wget
     pkgs.wlr-randr
 
