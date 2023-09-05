@@ -290,11 +290,18 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
 
     ssh = {
       enable = true;
-      matchBlocks."chriswarbo.net" = {
-        #HostName 35.179.11.29
-        #User admin
-        #PubkeyAcceptedKeyTypes +ssh-rsa
-        #IdentityFile ~/LightsailDefaultKey-eu-west-2.pem
+      matchBlocks = {
+        "chriswarbo.net" = {
+          #HostName 35.179.11.29
+          #User admin
+          #PubkeyAcceptedKeyTypes +ssh-rsa
+          #IdentityFile ~/LightsailDefaultKey-eu-west-2.pem
+        };
+        pi = {
+          # TODO: What's the correct option format for these?
+          # HostName = "dietpi.local";
+          # User = "pi";
+        };
       };
     };
 
