@@ -83,10 +83,10 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
     pkgs.libsForQt5.qtstyleplugin-kvantum
     pkgs.qt6Packages.qtstyleplugin-kvantum
 
-    pkgs.libreoffice
     pkgs.ario
     #pkgs.cmus
     #pkgs.gmpc
+    #pkgs.libreoffice
     pkgs.nixfmt
     pkgs.rsync
     pkgs.screen
