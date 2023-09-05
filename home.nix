@@ -83,9 +83,11 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
     pkgs.libsForQt5.qtstyleplugin-kvantum
     pkgs.qt6Packages.qtstyleplugin-kvantum
 
-    pkgs.cmus
     pkgs.libreoffice
     #pkgs.nix-top
+    pkgs.ario
+    #pkgs.cmus
+    #pkgs.gmpc
     pkgs.nixfmt
     pkgs.rsync
     pkgs.screen
@@ -307,6 +309,21 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
       startWithUserSession = true;
       defaultEditor = true;
     };
+
+    mpd = {
+      enable = true;
+      musicDirectory = "/home/manjaro/Shared/Music/Commercial";
+      #playlistDirectory = "none";
+      dbFile = null;
+      network.listenAddress = "any";
+      extraConfig = ''
+        database {
+          plugin "proxy"
+          host "127.0.0.1"
+          port "6666"
+        }
+      '';
+    };
   };
 
   dconf.settings = with { inherit (lib.hm.gvariant) mkDouble mkUint32; }; {
@@ -382,6 +399,32 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
             "WAYLAND_DISPLAY=wayland-0"
             "DISPLAY=:0"
           ];
+        };
+      };
+
+      mpd.Unit.After = [ "mpd-forwarder.service" ];
+      mpd-forwarder = {
+        Unit = {
+          Description = "Proxy MPD on an IPv6 mDNS host, to a local port";
+          After = [ "home-wifi-connected.target" ];
+          PartOf = [ "home-wifi-connected.target" ];
+          BindsTo = [ "home-wifi-connected.target" ];
+          Requires = [ "home-wifi-connected.target" ];
+        };
+        Service = {
+          ExecStart = "${pkgs.writeShellScript "mpd-forwarder" ''
+            set -ex
+            if ADDRS=$(getent ahosts dietpi.local)
+            then
+              ADDR=$(echo "$ADDRS" | head -n1 | awk '{print $1}')
+              exec ${pkgs.socat}/bin/socat \
+                TCP-LISTEN:6666,fork,reuseaddr \
+                TCP:[$ADDR]:6600
+            else
+              echo "Couldn't resolve dietpi.local" 1>&2
+              exit 1
+            fi
+          ''}";
         };
       };
 
