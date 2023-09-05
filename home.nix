@@ -361,6 +361,9 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
       set -e
       # Runs a given command, if a directory is empty/non-existent
 
+      XDG_RUNTIME_DIR="''${XDG_RUNTIME_DIR:-/run/user/$(id -u "$USER")}"
+      SSH_AUTH_SOCK="''${SSH_AUTH_SOCK:-$XDG_RUNTIME_DIR/gcr/ssh}"
+
       # First arg is the path of a directory (or a symlink to one)
       DIR="$1"
       shift
