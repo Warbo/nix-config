@@ -461,10 +461,24 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
           Requires = [ "home-wifi-connected.target" ];
         };
         Service = with { path = "sftp://pi@dietpi.local/"; }; {
-          Type = "oneshot";
-          RemainAfterExit = "yes";
-          ExecStart = "${runIfEmpty} /home/manjaro/DietPi gio mount ${path}";
-          ExecStop = "gio mount -u ${path}";
+          #Type = "oneshot";
+          #RemainAfterExit = "yes";
+          ExecStart = "${pkgs.writeShellScript "dietpi-sftp.sh" ''
+            set -ex
+            export SSH_AUTH_SOCK=/run/user/1000/gcr/ssh
+            if ADDRS=$(getent ahostsv4 dietpi.local)
+            then
+              ADDR=$(echo "$ADDRS" | head -n1 | awk '{print $1}')
+              exec ${pkgs.rclone}/bin/rclone mount \
+                --vfs-cache-mode=full \
+                ":sftp,user=pi,host=$ADDR:/" \
+                /home/manjaro/DietPi
+            else
+              echo "Couldn't resolve dietpi.local" 1>&2
+              exit 1
+            fi
+          ''}";
+          ExecStop = "fusermount -u /home/manjaro/DietPi";
           Restart = "on-failure";
         };
         Install = { };
