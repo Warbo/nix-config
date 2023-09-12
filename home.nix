@@ -86,6 +86,7 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
     pkgs.cantata
     #pkgs.cmus
     #pkgs.libreoffice
+    pkgs.newsflash
     pkgs.nixfmt
     pkgs.rclone
     pkgs.rsync
