@@ -247,7 +247,12 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
           foreground = "CCCCCC";
         };
         csd.hide-when-maximized = "yes";
-        main.initial-window-mode = "maximized";
+        main = {
+          dpi-aware = "yes";
+          initial-window-mode = "maximized";
+          font = "Droid Sans Mono:size=8";
+          term = "xterm-color";
+        };
       };
     };
 
