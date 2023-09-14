@@ -356,43 +356,7 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
     };
   };
 
-  systemd.user = with {
-    runIfEmpty = pkgs.writeScript "runIfEmpty.sh" ''
-      #!${pkgs.bash}/bin/bash
-      set -e
-      # Runs a given command, if a directory is empty/non-existent
-
-      XDG_RUNTIME_DIR="''${XDG_RUNTIME_DIR:-/run/user/$(id -u "$USER")}"
-      SSH_AUTH_SOCK="''${SSH_AUTH_SOCK:-$XDG_RUNTIME_DIR/gcr/ssh}"
-
-      # First arg is the path of a directory (or a symlink to one)
-      DIR="$1"
-      shift
-
-      # Returns successfully if the DIR directory is empty
-      empty() {
-        FOUND=$(ls -1 "$DIR" | wc -l)
-        [[ "$FOUND" -eq 0 ]] && return 0
-        return 1
-      }
-
-      # Determine whether we need to run or not
-      GO=0
-      if [[ -h "$DIR" ]]
-      then
-        # Run if $DIR is a symlink to an empty dir, or has a non-existent target
-        [[ -e "$DIR" ]] && empty && GO=1
-        [[ -e "$DIR" ]] || GO=1
-      else
-        # Run if $DIR is an empty directory
-        empty && GO=1
-      fi
-
-      # Run or not
-      [[ "$GO" -eq 0 ]] && exit 0
-      exec "$@"
-    '';
-  }; {
+  systemd.user = {
     services = {
       fix-monitor = {
         Unit.Description = "Re-jig external monitor";
@@ -445,11 +409,22 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
           BindsTo = [ "dietpi-accessible.target" ];
           Requires = [ "dietpi-accessible.target" ];
         };
-        Service = with { path = "smb://dietpi.local/shared"; }; {
-          Type = "oneshot";
-          RemainAfterExit = "yes";
-          ExecStart = "${runIfEmpty} /home/manjaro/Shared gio mount -a ${path}";
-          ExecStop = "gio mount -u ${path}";
+        Service = {
+          ExecStart = "${pkgs.writeShellScript "dietpi-smb.sh" ''
+            set -ex
+            if ADDRS=$(getent ahostsv4 dietpi.local)
+            then
+              ADDR=$(echo "$ADDRS" | head -n1 | awk '{print $1}')
+              exec ${pkgs.rclone}/bin/rclone mount \
+                ':smb:shared' \
+                --smb-host "$ADDR" \
+                /home/manjaro/Shared
+            else
+              echo "Couldn't resolve dietpi.local" 1>&2
+              exit 1
+            fi
+          ''}";
+          ExecStop = "fusermount -u /home/manjaro/Shared";
           Restart = "on-failure";
         };
         Install = { };
@@ -462,9 +437,7 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
           BindsTo = [ "dietpi-accessible.target" ];
           Requires = [ "dietpi-accessible.target" ];
         };
-        Service = with { path = "sftp://pi@dietpi.local/"; }; {
-          #Type = "oneshot";
-          #RemainAfterExit = "yes";
+        Service = {
           ExecStart = "${pkgs.writeShellScript "dietpi-sftp.sh" ''
             set -ex
             export SSH_AUTH_SOCK=/run/user/1000/gcr/ssh
