@@ -375,7 +375,8 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
         };
       };
 
-      mpd.Unit.After = [ "mpd-forwarder.service" ];
+      mpd.Unit.After = [ "dietpi-smb.service" "mpd-forwarder.service" ];
+      mpd.Unit.Requires = [ "dietpi-smb.service" "mpd-forwarder.service" ];
       mpd-forwarder = {
         Unit = {
           Description = "Proxy MPD on an IPv6 mDNS host, to a local port";
