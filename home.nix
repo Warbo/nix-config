@@ -486,10 +486,19 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
       };
     };
 
-    targets.home-wifi-connected = {
-      Unit = {
-        Description = "On home WiFi network";
-        Wants = [ "dietpi-smb.service" "dietpi-sftp.service" ];
+    targets = {
+      dietpi-accessible = {
+        Unit = {
+          Description = "Can access dietpi.local";
+          Wants = [ "dietpi-smb.service" "dietpi-sftp.service" "mpd.service" ];
+        };
+      };
+
+      home-wifi-connected = {
+        Unit = {
+          Description = "On home WiFi network";
+          Wants = [ "dietpi-smb.service" "dietpi-sftp.service" ];
+        };
       };
     };
   };
