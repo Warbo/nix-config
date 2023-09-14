@@ -414,10 +414,10 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
       mpd-forwarder = {
         Unit = {
           Description = "Proxy MPD on an IPv6 mDNS host, to a local port";
-          After = [ "home-wifi-connected.target" ];
-          PartOf = [ "home-wifi-connected.target" ];
-          BindsTo = [ "home-wifi-connected.target" ];
-          Requires = [ "home-wifi-connected.target" ];
+          After = [ "dietpi-accessible.target" ];
+          PartOf = [ "dietpi-accessible.target" ];
+          BindsTo = [ "dietpi-accessible.target" ];
+          Requires = [ "dietpi-accessible.target" ];
         };
         Service = {
           ExecStart = "${pkgs.writeShellScript "mpd-forwarder" ''
@@ -439,10 +439,10 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
       dietpi-smb = {
         Unit = {
           Description = "Mount DietPi's shared folder read-only via SMB";
-          After = [ "home-wifi-connected.target" ];
-          PartOf = [ "home-wifi-connected.target" ];
-          BindsTo = [ "home-wifi-connected.target" ];
-          Requires = [ "home-wifi-connected.target" ];
+          After = [ "dietpi-accessible.target" ];
+          PartOf = [ "dietpi-accessible.target" ];
+          BindsTo = [ "dietpi-accessible.target" ];
+          Requires = [ "dietpi-accessible.target" ];
         };
         Service = with { path = "smb://dietpi.local/shared"; }; {
           Type = "oneshot";
@@ -456,10 +456,10 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
       dietpi-sftp = {
         Unit = {
           Description = "Mount DietPi's root folder read/write via SFTP";
-          After = [ "home-wifi-connected.target" ];
-          PartOf = [ "home-wifi-connected.target" ];
-          BindsTo = [ "home-wifi-connected.target" ];
-          Requires = [ "home-wifi-connected.target" ];
+          After = [ "dietpi-accessible.target" ];
+          PartOf = [ "dietpi-accessible.target" ];
+          BindsTo = [ "dietpi-accessible.target" ];
+          Requires = [ "dietpi-accessible.target" ];
         };
         Service = with { path = "sftp://pi@dietpi.local/"; }; {
           #Type = "oneshot";
