@@ -94,6 +94,7 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
     pkgs.screen
     pkgs.taskspooler
     pkgs.gnome.geary
+    pkgs.update-nix-fetchgit
     pkgs.vlc
     pkgs.w3m
     pkgs.wget
