@@ -65,5 +65,5 @@ else
     # If we're not on our known desktop setup, then crank the font scaling back
     # up (for legibility on a small screen in the sun, and to make buttons large
     # enough to hit via the capacitive touchscreen)
-    gsettings set org.gnome.desktop.interface text-scaling-factor '1.33' || true
+    gsettings set org.gnome.desktop.interface text-scaling-factor '1.25' || true
 fi
