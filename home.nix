@@ -451,7 +451,7 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
         Service = {
           ExecStart = "${pkgs.writeShellScript "dietpi-sftp.sh" ''
             set -ex
-            export SSH_AUTH_SOCK=/run/user/1000/gcr/ssh
+            . /home/manjaro/.bashrc
             if ADDRS=$(getent ahostsv4 dietpi.local)
             then
               ADDR=$(echo "$ADDRS" | head -n1 | awk '{print $1}')
