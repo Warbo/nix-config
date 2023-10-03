@@ -423,7 +423,10 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
             if ADDRS=$(getent ahostsv4 dietpi.local)
             then
               ADDR=$(echo "$ADDRS" | head -n1 | awk '{print $1}')
+              # NOTE: Remote control (rc) port is arbitrary, but must be unique
               exec ${pkgs.rclone}/bin/rclone mount \
+                --rc --rc-no-auth --rc-addr=:11111 \
+                --vfs-cache-mode=full \
                 ':smb:shared' \
                 --smb-host "$ADDR" \
                 /home/manjaro/Shared
@@ -452,8 +455,12 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
             if ADDRS=$(getent ahostsv4 dietpi.local)
             then
               ADDR=$(echo "$ADDRS" | head -n1 | awk '{print $1}')
+              # NOTE: We avoid setting modtime, to avoid SSH_FX_OP_UNSUPPORTED
+              # NOTE: Remote control (rc) port is arbitrary, but must be unique
               exec ${pkgs.rclone}/bin/rclone mount \
+                --rc --rc-no-auth --rc-addr=:22222 \
                 --vfs-cache-mode=full \
+                --sftp-set-modtime=false --no-update-modtime \
                 ":sftp,user=pi,host=$ADDR:/" \
                 /home/manjaro/DietPi
             else
