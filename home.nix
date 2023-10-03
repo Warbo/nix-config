@@ -92,7 +92,7 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
     pkgs.rsync
     pkgs.screen
     pkgs.taskspooler
-    pkgs.thunderbird
+    pkgs.gnome.geary
     pkgs.vlc
     pkgs.w3m
     pkgs.wget
