@@ -120,6 +120,15 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
       ${pkgs.taskspooler}/bin/ts \
         ${pkgs.yt-dlp}/bin/yt-dlp -f 'b[height<600]' "$@"
     '')
+    (pkgs.writeShellScriptBin "with-nix-store" ''
+      STORE_DIR="$1"
+      shift
+      ${pkgs.bubblewrap}/bin/bwrap \
+        --unsetenv NIX_REMOTE \
+        --dev-bind / / \
+        --bind "$STORE_DIR" /nix \
+        "$@"
+    '')
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
