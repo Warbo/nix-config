@@ -194,6 +194,19 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
         --bind "$STORE_DIR" /nix \
         "$@"
     '')
+
+    (pkgs.writeShellScriptBin "tasks" ''
+      while true
+      do
+        while ts | grep running
+        do
+          ts -t
+          echo DONE 1>&2
+          sleep 1
+        done
+        sleep 5
+      done
+    '')
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
