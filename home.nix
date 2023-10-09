@@ -466,9 +466,8 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
           #IdentityFile ~/LightsailDefaultKey-eu-west-2.pem
         };
         pi = {
-          # TODO: What's the correct option format for these?
-          # HostName = "dietpi.local";
-          # User = "pi";
+          hostname = "dietpi.local";
+          user = "pi";
         };
       };
     };
