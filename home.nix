@@ -246,6 +246,79 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
   xdg.systemDirs.data =
     [ "${config.home.homeDirectory}/.nix-profile/share/applications" ];
 
+  gtk = {
+    enable = true;
+
+    #font = hm.types.fontType;
+
+    #cursorTheme =  cursorThemeType;
+
+    iconTheme = {
+      name = "buuf-for-many-desktops";
+      package = pkgs.linkFarm "buuf-for-many-desktops" {
+        "share/icons/buuf-for-many-desktops" = fetchGit {
+          name = "buuf-src";
+          url = "https://git.disroot.org/eudaimon/buuf-nestort.git";
+          ref = "master";
+          rev = "0b0cca8346d86d56c2e31e2cfe8e924f6a0bfb64";
+        };
+      };
+    };
+
+    theme = {
+      package = pkgs.theme-vertex; # pkgs.skeu
+      name = "Vertex";
+    };
+
+    gtk2.extraConfig = ''
+      gtk-enable-animations=0
+      gtk-primary-button-warps-slider=0
+      gtk-toolbar-style=3
+      gtk-menu-images=1
+      gtk-button-images=1
+      gtk-cursor-theme-size=24
+      gtk-cursor-theme-name="Adwaita"${
+        "" # gtk-icon-theme-name="oxygen"
+      }
+      gtk-font-name="Droid Sans [1ASC],  8"${
+        "" # gtk-theme-name="Adwaita-dark"
+      }
+    '';
+
+    gtk3.extraConfig = {
+      gtk-application-prefer-dark-theme = true;
+      gtk-button-images = true;
+      gtk-cursor-theme-name = "Adwaita";
+      gtk-cursor-theme-size = "24";
+      gtk-decoration-layout = "icon:minimize,maximize,close";
+      gtk-enable-animations = false;
+      gtk-font-name = "Droid Sans [1ASC],  8";
+      #gtk-icon-theme-name = "oxygen";
+      gtk-menu-images = true;
+      gtk-modules = "window-decorations-gtk-module:colorreload-gtk-module";
+      gtk-primary-button-warps-slider = false;
+      #gtk-theme-name=Adwaita-dark;
+      gtk-toolbar-style = "3";
+      gtk-xft-dpi = "98304";
+      gtk-overlay-scrolling = false;
+    };
+
+    gtk4.extraConfig = {
+      gtk-application-prefer-dark-theme = true;
+      gtk-cursor-theme-name = "Adwaita";
+      gtk-cursor-theme-size = "24";
+      gtk-decoration-layout = "icon:minimize,maximize,close";
+      gtk-enable-animations = false;
+      gtk-overlay-scrolling = false;
+      gtk-font-name = "Droid Sans [1ASC],  8";
+      #gtk-icon-theme-name = "oxygen";
+      gtk-modules = "window-decorations-gtk-module:colorreload-gtk-module";
+      gtk-primary-button-warps-slider = false;
+      #gtk-theme-name = Adwaita-dark;
+      gtk-xft-dpi = "98304";
+    };
+  };
+
   # Let Home Manager install and manage itself.
   programs = {
     bash = {
