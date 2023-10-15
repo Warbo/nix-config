@@ -1,6 +1,8 @@
 { config, pkgs, lib, ... }:
 
-with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
+with rec {
+  commands = import ./commands.nix { };
+}; {
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
   home.username = "manjaro";
@@ -17,68 +19,7 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
 
   # The home.packages option allows you to install Nix packages into your
   # environment.
-  home.packages = with rec {
-    aws-login = pkgs.writeShellScriptBin "aws-login" ''
-      set -e
-
-      # Creates a temporary folder for AWS credentials, populates it using
-      # secrets taken from the Pass database, and gets a temporary session
-      # token from AWS. This way, the only permanent way our credentials are
-      # stored is in Pass's encrypted database; and applications are only
-      # exposed to temporary tokens, rather than the underlying secrets.
-
-      PATH="${pkgs.coreutils}/bin:${pkgs.gnused}/bin:${pkgs.jq}/bin:$PATH"
-
-      DIR=$(mktemp -d)
-      cleanup() {
-        rm -rf "$DIR"
-      }
-      trap cleanup EXIT
-
-      export AWS_SHARED_CREDENTIALS_FILE="$DIR/creds"
-
-      CREDS=$(${pkgs.pass}/bin/pass automation/aws_s3 | sed -e 's@//.*@@g')
-      echo "$CREDS" | jq -r '[
-        "[default]\naws_access_key_id=",
-        .AccessKeyId,
-        "\naws_secret_access_key=",
-        .SecretAccessKey,
-        "\n"
-      ] | join("")' > "$AWS_SHARED_CREDENTIALS_FILE"
-
-      ${pkgs.awscli}/bin/aws sts get-session-token --output json --query \
-        'Credentials.[AccessKeyId,SecretAccessKey,SessionToken,Expiration]' |
-        jq '{
-          "Version": 1,
-          "AccessKeyId": .[0],
-          "SecretAccessKey": .[1],
-          "SessionToken": .[2],
-          "Expiration": .[3]
-        }'
-    '';
-
-    with-aws-creds = pkgs.writeShellScriptBin "with-aws-creds" ''
-      set -e
-
-      # Runs a given command, using aws-login to obtain an AWS access token.
-      # This avoids permanently storing credentials in plaintext.
-
-      PATH="${pkgs.coreutils}/bin:$PATH"
-
-      DIR=$(mktemp -d)
-      cleanup() {
-        rm -rf "$DIR"
-      }
-      trap cleanup EXIT
-
-      export AWS_CONFIG_FILE="$DIR/config"
-      printf '[default]\ncredential_process=%s' \
-             "${aws-login}/bin/aws-login" > "$AWS_CONFIG_FILE"
-      "$@"
-    '';
-  }; [
-    fix
-
+  home.packages = builtins.attrValues commands ++ [
     pkgs.qtstyleplugin-kvantum-qt4
     pkgs.libsForQt5.qtstyleplugin-kvantum
     pkgs.qt6Packages.qtstyleplugin-kvantum
@@ -99,114 +40,6 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
     pkgs.w3m
     pkgs.wget
     pkgs.wlr-randr
-
-    # Wrappers/helpers for AWS CLI, to avoid storing credentials in plaintext
-    aws-login
-    with-aws-creds
-    (pkgs.writeShellScriptBin "aws" ''
-      ${with-aws-creds}/bin/with-aws-creds ${pkgs.awscli}/bin/aws "$@"
-    '')
-
-    (pkgs.writeShellScriptBin "pop" ''
-      paplay /usr/share/sounds/freedesktop/stereo/message.oga
-    '')
-
-    (pkgs.writeShellScriptBin "yt" ''
-      set -e
-
-      # Put YouTube video in a download queue
-      cd ~/Downloads/VIDEOS || exit 1  # Save to Downloads/VIDEOS
-      # Use best quality less than 600p (avoids massive filesize)
-      ${pkgs.taskspooler}/bin/ts \
-        ${pkgs.yt-dlp}/bin/yt-dlp -f 'b[height<600]' "$@"
-    '')
-
-    (pkgs.writeShellScriptBin "overlay-nix-store" ''
-      DISK_ID='804f4826-e4b2-4e06-9759-1628da22b787'
-      DISK_LABEL='internal'
-      [[ -e "/dev/disk/by-uuid/$DISK_ID" ]] || {
-        echo "SSD partition $DISK_ID (labelled '$DISK_LABEL') not present"
-        exit 1
-      } 1>&2
-
-      DEVICE=$(readlink -f "/dev/disk/by-uuid/$DISK_ID")
-      [[ -e "/dev/disk/by-label/$DISK_LABEL" ]] || {
-        echo "Found SSD partition $DISK_ID, but not label '$DISK_LABEL'"
-        exit 1
-      } 1>&2
-      GOT=$(readlink -f "/dev/disk/by-label/$DISK_LABEL")
-      [[ "x$DEVICE" = "x$GOT" ]] || {
-        echo "UUID $DISK_ID is $DEVICE but label $DISK_LABEL is $GOT"
-        exit 1
-      } 1>&2
-
-      DISK_ROOT="/home/manjaro/Drives/uuids/$DISK_ID"
-      mkdir -p "$DISK_ROOT"
-      mount | grep -q "$DISK_ROOT" || sudo mount "$DEVICE" "$DISK_ROOT"
-
-      # Use mergerfs to combine our normal /nix with the SSD's /nix. We do this
-      # with three layers:
-      #  - Start with SSD's /nix, read-only. This sets the permissions, so our
-      #    normal user can write to /nix/store.
-      #  - Overlay /nix, read only. This gives us aarch64 binaries, etc.
-      #  - Overlay SSD's /nix again, but read/write. This ensures all writes go
-      #    to the SSD, so we don't run out of space on /.
-      UNION_DIR="/home/manjaro/Drives/unions/ssd_store_overlay"
-      mkdir -p "$UNION_DIR"
-      mount | grep -q "$UNION_DIR" ||
-        ${pkgs.mergerfs}/bin/mergerfs \
-          -o category.create=mfs -o nonempty -o allow_other \
-            "$DISK_ROOT/nix=RO:/nix=RO:$DISK_ROOT/nix" \
-            "$UNION_DIR"
-
-      # Run with-nix-store to enter a chroot with $UNION_DIR bind-mounted over
-      # /nix. We also do the following, for a smoother experience:
-      #  - Use SSD's /nix/var instead of the union. This ensures our user can
-      #    write to the DB, that we aren't filling our /nix DB with ephemeral
-      #    entries, that we can create gc-roots, etc.
-      #  - Replace /nix/var/nix/daemon-socket with a tmpfs, so it appears as an
-      #    empty directory rather than containing a socket; which prevents Nix
-      #    commands trying to connect to a daemon.
-      #  - Replace /nix/var/nix/profiles with a tmpfs so our user has permission
-      #    to chmod its contents.
-      #  - Bind-mount our default profile in /nix/var/nix/profiles, so our $PATH
-      #    will contain Nix binaries for aarch64.
-      #  - Bind-mount our user's profile in /nix/var/nix/profiles, so our Bash
-      #    startup script can find home-manager variables, etc.
-      DEF_PROFILE=/nix/var/nix/profiles/default
-      USER_PROFILE="/nix/var/nix/profiles/per-user/$USER/profile"
-      with-nix-store \
-        "$UNION_DIR" \
-        --bind "$DISK_ROOT/nix/var" /nix/var \
-        --tmpfs /nix/var/nix/daemon-socket \
-        --tmpfs /nix/var/nix/profiles \
-        --bind "$(readlink -f "$DEF_PROFILE")" "$DEF_PROFILE" \
-        --bind "$USER_PROFILE" "$USER_PROFILE" \
-        "$@"
-    '')
-
-    (pkgs.writeShellScriptBin "with-nix-store" ''
-      STORE_DIR="$1"
-      shift
-      ${pkgs.bubblewrap}/bin/bwrap \
-        --unsetenv NIX_REMOTE \
-        --dev-bind / / \
-        --bind "$STORE_DIR" /nix \
-        "$@"
-    '')
-
-    (pkgs.writeShellScriptBin "tasks" ''
-      while true
-      do
-        while ts | grep running
-        do
-          ts -t
-          echo DONE 1>&2
-          sleep 1
-        done
-        sleep 5
-      done
-    '')
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
@@ -529,7 +362,7 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
         Service = {
           Type = "oneshot";
           RemainAfterExit = "no";
-          ExecStart = "${fix}/bin/fix";
+          ExecStart = "${commands.fix}/bin/fix";
           Environment = [
             # We want to use wlr-randr to alter the existing Wayland display; this
             # requires setting a few env vars (hardcoded, but doesn't seem tooooo
@@ -579,20 +412,14 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
         Service = {
           ExecStart = "${pkgs.writeShellScript "dietpi-smb.sh" ''
             set -ex
-            if ADDRS=$(getent ahostsv4 dietpi.local)
-            then
-              ADDR=$(echo "$ADDRS" | head -n1 | awk '{print $1}')
-              # NOTE: Remote control (rc) port is arbitrary, but must be unique
-              exec ${pkgs.rclone}/bin/rclone mount \
-                --rc --rc-no-auth --rc-addr=:11111 \
-                --vfs-cache-mode=full \
-                ':smb:shared' \
-                --smb-host "$ADDR" \
-                /home/manjaro/Shared
-            else
-              echo "Couldn't resolve dietpi.local" 1>&2
-              exit 1
-            fi
+            ADDR=$(${commands.pi4}/bin/pi4)
+            # NOTE: Remote control (rc) port is arbitrary, but must be unique
+            exec ${pkgs.rclone}/bin/rclone mount \
+              --rc --rc-no-auth --rc-addr=:11111 \
+              --vfs-cache-mode=full \
+              ':smb:shared' \
+              --smb-host "$ADDR" \
+              /home/manjaro/Shared
           ''}";
           ExecStop = "fusermount -u /home/manjaro/Shared";
           Restart = "on-failure";
@@ -611,21 +438,16 @@ with { fix = pkgs.writeShellScriptBin "fix" (builtins.readFile ./fix.sh); }; {
           ExecStart = "${pkgs.writeShellScript "dietpi-sftp.sh" ''
             set -ex
             . /home/manjaro/.bashrc
-            if ADDRS=$(getent ahostsv4 dietpi.local)
-            then
-              ADDR=$(echo "$ADDRS" | head -n1 | awk '{print $1}')
-              # NOTE: We avoid setting modtime, to avoid SSH_FX_OP_UNSUPPORTED
-              # NOTE: Remote control (rc) port is arbitrary, but must be unique
-              exec ${pkgs.rclone}/bin/rclone mount \
-                --rc --rc-no-auth --rc-addr=:22222 \
-                --vfs-cache-mode=full \
-                --sftp-set-modtime=false --no-update-modtime \
-                ":sftp,user=pi,host=$ADDR:/" \
-                /home/manjaro/DietPi
-            else
-              echo "Couldn't resolve dietpi.local" 1>&2
-              exit 1
-            fi
+            ADDR=$(${commands.pi4}/bin/pi4)
+
+            # NOTE: We avoid setting modtime, to avoid SSH_FX_OP_UNSUPPORTED
+            # NOTE: Remote control (rc) port is arbitrary, but must be unique
+            exec ${pkgs.rclone}/bin/rclone mount \
+              --rc --rc-no-auth --rc-addr=:22222 \
+              --vfs-cache-mode=full \
+              --sftp-set-modtime=false --no-update-modtime \
+              ":sftp,user=pi,host=$ADDR:/" \
+              /home/manjaro/DietPi
           ''}";
           ExecStop = "fusermount -u /home/manjaro/DietPi";
           Restart = "on-failure";
