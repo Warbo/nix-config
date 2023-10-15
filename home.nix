@@ -1,6 +1,14 @@
 { config, pkgs, lib, ... }:
 
 with rec {
+  inherit (warbo-utilities) warbo-packages;
+  inherit (warbo-packages) nix-helpers;
+  inherit (nix-helpers) nixpkgs-lib;
+
+  buuf = pkgs.newScope (nix-helpers // warbo-packages) ./buuf { };
+
+  warbo-utilities = import ./warbo-utilities.nix;
+
   commands = import ./commands.nix { };
 }; {
   # Home Manager needs a bit of information about you and the paths it should
@@ -25,8 +33,6 @@ with rec {
     pkgs.qt6Packages.qtstyleplugin-kvantum
 
     pkgs.cantata
-    #pkgs.cmus
-    #pkgs.libreoffice
     pkgs.leafpad
     pkgs.newsflash
     pkgs.nixfmt
@@ -87,15 +93,8 @@ with rec {
     #cursorTheme =  cursorThemeType;
 
     iconTheme = {
-      name = "buuf-for-many-desktops";
-      package = pkgs.linkFarm "buuf-for-many-desktops" {
-        "share/icons/buuf-for-many-desktops" = fetchGit {
-          name = "buuf-src";
-          url = "https://git.disroot.org/eudaimon/buuf-nestort.git";
-          ref = "master";
-          rev = "0b0cca8346d86d56c2e31e2cfe8e924f6a0bfb64";
-        };
-      };
+      name = buuf.name;
+      package = buuf;
     };
 
     theme = {
