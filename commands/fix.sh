@@ -31,8 +31,7 @@ DISPLAY="${DISPLAY:-:0}"
 sleep 5
 
 # Now we've slept, the randr outputs should be up to date. Check whether our
-# monitor is plugged in: if so, set up our desktop nicely; otherwise leave the
-# monitor configuration up to the DE.
+# monitor is plugged in: if so, set up our desktop nicely.
 if wlr-randr | grep -q 'Dell Inc. DELL U2419H 48Z6TS2 (HDMI-A-1)'
 then
     # Monitor found. Turn it on (in portrait mode, and scaled nicely)
@@ -62,8 +61,12 @@ then
     # and we're not jabbing it with our fat fingers)
     gsettings set org.gnome.desktop.interface text-scaling-factor '0.75' || true
 else
-    # If we're not on our known desktop setup, then crank the font scaling back
-    # up (for legibility on a small screen in the sun, and to make buttons large
-    # enough to hit via the capacitive touchscreen)
+    # If we're not on our known desktop setup, then we're *probably* using the
+    # Pinephone standalone. We force the mobile screen to be 1.25 scale (since
+    # Phosh insists on making it 2.0, even when we tell it otherwise using the
+    # gnome-control-center GUI...): 2.0 can hardly fit anything on the screen,
+    # while 1.0 makes buttons too small to easily press; 1.25 is about right. We
+    # also crank up the font scaling for legibility on the small screen.
+    wlr-randr --output DSI-1 --scale 1.25 || true
     gsettings set org.gnome.desktop.interface text-scaling-factor '1.25' || true
 fi
