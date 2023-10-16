@@ -35,6 +35,7 @@ with rec {
     pkgs.cantata
     pkgs.gnome.geary
     pkgs.leafpad
+    pkgs.lxqt.qterminal # KGX is slow, Foot mangles lines, Konsole needs KDElibs
     pkgs.newsflash
     pkgs.nixfmt
     pkgs.rclone
@@ -229,23 +230,6 @@ with rec {
           "browser.urlbar.maxRichResults" = 5;
           "browser.urlbar.suggest.history" = false;
           "browser.urlbar.tipShownCount.tabToSearch" = 2;
-        };
-      };
-    };
-
-    foot = {
-      enable = true;
-      settings = {
-        colors = {
-          background = "111111";
-          foreground = "CCCCCC";
-        };
-        csd.hide-when-maximized = "yes";
-        main = {
-          dpi-aware = "yes";
-          initial-window-mode = "maximized";
-          font = "Droid Sans Mono:size=8";
-          term = "xterm-color";
         };
       };
     };
