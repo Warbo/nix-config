@@ -28,11 +28,12 @@ with rec {
   # The home.packages option allows you to install Nix packages into your
   # environment.
   home.packages = builtins.attrValues commands ++ [
-    pkgs.qtstyleplugin-kvantum-qt4
     pkgs.libsForQt5.qtstyleplugin-kvantum
     pkgs.qt6Packages.qtstyleplugin-kvantum
+    pkgs.qtstyleplugin-kvantum-qt4
 
     pkgs.cantata
+    pkgs.gnome.geary
     pkgs.leafpad
     pkgs.newsflash
     pkgs.nixfmt
@@ -40,7 +41,6 @@ with rec {
     pkgs.rsync
     pkgs.screen
     pkgs.taskspooler
-    pkgs.gnome.geary
     pkgs.update-nix-fetchgit
     pkgs.vlc
     pkgs.w3m
