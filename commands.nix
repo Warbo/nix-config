@@ -14,13 +14,9 @@ with rec {
     mapAttrs (name: path: writeShellScriptBin name (builtins.readFile path))
     files;
 
-  standalone = mapAttrs (name: path:
-    linkFarm name [{
-      name = "bin/${name}";
-      path = call path;
-    }]) (nixDirsIn {
-      filename = "default.nix";
-      dir = ./commands;
-    });
+  standalone = mapAttrs (name: call) (nixDirsIn {
+    filename = "default.nix";
+    dir = ./commands;
+  });
 };
 scripts // standalone
