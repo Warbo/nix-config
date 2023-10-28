@@ -28,6 +28,8 @@ with rec {
   # The home.packages option allows you to install Nix packages into your
   # environment.
   home.packages = builtins.attrValues commands ++ [
+    (pkgs.hiPrio warbo-utilities)
+
     pkgs.libsForQt5.qtstyleplugin-kvantum
     pkgs.qt6Packages.qtstyleplugin-kvantum
     pkgs.qtstyleplugin-kvantum-qt4
