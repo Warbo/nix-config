@@ -34,6 +34,7 @@ with rec {
     pkgs.qt6Packages.qtstyleplugin-kvantum
     pkgs.qtstyleplugin-kvantum-qt4
 
+    pkgs.awscli
     pkgs.cantata
     pkgs.gnome.geary
     pkgs.leafpad
