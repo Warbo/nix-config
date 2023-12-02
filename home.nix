@@ -11,6 +11,7 @@ with rec {
 
   commands = import ./commands.nix { };
 }; {
+
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
   home.username = "manjaro";
@@ -36,6 +37,7 @@ with rec {
 
     pkgs.awscli
     pkgs.cantata
+    pkgs.entr
     pkgs.gnome.geary
     pkgs.leafpad
     pkgs.lxqt.qterminal # KGX is slow, Foot mangles lines, Konsole needs KDElibs
