@@ -316,6 +316,11 @@ with rec {
           host "127.0.0.1"
           port "6666"
         }
+
+        audio_output {
+          type "pulse"
+          name "pulse audio"
+        }
       '';
     };
   };
