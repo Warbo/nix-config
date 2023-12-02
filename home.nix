@@ -249,13 +249,13 @@ with rec {
     home-manager = {
       enable = true;
       path = fetchTarball {
-        sha256 = "sha256:0dfshsgj93ikfkcihf4c5z876h4dwjds998kvgv7sqbfv0z6a4bc";
+        sha256 = "sha256:16078fwcmqq41dqfnm124xxm8l6zykvqlj1kzgi0fvfil4y86slm";
         url = pkgs.lib.concatStringsSep "/" [
           "https://github.com"
           "nix-community"
           "home-manager"
           "archive"
-          "release-23.05.tar.gz"
+          "release-23.11.tar.gz"
         ];
       };
     };
