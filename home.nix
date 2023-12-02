@@ -81,8 +81,8 @@ with rec {
   #
   # if you don't want to manage your shell through Home Manager.
   home.sessionVariables = {
-    NIX_PATH = pkgs.lib.concatStringsSep ":"
-      [ "nixpkgs=/nix/var/nix/profiles/per-user/root/channels/nixpkgs" ];
+    NIX_PATH =
+      pkgs.lib.concatStringsSep ":" [ "nixpkgs=${nix-helpers.nixpkgs.path}" ];
     QT_STYLE_OVERRIDE = "kvantum";
   };
 
