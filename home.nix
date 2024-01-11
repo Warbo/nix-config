@@ -37,7 +37,6 @@ with rec {
     pkgs.awscli
     pkgs.cantata
     pkgs.entr
-    pkgs.gnome.geary
     pkgs.leafpad
     pkgs.lxqt.qterminal # KGX is slow, Foot mangles lines, Konsole needs KDElibs
     pkgs.mpv # Like Mplayer, but supports ARM
@@ -47,6 +46,7 @@ with rec {
     pkgs.rsync
     pkgs.screen
     pkgs.taskspooler
+    pkgs.thunderbird
     pkgs.update-nix-fetchgit
     pkgs.vlc
     pkgs.w3m
