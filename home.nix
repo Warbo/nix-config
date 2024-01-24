@@ -445,6 +445,33 @@ with rec {
         };
         Install = { };
       };
+      dietpi-nix-daemon = {
+        Unit = {
+          Description = "Tunnel DietPi's nix daemon socket to our /tmp";
+          After = [ "dietpi-accessible.target" ];
+          PartOf = [ "dietpi-accessible.target" ];
+          BindsTo = [ "dietpi-accessible.target" ];
+          Requires = [ "dietpi-accessible.target" ];
+        };
+        Service = with { sock = "/tmp/dietpi-nix-daemon.sock"; }; {
+          ExecStart = "${pkgs.writeShellScript "dietpi-nix-daemon.sh" ''
+            set -ex
+            . /home/manjaro/.bashrc
+            function cleanUp {
+              rm -f ${sock}
+            }
+            trap cleanUp EXIT
+            cleanUp
+            ssh \
+              -L ${sock}:/nix/var/nix/daemon-socket/socket \
+              -N \
+              pi
+          ''}";
+          ExecStop = "rm -f ${sock}";
+          Restart = "on-failure";
+        };
+        Install = { };
+      };
     };
 
     targets = {
