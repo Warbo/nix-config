@@ -355,9 +355,9 @@ with rec {
           RemainAfterExit = "no";
           ExecStart = "${commands.fix}/bin/fix";
           Environment = [
-            # We want to use wlr-randr to alter the existing Wayland display; this
-            # requires setting a few env vars (hardcoded, but doesn't seem tooooo
-            # bad...).
+            # We want to use wlr-randr to alter the existing Wayland display;
+            # this requires setting a few env vars (hardcoded, but doesn't seem
+            # tooooo bad...).
             "XDG_RUNTIME_DIR=/run/user/1000/"
             "WAYLAND_DISPLAY=wayland-0"
             "DISPLAY=:0"
