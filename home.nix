@@ -445,6 +445,38 @@ with rec {
         };
         Install = { };
       };
+
+      s3-git = {
+        Unit = {
+          Description = "Mount chriswarbo.net/git via S3";
+          After = [ "network-online.target" ];
+          Wants = [ "network-online.target" ];
+        };
+        Service = {
+          ExecStart = "${pkgs.writeShellScript "s3-git.sh" ''
+            set -ex
+            . /home/manjaro/.bashrc
+            ping -c1 8.8.8.8 || {
+              echo "Don't seem to be online, aborting mount" 1>&2
+              exit 0
+            }
+            export RCLONE_S3_REGION=eu-west-1
+            export RCLONE_S3_PROVIDER=AWS
+            export RCLONE_S3_ENV_AUTH=true
+
+            # NOTE: Remote control (rc) port is arbitrary, but must be unique
+            exec with-aws-creds ${pkgs.rclone}/bin/rclone mount \
+              --rc --rc-no-auth --rc-addr=:33333 \
+              --vfs-cache-mode=full \
+              --no-update-modtime --checksum --file-perms 0766 \
+              ":s3:www.chriswarbo.net/git" \
+              /home/manjaro/Drives/s3_repos
+          ''}";
+          ExecStop = "fusermount -u /home/manjaro/Drives/s3_repos";
+          Restart = "on-failure";
+        };
+        Install = { };
+      };
     };
 
     targets = {
