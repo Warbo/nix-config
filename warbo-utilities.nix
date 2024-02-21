@@ -2,5 +2,5 @@ import (fetchGit {
   name = "warbo-utilities";
   url = "http://chriswarbo.net/git/warbo-utilities.git";
   ref = "master";
-  rev = "f4f4b189f53dfbb3123359d5d1048631e7841833";
+  rev = "5ac134e74fd717885e9cff37972d7f2aecd52e22";
 }) { }
