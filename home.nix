@@ -278,12 +278,6 @@ with rec {
     ssh = {
       enable = true;
       matchBlocks = {
-        "chriswarbo.net" = {
-          #HostName 35.179.11.29
-          #User admin
-          #PubkeyAcceptedKeyTypes +ssh-rsa
-          #IdentityFile ~/LightsailDefaultKey-eu-west-2.pem
-        };
         pi = {
           hostname = "dietpi.local";
           user = "pi";
