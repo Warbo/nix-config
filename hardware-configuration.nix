@@ -23,6 +23,11 @@
       fsType = "vfat";
     };
 
+  fileSystems."/home" =
+    { device = "/dev/disk/by-label/chromeos-home";
+      fsType = "ext4";
+    };
+
   swapDevices = [
     { device = "/swap"; size = 2048; }
   ];
