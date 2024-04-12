@@ -19,7 +19,7 @@
     };
 
   fileSystems."/boot" =
-    { device = "/dev/disk/by-uuid/A5CC-992B";
+    { device = "/dev/disk/by-label/_esp";
       fsType = "vfat";
     };
 
