@@ -29,7 +29,7 @@
     };
 
   swapDevices = [
-    { device = "/swap"; size = 2048; }
+    { device = "/dev/disk/by-label/chromeos-swap"; }
   ];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
