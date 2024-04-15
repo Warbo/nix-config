@@ -34,6 +34,7 @@ with rec {
     pkgs.libsForQt5.qtstyleplugin-kvantum
     pkgs.qt6Packages.qtstyleplugin-kvantum
 
+    pkgs.audacious
     pkgs.awscli
     pkgs.cantata
     pkgs.entr
