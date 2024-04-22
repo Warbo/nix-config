@@ -42,11 +42,13 @@ with rec {
     pkgs.lxqt.qterminal # KGX is slow, Foot mangles lines, Konsole needs KDElibs
     pkgs.mpv
     pkgs.nixfmt
+    pkgs.p7zip
     pkgs.rclone
     pkgs.rsync
     pkgs.screen
     pkgs.taskspooler
     pkgs.thunderbird
+    pkgs.unzip
     pkgs.update-nix-fetchgit
     pkgs.vlc
     pkgs.w3m
