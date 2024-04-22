@@ -26,6 +26,10 @@ DISPLAY="${DISPLAY:-:0}"
 # Bring home-wifi-connected.target up or down, as appropriate
 /home/manjaro/.manjaro_fixes/dispatcher.d/95-home.sh || true
 
+# If we're using PipeWire, ensure 44100Hz is allowed (avoids having to resample)
+command -v pw-metadata > /dev/null &&
+    pw-metadata -n settings 0 clock.allowed-rates '[ 48000, 44100 ]'
+
 # Udev can trigger this script 'too quickly', before new monitors appear in the
 # wlr-randr output. This 'sleep' statement is a lazy way to work around it!
 sleep 5
