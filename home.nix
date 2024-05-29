@@ -37,6 +37,7 @@ with rec {
     pkgs.audacious
     pkgs.awscli
     pkgs.cantata
+    pkgs.dnsutils
     pkgs.entr
     pkgs.leafpad
     pkgs.lxqt.qterminal # KGX is slow, Foot mangles lines, Konsole needs KDElibs
@@ -46,10 +47,12 @@ with rec {
     pkgs.rclone
     pkgs.rsync
     pkgs.screen
+    pkgs.strace
     pkgs.taskspooler
     pkgs.thunderbird
     pkgs.unzip
     pkgs.update-nix-fetchgit
+    pkgs.usbutils
     pkgs.vlc
     pkgs.w3m
     pkgs.wget
