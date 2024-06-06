@@ -1,0 +1,7 @@
+This should contain machine-specific config, to be used in conjunction with
+the main configuration.
+
+Note that wsl is currently stored separately, in ../nixos-wsl. That is so
+we can symlink that directory to /etc/nixos. Not sure if it's a good idea
+to do that with the other machines too? (Although Thinkpad doesn't boot
+anymore, so it's mostly useful for archaeological purposes).
