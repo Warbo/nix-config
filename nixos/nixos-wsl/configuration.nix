@@ -72,5 +72,13 @@ with {
     };
     pinnedNixpkgs.repoLatest;*/
 
-  environment.systemPackages = [ pkgs.devCli ];
+  home-manager.users.nixos = { pkgs, lib, ... }: {
+    home.stateVersion = "24.05";
+    home.packages = [ osPkgs.devCli osPkgs.devGui ];
+    programs = {
+      home-manager.enable = true;
+    };
+  };
+
+  environment.systemPackages = [];
 }
