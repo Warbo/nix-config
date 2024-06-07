@@ -75,6 +75,7 @@ with {
         scala
         silver-searcher
         unzip
+        update-nix-fetchgit
         vim
         xz
         zip
