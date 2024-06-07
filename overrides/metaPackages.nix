@@ -65,7 +65,6 @@ with {
         lzip
         niv
         nix-diff
-        nix_release
         nix-top
         openjdk
         nixfmt-rfc-style
