@@ -43,19 +43,19 @@
     "nix-helpers": {
         "branch": "master",
         "repo": "http://chriswarbo.net/git/nix-helpers.git",
-        "rev": "12ae13b1bb28d891f2cf54e0a9c34f7f2caf5b88",
+        "rev": "7db97b9bf27fc20bae2eb66d47d821d8133ac151",
         "type": "git"
     },
     "warbo-packages": {
         "branch": "master",
         "repo": "http://chriswarbo.net/git/warbo-packages.git",
-        "rev": "e5bbf6f983e5d61fff28b7e80107fcb4b37abec5",
+        "rev": "0a3714752c36dd8afde9276b7d5f2e054d6d4325",
         "type": "git"
     },
     "warbo-utilities": {
         "branch": "master",
         "repo": "http://chriswarbo.net/git/warbo-utilities.git",
-        "rev": "0862da4e06464f42d00c41aaee18dad8597811b7",
+        "rev": "7511f0ce40661d3f3a0db1727bfd31976c29ed3d",
         "type": "git"
     },
     "youtube-dl": {
