@@ -228,11 +228,6 @@ with {
         sshfs-fuse
         ts
         usbutils
-        wmname
-        xbindkeys
-        xcalib
-        xcape
-        xpra
         ;
     } // nonMac {
       inherit (self)
@@ -258,6 +253,11 @@ with {
         st
         trayer
         xsettingsd
+        wmname
+        xbindkeys
+        xcalib
+        xcape
+        xpra
         ;
     };
 
