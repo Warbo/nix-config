@@ -69,6 +69,7 @@ with {
         nix_release
         nix-top
         openjdk
+        nixfmt-rfc-style
         p7zip
         python3
         silver-searcher
