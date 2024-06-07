@@ -183,7 +183,6 @@ with {
         ;
     } // nonMac {
       inherit (self)
-        gcalcli
         msmtp
         mu
         pptp
