@@ -48,6 +48,18 @@ with {
 
   # Go up then down to ensure we work for symlinks too
   nixpkgs.overlays = import ../nixos-wsl/overlays.nix;
+  nix.nixPath = [
+    # Tells nixos-rebuild to use this file as configuration, rather than
+    # /etc/nixos/configuration.nix. Two things to note:
+    #  - We make it relative to ../.., to try and avoid broken symlinks when
+    #    making copies (at least, we'll get better errors!)
+    #  - There is a "bootstrap" problem, where we initially need to run
+    #    'NIX_PATH=nixos-config=... nixos-rebuild switch' to ensure this file
+    #    will be used the first time, so this option can take effect thereafter!
+    "nixos-config=${builtins.toString ../..}/nixos/nixos-wsl/configuration.nix"
+    "nixpkgs=${pkgs.path}"
+    "nixos-wsl=/nix/var/nix/profiles/per-user/root/channels/nixos-wsl"
+  ];
 
   # Use a pinned Nixpkgs, rather than relying on env vars like <nixpkgs>.
   # The documentation for this option says it can be used for this purpose
