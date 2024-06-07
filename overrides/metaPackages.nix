@@ -65,7 +65,6 @@ with {
         niv
         nix-diff
         nix-top
-        openjdk
         nixfmt-rfc-style
         p7zip
         python3
