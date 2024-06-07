@@ -63,7 +63,7 @@ with {
         jq
         lzip
         niv
-        nix-diff
+        #nix-diff
         nix-top
         nixfmt-rfc-style
         p7zip
