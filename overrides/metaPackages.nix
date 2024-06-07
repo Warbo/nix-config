@@ -60,7 +60,6 @@ with {
         gcc
         git
         gnumake
-        haskellCli
         jq
         lzip
         niv
