@@ -48,8 +48,10 @@ with rec {
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "23.11";
 
-  # Go up then down to ensure we work for symlinks too
-  nixpkgs.overlays = import ../nixos-wsl/overlays.nix;
+  nixpkgs = {
+    overlays = import ./overlays.nix {};
+    pkgs = (import nix-helpers-src {}).nixpkgsLatest;
+  };
   nix.nixPath = [
     # Tells nixos-rebuild to use this file as configuration, rather than
     # /etc/nixos/configuration.nix. Two things to note:
@@ -67,10 +69,8 @@ with rec {
   # The documentation for this option says it can be used for this purpose
   # on systems which don't use flakes.
   /*nixpkgs.flake.source =
-    with rec {
-      #inherit (import ../../nix/sources.nix) nix-helpers;
-      nix-helpers = /home/nixos/nix-helpers;
-      pinnedNixpkgs = import "${nix-helpers}/helpers/pinnedNixpkgs" {};
+    with {
+      pinnedNixpkgs = import "${nix-helpers-src}/helpers/pinnedNixpkgs" {};
     };
     pinnedNixpkgs.repoLatest;*/
 
