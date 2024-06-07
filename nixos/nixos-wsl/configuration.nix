@@ -77,6 +77,18 @@ with {
     home.packages = [ osPkgs.devCli osPkgs.devGui ];
     programs = {
       home-manager.enable = true;
+      bash = {
+        enable = true;
+        bashrcExtra =
+          with { npiperelay = pkgs.callPackage ./npiperelay.nix {}; };
+          ''
+            export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
+            (
+              export PATH="${pkgs.socat}/bin:${npiperelay}/bin:$PATH"
+              . ${./1password.sh}
+            )
+          '';
+      };
       git =
         {
           enable = true;
