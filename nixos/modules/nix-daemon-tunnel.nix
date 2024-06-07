@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with builtins;
 with lib;
@@ -6,23 +11,23 @@ with { cfg = config.services.nix-daemon-tunnel; };
 {
   options.services.nix-daemon-tunnel = {
     enable = mkOption {
-      type        = types.bool;
-      default     = false;
+      type = types.bool;
+      default = false;
       description = ''
         Let anyone communicate with nix-daemon as if they were a certain user.
       '';
     };
 
     socketDir = mkOption {
-      type        = types.path;
-      default     = "/var/lib/nix-daemon-tunnel";
+      type = types.path;
+      default = "/var/lib/nix-daemon-tunnel";
       description = ''
         The directory to contain the 'socket' file.
       '';
     };
 
     nixDaemonSocket = mkOption {
-      type    = types.path;
+      type = types.path;
       default = "/nix/var/nix/daemon-socket/socket";
       description = ''
         The location of nix-daemon's socket.
@@ -30,8 +35,8 @@ with { cfg = config.services.nix-daemon-tunnel; };
     };
 
     user = mkOption {
-      default     = "nixbuildtrampoline";
-      type        = types.str;
+      default = "nixbuildtrampoline";
+      type = types.str;
       description = "User the new socket should connect as.";
     };
   };
@@ -39,21 +44,27 @@ with { cfg = config.services.nix-daemon-tunnel; };
   config = mkIf cfg.enable {
     systemd.services.nix-daemon-tunnel = {
       description = "Provides a socket tunnelled to nix-daemon as a user.";
-      wantedBy    = [ "multi-user.target" ];
-      after       = [ "nix-daemon.service" "sshd.service" ];
-      path        = [ pkgs.bash pkgs.openssh ];
-      preStart    = ''
+      wantedBy = [ "multi-user.target" ];
+      after = [
+        "nix-daemon.service"
+        "sshd.service"
+      ];
+      path = [
+        pkgs.bash
+        pkgs.openssh
+      ];
+      preStart = ''
         [[ -e "${cfg.socketDir}" ]] || mkdir -p "${cfg.socketDir}"
         chmod a+r "${cfg.socketDir}"
         chmod a+x "${cfg.socketDir}"
         rm -f "${cfg.socketDir}/socket"
       '';
       serviceConfig = {
-        User                 = cfg.user;
-        PermissionsStartOnly = true;  # Allow preStart to run as root
-        Restart              = "always";
-        RestartSec           = 60;
-        ExecStart            = pkgs.writeScript "nix-daemon-tunnel" ''
+        User = cfg.user;
+        PermissionsStartOnly = true; # Allow preStart to run as root
+        Restart = "always";
+        RestartSec = 60;
+        ExecStart = pkgs.writeScript "nix-daemon-tunnel" ''
           #!${pkgs.bash}/bin/bash
           set -e
 
@@ -100,12 +111,12 @@ with { cfg = config.services.nix-daemon-tunnel; };
 
     users.extraUsers = optionalAttrs (cfg.user == "nixbuildtrampoline") {
       "${cfg.user}" = {
-        name            = cfg.user;
-        description     = "User to tunnel nix-daemon connections through.";
-        isNormalUser    = true;
-        createHome      = true;
-        home            = cfg.socketDir;
-        group           = "users";
+        name = cfg.user;
+        description = "User to tunnel nix-daemon connections through.";
+        isNormalUser = true;
+        createHome = true;
+        home = cfg.socketDir;
+        group = "users";
         useDefaultShell = true;
       };
     };

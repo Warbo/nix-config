@@ -1,4 +1,10 @@
-{ config, lib, pkgs, ... }: {
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+{
   networking.hostName = "pinephone";
 
   # Phone UI

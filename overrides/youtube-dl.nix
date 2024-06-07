@@ -15,8 +15,7 @@ with {
     makeOverridable
     optional
     ;
-};
-{
+}; {
   overrides = {
     youtube-dl =
       with rec {
@@ -25,7 +24,7 @@ with {
         override = super.youtube-dl.overrideDerivation (old: {
           inherit (src) version;
           name = "youtube-dl-${src.version}";
-          src  = src;
+          src = src;
         });
       };
       foldl' (x: msg: trace msg x) override self.nix-config-checks.youtube-dl;
@@ -34,7 +33,7 @@ with {
   checks = super.lib.mapAttrs self.nix-config-version-check {
     youtube-dl = {
       inherit (self.nix-config-sources.youtube-dl) version;
-      url    = https://ytdl-org.github.io/youtube-dl/download.html;
+      url = "https://ytdl-org.github.io/youtube-dl/download.html";
       script = ''
         grep   -o '[^"]*\.tar\.gz' < "$page" |
         head -n1                           |
@@ -45,13 +44,13 @@ with {
       '';
       extra =
         with {
-        ours     = self.nix-config-sources.youtube-dl.version;
-        packaged = self.nixpkgsLatest.youtube-dl.version;
-      };
-      optional (compareVersions ours packaged < 0) (toJSON {
-        inherit ours packaged;
-        WARNING = "New youtube-dl is in nixpkgs";
-      });
+          ours = self.nix-config-sources.youtube-dl.version;
+          packaged = self.nixpkgsLatest.youtube-dl.version;
+        };
+        optional (compareVersions ours packaged < 0) (toJSON {
+          inherit ours packaged;
+          WARNING = "New youtube-dl is in nixpkgs";
+        });
     };
   };
 }

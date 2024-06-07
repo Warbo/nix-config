@@ -7,32 +7,37 @@ with builtins;
 with rec {
   nix-config =
     with { fallback = /home/chris/Programming/Nix/nix-config; };
-    if pathExists ../overlays.nix
-       then ../.
-       else if pathExists fallback
-               then fallback
-               else null;
+    if pathExists ../overlays.nix then
+      ../.
+    else if pathExists fallback then
+      fallback
+    else
+      null;
 };
 rec {
   # Low level/hardware stuff
-  machine = {
-    i686-linux    = "thinkpad";
-    aarch64-linux = "pinephone";
-    x86_64-darwin = "macbook";
-  }."${builtins.currentSystem}" or null;
+  machine =
+    {
+      i686-linux = "thinkpad";
+      aarch64-linux = "pinephone";
+      x86_64-darwin = "macbook";
+    }
+    ."${builtins.currentSystem}" or null;
 
   imports =
     # Custom NixOS modules
-    map (f: ./modules + "/${f}") (attrNames (readDir ./modules)) ++
+    map (f: ./modules + "/${f}") (attrNames (readDir ./modules))
+    ++
 
     # Include the results of the hardware scan.
     [ ./hardware-configuration.nix ];
 
   nixpkgs.config.allowUnfree = true;
-  nixpkgs.overlays = if nix-config == null
-                        then trace "WARNING: No overlays found" []
-                        else import (nix-config + "/overlays.nix");
-
+  nixpkgs.overlays =
+    if nix-config == null then
+      trace "WARNING: No overlays found" [ ]
+    else
+      import (nix-config + "/overlays.nix");
 
   # 4 is reasonable, 7 is everything
   boot.consoleLogLevel = 4;
@@ -40,11 +45,15 @@ rec {
   hardware.enableAllFirmware = true;
 
   networking = {
-    firewall.enable                   = false;
+    firewall.enable = false;
     firewall.autoLoadConntrackHelpers = true;
 
     # Don't rely on those from DHCP, since the ISP might MITM
-    nameservers = [ "208.67.222.222" "208.67.220.220" "8.8.8.8" ];
+    nameservers = [
+      "208.67.222.222"
+      "208.67.220.220"
+      "8.8.8.8"
+    ];
 
     # Block surveillance, malicious actors, time wasters, etc.
     extraHosts =
@@ -52,39 +61,41 @@ rec {
       with rec {
         format = lst: concatStringsSep "\n" (map (d: "127.0.0.1 ${d}") lst);
 
-        blockList = url: pkgs.runCommand "blocklist.nix"
-          {
-            inherit url;
-            __noChroot    = true;
-            buildInputs   = with pkgs; [ curl ];
-            SSL_CERT_FILE = /etc/ssl/certs/ca-bundle.crt;
-          }
-          ''
-            echo "Fetching block list '$url'" 1>&2
-            curl "$url" > tmp
+        blockList =
+          url:
+          pkgs.runCommand "blocklist.nix"
+            {
+              inherit url;
+              __noChroot = true;
+              buildInputs = with pkgs; [ curl ];
+              SSL_CERT_FILE = /etc/ssl/certs/ca-bundle.crt;
+            }
+            ''
+              echo "Fetching block list '$url'" 1>&2
+              curl "$url" > tmp
 
-            # Keep only non-empty lines
-            grep '^.' < tmp > tmp2
-            mv tmp2 tmp
+              # Keep only non-empty lines
+              grep '^.' < tmp > tmp2
+              mv tmp2 tmp
 
-            # Remove comments
-            grep -v '^\s*#' < tmp > tmp2
-            mv tmp2 tmp
+              # Remove comments
+              grep -v '^\s*#' < tmp > tmp2
+              mv tmp2 tmp
 
-            # Collapse spaces
-            sed -e 's/\s\s*/ /g' < tmp > tmp2
-            mv tmp2 tmp
+              # Collapse spaces
+              sed -e 's/\s\s*/ /g' < tmp > tmp2
+              mv tmp2 tmp
 
-            # Extract second field
-            cut -d ' ' -f2 < tmp > tmp2
-            mv tmp2 tmp
+              # Extract second field
+              cut -d ' ' -f2 < tmp > tmp2
+              mv tmp2 tmp
 
-            echo '['                            > "$out"
-              sed -e 's/^\(.*\)$/"\1"/g' < tmp >> "$out"
-            echo ']'                           >> "$out"
-          '';
+              echo '['                            > "$out"
+                sed -e 's/^\(.*\)$/"\1"/g' < tmp >> "$out"
+              echo ']'                           >> "$out"
+            '';
 
-        general  = blockList "http://someonewhocares.org/hosts/hosts";
+        general = blockList "http://someonewhocares.org/hosts/hosts";
         facebook = blockList "https://www.remembertheusers.com/files/hosts-fb";
 
         timewasters = [
@@ -156,11 +167,11 @@ rec {
   };
 
   fonts = {
-    enableDefaultFonts      = true;
+    enableDefaultFonts = true;
     fontconfig.defaultFonts = {
       monospace = [ "Droid Sans Mono" ];
-      sansSerif = [ "Droid Sans"      ];
-      serif     = [ "Droid Sans"      ];
+      sansSerif = [ "Droid Sans" ];
+      serif = [ "Droid Sans" ];
     };
     fonts = [
       pkgs.anonymousPro
@@ -175,26 +186,29 @@ rec {
     # Defaults to 'true' in 19.03, which disallows network access in builders.
     # We prefer "relaxed", which allows derivations to opt-out by having a
     # '__noChroot = true' attribute.
-    useSandbox          = "relaxed";
+    useSandbox = "relaxed";
     trustedBinaryCaches = [ "http://hydra.nixos.org/" ];
 
     # Non-sandboxed builds, including the __noChroot opt-out, can only be built
     # by these users and root (if the useSandbox option isn't false).
-    trustedUsers = [ "chris" "laminar" ];
+    trustedUsers = [
+      "chris"
+      "laminar"
+    ];
   };
 
   programs = {
     gnupg.agent.enable = true;
     iotop.enable = true;
-    mosh.enable  = true;
-    qt5ct.enable = true;  # Non-DE Qt config GUI
+    mosh.enable = true;
+    qt5ct.enable = true; # Non-DE Qt config GUI
   };
 
   # Programs which need to be setuid, etc. should be put in here. These will get
   # wrappers made and put into a system-wide directory when the config is
   # activated, and will be removed when switched away.
   security.wrappers = {
-    fusermount.source  = "${pkgs.fuse}/bin/fusermount";
+    fusermount.source = "${pkgs.fuse}/bin/fusermount";
     fusermount3.source = "${pkgs.fuse3}/bin/fusermount3";
   };
 
@@ -202,10 +216,10 @@ rec {
 
   services.avahi = {
     inherit (config.networking) hostName;
-    enable              = true;
-    nssmdns             = true;
-    publish.enable      = true;
-    publish.addresses   = true;
+    enable = true;
+    nssmdns = true;
+    publish.enable = true;
+    publish.addresses = true;
     publish.workstation = true;
   };
 
@@ -215,20 +229,20 @@ rec {
   };
 
   services.ipfs = {
-    enable         = false;  # Quite resource-hungry
-    autoMount      = false;  # Mounting can cause FUSE errors
-    enableGC       = true;   # Laptop, limited storage
-    dataDir        = "/var/lib/ipfs/.ipfs";
-    serviceFdlimit = 64 * 1024;  # Bump up, since it keeps running out
-    extraConfig    = {
+    enable = false; # Quite resource-hungry
+    autoMount = false; # Mounting can cause FUSE errors
+    enableGC = true; # Laptop, limited storage
+    dataDir = "/var/lib/ipfs/.ipfs";
+    serviceFdlimit = 64 * 1024; # Bump up, since it keeps running out
+    extraConfig = {
       # Reduce memory usage (from https://github.com/ipfs/go-ipfs/issues/4145 )
       Swarm = {
         AddrFilters = null;
-        ConnMgr     = {
+        ConnMgr = {
           GracePeriod = "20s";
-          HighWater   = 100;
-          LowWater    = 50;
-          Type        = "basic";
+          HighWater = 100;
+          LowWater = 50;
+          Type = "basic";
         };
       };
     };
@@ -249,20 +263,27 @@ rec {
   services.nix-daemon-tunnel.enable = true;
 
   services.openssh = {
-    enable     = true;
+    enable = true;
     forwardX11 = true;
   };
 
   services.printing = {
-    enable  = true;
-    drivers = [ pkgs.nixpkgs1709.hplip pkgs.nixpkgs1709.gutenprint ];
+    enable = true;
+    drivers = [
+      pkgs.nixpkgs1709.hplip
+      pkgs.nixpkgs1709.gutenprint
+    ];
   };
 
   # Because Tories
-  services.tor = { client = { enable = true; }; };
+  services.tor = {
+    client = {
+      enable = true;
+    };
+  };
 
   services.xserver = {
-    layout     = "gb";
+    layout = "gb";
     xkbOptions = "ctrl:nocaps";
   };
 
@@ -293,23 +314,31 @@ rec {
 
   systemd.services = import ./services.nix { inherit config pkgs; };
 
-  console.keyMap     = "uk";
+  console.keyMap = "uk";
   i18n.defaultLocale = "en_GB.UTF-8";
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users = {
     extraUsers = {
       chris = {
-        name         = "chris";
-        group        = "users";
-        uid          = 1000;
-        createHome   = true;
-        home         = "/home/chris";
-        shell        = "/run/current-system/sw/bin/bash";
+        name = "chris";
+        group = "users";
+        uid = 1000;
+        createHome = true;
+        home = "/home/chris";
+        shell = "/run/current-system/sw/bin/bash";
         isNormalUser = true;
-        extraGroups  = [
-          "atd" "audio" "dialout" "docker" "fuse" "netdev" "networkmanager"
-          "pulse" "voice" "wheel"
+        extraGroups = [
+          "atd"
+          "audio"
+          "dialout"
+          "docker"
+          "fuse"
+          "netdev"
+          "networkmanager"
+          "pulse"
+          "voice"
+          "wheel"
         ];
       };
     };

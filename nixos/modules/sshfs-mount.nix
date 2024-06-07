@@ -1,57 +1,62 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with builtins // lib;
 with rec {
   args = with types; {
     canary = mkOption {
       description = "A known path to check exists inside the mount";
-      example     = "backups/foo.tar.gz";
-      type        = str;
+      example = "backups/foo.tar.gz";
+      type = str;
     };
     privateKey = mkOption {
       description = "Path of the SSH private key to use";
-      example     = "/home/bob/.ssh/id_rsa";
-      type        = path;
+      example = "/home/bob/.ssh/id_rsa";
+      type = path;
     };
     localPath = mkOption {
       description = "Mount point for this share";
-      example     = "/home/bob/mounts/alice";
-      type        = path;
+      example = "/home/bob/mounts/alice";
+      type = path;
     };
     localUser = mkOption {
       description = "User we should run as on this machine (e.g. for keys)";
-      example     = "bob";
-      type        = str;
+      example = "bob";
+      type = str;
     };
     name = mkOption {
       description = "Name for this mount, for use in scripts/logs/etc.";
-      example     = "work";
-      type        = str;
+      example = "work";
+      type = str;
     };
     remoteHost = mkOption {
       description = "Host name/IP to connect to";
-      example     = "192.168.1.2";
-      type        = str;
+      example = "192.168.1.2";
+      type = str;
     };
     remotePath = mkOption {
       description = "Path on remote host we should mount";
-      example     = "/home/alice/shared";
-      type        = path;
+      example = "/home/alice/shared";
+      type = path;
     };
     remotePort = mkOption {
-      default     = 22;
+      default = 22;
       description = "Port to use for SSH; null defaults to 22";
-      example     = "8888";
-      type        = port;
+      example = "8888";
+      type = port;
     };
     remoteUser = mkOption {
       description = "User we should log in as on the remote machine";
-      example     = "alice";
-      type        = str;
+      example = "alice";
+      type = str;
     };
   };
 
-  cfg        = config.services.sshfsMounts;
+  cfg = config.services.sshfsMounts;
 
   # Generate the Bash boilerplate to get the $1th element of the named array.
   # Note that we automatically pluralise and quote.
@@ -59,42 +64,52 @@ with rec {
 
   RestartSec = 30;
 
-  toVar      = var: ''
-    ${var}s=(${concatStringsSep " " (map (x: toString (getAttr var x))
-                                         cfg.mounts)})
+  toVar = var: ''
+    ${var}s=(${concatStringsSep " " (map (x: toString (getAttr var x)) cfg.mounts)})
   '';
 };
 assert get "foo" == ''"''${foos[$1]}"'';
 {
   options.services.sshfsMounts = {
     mounts = mkOption {
-      default     = [];
+      default = [ ];
       description = "SSHFS mounts to create and monitor";
-      type        = with types; listOf (submodule { options = args; });
+      type =
+        with types;
+        listOf (submodule {
+          options = args;
+        });
     };
   };
 
-  config = mkIf (cfg.mounts != []) {
+  config = mkIf (cfg.mounts != [ ]) {
     systemd.services.sshfsMounts = {
-      enable        = true;
-      wantedBy      = [ "default.target" ];
-      description   = "Mount and monitor sshfs mounts";
-      requires      = [ "network.target" ];
+      enable = true;
+      wantedBy = [ "default.target" ];
+      description = "Mount and monitor sshfs mounts";
+      requires = [ "network.target" ];
       serviceConfig = {
         inherit RestartSec;
         Restart = "always";
-        User    = "chris";
-        Type    = "simple";
+        User = "chris";
+        Type = "simple";
       };
       script = "${pkgs.wrap {
         name = "sshfsMount-runner";
         vars = {
-          DISPLAY       = ":0";  # For potential ssh passphrase dialogues
-          secs          = toString RestartSec;
+          DISPLAY = ":0"; # For potential ssh passphrase dialogues
+          secs = toString RestartSec;
           SSH_AUTH_SOCK = "/run/user/1000/ssh-agent";
         };
         paths = with pkgs; [
-          bash coreutils fuse fuse3 iputils openssh procps sshfsFuse
+          bash
+          coreutils
+          fuse
+          fuse3
+          iputils
+          openssh
+          procps
+          sshfsFuse
           (utillinux.bin or utillinux)
         ];
         script = ''
@@ -182,42 +197,44 @@ assert get "foo" == ''"''${foos[$1]}"'';
             stop "$1" || true
 
             privateKey=${get "privateKey"}
-             localPath=${get "localPath" }
+             localPath=${get "localPath"}
             remoteUser=${get "remoteUser"}
             remoteHost=${get "remoteHost"}
             remotePath=${get "remotePath"}
             remotePort=${get "remotePort"}
 
-            sshfs -o ${concatStringsSep "," [
-                         # Since we're not interactive, we need to avoid some
-                         # common annoyances (e.g. when DHCP leases change)
+            sshfs -o ${
+              concatStringsSep "," [
+                # Since we're not interactive, we need to avoid some
+                # common annoyances (e.g. when DHCP leases change)
 
-                         # Don't complain about unseen hosts
-                         "UserKnownHostsFile=/dev/null"
+                # Don't complain about unseen hosts
+                "UserKnownHostsFile=/dev/null"
 
-                         # Don't complain about changed keys
-                         "StrictHostKeyChecking=no"
+                # Don't complain about changed keys
+                "StrictHostKeyChecking=no"
 
-                         # Give the keyfile explicitly, rather than looking in ~
-                         "IdentityFile=\"$privateKey\""
+                # Give the keyfile explicitly, rather than looking in ~
+                "IdentityFile=\"$privateKey\""
 
-                         # Reliability
-                         "reconnect"
-                         "ServerAliveInterval=15"
+                # Reliability
+                "reconnect"
+                "ServerAliveInterval=15"
 
-                         # Make mounted filesystem more useful
-                         "follow_symlinks"
-                         "allow_other"
+                # Make mounted filesystem more useful
+                "follow_symlinks"
+                "allow_other"
 
-                         # Speed
-                         "cache=yes"
-                         "kernel_cache"
-                         "compression=no"
-                         "cache_timeout=115200"
-                         "attr_timeout=115200"
-                         "no_readahead"
-                         "Cipher=chacha20-poly1305@openssh.com"
-                     ]} \
+                # Speed
+                "cache=yes"
+                "kernel_cache"
+                "compression=no"
+                "cache_timeout=115200"
+                "attr_timeout=115200"
+                "no_readahead"
+                "Cipher=chacha20-poly1305@openssh.com"
+              ]
+            } \
                   "$remoteUser@$remoteHost:$remotePath" "$localPath"
             sleep 1
           }

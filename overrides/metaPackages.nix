@@ -8,31 +8,31 @@ self: super:
 with builtins;
 with super.lib;
 with {
-  nonMac  = attrs: if match ".*-darwin" currentSystem == null then attrs else {};
-  onlyMac = attrs: if match ".*-darwin" currentSystem == null then {} else attrs;
+  nonMac = attrs: if match ".*-darwin" currentSystem == null then attrs else { };
+  onlyMac = attrs: if match ".*-darwin" currentSystem == null then { } else attrs;
 
-  go = name: paths:
-    assert all isDerivation (attrValues paths) || self.die {
-      inherit name;
-      error   = "Non-derivation in dependencies of meta-package";
-      types   = mapAttrs (_: typeOf) paths;
-      nonDrvs = mapAttrs (_: typeOf)
-                         (filterAttrs (_: x: !(isDerivation x))
-                                      paths);
-    };
-    (if elem name [ "docGui" ]
-        then self.lowPrio
-        else (x: x))
-      (self.buildEnv { inherit name; paths = attrValues paths; });
+  go =
+    name: paths:
+    assert
+      all isDerivation (attrValues paths)
+      || self.die {
+        inherit name;
+        error = "Non-derivation in dependencies of meta-package";
+        types = mapAttrs (_: typeOf) paths;
+        nonDrvs = mapAttrs (_: typeOf) (filterAttrs (_: x: !(isDerivation x)) paths);
+      };
+    (if elem name [ "docGui" ] then self.lowPrio else (x: x)) (
+      self.buildEnv {
+        inherit name;
+        paths = attrValues paths;
+      }
+    );
 };
 {
   # Packages before a ### are included in the ones after
   overrides = mapAttrs go {
     haskellCli = {
-      inherit (self.haskellPackages)
-        happy
-        pretty-show
-        ;
+      inherit (self.haskellPackages) happy pretty-show;
       inherit (self)
         brittany
         cabal-install
@@ -47,62 +47,47 @@ with {
 
     ###
 
-    devCli = {
-      inherit (self)
-        aws-sam-cli
-        awscli
-        binutils
-        coreutils
-        direnv
-        dvtm
-        entr
-        file
-        gcc
-        git
-        gnumake
-        jq
-        lzip
-        niv
-        #nix-diff
-        nix-top
-        nixfmt-rfc-style
-        p7zip
-        python3
-        silver-searcher
-        unzip
-        update-nix-fetchgit
-        vim
-        xz
-        zip
-        ;
-        inherit (self.python3Packages)
-          black
-        ;
+    devCli =
+      {
+        inherit (self)
+          aws-sam-cli
+          awscli
+          binutils
+          coreutils
+          direnv
+          dvtm
+          entr
+          file
+          gcc
+          git
+          gnumake
+          jq
+          lzip
+          niv
+          #nix-diff
+          nix-top
+          nixfmt-rfc-style
+          p7zip
+          python3
+          silver-searcher
+          unzip
+          update-nix-fetchgit
+          vim
+          xz
+          zip
+          ;
+        inherit (self.python3Packages) black;
         inherit (self.warbo-packages)
           artemis
           #asv-nix
-        ;
-    } // onlyMac {
-      inherit (self)
-        metals
-        ;
-    } // nonMac {
-      inherit (self)
-        msgpack-tools
-        racket
-        xidel
-        ;
-    };
+          ;
+      }
+      // onlyMac { inherit (self) metals; }
+      // nonMac { inherit (self) msgpack-tools racket xidel; };
 
-    devGui  = {
-      inherit (self)
-        emacs
-         ;
-    } // nonMac {
-      inherit (self)
-        sqlitebrowser
-        ;
-    };
+    devGui = {
+      inherit (self) emacs;
+    } // nonMac { inherit (self) sqlitebrowser; };
 
     docCli = {
       inherit (self)
@@ -115,30 +100,29 @@ with {
         poppler_utils
         ;
       aspell = self.aspellWithDicts (dicts: [ dicts.en ]);
-    } // nonMac {
-      inherit (self)
-        pandocPkgs
-        ;
-    };
+    } // nonMac { inherit (self) pandocPkgs; };
 
-    docGui = {} // nonMac {
-      inherit (self)
-        abiword
-        basket
-        evince
-        gnumeric
-        gv
-        kbibtex_full
-        leafpad
-        libreoffice
-        ;
-      mupdf = self.without self.mupdf [ "bin/mupdf-gl" "bin/mupdf-x11-curl" ];
-    };
+    docGui =
+      { }
+      // nonMac {
+        inherit (self)
+          abiword
+          basket
+          evince
+          gnumeric
+          gv
+          kbibtex_full
+          leafpad
+          libreoffice
+          ;
+        mupdf = self.without self.mupdf [
+          "bin/mupdf-gl"
+          "bin/mupdf-x11-curl"
+        ];
+      };
 
     games = {
-      inherit (self)
-        gensgs
-        ;
+      inherit (self) gensgs;
     };
 
     mediaCli = {
@@ -168,24 +152,26 @@ with {
         ;
     };
 
-    netCli = {
-      inherit (self)
-        aria2
-        autossh
-        ddgr
-        gnutls
-        tightvnc
-        w3m
-        wget
-        ;
-    } // nonMac {
-      inherit (self)
-        msmtp
-        mu
-        pptp
-        sshuttle
-        ;
-    };
+    netCli =
+      {
+        inherit (self)
+          aria2
+          autossh
+          ddgr
+          gnutls
+          tightvnc
+          w3m
+          wget
+          ;
+      }
+      // nonMac {
+        inherit (self)
+          msmtp
+          mu
+          pptp
+          sshuttle
+          ;
+      };
 
     netGui = {
       inherit (self)
@@ -205,57 +191,62 @@ with {
       };
     };
 
-    sysCli = {
-      inherit (self.xorg) xmodmap;
-      inherit (self)
-        acpi
-        cifs-utils
-        dtach
-        exfat
-        fuse
-        fuse3
-        inotify-tools
-        libnotify
-        openssh
-        pciutils
-        pmutils
-        psmisc
-        smbnetfs
-        sshfs-fuse
-        ts
-        usbutils
-        ;
-    } // nonMac {
-      inherit (self)
-        #warbo-utilities
-        ;
-    };
+    sysCli =
+      {
+        inherit (self.xorg) xmodmap;
+        inherit (self)
+          acpi
+          cifs-utils
+          dtach
+          exfat
+          fuse
+          fuse3
+          inotify-tools
+          libnotify
+          openssh
+          pciutils
+          pmutils
+          psmisc
+          smbnetfs
+          sshfs-fuse
+          ts
+          usbutils
+          ;
+      }
+      // nonMac {
+        inherit (self)
+          #warbo-utilities
+          ;
+      };
 
-    sysGui = self.iconThemes // self.widgetThemes // {
-      inherit (self.gnome3) gcr;
-      inherit (self.xfce  ) exo xfce4notifyd;
-      inherit (self.xorg  ) xkill;
-      inherit (self)
-        arandr
-        asunder
-        awf
-        blueman
-        compton
-        gksu
-        iotop
-        keepassx-community
-        lxappearance
-        rofi
-        st
-        trayer
-        xsettingsd
-        wmname
-        xbindkeys
-        xcalib
-        xcape
-        xpra
-        ;
-    };
+    sysGui =
+      self.iconThemes
+      // self.widgetThemes
+      // {
+        inherit (self.gnome3) gcr;
+        inherit (self.xfce) exo xfce4notifyd;
+        inherit (self.xorg) xkill;
+        inherit (self)
+          arandr
+          asunder
+          awf
+          blueman
+          compton
+          gksu
+          iotop
+          keepassx-community
+          lxappearance
+          rofi
+          st
+          trayer
+          xsettingsd
+          wmname
+          xbindkeys
+          xcalib
+          xcape
+          xpra
+          ;
+      };
 
     ###
 
@@ -288,26 +279,24 @@ with {
   };
 
   tests = {
-    all      = self.hasBinary self.allPkgs "firefox";
-    basic    = self.hasBinary self.allCli  "ssh";
-    removals = self.runCommand "removed-undesirables"
-      { inherit (self) allPkgs; }
-      ''
-        FAIL=0
-        for F in bin/mupdf-gl bin/mupdf-x11-curl
-        do
-          if [[ -e "$all/$F" ]]
-          then
-            FAIL=1
-            echo "Found '$F', which should have been removed" 1>&2
-          fi
-        done
-        if [[ "$FAIL" -gt 0 ]]
+    all = self.hasBinary self.allPkgs "firefox";
+    basic = self.hasBinary self.allCli "ssh";
+    removals = self.runCommand "removed-undesirables" { inherit (self) allPkgs; } ''
+      FAIL=0
+      for F in bin/mupdf-gl bin/mupdf-x11-curl
+      do
+        if [[ -e "$all/$F" ]]
         then
-          echo "Removal didn't work" 1>&2
-          exit 1
+          FAIL=1
+          echo "Found '$F', which should have been removed" 1>&2
         fi
-        mkdir "$out"
-      '';
+      done
+      if [[ "$FAIL" -gt 0 ]]
+      then
+        echo "Removal didn't work" 1>&2
+        exit 1
+      fi
+      mkdir "$out"
+    '';
   };
 }

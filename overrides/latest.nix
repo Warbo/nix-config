@@ -12,13 +12,15 @@ with super.lib;
 
     # The latest revision of this repo
     latestNixCfg = self.latestGit {
-      url    = "${self.repoSource}/nix-config.git";
-      stable = { unsafeSkip = true; };
+      url = "${self.repoSource}/nix-config.git";
+      stable = {
+        unsafeSkip = true;
+      };
     };
 
     # Imports the given nixpkgs repo with the latest version of nix-config
-    withLatestCfg = nixpkgs: import nixpkgs {
-      overlays = import "${self.latestNixCfg}/overlays.nix";
-    };
+    withLatestCfg =
+      nixpkgs:
+      import nixpkgs { overlays = import "${self.latestNixCfg}/overlays.nix"; };
   };
 }

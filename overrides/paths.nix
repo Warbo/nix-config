@@ -1,8 +1,7 @@
 # Useful paths
 self: super:
 
-with builtins;
-{
+with builtins; {
   overrides = {
     configSrc = ./..;
 
@@ -12,10 +11,11 @@ with builtins;
         env = getEnv "GIT_REPO_DIR";
         dir = /home/chris/Programming/repos;
       };
-      if env != ""
-         then env
-         else if pathExists dir
-                 then toString dir
-                 else "http://chriswarbo.net/git";
+      if env != "" then
+        env
+      else if pathExists dir then
+        toString dir
+      else
+        "http://chriswarbo.net/git";
   };
 }

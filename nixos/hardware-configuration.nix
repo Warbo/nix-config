@@ -4,9 +4,7 @@
 { config, pkgs, ... }:
 
 {
-  imports =
-    [ <nixpkgs/nixos/modules/installer/scan/not-detected.nix>
-    ];
+  imports = [ <nixpkgs/nixos/modules/installer/scan/not-detected.nix> ];
 
   boot = {
     initrd.availableKernelModules = [
@@ -29,10 +27,10 @@
     '';
   };
 
-  fileSystems."/" =
-    { device = "/dev/disk/by-label/internal";
-      fsType = "ext4";
-    };
+  fileSystems."/" = {
+    device = "/dev/disk/by-label/internal";
+    fsType = "ext4";
+  };
 
   swapDevices = [
     # Always make a file of a few GB, in case the partition isn't available

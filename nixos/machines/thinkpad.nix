@@ -1,7 +1,10 @@
-{ config, lib, pkgs, ... }:
-with {
-  inherit (builtins) toString trace;
-};
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
+with { inherit (builtins) toString trace; };
 {
   boot =
     with {
@@ -26,19 +29,18 @@ with {
         "intel_agp"
         "i915"
       ];
-    };
-    {
+    }; {
       # Use the GRUB 2 boot loader.
       loader.grub = {
-        enable      = true;
-        version     = 2;
-        device      = "/dev/sda";
+        enable = true;
+        version = 2;
+        device = "/dev/sda";
         copyKernels = true;
       };
 
       initrd = {
         # Always loaded
-        kernelModules          = mods;
+        kernelModules = mods;
         # Loaded on-demand (if/when the matching hardware is spotted)
         availableKernelModules = mods;
       };
@@ -53,8 +55,8 @@ with {
           # Overriding these doesn't seem to work, so we take the nuclear
           # option and patch them out of all-packages.nix.
           unasserted = pkgs.run {
-            name   = "nixpkgs-unasserted";
-            vars   = {
+            name = "nixpkgs-unasserted";
+            vars = {
               broken = builtins.concatStringsSep " " [
                 "blcr"
                 "e1000e"
@@ -74,19 +76,22 @@ with {
             '';
           };
 
-          patched = import unasserted {};
+          patched = import unasserted { };
         };
         trace ''
           FIXME: We would like the latest kernel but kernel mode setting
           doesn't work for i915.
         '' patched.linuxPackages_latest;
 
-      kernelModules            = mods;
-      blacklistedKernelModules = [ "snd_pcsp" "pcspkr" ];
+      kernelModules = mods;
+      blacklistedKernelModules = [
+        "snd_pcsp"
+        "pcspkr"
+      ];
 
       kernel.sysctl = {
         "net.ipv4.tcp_sack" = 0;
-        "vm.swappiness"     = 10;
+        "vm.swappiness" = 10;
       };
 
       extraModulePackages = [ config.boot.kernelPackages.tp_smapi ];
@@ -138,20 +143,20 @@ with {
 
   hardware.pulseaudio = {
     systemWide = true;
-    enable     = true;
-    package    = pkgs.pulseaudioFull;
+    enable = true;
+    package = pkgs.pulseaudioFull;
   };
 
   sound.mediaKeys.enable = true;
 
   networking = {
-    hostName              = "nixos";
+    hostName = "nixos";
     networkmanager.enable = true;
-    enableIPv6            = false;  # TODO: Why?
+    enableIPv6 = false; # TODO: Why?
   };
 
   powerManagement = {
-    enable            = true;
+    enable = true;
     powerDownCommands = ''
       umount -at cifs
       killall sshfs || true
@@ -176,63 +181,73 @@ with {
   # Note that NixOS has an audio.mediaKeys option which does a similar thing,
   # but its 'amixer' invocations don't seem to work on my X60s laptop.
   services.actkbd = {
-    enable   = true;
+    enable = true;
     bindings = [
       {
         # Mute key
-        keys    = [ 113 ];
-        events  = [ "key" ];
-        command = toString (pkgs.wrap {
-          name   = "muteToggle";
-          paths  = with pkgs; [ bash alsaUtils ];
-          script = ''
-            #!${pkgs.bash}/bin/bash
-            # Toggle mute state of 'Master'
-            amixer -q -c 0 sset Master toggle
+        keys = [ 113 ];
+        events = [ "key" ];
+        command = toString (
+          pkgs.wrap {
+            name = "muteToggle";
+            paths = with pkgs; [
+              bash
+              alsaUtils
+            ];
+            script = ''
+              #!${pkgs.bash}/bin/bash
+              # Toggle mute state of 'Master'
+              amixer -q -c 0 sset Master toggle
 
-            # To get audio we need 'Master' and 'Speaker' to be unmuted. Muting
-            # 'Master' also causes 'Speaker' to mute, but unmuting it doesn't.
-            # To work around this asymmetry we always finish by unmuting
-            # 'Speaker'. The audio state thus only depends on 'Master'.
-            amixer -q -c 0 sset Speaker unmute
-          '';
-        });
+              # To get audio we need 'Master' and 'Speaker' to be unmuted. Muting
+              # 'Master' also causes 'Speaker' to mute, but unmuting it doesn't.
+              # To work around this asymmetry we always finish by unmuting
+              # 'Speaker'. The audio state thus only depends on 'Master'.
+              amixer -q -c 0 sset Speaker unmute
+            '';
+          }
+        );
       }
 
       {
         # Volume down
-        keys    = [ 114 ];
-        events  = [ "key" "rep" ];
+        keys = [ 114 ];
+        events = [
+          "key"
+          "rep"
+        ];
         command = "${pkgs.alsaUtils}/bin/amixer -c 0 sset Master 1-";
       }
 
       {
         # Volume up
-        keys    = [ 115 ];
-        events  = [ "key" "rep" ];
+        keys = [ 115 ];
+        events = [
+          "key"
+          "rep"
+        ];
         command = "${pkgs.alsaUtils}/bin/amixer -c 0 sset Master 1+";
       }
     ];
   };
 
   services.laminar = {
-    enable   = true;
-    bindHttp = "localhost:8008";  # Default 8080 clashes with IPFS
-    cfg      =
-      with {
-        dir = /home/chris/System/Laminar;
-      };
-      assert pathExists dir; toString dir;
+    enable = true;
+    bindHttp = "localhost:8008"; # Default 8080 clashes with IPFS
+    cfg =
+      with { dir = /home/chris/System/Laminar; };
+      assert pathExists dir;
+      toString dir;
   };
 
   services.sshfsMounts = {
     mounts = [
       {
-        name       = "pi";
-        canary     = "TV";
+        name = "pi";
+        canary = "TV";
         privateKey = "/home/chris/.ssh/id_rsa";
-        localPath  = "/home/chris/Public";
-        localUser  = "chris";
+        localPath = "/home/chris/Public";
+        localUser = "chris";
         remoteHost = "dietpi.local";
         remotePath = "/opt/shared";
         remoteUser = "pi";
@@ -274,8 +289,11 @@ with {
     with pkgs;
     with {
       fixKeyboard = wrap {
-        name   = "usb-keyboard.sh";
-        paths  = [ bash coreutils ];
+        name = "usb-keyboard.sh";
+        paths = [
+          bash
+          coreutils
+        ];
         script = ''
           #!${bash}/bin/bash
           # Requests that the keyboard be fixed. Running 'keys' from here seems
@@ -303,14 +321,20 @@ with {
     };
 
   services.xserver = {
-    enable         = true;
-    videoDrivers   = [ "intel" "i915" "vesa" "vga" "fbdev" ];
-    windowManager  = {
-      default      = "xmonad";
-      xmonad       = {
+    enable = true;
+    videoDrivers = [
+      "intel"
+      "i915"
+      "vesa"
+      "vga"
+      "fbdev"
+    ];
+    windowManager = {
+      default = "xmonad";
+      xmonad = {
         # 18.09 seems to have a broken 'hint' package
         inherit (pkgs.nixpkgs1803) haskellPackages;
-        enable                 = true;
+        enable = true;
         enableContribAndExtras = true;
       };
     };
@@ -321,7 +345,7 @@ with {
     displayManager = {
       autoLogin = {
         enable = true;
-        user   = "chris";
+        user = "chris";
       };
       sessionCommands = "/home/chris/.xsession";
     };

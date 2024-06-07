@@ -7,7 +7,12 @@
 
 # NOTE: If DNS doesn't work in WSL (e.g. can ping 8.8.8.8 but not google.com)
 # then try creating a .wslconfig file as per https://askubuntu.com/a/1512056
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with rec {
   sources = import ../../nix/sources.nix;
   nix-helpers-src = sources.nix-helpers;
@@ -18,7 +23,13 @@ with rec {
     with rec {
       # Use builtins.fetchTarball, since pkgs.fetchFromGitHub would cause an
       # infinite loop. This helper function makes update-nix-fetchgit work.
-      fetchFromGitHub = { owner, repo, rev, sha256 }:
+      fetchFromGitHub =
+        {
+          owner,
+          repo,
+          rev,
+          sha256,
+        }:
         builtins.fetchTarball {
           inherit sha256;
           url = "https://github.com/${owner}/${repo}/archive/${rev}.tar.gz";
@@ -30,8 +41,7 @@ with rec {
         rev = "845a5c4c073f74105022533907703441e0464bc3"; # release-24.05
         sha256 = "0l3pcd38p4iq46ipc5h3cw7wmr9h8rbn34h8a5a4v8hcl21s8r5x";
       };
-    };
-    [
+    }; [
       # include NixOS-WSL modules
       <nixos-wsl/modules> # TODO: Pin this, delete the channel
       (import "${home-manager}/nixos")
@@ -49,8 +59,8 @@ with rec {
   system.stateVersion = "23.11";
 
   nixpkgs = {
-    overlays = import ./overlays.nix {};
-    pkgs = (import nix-helpers-src {}).nixpkgsLatest;
+    overlays = import ./overlays.nix { };
+    pkgs = (import nix-helpers-src { }).nixpkgsLatest;
   };
   nix.nixPath = [
     # Tells nixos-rebuild to use this file as configuration, rather than
@@ -68,31 +78,36 @@ with rec {
   # Use a pinned Nixpkgs, rather than relying on env vars like <nixpkgs>.
   # The documentation for this option says it can be used for this purpose
   # on systems which don't use flakes.
-  /*nixpkgs.flake.source =
+  /*
+    nixpkgs.flake.source =
     with {
       pinnedNixpkgs = import "${nix-helpers-src}/helpers/pinnedNixpkgs" {};
     };
-    pinnedNixpkgs.repoLatest;*/
+    pinnedNixpkgs.repoLatest;
+  */
 
-  home-manager.users.nixos = { pkgs, lib, ... }: {
-    home.stateVersion = "24.05";
-    home.packages = with osPkgs; [ devCli devGui sysCli ];
-    programs = {
-      home-manager.enable = true;
-      bash = {
-        enable = true;
-        bashrcExtra =
-          with { npiperelay = pkgs.callPackage ./npiperelay.nix {}; };
-          ''
+  home-manager.users.nixos =
+    { pkgs, lib, ... }:
+    {
+      home.stateVersion = "24.05";
+      home.packages = with osPkgs; [
+        devCli
+        devGui
+        sysCli
+      ];
+      programs = {
+        home-manager.enable = true;
+        bash = {
+          enable = true;
+          bashrcExtra = with { npiperelay = pkgs.callPackage ./npiperelay.nix { }; }; ''
             export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
             (
               export PATH="${pkgs.socat}/bin:${npiperelay}/bin:$PATH"
               . ${./1password.sh}
             )
           '';
-      };
-      git =
-        {
+        };
+        git = {
           enable = true;
           includes =
             # Look existing .gitconfig files on WSL. If exactly 1 WSL user has a
@@ -101,19 +116,19 @@ with rec {
             with rec {
               # Look for any Windows users
               wslDir = /mnt/c/Users;
-              userDirs = if pathExists wslDir then readDir wslDir else {};
+              userDirs = if pathExists wslDir then readDir wslDir else { };
               # See if any has a .gitconfig file
               userCfg = name: wslDir + "/${name}/.gitconfig";
-              users = filter
-                (name: userDirs."${name}" == "directory" &&
-                       pathExists (userCfg name))
-                (attrNames userDirs);
+              users = filter (
+                name: userDirs."${name}" == "directory" && pathExists (userCfg name)
+              ) (attrNames userDirs);
               sanitiseName = import "${nix-helpers-src}/helpers/sanitiseName" {
                 inherit lib;
               };
             };
-            assert length users < 2 || abort
-              "Ambiguous .gitconfig, found multiple: ${toJSON users}";
+            assert
+              length users < 2
+              || abort "Ambiguous .gitconfig, found multiple: ${toJSON users}";
             lib.lists.optional (length users == 1) {
               # Nix store paths can't begin with ".", so use contents = readFile
               path = path {
@@ -122,10 +137,10 @@ with rec {
               };
             };
         };
+      };
     };
-  };
 
-  environment.systemPackages = [];
+  environment.systemPackages = [ ];
   programs.screen.enable = true;
   services = {
     emacs.defaultEditor = true;
