@@ -49,7 +49,6 @@ with {
 
     devCli = {
       inherit (self)
-        asv-nix
         aws-sam-cli
         awscli
         binutils
@@ -84,6 +83,7 @@ with {
         ;
         inherit (self.warbo-packages)
           artemis
+          #asv-nix
         ;
     } // onlyMac {
       inherit (self)
