@@ -81,4 +81,8 @@ with {
   };
 
   environment.systemPackages = [];
+  programs.screen.enable = true;
+  services = {
+    emacs.defaultEditor = true;
+  };
 }
