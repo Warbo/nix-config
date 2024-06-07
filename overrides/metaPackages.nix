@@ -70,9 +70,9 @@ with {
         nix-top
         openjdk
         p7zip
-        python
         sbt
         scala
+        python3
         silver-searcher
         unzip
         update-nix-fetchgit
