@@ -74,7 +74,7 @@ with {
 
   home-manager.users.nixos = { pkgs, lib, ... }: {
     home.stateVersion = "24.05";
-    home.packages = [ osPkgs.devCli osPkgs.devGui ];
+    home.packages = with osPkgs; [ devCli devGui sysCli ];
     programs = {
       home-manager.enable = true;
       bash = {
