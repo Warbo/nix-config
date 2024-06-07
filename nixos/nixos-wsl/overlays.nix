@@ -2,26 +2,24 @@
 , warbo-packages-src ? sources.warbo-packages
 , sources ? import ../../nix/sources.nix
 }:
-# TODO: Make the nix-config overlays a bit more direct to use
 [
-  (self: super: {
-    # Repo of helper functions
-    nix-helpers = import nix-helpers-src { nixpkgs = super; };
+  # Repo of helper functions
+  (self: super: { nix-helpers = import nix-helpers-src { nixpkgs = super; }; })
 
-    # Repo of useful packages
+  # Repo of useful packages
+  (self: super: {
     warbo-packages = import warbo-packages-src {
-      inherit (self) nix-helpers;
+      inherit (super) nix-helpers;
       nixpkgs = super;
     };
   })
+  
+  # metaPackages provides sets of common functionality.
   (self: super:
-    # Use some of this repo's overrides. TODO: Update them to use options or
-    # something, so we can opt-in to what we want more directly.
     with rec {
-      slf = sup // extra.overrides;
-      sup = super // super.nix-helpers // super.warbo-packages;
-      extra = import ../../overrides/metaPackages.nix slf sup;
+      slf = super // extra.overrides;
+      extra = import ../../overrides/metaPackages.nix slf super;
     };
-    { inherit (extra.overrides) devCli; })
+    extra.overrides)
 ]
 

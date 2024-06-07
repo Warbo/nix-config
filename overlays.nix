@@ -1,3 +1,5 @@
+# TODO: Make it easy to use these as overlays or via a NixOS module; whilst
+# allowing individual picking-and-choosing.
 with rec {
   inherit (builtins) concatLists getAttr map;
   getOverlay = name: self: super:
