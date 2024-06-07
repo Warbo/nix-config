@@ -49,7 +49,6 @@ with {
 
     devCli = {
       inherit (self)
-        artemis
         asv-nix
         aws-sam-cli
         awscli
@@ -82,7 +81,10 @@ with {
         ;
         inherit (self.python3Packages)
           black
-          ;
+        ;
+        inherit (self.warbo-packages)
+          artemis
+        ;
     } // onlyMac {
       inherit (self)
         metals
