@@ -61,18 +61,41 @@ with rec {
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
   # plain files is through 'home.file'.
-  home.file = {
-    # # Building this configuration will create a copy of 'dotfiles/screenrc' in
-    # # the Nix store. Activating the configuration will then make '~/.screenrc' a
-    # # symlink to the Nix store copy.
-    # ".screenrc".source = dotfiles/screenrc;
+  home.file = with rec {
+    mkDesktop = name: args:
+      "${
+        pkgs.makeDesktopItem ({ inherit name; } // args)
+      }/share/applications/${name}.desktop";
 
-    # # You can also set the file content immediately.
-    # ".gradle/gradle.properties".text = ''
-    #   org.gradle.console=verbose
-    #   org.gradle.daemon.idletimeout=3600000
-    # '';
+    autostarts = lib.mapAttrs' (pname: value: {
+      inherit value;
+      name = ".config/autostart/${pname}.desktop";
+    }) {
+      thunderbird.text = pkgs.thunderbird.desktopItem.text;
+      firefox.text = pkgs.firefox.desktopItem.text;
+      screen-local.source = mkDesktop "screen-local" {
+        desktopName = "screen-local";
+        exec = ''${pkgs.lxqt.qterminal}/bin/qterminal -e "screen -DR"'';
+      };
+      screen-pi.source = mkDesktop "screen-pi" {
+        desktopName = "screen-pi";
+        exec =
+          ''${pkgs.lxqt.qterminal}/bin/qterminal -e "ssh -t pi screen -DR"'';
+      };
+    };
   };
+    {
+      # # Building this configuration will create a copy of 'dotfiles/screenrc' in
+      # # the Nix store. Activating the configuration will then make '~/.screenrc' a
+      # # symlink to the Nix store copy.
+      # ".screenrc".source = dotfiles/screenrc;
+
+      # # You can also set the file content immediately.
+      # ".gradle/gradle.properties".text = ''
+      #   org.gradle.console=verbose
+      #   org.gradle.daemon.idletimeout=3600000
+      # '';
+    } // autostarts;
 
   # You can also manage environment variables but you will have to manually
   # source
