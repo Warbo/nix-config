@@ -212,7 +212,7 @@ with {
       inherit (self.xorg) xmodmap;
       inherit (self)
         acpi
-        cifs_utils
+        cifs-utils
         dtach
         exfat
         fuse
@@ -224,7 +224,7 @@ with {
         pmutils
         psmisc
         smbnetfs
-        sshfsFuse
+        sshfs-fuse
         ts
         usbutils
         wmname
