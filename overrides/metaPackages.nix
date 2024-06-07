@@ -70,8 +70,6 @@ with {
         nix-top
         openjdk
         p7zip
-        sbt
-        scala
         python3
         silver-searcher
         unzip
