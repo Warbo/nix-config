@@ -227,7 +227,7 @@ with {
         ;
     } // nonMac {
       inherit (self)
-        warbo-utilities
+        #warbo-utilities
         ;
     };
 
