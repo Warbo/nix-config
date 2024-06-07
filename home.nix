@@ -452,15 +452,20 @@ with rec {
       dietpi-sftp = {
         Unit = {
           Description = "Mount DietPi's root folder read/write via SFTP";
-          After = [ "dietpi-accessible.target" ];
-          PartOf = [ "dietpi-accessible.target" ];
-          BindsTo = [ "dietpi-accessible.target" ];
-          Requires = [ "dietpi-accessible.target" ];
+          After = [ "dietpi-accessible.target" "keyring-unlocked.target" ];
+          PartOf = [ "dietpi-accessible.target" "keyring-unlocked.target" ];
+          BindsTo = [ "dietpi-accessible.target" "keyring-unlocked.target" ];
+          Requires = [ "dietpi-accessible.target" "keyring-unlocked.target" ];
         };
         Service = {
           ExecStart = "${pkgs.writeShellScript "dietpi-sftp.sh" ''
             set -ex
             . /home/manjaro/.bashrc
+            unlocked | grep -q '^ssh' || {
+              echo "SSH key not unlocked, skipping" 1>&2
+              sleep 10
+              exit 1
+            }
             ADDR=$(${commands.pi4}/bin/pi4)
 
             # NOTE: We avoid setting modtime, to avoid SSH_FX_OP_UNSUPPORTED
@@ -481,8 +486,8 @@ with rec {
       s3-git = {
         Unit = {
           Description = "Mount chriswarbo.net/git via S3";
-          After = [ "network-online.target" ];
-          Wants = [ "network-online.target" ];
+          After = [ "network-online.target" "keyring-unlocked.target" ];
+          Wants = [ "network-online.target" "keyring-unlocked.target" ];
         };
         Service = {
           ExecStart = "${pkgs.writeShellScript "s3-git.sh" ''
@@ -523,6 +528,13 @@ with rec {
         Unit = {
           Description = "On home WiFi network";
           Wants = [ "dietpi-smb.service" "dietpi-sftp.service" ];
+        };
+      };
+
+      keyring-unlocked = {
+        Unit = {
+          Description = "Indicates GNOME keyring and ssh-agent are unlocked";
+          Wants = [ "dietpi-sftp.service" "s3-git" ];
         };
       };
     };

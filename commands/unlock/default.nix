@@ -22,5 +22,7 @@ writeShellApplication {
       SSH_ASKPASS=${askpass} \
       SSH_ASKPASS_REQUIRE=force \
         setsid -w ssh-add "$SSH_FILE" 2> >(sed -e 's/Enter/Reading/g' 1>&2)
+
+    systemctl --user start keyring-unlocked.target
   '';
 }
