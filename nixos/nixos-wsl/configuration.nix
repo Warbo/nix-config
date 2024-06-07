@@ -8,7 +8,9 @@
 # NOTE: If DNS doesn't work in WSL (e.g. can ping 8.8.8.8 but not google.com)
 # then try creating a .wslconfig file as per https://askubuntu.com/a/1512056
 { config, lib, pkgs, ... }:
-with {
+with rec {
+  sources = import ../../nix/sources.nix;
+  nix-helpers-src = sources.nix-helpers;
   osPkgs = pkgs;
 };
 {
