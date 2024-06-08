@@ -56,7 +56,7 @@ self: super: {
           rev = "${self.utillinux}/bin/rev";
         }; ''
           mkdir "$out"
-          "${self.xidel}/bin/xidel" - -q -e "${pat}" < "$page" |
+          "${self.xidel}/bin/xidel" - -s -e "${pat}" < "$page" |
           grep -o '[0-9.]*'                          |
           head                                       |
           sed -e 's/^/"/g' -e 's/$/"/g'              > "$out/default.nix"

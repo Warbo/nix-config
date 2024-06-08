@@ -62,7 +62,7 @@ with { inherit (super.lib) concatStringsSep makeOverridable mapAttrs; }; {
             "text()"
           ]
         }'
-        LATEST=$("${self.xidel}/bin/xidel" - -q -e "$EXPR" < "$page")
+        LATEST=$("${self.xidel}/bin/xidel" - -s -e "$EXPR" < "$page")
         echo "\"$LATEST\"" > "$out"
       '';
     };
