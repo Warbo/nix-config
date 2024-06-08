@@ -83,16 +83,6 @@ with rec {
       else
         self.nothing;
 
-    # We need to override the happy-path 'racket' package, taking it from super
-    # to avoid infinite loops.
-    racket = self.checkedRacket.override {
-      racket = trace (concatStringsSep " " [
-        "WARNING: checkedRacket didn't use its fallback package."
-        "This might indicate that checkedRacket is not needed"
-        "any more."
-      ]) super.racket;
-    };
-
     stylish-haskell = haskellPkgs.stylish-haskell.components.exes.stylish-haskell;
 
     thermald = from1809 "thermald";
@@ -134,7 +124,6 @@ with rec {
       haskellTests = mapAttrs (_: p: p.components.tests) haskellPkgs;
     };
     stillBrokenPkgs
-    // self.checkRacket.checkWhetherBroken
     // haskellTests
     // {
       libproxyWorks = self.libproxy;
