@@ -1,6 +1,9 @@
 self: super:
 
-with { inherit (builtins) compareVersions toJSON; }; {
+with {
+  inherit (builtins) compareVersions toJSON;
+  inherit (self.nix-helpers) onlineCheck;
+}; {
   overrides = {
     nix-config-version-check =
       name:
@@ -17,7 +20,7 @@ with { inherit (builtins) compareVersions toJSON; }; {
       };
       extra
       ++
-        super.lib.optional (self.onlineCheck && compareVersions version latest == -1)
+        super.lib.optional (onlineCheck && compareVersions version latest == -1)
           (toJSON {
             inherit latest version;
             WARNING = "Newer ${name} is available";

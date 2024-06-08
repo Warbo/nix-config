@@ -1,4 +1,8 @@
-self: super: with { inherit (builtins) getAttr toJSON; }; {
+self: super:
+with {
+  inherit (builtins) getAttr toJSON;
+  inherit (self.nix-helpers) onlineCheck;
+}; {
   overrides = { };
   checks =
     super.lib.genAttrs
@@ -12,9 +16,9 @@ self: super: with { inherit (builtins) getAttr toJSON; }; {
         with rec {
           src = getAttr name self.nix-config-sources;
           got = src.rev;
-          want = self.gitHead { url = src.repo; };
+          want = self.nix-helpers.gitHead { url = src.repo; };
         };
-        super.lib.optional (self.onlineCheck && (got != want)) (toJSON {
+        super.lib.optional (onlineCheck && (got != want)) (toJSON {
           inherit got name want;
           warning = "Pinned repo is out of date";
         })
