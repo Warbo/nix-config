@@ -19,12 +19,11 @@ with rec {
   osPkgs = pkgs;
 };
 {
-  imports =
-     [
-      # include NixOS-WSL modules
-      <nixos-wsl/modules> # TODO: Pin this, delete the channel
-      (import ../modules/warbo.nix)
-    ];
+  imports = [
+    # include NixOS-WSL modules
+    <nixos-wsl/modules> # TODO: Pin this, delete the channel
+    (import ../modules/warbo.nix)
+  ];
 
   wsl.enable = true;
   wsl.defaultUser = "nixos";
@@ -59,44 +58,41 @@ with rec {
         sysCli
       ];
       programs = {
-        bash = {
-          bashrcExtra = with { npiperelay = pkgs.callPackage ./npiperelay.nix { }; }; ''
+        bash.bashrcExtra =
+          with { npiperelay = pkgs.callPackage ./npiperelay.nix { }; }; ''
             export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
             (
               export PATH="${pkgs.socat}/bin:${npiperelay}/bin:$PATH"
               . ${./1password.sh}
             )
           '';
-        };
-        git = {
-          includes =
-            # Look existing .gitconfig files on WSL. If exactly 1 WSL user has a
-            # .gitconfig file, include it.
-            with builtins;
-            with rec {
-              # Look for any Windows users
-              wslDir = /mnt/c/Users;
-              userDirs = if pathExists wslDir then readDir wslDir else { };
-              # See if any has a .gitconfig file
-              userCfg = name: wslDir + "/${name}/.gitconfig";
-              users = filter (
-                name: userDirs."${name}" == "directory" && pathExists (userCfg name)
-              ) (attrNames userDirs);
-              sanitiseName = import "${nix-helpers-src}/helpers/sanitiseName" {
-                inherit lib;
-              };
+        git.includes =
+          # Look existing .gitconfig files on WSL. If exactly 1 WSL user has a
+          # .gitconfig file, include it.
+          with builtins;
+          with rec {
+            # Look for any Windows users
+            wslDir = /mnt/c/Users;
+            userDirs = if pathExists wslDir then readDir wslDir else { };
+            # See if any has a .gitconfig file
+            userCfg = name: wslDir + "/${name}/.gitconfig";
+            users = filter (
+              name: userDirs."${name}" == "directory" && pathExists (userCfg name)
+            ) (attrNames userDirs);
+            sanitiseName = import "${nix-helpers-src}/helpers/sanitiseName" {
+              inherit lib;
             };
-            assert
-              length users < 2
-              || abort "Ambiguous .gitconfig, found multiple: ${toJSON users}";
-            lib.lists.optional (length users == 1) {
-              # Nix store paths can't begin with ".", so use contents = readFile
-              path = path {
-                path = userCfg (head users);
-                name = sanitiseName "gitconfig-${head users}";
-              };
+          };
+          assert
+            length users < 2
+            || abort "Ambiguous .gitconfig, found multiple: ${toJSON users}";
+          lib.lists.optional (length users == 1) {
+            # Nix store paths can't begin with ".", so use contents = readFile
+            path = path {
+              path = userCfg (head users);
+              name = sanitiseName "gitconfig-${head users}";
             };
-        };
+          };
       };
     };
 }
