@@ -25,6 +25,10 @@ with rec {
     (import ../modules/warbo.nix)
   ];
 
+  warbo.enable = true;
+  warbo.professional = true;
+  warbo.home-manager.username = "nixos";
+
   wsl.enable = true;
   wsl.defaultUser = "nixos";
 
