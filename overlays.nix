@@ -50,7 +50,10 @@ with rec {
           };
     };
 
-    # These overlays merge those repo contents directly into pkgs
+    # These overlays merge those repo contents directly into pkgs. Avoid for now
+    # since they can cause infinite recursion (since the attribute NAMES need to
+    # be known up-front; e.g. if self.warbo-packages uses self.foo to generate
+    # its attrset, Nix can't know whether that attrset will be overriding foo!)
     #nix-helpers = repo "nix-helpers";
     #warbo-packages = repo "warbo-packages";
     #warbo-utilities = repo "warbo-utilities";
