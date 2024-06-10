@@ -52,6 +52,13 @@ with rec {
     "nixos-wsl=/nix/var/nix/profiles/per-user/root/channels/nixos-wsl"
   ];
 
+  # Required to run dodgy Linux executables provided by Windows applications
+  # (e.g. 1Password's op-ssh-sign-wsl)
+  programs.nix-ld = {
+    enable = true;
+    libraries = with pkgs; [];
+  };
+
   home-manager.users.nixos =
     { pkgs, lib, ... }:
     {
