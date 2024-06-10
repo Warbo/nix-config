@@ -56,9 +56,9 @@ with {
           coreutils
           direnv
           entr
-          gcc
+          #gcc
           git
-          gnumake
+          #gnumake
           jq
           nano
           niv
