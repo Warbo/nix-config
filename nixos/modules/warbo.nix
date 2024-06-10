@@ -59,6 +59,11 @@ with {
         nixpkgs = {
           config.allowUnfree = true;
           flake.source = repoLatest;
+          overlays = with import ../../overlays.nix; [
+            sources
+            repos
+            metaPackages
+          ];
         };
         nix.nixPath = ["nixpkgs=${repoLatest}"];
         programs.iotop.enable = true;
