@@ -159,7 +159,6 @@ with {
           autossh
           ddgr
           gnutls
-          tightvnc
           w3m
           wget
           ;
