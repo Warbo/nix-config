@@ -175,7 +175,8 @@ with {
     netGui = {
       inherit (self)
         dillo
-        firefoxBinary
+        firefox
+        #firefoxBinary  # TODO: Probably delete this (and accompanying def)
         uget
         x11vnc
         ;
