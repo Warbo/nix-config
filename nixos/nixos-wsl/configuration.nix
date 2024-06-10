@@ -49,17 +49,6 @@ with rec {
     "nixos-wsl=/nix/var/nix/profiles/per-user/root/channels/nixos-wsl"
   ];
 
-  # Use a pinned Nixpkgs, rather than relying on env vars like <nixpkgs>.
-  # The documentation for this option says it can be used for this purpose
-  # on systems which don't use flakes.
-  /*
-    nixpkgs.flake.source =
-    with {
-      pinnedNixpkgs = import "${nix-helpers-src}/helpers/pinnedNixpkgs" {};
-    };
-    pinnedNixpkgs.repoLatest;
-  */
-
   home-manager.users.nixos =
     { pkgs, lib, ... }:
     {
@@ -70,9 +59,7 @@ with rec {
         sysCli
       ];
       programs = {
-        home-manager.enable = true;
         bash = {
-          enable = true;
           bashrcExtra = with { npiperelay = pkgs.callPackage ./npiperelay.nix { }; }; ''
             export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
             (
@@ -82,7 +69,6 @@ with rec {
           '';
         };
         git = {
-          enable = true;
           includes =
             # Look existing .gitconfig files on WSL. If exactly 1 WSL user has a
             # .gitconfig file, include it.
@@ -113,10 +99,4 @@ with rec {
         };
       };
     };
-
-  environment.systemPackages = [ ];
-  programs.screen.enable = true;
-  services = {
-    emacs.defaultEditor = true;
-  };
 }
