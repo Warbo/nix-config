@@ -86,22 +86,12 @@ with rec {
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-    firefox
-    git
-    htop
+    devCli
+    mediaGui
+    netCli
+    netGui
+    sysCli
     leafpad
-    libsForQt5.qt5ct
-    libsForQt5.qtstyleplugin-kvantum
-    nano
-    pavucontrol
-    rclone
-    rsync
-    screen
-    silver-searcher
-    sshfs
-    usbutils
-    vlc
-    wget
   ];
 
   fonts = {
