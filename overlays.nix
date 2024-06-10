@@ -1,7 +1,9 @@
 # TODO: Make it easy to use these as overlays or via a NixOS module; whilst
 # allowing individual picking-and-choosing.
 with rec {
-  inherit (builtins) concatLists getAttr map;
+  inherit (builtins) attrNames concatLists filter foldl' getAttr map readDir;
+  inherit ((import nix-config-sources.nix-helpers {}).nixpkgs-lib)
+    hasSuffix removeSuffix;
 
   repo =
     name: self: super:
@@ -16,7 +18,7 @@ with rec {
 
   nix-config-sources = import ./nix/sources.nix;
 
-  overlays = {
+  overlays = fromOverrides // {
     # Provides our pinned sources
     sources = _: _: { inherit nix-config-sources; };
 
@@ -57,10 +59,45 @@ with rec {
     #nix-helpers = repo "nix-helpers";
     #warbo-packages = repo "warbo-packages";
     #warbo-utilities = repo "warbo-utilities";
-
-    # Overlays defined in this repo
-    # TODO: Avoid this indirection, so everything works the same
-    rest = import ./overlay.nix;
   };
+
+  fromOverrides =
+    with rec {
+      # Names of every ".nix" file in overrides/ (this must not depend on 'self')
+      fileNames = map (removeSuffix ".nix") (
+        filter (hasSuffix ".nix") (attrNames (readDir ./overrides))
+      );
+
+      mkDef =
+        acc: f:
+        with { this = import (./. + "/overrides/${f}.nix"); };
+        acc
+        // {
+          "${f}" = self: super: (this self super).overrides;
+          nix-config-checks = self: super:
+            acc.nix-config-checks self super //
+            ((this self super).checks or { });
+          nix-config-names = self: super:
+            acc.nix-config-names self super ++
+            attrNames (this self super).overrides;
+          nix-config-tests = self: super:
+            acc.nix-config-tests self super // {
+              "${f}" = (this self super).tests or { };
+            };
+        };
+    };
+    foldl' mkDef {
+      nix-config-checks = self: super: { };
+      nix-config-names = self: super: [
+        "nix-config-checks"
+        "nix-config-tests"
+      ];
+      nix-config-tests = self: super: { };
+      nix-config-check = self: super: {
+        nix-config-check = foldl' (result: msg: trace msg false) true (
+          concatLists (attrValues self.nix-config-checks)
+        );
+      };
+    } fileNames;
 };
 overlays
