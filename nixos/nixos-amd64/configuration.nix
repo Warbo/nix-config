@@ -4,6 +4,11 @@
 
 { config, lib, pkgs, ... }:
 
+with rec {
+  inherit (pinnedNixpkgs) repoLatest;
+  nix-helpers-src = (import ../../nix/sources.nix).nix-helpers;
+  pinnedNixpkgs = import "${nix-helpers-src}/helpers/pinnedNixpkgs" {};
+};
 {
   imports =
     [ # Include the results of the hardware scan.
@@ -114,11 +119,17 @@
     ];
   };
 
-  nix.nixPath = with builtins; [
-    "nixos-config=${toString ../..}/nixos/nixos-amd64/configuration.nix"
-    "nixpkgs=${pkgs.path}"
-  ];
-  nixpkgs.config.allowUnfree = true;
+  nix = {
+    extraOptions = ''experimental-features = nix-command flakes'';
+    nixPath = with builtins; [
+      "nixos-config=${toString ../..}/nixos/nixos-amd64/configuration.nix"
+      "nixpkgs=${repoLatest}"
+    ];
+  };
+  nixpkgs = {
+    config.allowUnfree = true;
+    flake.source = repoLatest;
+  };
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
@@ -134,8 +145,6 @@
       enable = true;
     };
   };
-
-  nix.extraOptions = ''experimental-features = nix-command flakes'';
 
   # List services that you want to enable:
 
