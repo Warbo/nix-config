@@ -37,7 +37,6 @@ with rec {
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "23.11";
 
-  nixpkgs.overlays = import ./overlays.nix { };
   nix.nixPath = [
     # Tells nixos-rebuild to use this file as configuration, rather than
     # /etc/nixos/configuration.nix. Two things to note:
