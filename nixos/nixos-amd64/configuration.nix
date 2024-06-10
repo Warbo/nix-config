@@ -47,7 +47,7 @@ with rec {
 
   # Enable the X11 windowing system.
   services.xserver.enable = true;
-  services.xserver.displayManager.sddm.enable = true;
+  services.displayManager.sddm.enable = true;
   services.xserver.desktopManager.plasma5.enable = true;
 
   # Configure keymap in X11
@@ -141,9 +141,7 @@ with rec {
   programs.direnv = {
     enable = true;
     loadInNixShell = true;
-    nix-direnv = {
-      enable = true;
-    };
+    nix-direnv.enable = true;
   };
 
   # List services that you want to enable:
@@ -164,7 +162,7 @@ with rec {
   services.avahi = {
     inherit (config.networking) hostName;
     enable              = true;
-    nssmdns             = true;
+    nssmdns4            = true;
     publish.enable      = true;
     publish.addresses   = true;
     publish.workstation = true;
