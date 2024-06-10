@@ -255,7 +255,8 @@ with {
           xcalib
           xcape
           xpra
-          ;
+        ;
+        inherit (libsForQt5) qt5ct qtstyleplugin-kvantum;
       };
 
     ###
