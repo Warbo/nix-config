@@ -13,6 +13,7 @@ with rec {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
+      (import ../../home-manager/nixos-import.nix)
     ];
 
   #config.allowUnfree = true;
@@ -80,6 +81,17 @@ with rec {
     packages = with pkgs; [
     ];
   };
+
+  home-manager.users.chris =
+    { ... }:
+    {
+      home.stateVersion = "24.05";
+      programs.home-manager.enable = true;
+      programs.bash = {
+        enable = true;
+
+      };
+    };
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
