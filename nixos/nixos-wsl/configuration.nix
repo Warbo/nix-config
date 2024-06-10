@@ -23,7 +23,7 @@ with rec {
      [
       # include NixOS-WSL modules
       <nixos-wsl/modules> # TODO: Pin this, delete the channel
-      (import ../../home-manager/nixos-import.nix)
+      (import ../modules/warbo.nix)
     ];
 
   wsl.enable = true;
@@ -37,10 +37,7 @@ with rec {
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "23.11";
 
-  nixpkgs = {
-    overlays = import ./overlays.nix { };
-    pkgs = (import nix-helpers-src { }).nixpkgsLatest;
-  };
+  nixpkgs.overlays = import ./overlays.nix { };
   nix.nixPath = [
     # Tells nixos-rebuild to use this file as configuration, rather than
     # /etc/nixos/configuration.nix. Two things to note:
@@ -50,7 +47,6 @@ with rec {
     #    'NIX_PATH=nixos-config=... nixos-rebuild switch' to ensure this file
     #    will be used the first time, so this option can take effect thereafter!
     "nixos-config=${builtins.toString ../..}/nixos/nixos-wsl/configuration.nix"
-    "nixpkgs=${pkgs.path}"
     "nixos-wsl=/nix/var/nix/profiles/per-user/root/channels/nixos-wsl"
   ];
 

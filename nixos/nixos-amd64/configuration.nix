@@ -13,10 +13,11 @@ with rec {
   imports =
     [ # Include the results of the hardware scan.
       ./hardware-configuration.nix
-      (import ../../home-manager/nixos-import.nix)
+      (import ../modules/warbo.nix)
     ];
 
-  #config.allowUnfree = true;
+  warbo.enable = true;
+  warbo.home-manager.username = "chris";
 
   # Use the GRUB 2 boot loader.
   boot.loader.grub.enable = true;
@@ -82,17 +83,6 @@ with rec {
     ];
   };
 
-  home-manager.users.chris =
-    { ... }:
-    {
-      home.stateVersion = "24.05";
-      programs.home-manager.enable = true;
-      programs.bash = {
-        enable = true;
-
-      };
-    };
-
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
@@ -135,12 +125,7 @@ with rec {
     extraOptions = ''experimental-features = nix-command flakes'';
     nixPath = with builtins; [
       "nixos-config=${toString ../..}/nixos/nixos-amd64/configuration.nix"
-      "nixpkgs=${repoLatest}"
     ];
-  };
-  nixpkgs = {
-    config.allowUnfree = true;
-    flake.source = repoLatest;
   };
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -150,11 +135,6 @@ with rec {
   #   enable = true;
   #   enableSSHSupport = true;
   # };
-  programs.direnv = {
-    enable = true;
-    loadInNixShell = true;
-    nix-direnv.enable = true;
-  };
 
   # List services that you want to enable:
 
@@ -171,14 +151,7 @@ with rec {
 
   services.gnunet.enable = true;
 
-  services.avahi = {
-    inherit (config.networking) hostName;
-    enable              = true;
-    nssmdns4            = true;
-    publish.enable      = true;
-    publish.addresses   = true;
-    publish.workstation = true;
-  };
+  services.avahi.hostName = config.networking.hostName;
 
   services.kubo = {
     enable = true;
