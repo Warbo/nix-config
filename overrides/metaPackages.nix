@@ -55,14 +55,12 @@ with {
           binutils
           coreutils
           direnv
-          dvtm
           entr
-          file
           gcc
           git
           gnumake
           jq
-          lzip
+          nano
           niv
           #nix-diff
           nix-top
@@ -70,11 +68,8 @@ with {
           p7zip
           python3
           silver-searcher
-          unzip
           update-nix-fetchgit
           vim
-          xz
-          zip
           ;
         inherit (self.python3Packages) black;
         inherit (self.warbo-packages)
@@ -198,21 +193,34 @@ with {
         inherit (self.xorg) xmodmap;
         inherit (self)
           acpi
+          binutils
           cifs-utils
+          coreutils
           dtach
+          dvtm
           exfat
+          file
           fuse
           fuse3
+          htop
           inotify-tools
           libnotify
+          lzip
+          nano
           openssh
           pciutils
           pmutils
           psmisc
+          rclone
+          rsync
+          screen
           smbnetfs
           sshfs-fuse
           ts
+          unzip
           usbutils
+          xz
+          zip
           ;
       }
       // nonMac {
