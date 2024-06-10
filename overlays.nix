@@ -37,7 +37,7 @@ with rec {
             # Note that warbo-packages inherits nixpkgs from nix-helpers, so we
             # don't need to pass super along directly.
             nix-helpers =
-              super.nix-helpers or (overlays.repos.nix-helpers self super).nix-helpers;
+              super.nix-helpers or (overlays.repos self super).nix-helpers;
           };
 
       warbo-utilities =
@@ -46,7 +46,7 @@ with rec {
             # Pick warbo-packages in the same way we chose a nix-helpers above.
             # The nix-helpers will get inherited, as will nixpkgs.
             warbo-packages =
-              super.warbo-packages or (overlays.warbo-packages).warbo-packages;
+              super.warbo-packages or (overlays.repos self super).warbo-packages;
           };
     };
 
