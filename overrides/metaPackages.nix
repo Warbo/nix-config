@@ -180,6 +180,8 @@ with {
         uget
         x11vnc
         ;
+      /*
+      TODO: See if we can get this working again
       pidgin-with-plugins = self.pidgin.override {
         plugins = with self; [
           pidgin-otr
@@ -188,7 +190,7 @@ with {
           # we should use the unaltered pidgin definition.
           (pidgin-privacy-please.override { overrideGstreamer = false; })
         ];
-      };
+      };*/
     };
 
     sysCli =
