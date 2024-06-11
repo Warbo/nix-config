@@ -11,20 +11,15 @@ with rec {
 
   commands = import ./commands.nix { };
 }; {
+  imports = [ (import modules/warbo.nix) ];
 
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
   home.username = "manjaro";
   home.homeDirectory = "/home/manjaro";
 
-  # This value determines the Home Manager release that your configuration is
-  # compatible with. This helps avoid breakage when a new Home Manager release
-  # introduces backwards incompatible changes.
-  #
-  # You should not change this value, even if you update Home Manager. If you do
-  # want to update the value, then make sure to first check the Home Manager
-  # release notes.
-  home.stateVersion = "23.05"; # Please read the comment before changing.
+  warbo.enable = true;
+  warbo.home-manager.stateVersion = "23.05";
 
   # The home.packages option allows you to install Nix packages into your
   # environment.
@@ -188,7 +183,6 @@ with rec {
   # Let Home Manager install and manage itself.
   programs = {
     bash = {
-      enable = true;
       bashrcExtra = builtins.readFile ../../bashrc;
       profileExtra = ''
         # Inherited from pre-Home-Manager config; not sure if needed
@@ -200,8 +194,6 @@ with rec {
       enable = true;
       browsers = [ "firefox" ];
     };
-
-    direnv.enable = true;
 
     emacs = {
       enable = true;
@@ -268,13 +260,11 @@ with rec {
     };
 
     git = {
-      enable = true;
       userEmail = "chriswarbo@gmail.com";
       userName = "Chris Warburton";
     };
 
     home-manager = {
-      enable = true;
       path = fetchTarball {
         sha256 = "sha256:16078fwcmqq41dqfnm124xxm8l6zykvqlj1kzgi0fvfil4y86slm";
         url = pkgs.lib.concatStringsSep "/" [
@@ -287,21 +277,11 @@ with rec {
       };
     };
 
-    htop.enable = true;
-    jq.enable = true;
-    jujutsu.enable = true;
-
     /* TODO: Add these:
        https://github.com/nix-community/home-manager/blob/master/modules/programs/mbsync.nix
        https://github.com/nix-community/home-manager/blob/master/modules/programs/msmtp.nix
        https://github.com/nix-community/home-manager/blob/master/modules/programs/mu.nix
     */
-
-    password-store = {
-      enable = true;
-      package = pkgs.pass.withExtensions (exts: [ exts.pass-otp ]);
-      settings.PASSWORD_STORE_DIR = "$HOME/.password-store";
-    };
 
     #rtorrent.enable = true;
 
