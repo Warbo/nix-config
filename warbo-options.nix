@@ -27,6 +27,24 @@ with {
     '';
   };
 
+  nixpkgs.path = mkOption {
+    type = types.nullOr types.path;
+    default = with {
+      inherit (import nix/sources.nix) nix-helpers;
+    };
+      (import "${nix-helpers}/helpers/pinnedNixpkgs" {}).repoLatest;
+    description = ''
+      Path to use for Nixpkgs. We use this to set <nixpkgs>, etc.
+    '';
+  };
+
+  nixpkgs.overlays = mkOption {
+    default = os: [ os.sources os.repos os.metaPackages ];
+    description = ''
+      Function choosing which attrs from overlays.nix to use. Null disables.
+    '';
+  };
+
   home-manager.stateVersion = mkOption {
     type = types.str;
     default = "24.05";  # Override as needed

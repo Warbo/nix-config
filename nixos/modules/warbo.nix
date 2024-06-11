@@ -17,25 +17,19 @@ with {
   };
 
   config = mkIf cfg.enable (mkMerge [
-    (with rec {
-      inherit (import "${nix-helpers}/helpers/pinnedNixpkgs" {}) repoLatest;
-      inherit (import ../../nix/sources.nix) nix-helpers;
-    };
-      {
-        # Unconditional; override if desired
-        nixpkgs = {
-          config.allowUnfree = true;
-          flake.source = repoLatest;
-          overlays = with import ../../overlays.nix; [
-            sources
-            repos
-            metaPackages
-          ];
-        };
-        nix.nixPath = ["nixpkgs=${repoLatest}"];
-        programs.iotop.enable = true;
-        programs.screen.enable = true;
-      })
+    {
+      # Unconditional; override if desired
+      nixpkgs.config.allowUnfree = true;
+      programs.iotop.enable = true;
+      programs.screen.enable = true;
+    }
+    (mkIf (cfg.nixpkgs.path != null) {
+      nix.nixPath = [ "nixpkgs=${cfg.nixpkgs.path}" ];
+      nixpkgs.flake.source = cfg.nixpkgs.path;
+    })
+    (mkIf (cfg.nixpkgs.overlays != null) {
+      nixpkgs.overlays = cfg.nixpkgs.overlays (import ../../overlays.nix);
+    })
     (mkIf (!cfg.professional) {
       # Disable by setting 'warbo.professional'
       programs.gnupg.agent.enable = true;
