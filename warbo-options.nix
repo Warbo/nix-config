@@ -13,6 +13,14 @@ with {
     '';
   };
 
+  is-nixos = mkOption {
+    type = types.bool;
+    default = false;
+    description = ''
+      True when using a NixOS module, false when using Home Manager standalone.
+    '';
+  };
+
   professional = mkOption {
     type = types.bool;
     default = false;

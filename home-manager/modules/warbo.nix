@@ -31,3 +31,9 @@ with {
       # Disable by setting 'warbo.professional'
       programs.yt-dlp.enable = true;
     })
+    (mkIf (cfg.direnv && (!cfg.is-nixos)) {
+      programs.direnv = {
+        enable = true;
+        nix-direnv.enable = true;
+      };
+    })

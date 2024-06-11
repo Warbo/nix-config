@@ -47,7 +47,7 @@ with {
     (mkIf cfg.direnv {
       programs.direnv = {
         enable = true;
-        loadInNixShell = true;
+        loadInNixShell = true;  # This option doesn't exist in Home Manager
         nix-direnv.enable = true;
       };
     })
@@ -59,6 +59,7 @@ with {
         # Pass along relevant config to our Home Manager module
         warbo = {
           inherit (cfg) enable professional direnv nixpkgs home-manager;
+          is-nixos = true;
         };
       };
     })
