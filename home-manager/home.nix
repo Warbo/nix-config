@@ -31,7 +31,7 @@ with rec {
 
     pkgs.audacious
     pkgs.awscli
-    pkgs.cantata
+    #pkgs.cantata
     pkgs.dnsutils
     pkgs.entr
     pkgs.leafpad
