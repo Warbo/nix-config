@@ -110,7 +110,7 @@ with rec {
   xdg.systemDirs.data =
     [ "${config.home.homeDirectory}/.nix-profile/share/applications" ];
 
-  warbo.nixpkgs.overlays = os: [ os.sources os.repos os.metaPackages os.emacs ];
+  warbo.nixpkgs.overlays = os: [ os.sources os.repos os.metaPackages /*os.emacs*/ ];
   warbo.dotfiles = ~/repos/warbo-dotfiles;
 
   gtk = {
@@ -189,7 +189,7 @@ with rec {
     emacs = {
       enable = true;
       # "Pure GTK" version has crisper font rendering on Wayland
-      package = pkgs.emacs-pgtk;
+      package = pkgs.emacs29-pgtk;
     };
 
     firefox = {
