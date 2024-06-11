@@ -31,6 +31,9 @@ with {
     (mkIf (cfg.nixpkgs.path != null) {
       home.sessionVariables.NIX_PATH = "nixpkgs=${cfg.nixpkgs.path}";
     })
+    (mkIf (cfg.nixpkgs.overlays != null) {
+      nixpkgs.overlays = cfg.nixpkgs.overlays (import ../../overlays.nix);
+    })
     (mkIf (!cfg.professional) {
       # Disable by setting 'warbo.professional'
       programs.yt-dlp.enable = true;
