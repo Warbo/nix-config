@@ -41,7 +41,7 @@ with {
     type = types.nullOr types.path;
     default = fetchGit {
       url = "http://chriswarbo.net/git/warbo-dotfiles.git";
-      rev = "94ff57d5ea5b932dcda8980f8b413bc983a557a0";
+      rev = "d6c257f338979d6b2b9aa672f477b00c3bf236be";
     };
     description = ''
       Copy of chriswarbo.net/git/warbo-dotfiles.git. Defaults to a git clone,
