@@ -10,6 +10,7 @@ with {
     {
       # Unconditional; override if desired
       home.stateVersion = cfg.home-manager.stateVersion;
+      nixpkgs.config.allowUnfree = true;
       programs = {
         bash = {
           enable = true;
@@ -27,6 +28,9 @@ with {
       };
       services.emacs.defaultEditor = true;
     }
+    (mkIf (cfg.nixpkgs.path != null) {
+      home.sessionVariables.NIX_PATH = "nixpkgs=${cfg.nixpkgs.path}";
+    })
     (mkIf (!cfg.professional) {
       # Disable by setting 'warbo.professional'
       programs.yt-dlp.enable = true;

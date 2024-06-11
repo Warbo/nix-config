@@ -102,11 +102,7 @@ with rec {
   #  /etc/profiles/per-user/manjaro/etc/profile.d/hm-session-vars.sh
   #
   # if you don't want to manage your shell through Home Manager.
-  home.sessionVariables = {
-    NIX_PATH =
-      pkgs.lib.concatStringsSep ":" [ "nixpkgs=${nix-helpers.nixpkgs.path}" ];
-    QT_STYLE_OVERRIDE = "kvantum";
-  };
+  home.sessionVariables.QT_STYLE_OVERRIDE = "kvantum";
 
   # These three ensure our Nix .desktop files appear in desktops/menus
   targets.genericLinux.enable = true;
