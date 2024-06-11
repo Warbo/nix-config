@@ -1,3 +1,5 @@
+# Options which are common to warbo.nix NixOS module and HomeManager module.
+# Check those files to see what extras they provide on top of these!
 { lib }:
 with {
   inherit (lib) mkIf mkMerge mkOption types;

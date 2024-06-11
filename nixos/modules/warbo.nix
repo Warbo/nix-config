@@ -1,3 +1,6 @@
+# Warbo's preferred setup, used across a bunch of systems. This part is specific
+# to NixOS; there is an equivalent module for Home Manager (which this module
+# can load for us too!)
 { config, lib, pkgs, ... }:
 with {
   inherit (lib) mkIf mkMerge mkOption types;
@@ -50,26 +53,13 @@ with {
     })
     (mkIf (cfg.home-manager.username != null) {
       home-manager.users."${cfg.home-manager.username}" = {...}: {
-        home.stateVersion = cfg.home-manager.stateVersion;
-        programs = {
-          bash.enable = true;
-          git.enable = true;
-          home-manager.enable = true;
-          htop.enable = true;
-          jq.enable = true;
-          jujutsu.enable = true;
-          password-store = {
-            enable = true;
-            package = pkgs.pass.withExtensions (exts: [ exts.pass-otp ]);
-            settings.PASSWORD_STORE_DIR = "$HOME/.password-store";
-          };
+        # Load our Home Manager equivalent
+        imports = [(../../home-manager/modules/warbo.nix)];
+
+        # Pass along relevant config to our Home Manager module
+        warbo = {
+          inherit (cfg) enable professional direnv nixpkgs home-manager;
         };
-        services.emacs.defaultEditor = true;
-      };
-    })
-    (mkIf ((cfg.home-manager.username != null) && (!cfg.professional)) {
-      home-manager.users."${cfg.home-manager.username}" = {...}: {
-        programs.yt-dlp.enable = true;
       };
     })
   ]);
