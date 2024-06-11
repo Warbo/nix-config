@@ -2,19 +2,24 @@
 # your system. Help is available in the configuration.nix(5) man page, on
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
 
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 with rec {
   inherit (pinnedNixpkgs) repoLatest;
   nix-helpers-src = (import ../../nix/sources.nix).nix-helpers;
-  pinnedNixpkgs = import "${nix-helpers-src}/helpers/pinnedNixpkgs" {};
+  pinnedNixpkgs = import "${nix-helpers-src}/helpers/pinnedNixpkgs" { };
 };
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-      (import ../modules/warbo.nix)
-    ];
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+    (import ../modules/warbo.nix)
+  ];
 
   warbo.enable = true;
   warbo.home-manager.username = "chris";
@@ -30,7 +35,7 @@ with rec {
   networking.hostName = "nixos-amd64"; # Define your hostname.
   # Pick only one of the below networking options.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-  networking.networkmanager.enable = true;  # Easiest to use and most distros use this by default.
+  networking.networkmanager.enable = true; # Easiest to use and most distros use this by default.
 
   # Set your time zone.
   time.timeZone = "Europe/London";
@@ -42,9 +47,9 @@ with rec {
   # Select internationalisation properties.
   i18n.defaultLocale = "en_GB.UTF-8";
   console = {
-  #   font = "Lat2-Terminus16";
+    #   font = "Lat2-Terminus16";
     keyMap = "uk";
-  #   useXkbConfig = true; # use xkb.options in tty.
+    #   useXkbConfig = true; # use xkb.options in tty.
   };
 
   # Enable the X11 windowing system.
@@ -74,12 +79,10 @@ with rec {
     isNormalUser = true;
     initialPassword = "123";
     extraGroups = [
-      "networkmanager"            # Allows managing NetworkManager, e.g. for WiFi
-      "wheel"                     # Enable ‘sudo’ for the user.
-      "kvm"                       # Faster virtualisation
-      config.services.kubo.group  # Required to run IPFS CLI commands
-    ];
-    packages = with pkgs; [
+      "networkmanager" # Allows managing NetworkManager, e.g. for WiFi
+      "wheel" # Enable ‘sudo’ for the user.
+      "kvm" # Faster virtualisation
+      config.services.kubo.group # Required to run IPFS CLI commands
     ];
   };
 
@@ -95,11 +98,11 @@ with rec {
   ];
 
   fonts = {
-    enableDefaultPackages   = true;
+    enableDefaultPackages = true;
     fontconfig.defaultFonts = {
-     monospace = [ "Droid Sans Mono" ];
-     sansSerif = [ "Droid Sans"      ];
-     serif     = [ "Droid Sans"      ];
+      monospace = [ "Droid Sans Mono" ];
+      sansSerif = [ "Droid Sans" ];
+      serif = [ "Droid Sans" ];
     };
     packages = [
       pkgs.anonymousPro

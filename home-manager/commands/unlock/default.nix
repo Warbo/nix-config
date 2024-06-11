@@ -1,4 +1,8 @@
-{ python3, writeScript, writeShellApplication }:
+{
+  python3,
+  writeScript,
+  writeShellApplication,
+}:
 
 with {
   askpass = writeScript "askpass.sh" ''

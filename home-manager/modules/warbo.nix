@@ -1,6 +1,16 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with {
-  inherit (lib) mkIf mkMerge mkOption types;
+  inherit (lib)
+    mkIf
+    mkMerge
+    mkOption
+    types
+    ;
   cfg = config.warbo;
 };
 {
@@ -51,8 +61,9 @@ with {
     (mkIf (cfg.dotfiles != null) {
       programs.bash.bashrcExtra =
         with builtins;
-        assert (typeOf cfg.dotfiles == "path" && pathExists cfg.dotfiles) ||
-               (cfg.dotfiles ? outPath);
+        assert
+          (typeOf cfg.dotfiles == "path" && pathExists cfg.dotfiles)
+          || (cfg.dotfiles ? outPath);
         ". ${cfg.dotfiles}/bashrc";
     })
   ]);

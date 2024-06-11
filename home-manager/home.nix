@@ -1,4 +1,9 @@
-{ config, pkgs, lib, ... }:
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}:
 
 with rec {
   inherit (warbo-utilities) warbo-packages;
@@ -10,7 +15,8 @@ with rec {
   warbo-utilities = import ./warbo-utilities.nix;
 
   commands = import ./commands.nix { };
-}; {
+};
+{
   imports = [ (import modules/warbo.nix) ];
 
   # Home Manager needs a bit of information about you and the paths it should
@@ -56,29 +62,33 @@ with rec {
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
   # plain files is through 'home.file'.
-  home.file = with rec {
-    mkDesktop = name: args:
-      "${
-        pkgs.makeDesktopItem ({ inherit name; } // args)
-      }/share/applications/${name}.desktop";
+  home.file =
+    with rec {
+      mkDesktop =
+        name: args:
+        "${
+          pkgs.makeDesktopItem ({ inherit name; } // args)
+        }/share/applications/${name}.desktop";
 
-    autostarts = lib.mapAttrs' (pname: value: {
-      inherit value;
-      name = ".config/autostart/${pname}.desktop";
-    }) {
-      thunderbird.text = pkgs.thunderbird.desktopItem.text;
-      firefox.text = pkgs.firefox.desktopItem.text;
-      screen-local.source = mkDesktop "screen-local" {
-        desktopName = "screen-local";
-        exec = ''${pkgs.lxqt.qterminal}/bin/qterminal -e "screen -DR"'';
-      };
-      screen-pi.source = mkDesktop "screen-pi" {
-        desktopName = "screen-pi";
-        exec =
-          ''${pkgs.lxqt.qterminal}/bin/qterminal -e "ssh -t pi screen -DR"'';
-      };
+      autostarts =
+        lib.mapAttrs'
+          (pname: value: {
+            inherit value;
+            name = ".config/autostart/${pname}.desktop";
+          })
+          {
+            thunderbird.text = pkgs.thunderbird.desktopItem.text;
+            firefox.text = pkgs.firefox.desktopItem.text;
+            screen-local.source = mkDesktop "screen-local" {
+              desktopName = "screen-local";
+              exec = ''${pkgs.lxqt.qterminal}/bin/qterminal -e "screen -DR"'';
+            };
+            screen-pi.source = mkDesktop "screen-pi" {
+              desktopName = "screen-pi";
+              exec = ''${pkgs.lxqt.qterminal}/bin/qterminal -e "ssh -t pi screen -DR"'';
+            };
+          };
     };
-  };
     {
       # # Building this configuration will create a copy of 'dotfiles/screenrc' in
       # # the Nix store. Activating the configuration will then make '~/.screenrc' a
@@ -90,7 +100,8 @@ with rec {
       #   org.gradle.console=verbose
       #   org.gradle.daemon.idletimeout=3600000
       # '';
-    } // autostarts;
+    }
+    // autostarts;
 
   # You can also manage environment variables but you will have to manually
   # source
@@ -107,10 +118,15 @@ with rec {
   # These three ensure our Nix .desktop files appear in desktops/menus
   targets.genericLinux.enable = true;
   xdg.mime.enable = true;
-  xdg.systemDirs.data =
-    [ "${config.home.homeDirectory}/.nix-profile/share/applications" ];
+  xdg.systemDirs.data = [
+    "${config.home.homeDirectory}/.nix-profile/share/applications"
+  ];
 
-  warbo.nixpkgs.overlays = os: [ os.sources os.repos os.metaPackages /*os.emacs*/ ];
+  warbo.nixpkgs.overlays = os: [
+    os.sources
+    os.repos
+    os.metaPackages # os.emacs
+  ];
   warbo.dotfiles = ~/repos/warbo-dotfiles;
 
   gtk = {
@@ -197,8 +213,7 @@ with rec {
       profiles.default = {
         settings = {
           "browser.aboutConfig.showWarning" = false;
-          "extensions.pictureinpicture.enable_picture_in_picture_overrides" =
-            true;
+          "extensions.pictureinpicture.enable_picture_in_picture_overrides" = true;
 
           # This is required to prevent menus flickering and becoming unusable
           # TODO: Find relevant bug report
@@ -224,8 +239,7 @@ with rec {
 
           # Privacy, anti-tracking, etc.
           "browser.contentblocking.category" = "strict";
-          "general.useragent.override" =
-            "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:98.0) Gecko/20100101 Firefox/98.0";
+          "general.useragent.override" = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:98.0) Gecko/20100101 Firefox/98.0";
           "privacy.clearOnShutdown.cookies" = false;
           "privacy.clearOnShutdown.sessions" = false;
           "privacy.history.custom" = true;
@@ -256,13 +270,14 @@ with rec {
     };
 
     home-manager = {
-      path = null; #import ./nixos-import.nix;
+      path = null; # import ./nixos-import.nix;
     };
 
-    /* TODO: Add these:
-       https://github.com/nix-community/home-manager/blob/master/modules/programs/mbsync.nix
-       https://github.com/nix-community/home-manager/blob/master/modules/programs/msmtp.nix
-       https://github.com/nix-community/home-manager/blob/master/modules/programs/mu.nix
+    /*
+      TODO: Add these:
+      https://github.com/nix-community/home-manager/blob/master/modules/programs/mbsync.nix
+      https://github.com/nix-community/home-manager/blob/master/modules/programs/msmtp.nix
+      https://github.com/nix-community/home-manager/blob/master/modules/programs/mu.nix
     */
 
     #rtorrent.enable = true;
@@ -328,7 +343,9 @@ with rec {
       monospace-font-name = "Iosevka 9";
       show-battery-percentage = true;
     };
-    "org/gnome/desktop/session" = { idle-delay = mkUint32 300; };
+    "org/gnome/desktop/session" = {
+      idle-delay = mkUint32 300;
+    };
     "org/gnome/desktop/wm/preferences".focus-mode = "sloppy";
     "org/gnome/desktop/screensaver" = {
       # Phosh screen lock can mess up when plugging in external monitors, so
@@ -359,8 +376,14 @@ with rec {
         };
       };
 
-      mpd.Unit.After = [ "dietpi-smb.service" "mpd-forwarder.service" ];
-      mpd.Unit.Requires = [ "dietpi-smb.service" "mpd-forwarder.service" ];
+      mpd.Unit.After = [
+        "dietpi-smb.service"
+        "mpd-forwarder.service"
+      ];
+      mpd.Unit.Requires = [
+        "dietpi-smb.service"
+        "mpd-forwarder.service"
+      ];
       mpd-forwarder = {
         Unit = {
           Description = "Proxy MPD on an IPv6 mDNS host, to a local port";
@@ -414,10 +437,22 @@ with rec {
       dietpi-sftp = {
         Unit = {
           Description = "Mount DietPi's root folder read/write via SFTP";
-          After = [ "dietpi-accessible.target" "keyring-unlocked.target" ];
-          PartOf = [ "dietpi-accessible.target" "keyring-unlocked.target" ];
-          BindsTo = [ "dietpi-accessible.target" "keyring-unlocked.target" ];
-          Requires = [ "dietpi-accessible.target" "keyring-unlocked.target" ];
+          After = [
+            "dietpi-accessible.target"
+            "keyring-unlocked.target"
+          ];
+          PartOf = [
+            "dietpi-accessible.target"
+            "keyring-unlocked.target"
+          ];
+          BindsTo = [
+            "dietpi-accessible.target"
+            "keyring-unlocked.target"
+          ];
+          Requires = [
+            "dietpi-accessible.target"
+            "keyring-unlocked.target"
+          ];
         };
         Service = {
           ExecStart = "${pkgs.writeShellScript "dietpi-sftp.sh" ''
@@ -448,8 +483,14 @@ with rec {
       s3-git = {
         Unit = {
           Description = "Mount chriswarbo.net/git via S3";
-          After = [ "network-online.target" "keyring-unlocked.target" ];
-          Wants = [ "network-online.target" "keyring-unlocked.target" ];
+          After = [
+            "network-online.target"
+            "keyring-unlocked.target"
+          ];
+          Wants = [
+            "network-online.target"
+            "keyring-unlocked.target"
+          ];
         };
         Service = {
           ExecStart = "${pkgs.writeShellScript "s3-git.sh" ''
@@ -482,21 +523,31 @@ with rec {
       dietpi-accessible = {
         Unit = {
           Description = "Can access dietpi.local";
-          Wants = [ "dietpi-smb.service" "dietpi-sftp.service" "mpd.service" ];
+          Wants = [
+            "dietpi-smb.service"
+            "dietpi-sftp.service"
+            "mpd.service"
+          ];
         };
       };
 
       home-wifi-connected = {
         Unit = {
           Description = "On home WiFi network";
-          Wants = [ "dietpi-smb.service" "dietpi-sftp.service" ];
+          Wants = [
+            "dietpi-smb.service"
+            "dietpi-sftp.service"
+          ];
         };
       };
 
       keyring-unlocked = {
         Unit = {
           Description = "Indicates GNOME keyring and ssh-agent are unlocked";
-          Wants = [ "dietpi-sftp.service" "s3-git" ];
+          Wants = [
+            "dietpi-sftp.service"
+            "s3-git"
+          ];
         };
       };
     };

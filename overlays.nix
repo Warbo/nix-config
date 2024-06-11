@@ -1,9 +1,19 @@
 # TODO: Make it easy to use these as overlays or via a NixOS module; whilst
 # allowing individual picking-and-choosing.
 with rec {
-  inherit (builtins) attrNames concatLists filter foldl' getAttr map readDir;
-  inherit ((import nix-config-sources.nix-helpers {}).nixpkgs-lib)
-    hasSuffix removeSuffix;
+  inherit (builtins)
+    attrNames
+    concatLists
+    filter
+    foldl'
+    getAttr
+    map
+    readDir
+    ;
+  inherit ((import nix-config-sources.nix-helpers { }).nixpkgs-lib)
+    hasSuffix
+    removeSuffix
+    ;
 
   repo =
     name: self: super:
@@ -38,8 +48,7 @@ with rec {
             # nix-helpers is being used, take the one from above.
             # Note that warbo-packages inherits nixpkgs from nix-helpers, so we
             # don't need to pass super along directly.
-            nix-helpers =
-              super.nix-helpers or (overlays.repos self super).nix-helpers;
+            nix-helpers = super.nix-helpers or (overlays.repos self super).nix-helpers;
           };
 
       warbo-utilities =
@@ -74,16 +83,15 @@ with rec {
         acc
         // {
           "${f}" = self: super: (this self super).overrides;
-          nix-config-checks = self: super:
-            acc.nix-config-checks self super //
-            ((this self super).checks or { });
-          nix-config-names = self: super:
-            acc.nix-config-names self super ++
-            attrNames (this self super).overrides;
-          nix-config-tests = self: super:
-            acc.nix-config-tests self super // {
-              "${f}" = (this self super).tests or { };
-            };
+          nix-config-checks =
+            self: super:
+            acc.nix-config-checks self super // ((this self super).checks or { });
+          nix-config-names =
+            self: super:
+            acc.nix-config-names self super ++ attrNames (this self super).overrides;
+          nix-config-tests =
+            self: super:
+            acc.nix-config-tests self super // { "${f}" = (this self super).tests or { }; };
         };
     };
     foldl' mkDef {
