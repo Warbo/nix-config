@@ -37,6 +37,18 @@ with {
     '';
   };
 
+  dotfiles = mkOption {
+    type = types.nullOr types.path;
+    default = fetchGit {
+      url = "http://chriswarbo.net/git/warbo-dotfiles.git";
+      rev = "94ff57d5ea5b932dcda8980f8b413bc983a557a0";
+    };
+    description = ''
+      Copy of chriswarbo.net/git/warbo-dotfiles.git. Defaults to a git clone,
+      but may be useful to override with a local folder.
+    '';
+  };
+
   nixpkgs.path = mkOption {
     type = types.nullOr types.path;
     default = with {

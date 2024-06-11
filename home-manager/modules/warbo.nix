@@ -14,6 +14,10 @@ with {
       programs = {
         bash = {
           enable = true;
+          profileExtra = ''
+            # Inherited from pre-Home-Manager config; not sure if needed
+            [[ -f ~/.bashrc ]] && . ~/.bashrc
+          '';
         };
         git.enable = true;
         home-manager.enable = true;
@@ -44,3 +48,12 @@ with {
         nix-direnv.enable = true;
       };
     })
+    (mkIf (cfg.dotfiles != null) {
+      programs.bash.bashrcExtra =
+        with builtins;
+        assert (typeOf cfg.dotfiles == "path" && pathExists cfg.dotfiles) ||
+               (cfg.dotfiles ? outPath);
+        ". ${cfg.dotfiles}/bashrc";
+    })
+  ]);
+}

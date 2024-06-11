@@ -111,6 +111,8 @@ with rec {
     [ "${config.home.homeDirectory}/.nix-profile/share/applications" ];
 
   warbo.nixpkgs.overlays = os: [ os.sources os.repos os.metaPackages os.emacs ];
+  warbo.dotfiles = ~/repos/warbo-dotfiles;
+
   gtk = {
     enable = true;
 
@@ -179,14 +181,6 @@ with rec {
 
   # Let Home Manager install and manage itself.
   programs = {
-    bash = {
-      bashrcExtra = builtins.readFile ../../bashrc;
-      profileExtra = ''
-        # Inherited from pre-Home-Manager config; not sure if needed
-        [[ -f ~/.bashrc ]] && . ~/.bashrc
-      '';
-    };
-
     browserpass = {
       enable = true;
       browsers = [ "firefox" ];
