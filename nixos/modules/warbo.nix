@@ -63,5 +63,8 @@ with {
         };
       };
     })
+    (mkIf (cfg.home-manager.username == null) {
+      environment.systemPackages = cfg.packages;
+    })
   ]);
 }

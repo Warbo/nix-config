@@ -76,4 +76,11 @@ with {
       any necessary fixes/workarounds to maintain compatibility.
     '';
   };
+
+  packages = mkOption {
+    default = [ ];
+    description = ''
+      Packages to add to the user profile or system.
+    '';
+  };
 }
