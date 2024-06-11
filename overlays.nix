@@ -3,6 +3,7 @@
 with rec {
   inherit (builtins)
     attrNames
+    attrValues
     concatLists
     filter
     foldl'
@@ -83,24 +84,32 @@ with rec {
         acc
         // {
           "${f}" = self: super: (this self super).overrides;
-          nix-config-checks =
-            self: super:
-            acc.nix-config-checks self super // ((this self super).checks or { });
-          nix-config-names =
-            self: super:
-            acc.nix-config-names self super ++ attrNames (this self super).overrides;
-          nix-config-tests =
-            self: super:
-            acc.nix-config-tests self super // { "${f}" = (this self super).tests or { }; };
+          nix-config-checks = self: super: {
+            nix-config-checks =
+              (acc.nix-config-checks self super).nix-config-checks
+              // ((this self super).checks or { });
+          };
+          nix-config-names = self: super: {
+            nix-config-names =
+              (acc.nix-config-names self super).nix-config-names
+              ++ attrNames (this self super).overrides;
+          };
+          nix-config-tests = self: super: {
+            nix-config-tests = (acc.nix-config-tests self super).nix-config-tests // {
+              "${f}" = (this self super).tests or { };
+            };
+          };
         };
     };
     foldl' mkDef {
-      nix-config-checks = self: super: { };
-      nix-config-names = self: super: [
-        "nix-config-checks"
-        "nix-config-tests"
-      ];
-      nix-config-tests = self: super: { };
+      nix-config-checks = self: super: { nix-config-checks = { }; };
+      nix-config-names = self: super: {
+        nix-config-names = [
+          "nix-config-checks"
+          "nix-config-tests"
+        ];
+      };
+      nix-config-tests = self: super: { nix-config-tests = { }; };
       nix-config-check = self: super: {
         nix-config-check = foldl' (result: msg: trace msg false) true (
           concatLists (attrValues self.nix-config-checks)
