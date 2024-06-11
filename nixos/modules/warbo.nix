@@ -4,8 +4,7 @@ with {
   cfg = config.warbo;
 };
 {
-  imports = [(import ../../home-manager/nixos-import.nix)];
-
+  imports = [ (import "${import ../../home-manager/nixos-import.nix}/nixos") ];
 
   options.warbo = import ../../warbo-options.nix { inherit lib; } // {
     home-manager.username = mkOption {
