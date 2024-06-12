@@ -71,11 +71,11 @@ with {
           # Pass along relevant config to our Home Manager module
           warbo = {
             inherit (cfg)
-              enable
-              professional
               direnv
+              enable
               nixpkgs
               packages
+              professional
               ;
             is-nixos = true;
             # Passing along username will cause an error, since our Home Manager
