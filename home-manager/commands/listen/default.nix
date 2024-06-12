@@ -1,6 +1,6 @@
 {
   mpv,
-  pi4 ? (import ../../commands.nix { }).pi4,
+  pi4,
   writeShellApplication,
 }:
 writeShellApplication {

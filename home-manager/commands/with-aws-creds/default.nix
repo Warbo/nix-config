@@ -1,5 +1,5 @@
 {
-  aws-login ? (import ../../commands.nix { }).aws-login,
+  aws-login,
   coreutils,
   writeShellApplication,
 }:

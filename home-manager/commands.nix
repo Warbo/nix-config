@@ -1,3 +1,4 @@
+# TODO: Move these to warbo-utilities
 {
   nix-helpers ? (import ./warbo-utilities.nix).warbo-packages.nix-helpers,
   linkFarm ? nix-helpers.nixpkgs.linkFarm,
@@ -13,7 +14,7 @@ with rec {
     ;
   inherit (nixpkgs-lib) mapAttrs;
 
-  call = f: newScope nix-helpers f { };
+  call = f: newScope (nix-helpers // scripts // standalone) f { };
 
   files = suffixedFilesIn ".sh" ./commands;
 
