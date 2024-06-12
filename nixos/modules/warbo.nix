@@ -75,9 +75,11 @@ with {
               professional
               direnv
               nixpkgs
-              home-manager
               ;
             is-nixos = true;
+            # Passing along username will cause an error, since our Home Manager
+            # module doesn't define that option
+            home-manager = builtins.removeAttrs cfg.home-manager [ "username" ];
           };
         };
     })
