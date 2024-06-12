@@ -30,6 +30,10 @@ with rec {
     netGui
     sysCli
     leafpad
+    (pkgs.hiPrio warbo-utilities)
+    pkgs.libsForQt5.qtstyleplugin-kvantum
+    pkgs.qt6Packages.qtstyleplugin-kvantum
+    pkgs.lxqt.qterminal
   ];
 
   # Use the GRUB 2 boot loader.
