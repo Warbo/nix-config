@@ -19,15 +19,20 @@ with {
 {
   imports = [ (import "${import ../../home-manager/nixos-import.nix}/nixos") ];
 
-  options.warbo = import ../../warbo-options.nix { inherit lib; } // {
-    home-manager.username = mkOption {
-      type = types.nullOr types.str;
-      default = null;
-      description = ''
-        The username to enable Home Manager for (leave null to disable HM).
-      '';
+  options.warbo =
+    with { common = import ../../warbo-options.nix { inherit lib; }; };
+    common
+    // {
+      home-manager = (common.home-manager or { }) // {
+        username = mkOption {
+          type = types.nullOr types.str;
+          default = null;
+          description = ''
+            The username to enable Home Manager for (leave null to disable HM).
+          '';
+        };
+      };
     };
-  };
 
   config = mkIf cfg.enable (mkMerge [
     {
