@@ -27,7 +27,15 @@ with rec {
 
   warbo.enable = true;
   warbo.professional = true;
-  warbo.home-manager.username = "nixos";
+  warbo.home-manager = {
+    username = "nixos";
+    stateVersion = "24.05";
+  };
+  warbo.packages = with pkgs; [
+    devCli
+    devGui
+    sysCli
+  ];
 
   wsl.enable = true;
   wsl.defaultUser = "nixos";
@@ -62,7 +70,6 @@ with rec {
   home-manager.users.nixos =
     { pkgs, lib, ... }:
     {
-      home.stateVersion = "24.05";
 
       programs = {
         bash.bashrcExtra =
@@ -74,8 +81,8 @@ with rec {
             )
           '';
         git.includes =
-          # Look existing .gitconfig files on WSL. If exactly 1 WSL user has a
-          # .gitconfig file, include it.
+          # Look for existing .gitconfig files on WSL. If exactly 1 WSL user has
+          # a .gitconfig file, include it.
           with builtins;
           with rec {
             # Look for any Windows users
