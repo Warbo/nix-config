@@ -53,7 +53,7 @@ with {
         with builtins;
         assert (typeOf cfg.dotfiles == "path" && pathExists cfg.dotfiles) ||
                (cfg.dotfiles ? outPath);
-        ". ${cfg.dotfiles}/bashrc";
+        readFile "${cfg.dotfiles}/bashrc";
     })
   ]);
 }
