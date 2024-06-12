@@ -1,6 +1,6 @@
 # TODO: Move these to warbo-utilities
 {
-  nix-helpers ? (import ./warbo-utilities.nix).warbo-packages.nix-helpers,
+  nix-helpers ? import (import ../nix/sources.nix).nix-helpers { },
   linkFarm ? nix-helpers.nixpkgs.linkFarm,
   newScope ? nix-helpers.nixpkgs.newScope,
   writeShellScriptBin ? nix-helpers.nixpkgs.writeShellScriptBin,

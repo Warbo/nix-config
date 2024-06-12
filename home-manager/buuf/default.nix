@@ -1,14 +1,11 @@
 {
-  warbo-utilities ? import ../warbo-utilities.nix,
-  nix-helpers ? warbo-utilities.warbo-packages.nix-helpers,
-  nixpkgs ? nix-helpers.nixpkgs,
-  buildPackages ? nixpkgs.buildPackages,
-  nixpkgs-lib ? nix-helpers.nixpkgs-lib,
-  runCommand ? nixpkgs.runCommand,
+  buildPackages,
+  lib,
+  runCommand,
 }:
 with rec {
   inherit (builtins) attrValues;
-  inherit (nixpkgs-lib) concatStringsSep escapeShellArg mapAttrs;
+  inherit (lib) concatStringsSep escapeShellArg mapAttrs;
 
   name = "buuf-for-many-desktops";
 

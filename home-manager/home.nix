@@ -6,15 +6,23 @@
 }:
 
 with rec {
-  inherit (warbo-utilities) warbo-packages;
-  inherit (warbo-packages) nix-helpers;
+  inherit
+    (rec {
+      # TODO: Depend only on warbo-utilities, import the others from it
+      sources = import ../nix/sources.nix;
+      nix-helpers = import sources.nix-helpers { nixpkgs = pkgs; };
+      warbo-utilities = import sources.warbo-utilities {
+        warbo-packages = import sources.warbo-packages { inherit nix-helpers; };
+      };
+    })
+    nix-helpers
+    warbo-utilities
+    ;
   inherit (nix-helpers) nixpkgs-lib;
 
-  buuf = pkgs.newScope (nix-helpers // warbo-packages) ./buuf { };
+  buuf = pkgs.callPackage ./buuf { };
 
-  warbo-utilities = import ./warbo-utilities.nix;
-
-  commands = import ./commands.nix { };
+  commands = import ./commands.nix { inherit nix-helpers; };
 };
 {
   imports = [ (import modules/warbo.nix) ];
