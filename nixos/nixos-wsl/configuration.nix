@@ -63,11 +63,7 @@ with rec {
     { pkgs, lib, ... }:
     {
       home.stateVersion = "24.05";
-      home.packages = with osPkgs; [
-        devCli
-        devGui
-        sysCli
-      ];
+
       programs = {
         bash.bashrcExtra =
           with { npiperelay = pkgs.callPackage ./npiperelay.nix { }; }; ''

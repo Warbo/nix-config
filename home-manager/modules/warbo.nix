@@ -20,6 +20,7 @@ with {
     {
       # Unconditional; override if desired
       home.stateVersion = cfg.home-manager.stateVersion;
+      home.packages = cfg.packages;
       nixpkgs.config.allowUnfree = true;
       programs = {
         bash = {

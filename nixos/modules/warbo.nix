@@ -75,6 +75,7 @@ with {
               professional
               direnv
               nixpkgs
+              packages
               ;
             is-nixos = true;
             # Passing along username will cause an error, since our Home Manager
@@ -84,6 +85,8 @@ with {
         };
     })
     (mkIf (cfg.home-manager.username == null) {
+      # We prefer to put cfg.packages in the user's home.packages, but if HM
+      # isn't being used then we put them in the system environment.
       environment.systemPackages = cfg.packages;
     })
   ]);
