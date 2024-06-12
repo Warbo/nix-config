@@ -23,6 +23,14 @@ with rec {
 
   warbo.enable = true;
   warbo.home-manager.username = "chris";
+  warbo.packages = with pkgs; [
+    devCli
+    mediaGui
+    netCli
+    netGui
+    sysCli
+    leafpad
+  ];
 
   # Use the GRUB 2 boot loader.
   boot.loader.grub.enable = true;
@@ -85,17 +93,6 @@ with rec {
       config.services.kubo.group # Required to run IPFS CLI commands
     ];
   };
-
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
-  environment.systemPackages = with pkgs; [
-    devCli
-    mediaGui
-    netCli
-    netGui
-    sysCli
-    leafpad
-  ];
 
   fonts = {
     enableDefaultPackages = true;
