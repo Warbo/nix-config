@@ -278,7 +278,7 @@ with rec {
     };
 
     home-manager = {
-      path = null; # import ./nixos-import.nix;
+      path = import ./nixos-import.nix;
     };
 
     /*
