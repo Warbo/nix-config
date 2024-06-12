@@ -1,9 +1,20 @@
 # TODO: Make it easy to use these as overlays or via a NixOS module; whilst
 # allowing individual picking-and-choosing.
 with rec {
-  inherit (builtins) attrNames concatLists filter foldl' getAttr map readDir;
-  inherit ((import nix-config-sources.nix-helpers {}).nixpkgs-lib)
-    hasSuffix removeSuffix;
+  inherit (builtins)
+    attrNames
+    attrValues
+    concatLists
+    filter
+    foldl'
+    getAttr
+    map
+    readDir
+    ;
+  inherit ((import nix-config-sources.nix-helpers { }).nixpkgs-lib)
+    hasSuffix
+    removeSuffix
+    ;
 
   repo =
     name: self: super:
@@ -38,8 +49,7 @@ with rec {
             # nix-helpers is being used, take the one from above.
             # Note that warbo-packages inherits nixpkgs from nix-helpers, so we
             # don't need to pass super along directly.
-            nix-helpers =
-              super.nix-helpers or (overlays.repos self super).nix-helpers;
+            nix-helpers = super.nix-helpers or (overlays.repos self super).nix-helpers;
           };
 
       warbo-utilities =
@@ -74,25 +84,32 @@ with rec {
         acc
         // {
           "${f}" = self: super: (this self super).overrides;
-          nix-config-checks = self: super:
-            acc.nix-config-checks self super //
-            ((this self super).checks or { });
-          nix-config-names = self: super:
-            acc.nix-config-names self super ++
-            attrNames (this self super).overrides;
-          nix-config-tests = self: super:
-            acc.nix-config-tests self super // {
+          nix-config-checks = self: super: {
+            nix-config-checks =
+              (acc.nix-config-checks self super).nix-config-checks
+              // ((this self super).checks or { });
+          };
+          nix-config-names = self: super: {
+            nix-config-names =
+              (acc.nix-config-names self super).nix-config-names
+              ++ attrNames (this self super).overrides;
+          };
+          nix-config-tests = self: super: {
+            nix-config-tests = (acc.nix-config-tests self super).nix-config-tests // {
               "${f}" = (this self super).tests or { };
             };
+          };
         };
     };
     foldl' mkDef {
-      nix-config-checks = self: super: { };
-      nix-config-names = self: super: [
-        "nix-config-checks"
-        "nix-config-tests"
-      ];
-      nix-config-tests = self: super: { };
+      nix-config-checks = self: super: { nix-config-checks = { }; };
+      nix-config-names = self: super: {
+        nix-config-names = [
+          "nix-config-checks"
+          "nix-config-tests"
+        ];
+      };
+      nix-config-tests = self: super: { nix-config-tests = { }; };
       nix-config-check = self: super: {
         nix-config-check = foldl' (result: msg: trace msg false) true (
           concatLists (attrValues self.nix-config-checks)

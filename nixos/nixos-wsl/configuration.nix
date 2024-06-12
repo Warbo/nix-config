@@ -56,7 +56,7 @@ with rec {
   # (e.g. 1Password's op-ssh-sign-wsl)
   programs.nix-ld = {
     enable = true;
-    libraries = with pkgs; [];
+    libraries = with pkgs; [ ];
   };
 
   home-manager.users.nixos =

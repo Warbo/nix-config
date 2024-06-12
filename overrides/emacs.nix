@@ -1,7 +1,6 @@
 self: super:
 
-with { fetchFromGitHub = import ../nix/fetchFromGitHub.nix; };
-{
+with { fetchFromGitHub = import ../nix/fetchFromGitHub.nix; }; {
   overrides = import (fetchFromGitHub {
     owner = "nix-community";
     repo = "emacs-overlay";

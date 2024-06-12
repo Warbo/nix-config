@@ -1,9 +1,19 @@
 # Warbo's preferred setup, used across a bunch of systems. This part is specific
 # to NixOS; there is an equivalent module for Home Manager (which this module
 # can load for us too!)
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with {
-  inherit (lib) mkIf mkMerge mkOption types;
+  inherit (lib)
+    mkIf
+    mkMerge
+    mkOption
+    types
+    ;
   cfg = config.warbo;
 };
 {
@@ -47,21 +57,32 @@ with {
     (mkIf cfg.direnv {
       programs.direnv = {
         enable = true;
-        loadInNixShell = true;  # This option doesn't exist in Home Manager
+        loadInNixShell = true; # This option doesn't exist in Home Manager
         nix-direnv.enable = true;
       };
     })
     (mkIf (cfg.home-manager.username != null) {
-      home-manager.users."${cfg.home-manager.username}" = {...}: {
-        # Load our Home Manager equivalent
-        imports = [(../../home-manager/modules/warbo.nix)];
+      home-manager.users."${cfg.home-manager.username}" =
+        { ... }:
+        {
+          # Load our Home Manager equivalent
+          imports = [ (../../home-manager/modules/warbo.nix) ];
 
-        # Pass along relevant config to our Home Manager module
-        warbo = {
-          inherit (cfg) enable professional direnv nixpkgs home-manager;
-          is-nixos = true;
+          # Pass along relevant config to our Home Manager module
+          warbo = {
+            inherit (cfg)
+              enable
+              professional
+              direnv
+              nixpkgs
+              home-manager
+              ;
+            is-nixos = true;
+          };
         };
-      };
+    })
+    (mkIf (cfg.home-manager.username == null) {
+      environment.systemPackages = cfg.packages;
     })
   ]);
 }

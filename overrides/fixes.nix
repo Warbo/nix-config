@@ -123,9 +123,5 @@ with rec {
 
       haskellTests = mapAttrs (_: p: p.components.tests) haskellPkgs;
     };
-    stillBrokenPkgs
-    // haskellTests
-    // {
-      libproxyWorks = self.libproxy;
-    };
+    stillBrokenPkgs // haskellTests // { libproxyWorks = self.libproxy; };
 }
