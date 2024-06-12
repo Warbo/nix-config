@@ -2,7 +2,7 @@
 set -e
 
 # Simple, quick sanity check. Useful as a git pre-commit hook.
-CODE=1
+CODE=0
 while read -r F
 do
     [[ -n "$DEBUG" ]] && echo "Checking '$F'" 1>&2
