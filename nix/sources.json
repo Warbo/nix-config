@@ -55,7 +55,7 @@
     "warbo-utilities": {
         "branch": "master",
         "repo": "http://chriswarbo.net/git/warbo-utilities.git",
-        "rev": "786ab4d89a83cfc177226dc5d787cc907323a16f",
+        "rev": "9ba312ab9c1a8377cc384721f306404ccb1d4d8b",
         "type": "git"
     },
     "youtube-dl": {
