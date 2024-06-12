@@ -61,8 +61,9 @@ with {
     (mkIf (cfg.dotfiles != null) {
       programs.bash.bashrcExtra =
         with builtins;
-        assert (typeOf cfg.dotfiles == "path" && pathExists cfg.dotfiles) ||
-               (cfg.dotfiles ? outPath);
+        assert
+          (typeOf cfg.dotfiles == "path" && pathExists cfg.dotfiles)
+          || (cfg.dotfiles ? outPath);
         readFile "${cfg.dotfiles}/bashrc";
     })
   ]);
