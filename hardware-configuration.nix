@@ -28,6 +28,16 @@
       fsType = "ext4";
     };
 
+  environment.systemPackages = [ pkgs.cifs-utils ];
+  fileSystems."/home/jo/Public" =
+    { device = "//dietpi.local/shared";
+      fsType = "cifs";
+      options = #pkgs.lib.concatStringsSep ","
+        [ "x-systemd.automount" "noauto" "x-systemd.idle-timeout=60"
+          "x-systemd.device-timeout=5s" "x-systemd.mount-timeout=5s"
+          "user" "users" ];
+    };
+
   swapDevices = [
     { device = "/dev/disk/by-label/chromeos-swap"; }
   ];

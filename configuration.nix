@@ -14,6 +14,12 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  boot.kernelParams = [
+    # Attempt to work around screen going black occasionally
+    "intel_iommu=on"
+    "igfx_off"
+  ];
+
   networking.hostName = "chromebook"; # Define your hostname.
   # Pick only one of the below networking options.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
@@ -34,11 +40,17 @@
   #   useXkbConfig = true; # use xkb.options in tty.
   };
 
+  # Set wireless keyboard-with-trackpad to US layout. Also, its Alt
+  # key sends a right-alt code (AltGr), which doesn't work for things
+  # like Alt-Tab, so use an xkb option to make right-alt act as left.
+  services.udev.extraRules = ''
+    ACTION=="add|change", SUBSYSTEM=="input", KERNEL=="event*", ENV{ID_INPUT_KEY}=="?*", DRIVERS=="usb", ATTRS{idVendor}=="0406", ATTRS{idProduct}=="2814", ENV{XKBMODEL}="pc104", ENV{XKBLAYOUT}="us", ENV{XKBOPTIONS}="lv3:ralt_alt"
+  '';
+
   # Enable the X11 windowing system.
   services.xserver.enable = true;
 
   services.xserver.desktopManager = {
-    xterm.enable = true;
     xfce.enable = true;
   };
   services.xserver.displayManager = {
@@ -49,6 +61,8 @@
   # Configure keymap in X11
   services.xserver.xkb.layout = "gb";
   # services.xserver.xkb.options = "eurosign:e,caps:escape";
+
+  services.fwupd.enable = true;
 
   services.autorandr = {
     enable = true;
@@ -82,6 +96,9 @@
   # Enable sound.
   #sound.enable = true;  # This is just for ALSA?
   #hardware.pulseaudio.enable = true;
+  hardware.bluetooth.enable = true; # enables support for Bluetooth
+  hardware.bluetooth.powerOnBoot = true; # powers up the default Bluetooth controller on boot
+  services.blueman.enable = true;
   security.rtkit.enable = true;  # Let PipeWire ask for realtime priority
   services.pipewire = {
     enable = true;
@@ -132,13 +149,16 @@
     google-chrome
     htop
     mpv
+    p7zip
     pavucontrol
     rclone
     screen
     sshfs
     transmission-gtk
+    unzip
     vlc
     wget
+    xfce.xfce4-pulseaudio-plugin
 
     # Fixes Patreon downloading as of Jan 2024
     (yt-dlp.overrideAttrs (old: {
@@ -150,15 +170,15 @@
       };
     }))
 
-    #clonehero
-    #fs-uae-launcher
-    #gensgs
-    #gzdoom
+    # Replaces google chrome binary with a wrapper that disables update nags
+    (pkgs.hiPrio (pkgs.writeScriptBin "google-chrome-stable" ''
+      #!${pkgs.bash}/bin/bash
+      exec ${pkgs.google-chrome}/bin/google-chrome-stable --simulate-outdated-no-au='Tue, 31 Dec 2099' "$@"
+    ''))
+
     openmw
     openra
     retroarchFull
-    #snes9x-gtk
-    #scummvm
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
