@@ -94,7 +94,7 @@
   services.xserver.desktopManager = {
     xfce.enable = true;
   };
-  services.xserver.displayManager = {
+  services.displayManager = {
     defaultSession = "xfce";
     autoLogin.user = "jo";
   };
@@ -198,7 +198,7 @@
   services.avahi = {
     inherit (config.networking) hostName;
     enable = true;
-    nssmdns = true;
+    nssmdns4 = true;
     ipv4 = true;
     publish.enable = true;
     publish.addresses = true;
@@ -233,6 +233,6 @@
   #
   # For more information, see `man configuration.nix` or https://nixos.org/manual/nixos/stable/options#opt-system.stateVersion .
   system.stateVersion = "23.11"; # Did you read the comment?
-
 }
+
 
