@@ -13,6 +13,44 @@
 
   warbo.enable = true;
   warbo.home-manager.username = "jo";
+  warbo.packages = with pkgs; [
+    curl
+    git
+    google-chrome
+    htop
+    mpv
+    p7zip
+    pavucontrol
+    rclone
+    screen
+    sshfs
+    transmission-gtk
+    unzip
+    vlc
+    wget
+    xfce.xfce4-pulseaudio-plugin
+
+    # Fixes Patreon downloading as of Jan 2024
+    /*(yt-dlp.overrideAttrs (old: {
+      src = fetchFromGitHub {
+        owner = "yt-dlp";
+        repo  = "yt-dlp";
+        rev   = "f0e8bc7c60b61fe18b63116c975609d76b904771";
+        hash  = "sha256-WgagSVwgC+LB1Mev44UkJsCkI53ca2PTLDrseK63jzA=";
+      };
+    }))*/
+
+    # Replaces google chrome binary with a wrapper that disables update nags
+    (pkgs.hiPrio (pkgs.writeScriptBin "google-chrome-stable" ''
+      #!${pkgs.bash}/bin/bash
+      exec ${pkgs.google-chrome}/bin/google-chrome-stable --simulate-outdated-no-au='Tue, 31 Dec 2099' "$@"
+    ''))
+
+    openmw
+    openra
+    retroarchFull
+  ];
+
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -141,46 +179,6 @@
   #     tree
   #   ];
   };
-
-  # List packages installed in system profile. To search, run:
-  # $ nix search wget
-  environment.systemPackages = with pkgs; [
-    curl
-    git
-    google-chrome
-    htop
-    mpv
-    p7zip
-    pavucontrol
-    rclone
-    screen
-    sshfs
-    transmission-gtk
-    unzip
-    vlc
-    wget
-    xfce.xfce4-pulseaudio-plugin
-
-    # Fixes Patreon downloading as of Jan 2024
-    (yt-dlp.overrideAttrs (old: {
-      src = fetchFromGitHub { 
-        owner = "yt-dlp";
-        repo  = "yt-dlp";
-        rev   = "f0e8bc7c60b61fe18b63116c975609d76b904771";
-        hash  = "sha256-WgagSVwgC+LB1Mev44UkJsCkI53ca2PTLDrseK63jzA=";
-      };
-    }))
-
-    # Replaces google chrome binary with a wrapper that disables update nags
-    (pkgs.hiPrio (pkgs.writeScriptBin "google-chrome-stable" ''
-      #!${pkgs.bash}/bin/bash
-      exec ${pkgs.google-chrome}/bin/google-chrome-stable --simulate-outdated-no-au='Tue, 31 Dec 2099' "$@"
-    ''))
-
-    openmw
-    openra
-    retroarchFull
-  ];
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
