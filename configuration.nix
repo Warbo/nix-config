@@ -188,7 +188,12 @@
   #   enableSSHSupport = true;
   # };
 
-  nix.package = pkgs.nixVersions.nix_2_19; # default of 2.18.1 was corrupt?
+  nix = {
+    package = pkgs.nixVersions.nix_2_19; # default of 2.18.1 was corrupt?
+    nixPath = with builtins; [
+      "nixos-config=${toString ../..}/nixos/chromebook/configuration.nix"
+    ];
+  };
 
   # List services that you want to enable:
 
