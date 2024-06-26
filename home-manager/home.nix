@@ -75,9 +75,7 @@ with rec {
     with rec {
       mkDesktop =
         name: args:
-        "${
-          pkgs.makeDesktopItem ({ inherit name; } // args)
-        }/share/applications/${name}.desktop";
+        "${pkgs.makeDesktopItem ({ inherit name; } // args)}/share/applications/${name}.desktop";
 
       autostarts =
         lib.mapAttrs'
@@ -127,9 +125,7 @@ with rec {
   # These three ensure our Nix .desktop files appear in desktops/menus
   targets.genericLinux.enable = true;
   xdg.mime.enable = true;
-  xdg.systemDirs.data = [
-    "${config.home.homeDirectory}/.nix-profile/share/applications"
-  ];
+  xdg.systemDirs.data = [ "${config.home.homeDirectory}/.nix-profile/share/applications" ];
 
   warbo.nixpkgs.overlays = os: [
     os.sources
