@@ -26,8 +26,11 @@ with {
         bash = {
           enable = true;
           profileExtra = ''
-            # Inherited from pre-Home-Manager config; not sure if needed
-            [[ -f ~/.bashrc ]] && . ~/.bashrc
+            if [[ -n "$BASH_VERSION" ]] && [[ -e "$HOME/.bashrc" ]]
+            then
+              . "$HOME/.bashrc"
+            fi
+            true
           '';
         };
         git.enable = true;
