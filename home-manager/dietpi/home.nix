@@ -30,10 +30,6 @@
     #NIX_PATH = "home-manager=${}"
   };
 
-  programs.bash.bashrcExtra = lib.mkBefore ''
-    . ${pkgs.nix}/etc/profile.d/nix.sh
-  '';
-
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
   programs.home-manager.path = import ../nixos-import.nix;

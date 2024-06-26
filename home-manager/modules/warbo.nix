@@ -65,10 +65,13 @@ with {
     (mkIf (cfg.dotfiles != null) {
       programs.bash.bashrcExtra =
         with builtins;
-        assert
-          (typeOf cfg.dotfiles == "path" && pathExists cfg.dotfiles)
-          || (cfg.dotfiles ? outPath);
-        readFile "${cfg.dotfiles}/bashrc";
+        assert (typeOf cfg.dotfiles == "path" && pathExists cfg.dotfiles) || (cfg.dotfiles ? outPath);
+        ''
+          # Always make Nix binaries available. If they're not defined in /etc,
+          # then splice pkgs.nix as a fallback.
+          [[ -e /etc/profile.d/nix.sh ]] || . ${pkgs.nix}/etc/profile.d/nix.sh
+          ${readFile "${cfg.dotfiles}/bashrc"}
+        '';
     })
   ]);
 }
