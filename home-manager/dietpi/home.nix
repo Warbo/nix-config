@@ -27,8 +27,13 @@
   };
 
   # Let Home Manager install and manage itself.
-  programs.home-manager.enable = true;
-  programs.home-manager.path = import ../nixos-import.nix;
+  programs = {
+    home-manager.enable = true;
+    home-manager.path = import ../nixos-import.nix;
+
+    git.userName = "Chris Warburton";
+    git.userEmail = "chriswarbo@gmail.com"
+  };
 
   systemd.user = {
     systemctlPath = "/bin/systemctl"; # Use native, since Nix one hangs
