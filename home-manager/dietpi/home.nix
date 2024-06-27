@@ -31,6 +31,7 @@
   programs.home-manager.path = import ../nixos-import.nix;
 
   systemd.user = {
+    systemctlPath = "/bin/systemctl"; # Use native, since Nix one hangs
     services = {
       fetch-youtube-feeds = {
         Unit.Description = "Fetch Youtube feeds";
