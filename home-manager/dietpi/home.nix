@@ -32,7 +32,7 @@
     home-manager.path = import ../nixos-import.nix;
 
     git.userName = "Chris Warburton";
-    git.userEmail = "chriswarbo@gmail.com"
+    git.userEmail = "chriswarbo@gmail.com";
   };
 
   systemd.user = {
