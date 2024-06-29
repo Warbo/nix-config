@@ -37,7 +37,8 @@
 
   systemd.user = {
     systemctlPath = "/bin/systemctl"; # Use native, since Nix one hangs
-    services = {
+    services = with { yt-dir = builtins.toString ~/youtube; }; {
+      # TODO: Move this to a standalone module, to avoid clutter
       fetch-youtube-feeds = {
         Unit.Description = "Fetch Youtube feeds";
         Service = {
@@ -45,17 +46,29 @@
           RemainAfterExit = "no";
           ExecStart = "${pkgs.writeShellScript "fetch-youtube-feeds" ''
             set -ex
-            true
-            # TODO: Set location we're downloading feeds to and putting maildirs
+            # Fetch feeds in random order, in case one causes breakage
+            < ${yt-dir}/feeds.tsv shuf | while read -r LINE
+            do
+              FORMAT=$(echo "$LINE" | cut -f1)
+              [[ "$FORMAT" = "youtube" ]] || continue
+              NAME=$(echo "$LINE" | cut -f2)
+              URL=$(echo "$LINE" | cut -f3)
+              echo "Processing $LINE" 1>&2
 
-            # TODO: Loop through feeds in random order, downloading them.
-            # extracting the video URLs and mv'ing them into a pending dir
-            #while read -r LINE
-            #do
-            #  NAME=$(echo "$LINE" | cut -f1)
-            #  URL=$(echo "$LINE" | cut -f2)
-            #  mkdir
-            #done < <(shuf < "$HOME/yt")
+              # Video IDs will go in here
+              TODO=${yt-dir}/todo/"$NAME"
+              DONE=${yt-dir}/done/"$NAME"
+              mkdir -p "$TODO"
+              mkdir -p "$DONE"
+
+              # Extract URLs immediately; no point storing feed itself
+              while read -u 3 -r VURL
+              do
+                VID=$(echo "$VURL" | cut -d= -f2)
+                [[ -e "$DONE/$VID" ]] || echo "$VURL" > "$TODO/$VID"
+              done 3< <(curl "$URL" |
+                grep -o 'https://www.youtube.com/watch?v=[^<>" &]*')
+            done
           ''}";
         };
       };
