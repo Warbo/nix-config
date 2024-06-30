@@ -35,6 +35,7 @@ with {
         };
         git.enable = true;
         home-manager.enable = true;
+        home-manager.path = import ../nixos-import.nix;
         htop.enable = true;
         jq.enable = true;
         jujutsu.enable = true;

@@ -26,13 +26,9 @@
     # '';
   };
 
-  # Let Home Manager install and manage itself.
-  programs = {
-    home-manager.enable = true;
-    home-manager.path = import ../nixos-import.nix;
-
-    git.userName = "Chris Warburton";
-    git.userEmail = "chriswarbo@gmail.com";
+  programs.git = {
+    userName = "Chris Warburton";
+    userEmail = "chriswarbo@gmail.com";
   };
 
   systemd.user = with { yt-dir = builtins.toString ~/youtube; }; {
