@@ -161,70 +161,23 @@ with {
           Service = {
             Type = "oneshot";
             RemainAfterExit = "no";
-            ExecStart = "${pkgs.writeShellScript "fetch-youtube-files" ''
-              set -e
-              mkdir -p ${toString cfg.fetched}
-
-              while true
-              do
-                # Run find to completion before changing anything in todo
-                FILES=$(find ${toString cfg.todo} -type f | shuf)
-
-                # Stop if nothing more was found
-                echo "$FILES" | grep -q '^.' || break
-
-                while read -r F
-                do
-                  # Extract details
-                  URL=$(cat "$F")
-                  VID=$(basename "$(dirname "$F")")
-                  NAME=$(basename "$F")
-                  DONE=${toString cfg.done}/"$NAME"
-
-                  # Set up a temp dir to work in. The name is based on the VID; so
-                  # we can tell if this entry has been attempted before.
-                  T=${toString cfg.temp}/fetch-"$VID"
-                  if [[ -e "$T" ]]
-                  then
-                    echo "Skipping $VID as $T already exists (prev. failure?)" >&2
-                    continue
-                  fi
-
-                  # If this hasn't been attempted yet, make a working dir inside
-                  # the temp dir, named after the destination directory (making it
-                  # easier to move atomically without overlaps). Metadata is kept
-                  # in the temp dir, so we can tell what happened.
-                  mkdir -p "$T/$NAME"
-                  pushd "$T/$NAME"
-                    if ${if builtins.isList cfg.command
-                         then lib.concatMapStringsSep
-                           " "
-                           lib.escapeShellArg
-                           cfg.command
-                        else cfg.command} "$URL" \
-                         1> >(tee ../stdout)
-                         2> >(tee ../stderr 1>&2)
-                    then
-                      touch ../success
-                    fi
-                  popd
-
-                  # If the fetch succeeded, move the result atomically to fetched
-                  # and move the VID from todo to done
-                  if [[ -e "$T/success" ]]
-                  then
-                    mv "$T" ${toString cfg.fetched}/
-                    mkdir -p "$DONE"
-                    mv "$F" "$DONE/$VID"
-                    rmdir "$(dirname "$F")"
-                  fi
-
-                  sleep 10 # Slight delay to cut down on spam
-                done < <(echo "$FILES")
-
-                sleep 10  # Slight delay to cut down on spam
-              done
-            ''}";
+            ExecStart = "${./fetch-youtube-files.sh}";
+            Environment = {
+              FETCHED = toString cfg.fetched;
+              TODO = toString cdf.todo;
+              DONE_BASE = toString cfg.done;
+              TEMP = toString cfg.temp;
+              CMD = pkgs.writeShellScript "fetch-youtube-cmd" ''
+                exec ${
+                  if builtins.isList cfg.command
+                  then lib.concatMapStringsSep
+                    " "
+                    lib.escapeShellArg
+                    cfg.command
+                  else cfg.command
+                } "$@"
+              '';
+            };
           };
         };
       };
