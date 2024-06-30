@@ -30,48 +30,6 @@
   systemd.user = with { yt-dir = builtins.toString ~/youtube; }; {
     systemctlPath = "/bin/systemctl"; # Use native, since Nix one hangs
     services = {
-      # TODO: Move this to a standalone module, to avoid clutter
-      fetch-youtube-feeds = {
-        Unit.Description = "Fetch Youtube feeds";
-        Service = {
-          Type = "oneshot";
-          RemainAfterExit = "no";
-          ExecStart = "${pkgs.writeShellScript "fetch-youtube-feeds" ''
-            set -e
-            mkdir -p ${yt-dir}/temp
-
-            # Fetch feeds in random order, in case one causes breakage
-            < ${yt-dir}/feeds.tsv shuf | while read -r LINE
-            do
-              FORMAT=$(echo "$LINE" | cut -f1)
-              [[ "$FORMAT" = "youtube" ]] || continue
-              NAME=$(echo "$LINE" | cut -f2)
-              URL=$(echo "$LINE" | cut -f3)
-              echo "Processing $LINE" 1>&2
-
-              # Video IDs will go in here
-              TODO=${yt-dir}/todo
-              DONE=${yt-dir}/done
-              mkdir -p "$TODO"
-              mkdir -p "$DONE"
-
-              # Extract URLs immediately; no point storing feed itself
-              while read -u 3 -r VURL
-              do
-                VID=$(echo "$VURL" | cut -d= -f2)
-                [[ -e "$DONE/$VID" ]] || {
-                  # Write atomically to TODO
-                  mkdir -p ${yt-dir}/temp/"$VID"
-                  echo "$VURL" > ${yt-dir}/temp/"$VID"/"$NAME"
-                  mv ${yt-dir}/temp/"$VID" "$TODO/"
-                }
-              done 3< <(curl "$URL" |
-                grep -o 'https://www.youtube.com/watch?v=[^<>" &]*')
-            done
-          ''}";
-        };
-      };
-
       # TODO: Trigger on path, pointing at pending URL dir:
       #  - We only want one copy running; but triggered whenever new URLs appear
       #  - Loop through pending URLs in random order, one at a time
