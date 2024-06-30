@@ -6,11 +6,17 @@
 }:
 
 {
-  imports = [ (import ../modules/warbo.nix) ];
+  imports = [
+    (import ../modules/fetch-youtube.nix)
+    (import ../modules/warbo.nix)
+  ];
   home.username = "pi";
   home.homeDirectory = "/home/pi";
   warbo.enable = true;
 
+  fetch-youtube = {
+    enable = true;
+  };
 
   programs.git = {
     userName = "Chris Warburton";
