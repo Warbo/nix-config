@@ -145,11 +145,5 @@
         };
       };
     };
-    paths = {
-      fetch-youtube-files = {
-        Unit.Description = "Fetch files when new entries appear in todo";
-        Path.DirectoryNotEmpty = "${yt-dir}/todo";
-      };
-    };
   };
 }
