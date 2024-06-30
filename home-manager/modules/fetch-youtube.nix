@@ -83,6 +83,47 @@ with {
         successfully fetched before, so we avoid getting them again.
       '';
     };
+
+    fetched = mkOption {
+      type = types.path;
+      default = cfg.dir + "/fetched";
+      description = ''
+        This directory will store fully downloaded videos.
+      '';
+    };
+
+    command = mkOption {
+      type = with types; either str (listOf str);
+      default = [cfg.executable] ++ cfg.args;
+      example = [ "ytdl" "-f" "bestaudio" ];
+      description = ''
+        Command to execute on a video's URL. Can either be a list of strings to
+        represent an executable and its initial arguments, or a string of shell
+        code. Defaults to the 'executable' option followed by the 'args' option.
+      '';
+    };
+
+    executable = mkOption {
+      type = types.path;
+      default = pkgs.yt-dlp + "/bin/yt-dlp";
+      description = ''
+        Executable to invoke for downloading videos, used by the default value
+        of the 'command' option (overriding that option will ignore this one).
+        Note that this is the path of an executable, not just a derivation, e.g.
+        use 'pkgs.ytdl + "/bin/ytdl"' rather than just 'pkgs.ytdl'.
+      '';
+    };
+
+    args = mkOption {
+      type = types.listOf types.str;
+      default = [];
+      example = [ "-f" "bestaudio" ]
+      description = ''
+        Initial arguments to give to the downloader (the video URL will be given
+        as a subsequent argument). This is only used by the default value of the
+        'command' option, so overriding that option will ignore this one.
+      '';
+    };
   };
 
   config = mkIf cfg.enable (mkMerge [
@@ -147,6 +188,79 @@ with {
             ''}";
           };
         };
+
+        fetch-youtube-files = {
+          Unit.Description = "Fetch all Youtube videos identified in todo";
+          Service = {
+            Type = "oneshot";
+            RemainAfterExit = "no";
+            ExecStart = "${pkgs.writeShellScript "fetch-youtube-files" ''
+              set -e
+              mkdir -p ${toString cfg.fetched}
+
+              while true
+              do
+                # Run find to completion before changing anything in todo
+                FILES=$(find ${toString cfg.todo} -type f | shuf)
+
+                # Stop if nothing more was found
+                echo "$FILES" | grep -q '^.' || break
+
+                while read -r F
+                do
+                  # Extract details
+                  URL=$(cat "$F")
+                  VID=$(basename "$(dirname "$F")")
+                  NAME=$(basename "$F")
+                  DONE=${toString cfg.done}/"$NAME"
+
+                  # Set up a temp dir to work in. The name is based on the VID; so
+                  # we can tell if this entry has been attempted before.
+                  T=${toString cfg.temp}/fetch-"$VID"
+                  if [[ -e "$T" ]]
+                  then
+                    echo "Skipping $VID as $T already exists (prev. failure?)" >&2
+                    continue
+                  fi
+
+                  # If this hasn't been attempted yet, make a working dir inside
+                  # the temp dir, named after the destination directory (making it
+                  # easier to move atomically without overlaps). Metadata is kept
+                  # in the temp dir, so we can tell what happened.
+                  mkdir -p "$T/$NAME"
+                  pushd "$T/$NAME"
+                    if ${if builtins.isList cfg.command
+                         then lib.concatMapStringsSep
+                           " "
+                           lib.escapeShellArg
+                           cfg.command
+                        else cfg.command} "$URL" \
+                         1> >(tee ../stdout)
+                         2> >(tee ../stderr 1>&2)
+                    then
+                      touch ../success
+                    fi
+                  popd
+
+                  # If the fetch succeeded, move the result atomically to fetched
+                  # and move the VID from todo to done
+                  if [[ -e "$T/success" ]]
+                  then
+                    mv "$T" ${toString cfg.fetched}/
+                    mkdir -p "$DONE"
+                    mv "$F" "$DONE/$VID"
+                    rmdir "$(dirname "$F")"
+                  fi
+
+                  sleep 10 # Slight delay to cut down on spam
+                done < <(echo "$FILES")
+
+                sleep 10  # Slight delay to cut down on spam
+              done
+            ''}";
+          };
+        };
+      };
     };
   ]);
 }
