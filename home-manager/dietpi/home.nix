@@ -16,6 +16,10 @@
 
   fetch-youtube = {
     enable = true;
+    timer = {
+      OnBootSec = "15min";
+      OnUnitActiveSec = "1d";
+    };
   };
 
   programs.git = {
@@ -145,15 +149,6 @@
       fetch-youtube-files = {
         Unit.Description = "Fetch files when new entries appear in todo";
         Path.DirectoryNotEmpty = "${yt-dir}/todo";
-      };
-    };
-    timers = {
-      fetch-youtube-feeds = {
-        Unit.Description = "Fetch Youtube feeds daily";
-        Timer = {
-          OnBootSec = "15min";
-          OnUnitActiveSec = "1d";
-        };
       };
     };
   };
