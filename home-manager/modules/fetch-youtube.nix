@@ -25,7 +25,9 @@ with {
     };
 
     timer = mkOption {
-      example = { OnUnitActiveSec = "1h"; };
+      example = {
+        OnUnitActiveSec = "1h";
+      };
       description = ''
         Attrset to use for polling feeds, used as the 'Timer' attribute of a
         systemd.user.timer. Note that subsequent downloading, processing, etc.
@@ -94,8 +96,12 @@ with {
 
     command = mkOption {
       type = with types; either str (listOf str);
-      default = [cfg.executable] ++ cfg.args;
-      example = [ "ytdl" "-f" "bestaudio" ];
+      default = [ cfg.executable ] ++ cfg.args;
+      example = [
+        "ytdl"
+        "-f"
+        "bestaudio"
+      ];
       description = ''
         Command to execute on a video's URL. Can either be a list of strings to
         represent an executable and its initial arguments, or a string of shell
@@ -116,8 +122,11 @@ with {
 
     args = mkOption {
       type = types.listOf types.str;
-      default = [];
-      example = [ "-f" "bestaudio" ];
+      default = [ ];
+      example = [
+        "-f"
+        "bestaudio"
+      ];
       description = ''
         Initial arguments to give to the downloader (the video URL will be given
         as a subsequent argument). This is only used by the default value of the
@@ -127,60 +136,60 @@ with {
   };
 
   config = mkIf cfg.enable (mkMerge [
-    systemd.user = {
-      paths = {
-        fetch-youtube-files = {
-          Unit.Description = "Fetch files when new entries appear in todo";
-          Path.DirectoryNotEmpty = toString cfg.todo;
-        };
-      };
-      timers = {
-        fetch-youtube-feeds = {
-          Unit.Description = "Fetch Youtube feeds daily";
-          Timer = cfg.timer;
-        };
-      };
-      services = {
-        fetch-youtube-feeds = {
-          Unit.Description = "Fetch Youtube feeds";
-          Service = {
-            Type = "oneshot";
-            RemainAfterExit = "no";
-            ExecStart = "${./fetch-youtube-feeds.sh}";
-            Environment = {
-              TEMP = toString cfg.temp;
-              FEEDS = toString cfg.feeds;
-              TODO = toString cfg.todo;
-              DONE =toString cfg.done;
-            };
+    {
+      systemd.user = {
+        paths = {
+          fetch-youtube-files = {
+            Unit.Description = "Fetch files when new entries appear in todo";
+            Path.DirectoryNotEmpty = toString cfg.todo;
           };
         };
+        timers = {
+          fetch-youtube-feeds = {
+            Unit.Description = "Fetch Youtube feeds daily";
+            Timer = cfg.timer;
+          };
+        };
+        services = {
+          fetch-youtube-feeds = {
+            Unit.Description = "Fetch Youtube feeds";
+            Service = {
+              Type = "oneshot";
+              RemainAfterExit = "no";
+              ExecStart = "${./fetch-youtube-feeds.sh}";
+              Environment = [
+                "TEMP=${toString cfg.temp}"
+                "FEEDS=${toString cfg.feeds}"
+                "TODO=${toString cfg.todo}"
+                "DONE=${toString cfg.done}"
+              ];
+            };
+          };
 
-        fetch-youtube-files = {
-          Unit.Description = "Fetch all Youtube videos identified in todo";
-          Service = {
-            Type = "oneshot";
-            RemainAfterExit = "no";
-            ExecStart = "${./fetch-youtube-files.sh}";
-            Environment = {
-              FETCHED = toString cfg.fetched;
-              TODO = toString cdf.todo;
-              DONE_BASE = toString cfg.done;
-              TEMP = toString cfg.temp;
-              CMD = pkgs.writeShellScript "fetch-youtube-cmd" ''
-                exec ${
-                  if builtins.isList cfg.command
-                  then lib.concatMapStringsSep
-                    " "
-                    lib.escapeShellArg
-                    cfg.command
-                  else cfg.command
-                } "$@"
-              '';
+          fetch-youtube-files = {
+            Unit.Description = "Fetch all Youtube videos identified in todo";
+            Service = {
+              Type = "oneshot";
+              RemainAfterExit = "no";
+              ExecStart = "${./fetch-youtube-files.sh}";
+              Environment = [
+                "FETCHED=${toString cfg.fetched}"
+                "TODO=${toString cfg.todo}"
+                "DONE_BASE=${toString cfg.done}"
+                "TEMP=${toString cfg.temp}"
+                "CMD=${pkgs.writeShellScript "fetch-youtube-cmd" ''
+                  exec ${
+                    if builtins.isList cfg.command then
+                      lib.concatMapStringsSep " " lib.escapeShellArg cfg.command
+                    else
+                      cfg.command
+                  } "$@"
+                ''}"
+              ];
             };
           };
         };
       };
-    };
+    }
   ]);
 }
