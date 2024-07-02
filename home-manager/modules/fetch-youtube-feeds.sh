@@ -25,7 +25,7 @@ do
   while read -u 3 -r VURL
   do
     VID=$(echo "$VURL" | cut -d= -f2)
-    [[ -e "$DONE/$VID" ]] || {
+    [[ -e "$DONE/$VID" ]] || [[ -e "$TODO/$VID" ]] || {
       # Write atomically to TODO
       T="$TEMP/$VID"
       mkdir -p "$T"
