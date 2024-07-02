@@ -15,7 +15,7 @@ with {
   cfg = config.fetch-youtube;
 };
 {
-  options = {
+  options.fetch-youtube = {
     enable = mkOption {
       type = types.bool;
       default = false;
@@ -117,7 +117,7 @@ with {
     args = mkOption {
       type = types.listOf types.str;
       default = [];
-      example = [ "-f" "bestaudio" ]
+      example = [ "-f" "bestaudio" ];
       description = ''
         Initial arguments to give to the downloader (the video URL will be given
         as a subsequent argument). This is only used by the default value of the
