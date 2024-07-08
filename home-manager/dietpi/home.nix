@@ -16,6 +16,7 @@
 
   fetch-youtube = {
     enable = true;
+    destination = /opt/shared/TODO/Videos;
     args = [
       "-f"
       "b[height<600]"
