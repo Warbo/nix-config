@@ -36,6 +36,13 @@ do
       if "$CMD" "$URL" 1> >(tee ../stdout) 2> >(tee ../stderr 1>&2)
       then
         touch ../success
+      else
+        if [[ -e ../stderr ]] &&
+           grep -q 'Requested format is not available' < ../stderr
+        then
+          echo 'Desired format not available (youtube short?); skipping' 1>&2
+          touch ../unavailable
+        fi
       fi
     popd
 
@@ -49,6 +56,17 @@ do
       rmdir "$(dirname "$F")"
     fi
 
+    # If the video isn't available, move the VID from todo to done
+    if [[ -e "$T/unavailable" ]]
+    then
+        mv "$F" "$DONE/$VID"
+        rmdir "$(dirname "$F")"
+      # Clean up expected files. Use rmdir rather than 'rm -r' to avoid deleting
+      # unexpected data, like partial downloads that could maybe be resumed.
+      rm -f "$T/stdout" "$T/stderr" "$T/unavailable"
+      rmdir "$T/$NAME"
+      rmdir "$T"
+    fi
     sleep 10 # Slight delay to cut down on spam
   done < <(echo "$FILES")
 
