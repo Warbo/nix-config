@@ -22,8 +22,8 @@
       "b[height<600]"
     ];
     timer = {
-      OnBootSec = "15min";
-      OnUnitActiveSec = "1d";
+      OnBootSec = "5min";
+      OnUnitActiveSec = "6h";
     };
   };
 
