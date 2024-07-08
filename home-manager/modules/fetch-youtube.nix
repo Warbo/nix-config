@@ -94,6 +94,15 @@ with {
       '';
     };
 
+    destination = mkOption {
+      type = types.nullOr types.path;
+      default = null;
+      description = ''
+        Directory to rsync completed results to. This can be on different
+        filesystem to the 'dir' option. Use null to leave in fetched dir.
+      '';
+    };
+
     command = mkOption {
       type = with types; either str (listOf str);
       default = [ cfg.executable ] ++ cfg.args;
@@ -191,5 +200,26 @@ with {
         };
       };
     }
+    (mkIf (cfg.destination != null) {
+      systemd.user = {
+        paths.fetch-youtube-move = {
+          Unit.Description = "Move completed downloads";
+          Path.DirectoryNotEmpty = toString cfg.fetched;
+        };
+        services.fetch-youtube-move = {
+          Unit.Description = "Move completed downloads";
+          Service = {
+            Type = "oneshot";
+            RemainAfterExit = "no";
+            ExecStart = "${./fetch-youtube-move.sh}";
+            Environment = [
+              "DEST=${toString cfg.destination}"
+              "FETCHED=${toString cfg.fetched}"
+              "RSYNC=/usr/bin/rsync" # TODO: i686 rsync doesn't build
+            ];
+          };
+        };
+      };
+    })
   ]);
 }
