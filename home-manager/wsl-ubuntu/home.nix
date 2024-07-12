@@ -45,9 +45,7 @@
     # Need mkBefore, since warbo.nix has an early-return when non-interactive
     # TODO: It would be better to make the latter mkAfter!
     bash.bashrcExtra = lib.mkBefore (
-      with {
-        npiperelay = pkgs.callPackage ../../nixos/nixos-wsl/npiperelay.nix { };
-      };
+      with { npiperelay = pkgs.callPackage ../../nixos/nixos-wsl/npiperelay.nix { }; };
       ''
         . ${pkgs.nix}/etc/profile.d/nix.sh
 
@@ -85,18 +83,14 @@
         userDirs = if pathExists wslDir then readDir wslDir else { };
         # See if any has a .gitconfig file
         userCfg = name: wslDir + "/${name}/.gitconfig";
-        users = filter (
-          name: userDirs."${name}" == "directory" && pathExists (userCfg name)
-        ) (attrNames userDirs);
-        sanitiseName = import "${nix-helpers-src}/helpers/sanitiseName" {
-          inherit lib;
-        };
+        users = filter (name: userDirs."${name}" == "directory" && pathExists (userCfg name)) (
+          attrNames userDirs
+        );
+        sanitiseName = import "${nix-helpers-src}/helpers/sanitiseName" { inherit lib; };
         nix-helpers-src = sources.nix-helpers;
         sources = import ../../nix/sources.nix;
       };
-      assert
-        length users < 2
-        || abort "Ambiguous .gitconfig, found multiple: ${toJSON users}";
+      assert length users < 2 || abort "Ambiguous .gitconfig, found multiple: ${toJSON users}";
       lib.lists.optional (length users == 1) {
         # Nix store paths can't begin with ".", so use contents = readFile
         path = path {
