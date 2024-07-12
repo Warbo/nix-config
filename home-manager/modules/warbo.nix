@@ -30,7 +30,10 @@ with {
             [[ -f ~/.bashrc ]] && . ~/.bashrc
           '';
         };
-        git.enable = true;
+        git = {
+          enable = true;
+          extraConfig.diff.algorithm = "histogram";
+        };
         home-manager.enable = true;
         htop.enable = true;
         jq.enable = true;
