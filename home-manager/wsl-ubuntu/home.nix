@@ -15,6 +15,9 @@
     devCli
     devGui
     sysCli
+    pkgs.haskellPackages.implicit-hie
+    pkgs.haskellPackages.stylish-haskell
+    pkgs.haskellPackages.fourmulo
   ];
   home.username = "chrisw";
   home.homeDirectory = "/home/chrisw";
