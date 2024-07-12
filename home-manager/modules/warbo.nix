@@ -26,8 +26,11 @@ with {
         bash = {
           enable = true;
           profileExtra = ''
-            # Inherited from pre-Home-Manager config; not sure if needed
-            [[ -f ~/.bashrc ]] && . ~/.bashrc
+            if [[ -n "$BASH_VERSION" ]] && [[ -e "$HOME/.bashrc" ]]
+            then
+              . "$HOME/.bashrc"
+            fi
+            true
           '';
         };
         git = {
@@ -35,6 +38,7 @@ with {
           extraConfig.diff.algorithm = "histogram";
         };
         home-manager.enable = true;
+        home-manager.path = import ../nixos-import.nix;
         htop.enable = true;
         jq.enable = true;
         jujutsu.enable = true;
@@ -66,7 +70,12 @@ with {
       programs.bash.bashrcExtra =
         with builtins;
         assert (typeOf cfg.dotfiles == "path" && pathExists cfg.dotfiles) || (cfg.dotfiles ? outPath);
-        readFile "${cfg.dotfiles}/bashrc";
+        ''
+          # Always make Nix binaries available. If they're not defined in /etc,
+          # then splice pkgs.nix as a fallback.
+          [[ -e /etc/profile.d/nix.sh ]] || . ${pkgs.nix}/etc/profile.d/nix.sh
+          ${readFile "${cfg.dotfiles}/bashrc"}
+        '';
     })
   ]);
 }

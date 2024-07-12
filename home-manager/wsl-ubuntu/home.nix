@@ -17,7 +17,7 @@
     sysCli
     pkgs.haskellPackages.implicit-hie
     pkgs.haskellPackages.stylish-haskell
-    pkgs.haskellPackages.fourmulo
+    pkgs.haskellPackages.fourmolu
   ];
   home.username = "chrisw";
   home.homeDirectory = "/home/chrisw";
