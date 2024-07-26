@@ -3,8 +3,8 @@ self: super:
 with {
   # Update this as you like, when some packages become out-of-date (e.g. when
   # some online API has made a breaking change)
-  rev = "8a391e1d70cf95dc9a3df428e2e17e8ead3b6a78";
-  sha256 = "0c287s8jvkp2y8q1m1zm3d1izra2y51fnhmpd27pp7j9cn3vcswb";
+  rev = "e21630230c77140bc6478a21cd71e8bb73706fce";
+  sha256 = "08l6ly2gv2a2z1aqb8rdn4gy6na87a1py2pxnvblgr0kilnkr66m";
 }; {
   overrides = {
     nixpkgsUpstream =

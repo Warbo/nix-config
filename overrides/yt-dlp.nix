@@ -1,11 +1,13 @@
-self: super:
-
-with {
-  rev = "e691f848a29bb0e156f08450d7b2604971b91f92";
-  sha256 = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
-}; {
+self: super: {
   overrides = {
-    yt-dlp = self.nixpkgsUpstream.yt-dlp;
+    yt-dlp = self.nixpkgsUpstream.yt-dlp.overrideAttrs (_: {
+      src = super.fetchFromGitHub {
+        owner = "yt-dlp";
+        repo = "yt-dlp";
+        rev = "6b1e430d8e4af56cd4fcb8bdc00fca9b79356464";
+        sha256 = "sha256-GDCFKZxFsfCfBT1it3vnIcLxRcgOQM2JK23ZwLVYEYU=";
+      };
+    });
   };
   tests = { };
 }
