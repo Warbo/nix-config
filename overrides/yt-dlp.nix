@@ -1,11 +1,12 @@
 self: super: {
   overrides = {
     yt-dlp = self.nixpkgsUpstream.yt-dlp.overrideAttrs (_: {
+      name = "yt-dlp-custom";
       src = super.fetchFromGitHub {
         owner = "yt-dlp";
         repo = "yt-dlp";
-        rev = "6b1e430d8e4af56cd4fcb8bdc00fca9b79356464";
-        sha256 = "sha256-GDCFKZxFsfCfBT1it3vnIcLxRcgOQM2JK23ZwLVYEYU=";
+        rev = "abe10131fc235b7cc7af39f833e417f4264c1fdb";
+        sha256 = "sha256-u069kH4DsOLwSC7DrXkS0pOSmaYDHd9EwsH/6FirBZI=";
       };
     });
   };
