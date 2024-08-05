@@ -38,10 +38,16 @@ do
         touch ../success
       else
         if [[ -e ../stderr ]] &&
-           grep -q 'Requested format is not available' < ../stderr
+           grep -q 'nsig extraction failed' < ../stderr
         then
-          echo 'Desired format not available (youtube short?); skipping' 1>&2
-          touch ../unavailable
+            echo 'Found nsig extraction failure (API breakage?)' 1>&2
+        else
+          if [[ -e ../stderr ]] &&
+             grep -q 'Requested format is not available' < ../stderr
+          then
+            echo 'Desired format not available (youtube short?); skipping' 1>&2
+            touch ../unavailable
+          fi
         fi
       fi
     popd
