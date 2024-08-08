@@ -3,7 +3,7 @@ self: super: {
     yt-dlp =
       with {
         inherit (self.nix-helpers.pinnedNixpkgs.nixpkgs2111) phantomjs2;
-        rev = "abe10131fc235b7cc7af39f833e417f4264c1fdb";
+        rev = "a065086640e888e8d58c615d52ed2f4f4e4c9d18";
       };
       self.nixpkgsUpstream.yt-dlp.overrideAttrs (_: {
         name = "yt-dlp-${rev}";
@@ -11,7 +11,7 @@ self: super: {
           inherit rev;
           owner = "yt-dlp";
           repo = "yt-dlp";
-          sha256 = "sha256-u069kH4DsOLwSC7DrXkS0pOSmaYDHd9EwsH/6FirBZI=";
+          sha256 = "sha256-NjsP8XbaLs4RTXDuviN1MEYQ2Xv//P5MPXIym1S4hEw=";
         };
         postInstall = ''
           ${old.postInstall or ""}
