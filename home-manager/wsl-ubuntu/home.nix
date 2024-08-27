@@ -18,6 +18,7 @@
     pkgs.haskellPackages.implicit-hie
     pkgs.haskellPackages.stylish-haskell
     pkgs.haskellPackages.fourmolu
+    (pkgs.hiPrio pkgs.moreutils) # prefer timestamping 'ts' on WSL
   ];
   home.username = "chrisw";
   home.homeDirectory = "/home/chrisw";
