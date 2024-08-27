@@ -58,6 +58,7 @@ with {
           entr
           #gcc
           git
+          git-absorb
           #gnumake
           jq
           nano
