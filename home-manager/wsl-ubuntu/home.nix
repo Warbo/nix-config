@@ -22,7 +22,6 @@
   ];
   home.username = "chrisw";
   home.homeDirectory = "/home/chrisw";
-  #home.stateVersion = "24.05"; # Please read the comment before changing.
 
   # Home Manager can also manage your environment variables through
   # 'home.sessionVariables'. These will be explicitly sourced when using a
