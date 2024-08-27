@@ -20,6 +20,18 @@ with {
     {
       # Unconditional; override if desired
       home.stateVersion = cfg.home-manager.stateVersion;
+      home.file.".config/git/ignore".text = ''
+        # Per-directory Emacs config can by put into a .dir-locals.el file (a
+        # bit like direnv's .envrc files). They shouldn't be globally ignored by
+        # git, since some repos may include them, and that would cause problems.
+
+        # However, Emacs will ALSO read files called .dir-locals-2.el, which are
+        # intended for personal settings that shouldn't be distributed. That way
+        # we can (a) ignore them globally to ensure they don't get committed, or
+        # show up as unstaged changes, etc. whilst (b) not having to worry about
+        # repos which include such files, since they're not for distribution!
+        .dir-locals-2.el
+      '';
       home.packages = cfg.packages;
       nixpkgs.config.allowUnfree = true;
       programs = {
