@@ -19,9 +19,14 @@
     pkgs.haskellPackages.stylish-haskell
     pkgs.haskellPackages.fourmolu
     (pkgs.hiPrio pkgs.moreutils) # prefer timestamping 'ts' on WSL
+
+    # Fonts
+    pkgs.uw-ttyp0
   ];
   home.username = "chrisw";
   home.homeDirectory = "/home/chrisw";
+
+  fonts.fontconfig.enable = true;
 
   # Home Manager can also manage your environment variables through
   # 'home.sessionVariables'. These will be explicitly sourced when using a
