@@ -11,36 +11,37 @@
   warbo.enable = true;
   warbo.professional = true;
   warbo.home-manager.stateVersion = "24.05";
-  warbo.packages = with pkgs; [
-    devCli
-    devGui
-    sysCli
-    pkgs.haskellPackages.implicit-hie
-    pkgs.haskellPackages.stylish-haskell
-    pkgs.haskellPackages.fourmolu
-    (pkgs.hiPrio pkgs.moreutils) # prefer timestamping 'ts' on WSL
-
-    (pkgs.writeShellApplication {
-      # Podman has issues running "rootless", so we just wrap it in sudo. That
-      # needs a little massaging, so (a) it uses our usual $HOME and (b) it has
-      # the required commands on $PATH.
-      name = "podman";
-      runtimeInputs = [
-        pkgs.crun
-        pkgs.podman
-        pkgs.shadow # for newuidmap
-      ];
-      text = ''
-        # We print this message to remind ourselves that we're using this hacky
-        # shell script, when we inevitably encounter un-google-able problems!
-        echo "Running ChrisW's podman sudo wrapper..." 1>&2
-        sudo "HOME=$HOME" "PATH=$PATH" "$(command -v podman)" "$@"
-      '';
-    })
-
-    # Fonts
-    pkgs.uw-ttyp0
-  ];
+  warbo.packages =
+    with rec {
+      podman-wrapper = pkgs.writeShellApplication {
+        # Podman has issues running "rootless", so we just wrap it in sudo. That
+        # needs a little massaging, so (a) it uses our usual $HOME and (b) it has
+        # the required commands on $PATH.
+        name = "podman";
+        runtimeInputs = [
+          pkgs.crun
+          pkgs.podman
+          pkgs.shadow # for newuidmap
+        ];
+        text = ''
+          # We print this message to remind ourselves that we're using this hacky
+          # shell script, when we inevitably encounter un-google-able problems!
+          echo "Running ChrisW's podman sudo wrapper..." 1>&2
+          sudo "HOME=$HOME" "PATH=$PATH" "$(command -v podman)" "$@"
+        '';
+      };
+    }; [
+      (pkgs.hiPrio pkgs.moreutils) # prefer timestamping 'ts' on WSL
+      pkgs.devCli
+      pkgs.devGui
+      pkgs.sysCli
+      pkgs.haskellPackages.fourmolu
+      pkgs.haskellPackages.implicit-hie
+      pkgs.haskellPackages.stylish-haskell
+      pkgs.nix
+      pkgs.uw-ttyp0 # Fonts
+      podman-wrapper
+    ];
   home.username = "chrisw";
   home.homeDirectory = "/home/chrisw";
 
