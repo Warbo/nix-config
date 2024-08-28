@@ -30,6 +30,22 @@
           sudo "HOME=$HOME" "PATH=$PATH" "$(command -v podman)" "$@"
         '';
       };
+      selenium-runner = pkgs.writeShellApplication {
+        name = "selenium";
+        runtimeEnv = {
+          # Set up some env vars that we don't want Nix to manage. The "UNUSED"
+          # ones avoid problems with scripts that get sourced.
+          SETUP = builtins.toString ~/SETUP.SH;
+          VM_IP = "VM_IP IS UNUSED";
+          STATIC_ROOT = "STATIC_ROOT IS UNUSED";
+        };
+        runtimeInputs = [
+          pkgs.gnugrep
+          pkgs.nix
+          podman-wrapper
+        ];
+        text = builtins.readFile ./selenium.sh;
+      };
     }; [
       (pkgs.hiPrio pkgs.moreutils) # prefer timestamping 'ts' on WSL
       pkgs.devCli
@@ -41,6 +57,7 @@
       pkgs.nix
       pkgs.uw-ttyp0 # Fonts
       podman-wrapper
+      selenium-runner
     ];
   home.username = "chrisw";
   home.homeDirectory = "/home/chrisw";
