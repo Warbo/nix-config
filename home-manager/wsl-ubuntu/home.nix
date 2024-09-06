@@ -82,6 +82,7 @@
   #
   home.sessionVariables = {
     # EDITOR = "emacs";
+    FONT_EXISTS_CMD = builtins.toString ./font_exists.sh;
   };
 
   # Let Home Manager install and manage itself.
