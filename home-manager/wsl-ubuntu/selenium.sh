@@ -39,7 +39,13 @@ else
   if [[ "$TEST_COUNT" -eq "$#" ]]
   then
     echo "All args look like Selenium test names; running them directly"
-    PODMAN_ARGS+=('--env' "ARGS=-m $*" "$IMAGE_NAME" 'selenium-test')
+    TEST_ARGS=()
+    for ARG in "$@"
+    do
+        TEST_ARGS+=('-m' "$ARG")
+    done
+    PODMAN_ARGS+=('--env' "ARGS=${TEST_ARGS[*]}" "$IMAGE_NAME" 'selenium-test')
+    unset TEST_ARGS
   else
     echo "Some args aren't SeleniumTests, passing them to podman"
     USES_IMAGE=0
