@@ -137,6 +137,7 @@
       ''
     );
 
+    git.extraConfig.safe.directory = builtins.toString ~/mounts;
     git.includes =
       # Look for existing .gitconfig files on WSL. If exactly 1 WSL user has
       # a .gitconfig file, include it.
