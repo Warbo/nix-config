@@ -63,6 +63,19 @@
   home.username = "chrisw";
   home.homeDirectory = "/home/chrisw";
 
+  home.file = {
+    ".screenrc" = {
+      text = ''
+        msgwait 0
+        startup_message off
+        screen -t emacs-daemon 1 emacs --fg-daemon
+        screen -t journald-user 2 journalctl --user --follow
+        screen -t journald-sys 3 sudo journalctl --follow
+        screen -t htop 0 htop
+      '';
+    };
+  };
+
   fonts.fontconfig.enable = true;
 
   # Home Manager can also manage your environment variables through
