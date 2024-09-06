@@ -50,7 +50,7 @@
       (pkgs.hiPrio pkgs.moreutils) # prefer timestamping 'ts' on WSL
       pkgs.devCli
       pkgs.devGui
-      pkgs.sysCli
+      pkgs.sysCliNoFuse
       pkgs.haskellPackages.fourmolu
       pkgs.haskellPackages.implicit-hie
       pkgs.haskellPackages.stylish-haskell

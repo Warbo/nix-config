@@ -190,7 +190,14 @@ with {
       */
     };
 
-    sysCli =
+    # Keep these separate, since they won't work on non-NixOS systems (binaries
+    # like fusermount need to be suid; NixOS has a workaround, other systems are
+    # better off using their native package)
+    sysCli = sysCliNoFuse // {
+      inherit (self) fuse fuse3;
+    };
+
+    sysCliNoFuse =
       {
         inherit (self.xorg) xmodmap;
         inherit (self)
@@ -202,8 +209,6 @@ with {
           dvtm
           exfat
           file
-          fuse
-          fuse3
           htop
           inotify-tools
           libnotify
