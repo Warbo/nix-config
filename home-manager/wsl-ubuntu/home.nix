@@ -55,6 +55,7 @@
       pkgs.haskellPackages.implicit-hie
       pkgs.haskellPackages.stylish-haskell
       pkgs.nix
+      pkgs.rxvt-unicode # Used to auto-spawn emacsclient
       pkgs.uw-ttyp0 # Fonts
       podman-wrapper
       selenium-runner
