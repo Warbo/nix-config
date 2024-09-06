@@ -59,6 +59,11 @@
       pkgs.uw-ttyp0 # Fonts
       podman-wrapper
       selenium-runner
+      (pkgs.writeShellApplication {
+        # Simple command to get things up and running
+        name = "go";
+        text = builtins.readFile ./go.sh;
+      })
     ];
   home.username = "chrisw";
   home.homeDirectory = "/home/chrisw";
