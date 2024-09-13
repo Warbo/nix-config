@@ -1,8 +1,12 @@
 #!/usr/bin/env bash
 
 [[ "$PWD" = "$HOME" ]] || {
-    echo "Going $HOME"
+    echo "Going $HOME" 1>&2
     cd
+}
+grep -q SWAP < /proc/swaps || {
+    echo "Activating $PWD/SWAP" 1>&2
+    sudo swapon SWAP
 }
 
 # VPN may add an extraneous route which hides our LAN. Remove it if found.
