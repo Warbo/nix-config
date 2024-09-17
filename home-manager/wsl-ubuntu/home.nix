@@ -46,6 +46,17 @@
         ];
         text = builtins.readFile ./selenium.sh;
       };
+      # Tries to fix dodgy WSL/VPN routes which conflict with LAN
+      lan = pkgs.writeShellApplication {
+        name = "lan";
+        text = builtins.readFile ./lan.sh;
+      };
+      # Simple command to get WSL up and running
+      go = pkgs.writeShellApplication {
+        name = "go";
+        text = builtins.readFile ./go.sh;
+        runtimeEnv.LAN = lan;
+      };
     })
     ++ [
       (pkgs.hiPrio pkgs.moreutils) # prefer timestamping 'ts' on WSL
@@ -58,11 +69,6 @@
       pkgs.nix
       pkgs.rxvt-unicode # Used to auto-spawn emacsclient
       pkgs.uw-ttyp0 # Fonts
-      (pkgs.writeShellApplication {
-        # Simple command to get things up and running
-        name = "go";
-        text = builtins.readFile ./go.sh;
-      })
     ];
   home.username = "chrisw";
   home.homeDirectory = "/home/chrisw";
