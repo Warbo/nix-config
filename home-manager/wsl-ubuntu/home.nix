@@ -12,7 +12,7 @@
   warbo.professional = true;
   warbo.home-manager.stateVersion = "24.05";
   warbo.packages =
-    with rec {
+    (builtins.attrValues rec {
       podman-wrapper = pkgs.writeShellApplication {
         # Podman has issues running "rootless", so we just wrap it in sudo. That
         # needs a little massaging, so (a) it uses our usual $HOME and (b) it has
@@ -46,7 +46,8 @@
         ];
         text = builtins.readFile ./selenium.sh;
       };
-    }; [
+    })
+    ++ [
       (pkgs.hiPrio pkgs.moreutils) # prefer timestamping 'ts' on WSL
       pkgs.devCli
       pkgs.devGui
@@ -57,8 +58,6 @@
       pkgs.nix
       pkgs.rxvt-unicode # Used to auto-spawn emacsclient
       pkgs.uw-ttyp0 # Fonts
-      podman-wrapper
-      selenium-runner
       (pkgs.writeShellApplication {
         # Simple command to get things up and running
         name = "go";
