@@ -13,6 +13,13 @@
   home.username = "pi";
   home.homeDirectory = "/home/pi";
   warbo.enable = true;
+  warbo.nixpkgs.overlays = os: [
+    os.sources
+    os.repos
+    os.metaPackages
+    os.nixpkgsUpstream
+    os.yt-dlp
+  ];
 
   fetch-youtube = {
     enable = true;
