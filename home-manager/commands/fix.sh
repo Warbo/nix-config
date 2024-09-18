@@ -74,3 +74,10 @@ else
     wlr-randr --output DSI-1 --scale 1.25 || true
     gsettings set org.gnome.desktop.interface text-scaling-factor '1.25' || true
 fi
+
+# The bar at bottom of the screen, which can be dragged up for window selection
+# and long-pressed to toggle the on-screen keyboard, will sometimes disappear
+# after the display has changed. Pressing the Meta (AKA Super AKA Windows) key
+# will show and hide the window selector, which brings the bar back.
+sleep 0.5
+ydotool key -d 500 125:1 125:0 125:1 125:0
