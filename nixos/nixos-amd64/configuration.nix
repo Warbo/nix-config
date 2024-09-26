@@ -16,8 +16,10 @@ with rec {
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
     (import ../modules/warbo.nix)
+    (import "${import ../../home-manager/nixos-import.nix}/nixos")
   ];
 
+  home-manager.users.chris = import ./home.nix;
   warbo.enable = true;
   warbo.home-manager.username = "chris";
   warbo.dotfiles = builtins.toString config.home.homeDirectory + "/repos/warbo-dotfiles";
@@ -65,7 +67,8 @@ with rec {
   # Enable the X11 windowing system.
   services.xserver.enable = true;
   services.displayManager.sddm.enable = true;
-  services.xserver.desktopManager.plasma5.enable = true;
+  services.xserver.desktopManager.lxqt.enable = true;
+  services.xserver.windowManager.e16.enable = true;
 
   # Configure keymap in X11
   services.xserver.xkb.layout = "gb";
@@ -130,7 +133,7 @@ with rec {
 
   services.emacs = {
     enable = true;
-    package = pkgs.emacs29-pgtk; # replace with emacs-gtk, or a version provided by the community overlay if desired.
+    #package = pkgs.emacs-unstable; # replace with emacs-gtk, or a version provided by the community overlay if desired.
   };
 
   # Enable the OpenSSH daemon.
