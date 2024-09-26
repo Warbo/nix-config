@@ -46,10 +46,14 @@
         ];
         text = builtins.readFile ./selenium.sh;
       };
-      # Tries to fix dodgy WSL/VPN routes which conflict with LAN
+      # Fix up LAN dodginess caused by WSL and VPN
       lan = pkgs.writeShellApplication {
         name = "lan";
         text = builtins.readFile ./lan.sh;
+        runtimeInputs = [
+          pkgs.parallel
+          pkgs.nmap
+        ];
       };
       # Simple command to get WSL up and running
       go = pkgs.writeShellApplication {
