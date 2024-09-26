@@ -20,6 +20,7 @@ with rec {
 
   warbo.enable = true;
   warbo.home-manager.username = "chris";
+  warbo.dotfiles = builtins.toString config.home.homeDirectory + "/repos/warbo-dotfiles";
   warbo.packages = with pkgs; [
     devCli
     mediaGui
@@ -114,9 +115,7 @@ with rec {
 
   nix = {
     extraOptions = ''experimental-features = nix-command flakes'';
-    nixPath = with builtins; [
-      "nixos-config=${toString ../..}/nixos/nixos-amd64/configuration.nix"
-    ];
+    nixPath = with builtins; [ "nixos-config=${toString ../..}/nixos/nixos-amd64/configuration.nix" ];
   };
 
   # Some programs need SUID wrappers, can be configured further or are

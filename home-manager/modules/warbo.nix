@@ -57,7 +57,7 @@ with {
         password-store = {
           enable = true;
           package = pkgs.pass.withExtensions (exts: [ exts.pass-otp ]);
-          settings.PASSWORD_STORE_DIR = "$HOME/.password-store";
+          settings.PASSWORD_STORE_DIR = builtins.toString config.home.homeDirectory + "/.password-store";
         };
         ssh = {
           enable = true;
