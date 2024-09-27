@@ -277,15 +277,6 @@ with rec {
     home-manager = {
       path = import ./nixos-import.nix;
     };
-
-    /*
-      TODO: Add these:
-      https://github.com/nix-community/home-manager/blob/master/modules/programs/mbsync.nix
-      https://github.com/nix-community/home-manager/blob/master/modules/programs/msmtp.nix
-      https://github.com/nix-community/home-manager/blob/master/modules/programs/mu.nix
-    */
-
-    #rtorrent.enable = true;
   };
 
   services = {

@@ -80,6 +80,12 @@ with {
             };
           };
         };
+        /*
+          TODO: Add these?
+          https://github.com/nix-community/home-manager/blob/master/modules/programs/mbsync.nix
+          https://github.com/nix-community/home-manager/blob/master/modules/programs/msmtp.nix
+          https://github.com/nix-community/home-manager/blob/master/modules/programs/mu.nix
+        */
       };
       services.emacs.defaultEditor = true;
     }
@@ -92,6 +98,7 @@ with {
     (mkIf (!cfg.professional) {
       # Disable by setting 'warbo.professional'
       programs.yt-dlp.enable = true;
+      #rtorrent.enable = true;
     })
     (mkIf (cfg.direnv && (!cfg.is-nixos)) {
       programs.direnv = {
