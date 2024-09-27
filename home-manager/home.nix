@@ -286,24 +286,6 @@ with rec {
     */
 
     #rtorrent.enable = true;
-
-    ssh = {
-      enable = true;
-      matchBlocks = {
-        chromebook = {
-          hostname = "chromebook.local";
-          user = "jo";
-        };
-        pi = {
-          hostname = "dietpi.local";
-          user = "pi";
-        };
-        laptop = {
-          hostname = "nixos-amd64.local";
-          user = "chris";
-        };
-      };
-    };
   };
 
   services = {

@@ -59,6 +59,27 @@ with {
           package = pkgs.pass.withExtensions (exts: [ exts.pass-otp ]);
           settings.PASSWORD_STORE_DIR = "$HOME/.password-store";
         };
+        ssh = {
+          enable = true;
+          matchBlocks = {
+            chromebook = {
+              hostname = "chromebook.local";
+              user = "jo";
+            };
+            phone = {
+              hostname = "manjaro-arm.local";
+              user = "manjaro";
+            };
+            pi = {
+              hostname = "dietpi.local";
+              user = "pi";
+            };
+            laptop = {
+              hostname = "nixos-amd64.local";
+              user = "chris";
+            };
+          };
+        };
       };
       services.emacs.defaultEditor = true;
     }
