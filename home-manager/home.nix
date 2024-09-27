@@ -304,8 +304,6 @@ with rec {
         };
       };
     };
-
-    yt-dlp.enable = true;
   };
 
   services = {
