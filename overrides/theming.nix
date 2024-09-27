@@ -12,24 +12,19 @@ self: super:
       inherit (self)
         blueshell-theme
         clearlooks-phenix
-        e17gtk-theme
+        e17gtk
         gtk2-aurora-engine
         gtk_engines
         gtk-engine-murrine
-        vertex-theme
-        zuki-theme
+        theme-vertex
+        zuki-themes
         ;
-
-      inherit (self.skulpture) skulpture-qt4;
-
-      skulpture-qt5 = self.libsForQt5.skulpture;
+      skulpture-qt5 = self.skulpture.qt5;
+      skulpture-qt6 = self.skulpture.qt6;
     };
 
     mkLibsForQt5 =
       qelf:
-      super.mkLibsForQt5 qelf
-      // {
-        skulpture = qelf.callPackage self.skulpture.mkSkulptureQt5 { };
-      };
+      super.mkLibsForQt5 qelf // { skulpture = qelf.callPackage self.skulpture.mkSkulptureQt5 { }; };
   };
 }
