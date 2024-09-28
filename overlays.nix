@@ -16,16 +16,6 @@ with rec {
     removeSuffix
     ;
 
-  repo =
-    name: self: super:
-    removeAttrs (getAttr name (overlays.repos self super)) [
-      "nixpkgs"
-      "nix-helpers"
-      "warbo-packages"
-      "warbo-utilities"
-      "super"
-      "nix-config-sources"
-    ];
 
   nix-config-sources = import ./nix/sources.nix;
 
@@ -62,13 +52,6 @@ with rec {
           };
     };
 
-    # These overlays merge those repo contents directly into pkgs. Avoid for now
-    # since they can cause infinite recursion (since the attribute NAMES need to
-    # be known up-front; e.g. if self.warbo-packages uses self.foo to generate
-    # its attrset, Nix can't know whether that attrset will be overriding foo!)
-    #nix-helpers = repo "nix-helpers";
-    #warbo-packages = repo "warbo-packages";
-    #warbo-utilities = repo "warbo-utilities";
   };
 
   fromOverrides =
