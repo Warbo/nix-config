@@ -15,12 +15,12 @@ with {
     name: paths:
     assert
       all isDerivation (attrValues paths)
-      || self.die {
+      || abort (toJSON {
         inherit name;
         error = "Non-derivation in dependencies of meta-package";
         types = mapAttrs (_: typeOf) paths;
         nonDrvs = mapAttrs (_: typeOf) (filterAttrs (_: x: !(isDerivation x)) paths);
-      };
+      });
     (if elem name [ "docGui" ] then self.lowPrio else (x: x)) (
       self.buildEnv {
         inherit name;
