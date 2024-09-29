@@ -1,5 +1,7 @@
-with builtins;
-with { pkgs = import ./nix; };
+with {
+  inherit (builtins) getAttr listToAttrs map;
+  pkgs = import ./nix;
+};
 listToAttrs (
   map (name: {
     inherit name;

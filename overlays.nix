@@ -30,9 +30,7 @@ with rec {
   fromOverrides =
     with rec {
       # Names of every ".nix" file in overrides/ (this must not depend on 'self')
-      fileNames = map (removeSuffix ".nix") (
-        filter (hasSuffix ".nix") (attrNames (readDir ./overrides))
-      );
+      fileNames = map (removeSuffix ".nix") (filter (hasSuffix ".nix") (attrNames (readDir ./overrides)));
 
       mkDef =
         acc: f:
@@ -42,8 +40,7 @@ with rec {
           "${f}" = self: super: (this self super).overrides;
           nix-config-checks = self: super: {
             nix-config-checks =
-              (acc.nix-config-checks self super).nix-config-checks
-              // ((this self super).checks or { });
+              (acc.nix-config-checks self super).nix-config-checks // ((this self super).checks or { });
           };
           nix-config-names = self: super: {
             nix-config-names =
