@@ -9,7 +9,6 @@ with builtins;
 with super.lib;
 with {
   nonMac = attrs: if match ".*-darwin" currentSystem == null then attrs else { };
-  onlyMac = attrs: if match ".*-darwin" currentSystem == null then { } else attrs;
 
   go =
     name: paths:
@@ -78,7 +77,6 @@ with {
           #asv-nix
           ;
       }
-      // onlyMac { inherit (self) metals; }
       // nonMac { inherit (self) msgpack-tools racket xidel; };
 
     devGui = {
