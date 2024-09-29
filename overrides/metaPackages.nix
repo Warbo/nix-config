@@ -184,44 +184,49 @@ with {
     # Keep these separate, since they won't work on non-NixOS systems (binaries
     # like fusermount need to be suid; NixOS has a workaround, other systems are
     # better off using their native package)
-    sysCli = sysCliNoFuse // {
-      inherit (self) fuse fuse3;
-    };
+    inherit
+      (rec {
+        sysCli = sysCliNoFuse // {
+          inherit (self) fuse fuse3;
+        };
 
-    sysCliNoFuse =
-      {
-        inherit (self.xorg) xmodmap;
-        inherit (self)
-          acpi
-          binutils
-          cifs-utils
-          coreutils
-          dtach
-          dvtm
-          exfat
-          file
-          htop
-          inotify-tools
-          libnotify
-          lzip
-          nano
-          openssh
-          pciutils
-          pmutils
-          psmisc
-          rclone
-          rsync
-          screen
-          smbnetfs
-          sshfs-fuse
-          ts
-          unzip
-          usbutils
-          xz
-          zip
-          #warbo-utilities
-          ;
-      };
+        sysCliNoFuse = {
+          inherit (self.xorg) xmodmap;
+          inherit (self)
+            acpi
+            binutils
+            cifs-utils
+            coreutils
+            dtach
+            dvtm
+            exfat
+            file
+            htop
+            inotify-tools
+            libnotify
+            lzip
+            nano
+            openssh
+            pciutils
+            pmutils
+            psmisc
+            rclone
+            rsync
+            screen
+            smbnetfs
+            sshfs-fuse
+            ts
+            unzip
+            usbutils
+            #warbo-utilities
+            xz
+            zip
+            ;
+        };
+      })
+      sysCli
+      sysCliNoFuse
+      ;
 
     sysGui =
       self.iconThemes
