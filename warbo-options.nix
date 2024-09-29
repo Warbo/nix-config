@@ -57,8 +57,8 @@ with {
   nixpkgs.path = mkOption {
     type = types.nullOr types.path;
     default =
-      with { inherit (import nix/sources.nix) nix-helpers; };
-      (import "${nix-helpers}/helpers/pinnedNixpkgs" { }).repoLatest;
+      with rec { inherit (import overrides/repos.nix overrides { }) overrides; };
+      (import "${overrides.nix-helpers-src}/helpers/pinnedNixpkgs" { }).repoLatest;
     description = ''
       Path to use for Nixpkgs. We use this to set <nixpkgs>, etc.
     '';
