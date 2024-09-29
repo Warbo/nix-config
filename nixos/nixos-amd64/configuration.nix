@@ -23,17 +23,27 @@ with rec {
   warbo.enable = true;
   warbo.home-manager.username = "chris";
   warbo.dotfiles = builtins.toString config.home.homeDirectory + "/repos/warbo-dotfiles";
-  warbo.packages = with pkgs; [
-    devCli
-    mediaGui
-    netCli
-    netGui
-    sysCli
-    leafpad
-    (pkgs.hiPrio warbo-utilities)
-    pkgs.libsForQt5.qtstyleplugin-kvantum
-    pkgs.qt6Packages.qtstyleplugin-kvantum
-    pkgs.lxqt.qterminal
+  warbo.packages =
+    with pkgs;
+    [
+      devCli
+      mediaGui
+      netCli
+      netGui
+      sysCli
+      leafpad
+      (pkgs.hiPrio warbo-utilities)
+      pkgs.libsForQt5.qtstyleplugin-kvantum
+      pkgs.qt6Packages.qtstyleplugin-kvantum
+      pkgs.lxqt.qterminal
+    ]
+    ++ builtins.attrValues widgetThemes;
+  warbo.nixpkgs.overlays = os: [
+    os.sources
+    os.repos
+    os.metaPackages
+    os.nixpkgsUpstream
+    os.theming
   ];
 
   # Use the GRUB 2 boot loader.
