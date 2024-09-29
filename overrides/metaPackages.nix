@@ -8,8 +8,6 @@ self: super:
 with builtins;
 with super.lib;
 with {
-  nonMac = attrs: if match ".*-darwin" currentSystem == null then attrs else { };
-
   go =
     name: paths:
     assert
@@ -46,42 +44,43 @@ with {
 
     ###
 
-    devCli =
-      {
-        inherit (self)
-          aws-sam-cli
-          awscli
-          binutils
-          coreutils
-          direnv
-          entr
-          #gcc
-          git
-          git-absorb
-          #gnumake
-          jq
-          nano
-          niv
-          #nix-diff
-          nix-top
-          nixfmt-rfc-style
-          p7zip
-          python3
-          silver-searcher
-          update-nix-fetchgit
-          vim
-          ;
-        inherit (self.python3Packages) black;
-        inherit (self.warbo-packages)
-          artemis
-          #asv-nix
-          ;
-      }
-      // nonMac { inherit (self) msgpack-tools racket xidel; };
+    devCli = {
+      inherit (self)
+        aws-sam-cli
+        awscli
+        binutils
+        coreutils
+        direnv
+        entr
+        #gcc
+        git
+        git-absorb
+        #gnumake
+        jq
+        msgpack-tools
+        nano
+        niv
+        #nix-diff
+        nix-top
+        nixfmt-rfc-style
+        p7zip
+        python3
+        racket
+        silver-searcher
+        update-nix-fetchgit
+        vim
+        xidel
+        ;
+      inherit (self.python3Packages) black;
+      inherit (self.warbo-packages)
+        artemis
+        #asv-nix
+        ;
+    };
 
     devGui = {
-      inherit (self) emacs;
-    } // nonMac { inherit (self) sqlitebrowser; };
+      inherit (self) emacs sqlitebrowser;
+    };
 
     docCli = {
       inherit (self)
@@ -91,29 +90,28 @@ with {
         droid-fonts
         ghostscript
         md2pdf
+        pandocPkgs
         poppler_utils
         ;
       aspell = self.aspellWithDicts (dicts: [ dicts.en ]);
-    } // nonMac { inherit (self) pandocPkgs; };
+    };
 
-    docGui =
-      { }
-      // nonMac {
-        inherit (self)
-          abiword
-          basket
-          evince
-          gnumeric
-          gv
-          kbibtex_full
-          leafpad
-          libreoffice
-          ;
-        mupdf = self.without self.mupdf [
-          "bin/mupdf-gl"
-          "bin/mupdf-x11-curl"
-        ];
-      };
+    docGui = {
+      inherit (self)
+        abiword
+        basket
+        evince
+        gnumeric
+        gv
+        kbibtex_full
+        leafpad
+        libreoffice
+        ;
+      mupdf = self.without self.mupdf [
+        "bin/mupdf-gl"
+        "bin/mupdf-x11-curl"
+      ];
+    };
 
     games = {
       inherit (self) gensgs;
@@ -146,25 +144,20 @@ with {
         ;
     };
 
-    netCli =
-      {
-        inherit (self)
-          aria2
-          autossh
-          ddgr
-          gnutls
-          w3m
-          wget
-          ;
-      }
-      // nonMac {
-        inherit (self)
-          msmtp
-          mu
-          pptp
-          sshuttle
-          ;
-      };
+    netCli = {
+      inherit (self)
+        aria2
+        autossh
+        ddgr
+        gnutls
+        msmtp
+        mu
+        pptp
+        sshuttle
+        w3m
+        wget
+        ;
+    };
 
     netGui = {
       inherit (self)
@@ -226,10 +219,6 @@ with {
           usbutils
           xz
           zip
-          ;
-      }
-      // nonMac {
-        inherit (self)
           #warbo-utilities
           ;
       };
