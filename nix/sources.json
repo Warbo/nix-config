@@ -40,24 +40,6 @@
         "url": "https://github.com/nmattia/niv/archive/af958e8057f345ee1aca714c1247ef3ba1c15f5e.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
     },
-    "nix-helpers": {
-        "branch": "master",
-        "repo": "http://chriswarbo.net/git/nix-helpers.git",
-        "rev": "bda41ce6316ac77cd963adf5b95cc7cf095242d0",
-        "type": "git"
-    },
-    "warbo-packages": {
-        "branch": "master",
-        "repo": "http://chriswarbo.net/git/warbo-packages.git",
-        "rev": "284fe48dfb9934e611a4d516f68bfcd545dfdcb4",
-        "type": "git"
-    },
-    "warbo-utilities": {
-        "branch": "master",
-        "repo": "http://chriswarbo.net/git/warbo-utilities.git",
-        "rev": "9ba312ab9c1a8377cc384721f306404ccb1d4d8b",
-        "type": "git"
-    },
     "youtube-dl": {
         "sha256": "1mg9qzph1dxr6z02fix7jchfsykhy5srzi4xlhqi57pryx2j71r5",
         "type": "tarball",

@@ -1,8 +1,6 @@
-with rec {
-  sources = import ./sources.nix;
-  helpers = import sources.nix-helpers { };
-};
-import helpers.repoLatest {
+with rec { inherit (import ../overrides/repos.nix overrides { }) overrides; };
+overrides
+// import overrides.nix-helpers.repoLatest {
   config = { };
   overlays = builtins.attrValues (import ../overlays.nix);
 }

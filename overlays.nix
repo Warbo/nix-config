@@ -11,47 +11,20 @@ with rec {
     map
     readDir
     ;
-  inherit ((import nix-config-sources.nix-helpers { }).nixpkgs-lib)
+  inherit
+    (
+      with rec { inherit (import overrides/repos.nix overrides { }) overrides; };
+      overrides.nix-helpers.nixpkgs-lib
+    )
     hasSuffix
     removeSuffix
     ;
-
 
   nix-config-sources = import ./nix/sources.nix;
 
   overlays = fromOverrides // {
     # Provides our pinned sources
     sources = _: _: { inherit nix-config-sources; };
-
-    # Imports some useful git repositories (overridable via nix-config-sources)
-    repos = self: super: {
-      nix-helpers =
-        import (super.nix-config-sources or nix-config-sources).nix-helpers
-          {
-            # Use the nixpkgs set we're overlaying instead of its pinned default
-            nixpkgs = super;
-          };
-
-      warbo-packages =
-        import (super.nix-config-sources or nix-config-sources).warbo-packages
-          {
-            # Take nix-helpers from self, to allow subsequent overrides. If no
-            # nix-helpers is being used, take the one from above.
-            # Note that warbo-packages inherits nixpkgs from nix-helpers, so we
-            # don't need to pass super along directly.
-            nix-helpers = super.nix-helpers or (overlays.repos self super).nix-helpers;
-          };
-
-      warbo-utilities =
-        import (super.nix-config-sources or nix-config-sources).warbo-utilities
-          {
-            # Pick warbo-packages in the same way we chose a nix-helpers above.
-            # The nix-helpers will get inherited, as will nixpkgs.
-            warbo-packages =
-              super.warbo-packages or (overlays.repos self super).warbo-packages;
-          };
-    };
-
   };
 
   fromOverrides =
