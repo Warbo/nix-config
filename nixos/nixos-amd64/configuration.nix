@@ -75,14 +75,18 @@ with rec {
   };
 
   # Enable the X11 windowing system.
-  services.xserver.enable = true;
   services.displayManager.sddm.enable = true;
-  services.xserver.desktopManager.lxqt.enable = true;
-  services.xserver.windowManager.e16.enable = true;
+  services.xserver = {
+    enable = true;
+    desktopManager.lxqt.enable = true;
+    windowManager.e16.enable = true;
+    layout = "gb";
+    xkb.layout = "gb";
+    xkb.options = "ctrl:nocaps";
 
-  # Configure keymap in X11
-  services.xserver.xkb.layout = "gb";
-  # services.xserver.xkb.options = "eurosign:e,caps:escape";
+    # Enable touchpad support (enabled default in most desktopManager).
+    # libinput.enable = true;
+  };
 
   # Enable CUPS to print documents.
   # services.printing.enable = true;
@@ -93,9 +97,6 @@ with rec {
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
   hardware.pulseaudio.package = pkgs.pulseaudioFull;
-
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
 
   security.sudo.enable = true;
 
