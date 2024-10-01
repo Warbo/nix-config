@@ -37,6 +37,7 @@ with {
   config = mkIf cfg.enable (mkMerge [
     {
       # Unconditional; override if desired
+      nix.settings.show-trace = true;
       nixpkgs.config.allowUnfree = true;
       programs.iotop.enable = true;
       programs.screen.enable = true;
