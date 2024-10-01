@@ -49,8 +49,6 @@ with rec {
       };
 }; {
   overrides = {
-    audacious = from1703 "audacious";
-
     cabal-install =
       (self.haskellPackages.override (old: {
         overrides = helf: huper: {
