@@ -169,12 +169,12 @@ with rec {
     settings.X11Forwarding = true;
   };
 
-  services.gnunet.enable = true;
+  services.gnunet.enable = false;
 
   services.avahi.hostName = config.networking.hostName;
 
   services.kubo = {
-    enable = true;
+    enable = false;
     autoMount = true;
     settings.Addresses.API = [ "/ip4/127.0.0.1/tcp/5001" ];
   };
