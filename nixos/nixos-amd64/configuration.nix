@@ -23,21 +23,16 @@ with rec {
   warbo.enable = true;
   warbo.home-manager.username = "chris";
   warbo.dotfiles = builtins.toString config.home.homeDirectory + "/repos/warbo-dotfiles";
-  warbo.packages =
-    with pkgs;
-    [
-      devCli
-      mediaGui
-      netCli
-      netGui
-      sysCli
-      leafpad
-      (pkgs.hiPrio warbo-utilities)
-      pkgs.libsForQt5.qtstyleplugin-kvantum
-      pkgs.qt6Packages.qtstyleplugin-kvantum
-      pkgs.lxqt.qterminal
-    ]
-    ++ builtins.attrValues widgetThemes;
+  warbo.packages = with pkgs; [
+    devCli
+    mediaGui
+    netCli
+    netGui
+    sysCli
+    leafpad
+    (pkgs.hiPrio warbo-utilities)
+    pkgs.lxqt.qterminal
+  ];
   warbo.nixpkgs.overlays = os: [
     os.sources
     os.repos
@@ -45,6 +40,44 @@ with rec {
     os.nixpkgsUpstream
     os.theming
   ];
+
+  qt.enable = true;
+  qt.platformTheme = "lxqt";
+  xdg.portal.lxqt.styles = [
+    pkgs.warbo-packages.skulpture.qt5
+    pkgs.warbo-packages.skulpture.qt6
+  ];
+
+  environment.variables = {
+    QT_QPA_PLATFORMTHEME = "lxqt";
+    QT_STYLE_OVERRIDE = "skulpture";
+  };
+
+  # environment.profileRelativeSessionVariables =
+  #   with {
+  #     qtVersions = [
+  #       pkgs.qt5
+  #       pkgs.qt6
+  #     ];
+  #   }; {
+  #     QT_PLUGIN_PATH = map (qt: "/${qt.qtbase.qtPluginPrefix}") qtVersions;
+  #     QML2_IMPORT_PATH = map (qt: "/${qt.qtbase.qtQmlPrefix}") qtVersions;
+  #   };
+
+  #environment.variables.QT_QPA_PLATFORMTHEME = "qt6ct";
+  #environment.sessionVariables.QT_STYLE_OVERRIDE = "skulpture";
+
+  # These need to go in systemPackages, since Home Manager won't trigger the
+  # required hooks, etc.
+  environment.systemPackages =
+    with pkgs;
+    [
+      qt5ct
+      qt6ct
+      libsForQt5.qtstyleplugin-kvantum
+      qt6Packages.qtstyleplugin-kvantum
+    ]
+    ++ builtins.attrValues widgetThemes;
 
   # Use the GRUB 2 boot loader.
   boot.loader.grub.enable = true;
