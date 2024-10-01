@@ -41,7 +41,6 @@ with rec {
     os.theming
   ];
 
-  qt.enable = true;
   qt.platformTheme = "lxqt";
   xdg.portal.lxqt.styles = [
     pkgs.warbo-packages.skulpture.qt5
@@ -52,23 +51,6 @@ with rec {
     QT_QPA_PLATFORMTHEME = "lxqt";
     QT_STYLE_OVERRIDE = "skulpture";
   };
-
-  # environment.profileRelativeSessionVariables =
-  #   with {
-  #     qtVersions = [
-  #       pkgs.qt5
-  #       pkgs.qt6
-  #     ];
-  #   }; {
-  #     QT_PLUGIN_PATH = map (qt: "/${qt.qtbase.qtPluginPrefix}") qtVersions;
-  #     QML2_IMPORT_PATH = map (qt: "/${qt.qtbase.qtQmlPrefix}") qtVersions;
-  #   };
-
-  #environment.variables.QT_QPA_PLATFORMTHEME = "qt6ct";
-  #environment.sessionVariables.QT_STYLE_OVERRIDE = "skulpture";
-
-  # These need to go in systemPackages, since Home Manager won't trigger the
-  # required hooks, etc.
   environment.systemPackages =
     with pkgs;
     [
