@@ -113,7 +113,6 @@ with rec {
     enable = true;
     desktopManager.lxqt.enable = true;
     windowManager.e16.enable = true;
-    layout = "gb";
     xkb.layout = "gb";
     xkb.options = "ctrl:nocaps";
 
