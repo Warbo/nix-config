@@ -42,16 +42,11 @@ with rec {
     os.theming
   ];
 
-  qt.platformTheme = "lxqt";
   xdg.portal.lxqt.styles = [
     pkgs.warbo-packages.skulpture.qt5
     pkgs.warbo-packages.skulpture.qt6
   ];
 
-  environment.variables = {
-    QT_QPA_PLATFORMTHEME = "lxqt";
-    QT_STYLE_OVERRIDE = "skulpture";
-  };
   environment.systemPackages =
     with pkgs;
     [

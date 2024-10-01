@@ -12,7 +12,6 @@
     };
   };
   home = {
-    sessionVariables.QT_STYLE_OVERRIDE = "skulpture";
     file =
       with { unknown = "sha256-47DEQpj8HBSa+/TImW+5JCeuQeRkm5NMpJWZG3hSuFU="; };
       lib.mapAttrs'
