@@ -7,7 +7,6 @@
 }:
 
 with rec {
-  inherit (pinnedNixpkgs) repoLatest;
   nix-helpers-src = (import ../../nix/sources.nix).nix-helpers;
   pinnedNixpkgs = import "${nix-helpers-src}/helpers/pinnedNixpkgs" { };
 };
