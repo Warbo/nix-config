@@ -47,7 +47,6 @@ with rec {
     pkgs.leafpad
     pkgs.lxqt.qterminal # KGX is slow, Foot mangles lines, Konsole needs KDElibs
     pkgs.mpv
-    pkgs.niv
     pkgs.nixfmt-rfc-style
     pkgs.p7zip
     pkgs.rclone

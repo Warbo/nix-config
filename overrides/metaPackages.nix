@@ -59,7 +59,6 @@ with {
         jq
         msgpack-tools
         nano
-        niv
         #nix-diff
         nix-top
         nixfmt-rfc-style
