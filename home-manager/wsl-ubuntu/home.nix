@@ -154,6 +154,13 @@
       # a .gitconfig file, include it.
       with builtins;
       with rec {
+        inherit
+          (
+            (rec { inherit (import ../../overrides/repos.nix overrides { }) overrides; })
+            .overrides.nix-helpers
+          )
+          sanitiseName
+          ;
         # Look for any Windows users
         wslDir = /mnt/c/Users;
         userDirs = if pathExists wslDir then readDir wslDir else { };
@@ -162,11 +169,6 @@
         users = filter (
           name: userDirs."${name}" == "directory" && pathExists (userCfg name)
         ) (attrNames userDirs);
-        sanitiseName = import "${nix-helpers-src}/helpers/sanitiseName" {
-          inherit lib;
-        };
-        nix-helpers-src = sources.nix-helpers;
-        sources = import ../../nix/sources.nix;
       };
       assert
         length users < 2
