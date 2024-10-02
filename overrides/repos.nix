@@ -14,8 +14,15 @@ self: super: with { inherit (builtins) fetchGit; }; {
     };
 
     nix-helpers = import self.nix-helpers-src {
-      # Use the nixpkgs set we're overlaying instead of its pinned default
-      nixpkgs = super; # TODO: Use self
+      # nix-helpers takes nixpkgs as an argument, defaulting to its own pinned
+      # nixpkgsLatest (whose definition doesn't refer to the given nixpkgs, and
+      # hence avoids infinite recursion).
+      # We prefer to use the nixpkgs we're overlaying instead, but that might be
+      # empty if we're bootstrapping; in those situations we fall back to the
+      # nixpkgsLatest default.
+      # TODO: Would be nice to use self instead of super; but that relies on our
+      # attribute names being determined without referencing nix-helpers.
+      nixpkgs = if super ? newScope then super else self.nix-helpers.nixpkgsLatest;
     };
 
     warbo-packages = import self.warbo-packages-src {
