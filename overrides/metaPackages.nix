@@ -242,7 +242,6 @@ with {
           compton
           gksu
           iotop
-          keepassx-community
           lxappearance
           rofi
           st

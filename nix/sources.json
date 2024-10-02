@@ -6,13 +6,6 @@
         "url_template": "https://archive.mozilla.org/pub/firefox/releases/<version>/linux-i686/en-GB/firefox-<version>.tar.bz2",
         "version": "96.0.1"
     },
-    "keepassx-community": {
-        "sha256": "1qm4a1k11vy35mrzbzcc7lwlpmjzw18a2zy7z93rqa4vqcdb20rn",
-        "type": "file",
-        "url": "https://github.com/keepassxreboot/keepassxc/releases/download/2.6.6/keepassxc-2.6.6-src.tar.xz",
-        "url_template": "https://github.com/keepassxreboot/keepassxc/releases/download/<version>/keepassxc-<version>-src.tar.xz",
-        "version": "2.6.6"
-    },
     "niv": {
         "branch": "master",
         "description": "Easy dependency management for Nix projects",
