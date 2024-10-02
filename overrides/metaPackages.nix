@@ -125,7 +125,7 @@ with {
         ffmpeg
         opusTools
         sox
-        youtube-dl
+        yt-dlp
         ;
     };
 
