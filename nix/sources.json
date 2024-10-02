@@ -30,12 +30,5 @@
         "type": "tarball",
         "url": "https://github.com/nmattia/niv/archive/af958e8057f345ee1aca714c1247ef3ba1c15f5e.tar.gz",
         "url_template": "https://github.com/<owner>/<repo>/archive/<rev>.tar.gz"
-    },
-    "youtube-dl": {
-        "sha256": "1mg9qzph1dxr6z02fix7jchfsykhy5srzi4xlhqi57pryx2j71r5",
-        "type": "tarball",
-        "url": "https://yt-dl.org/downloads/2021.12.17/youtube-dl-2021.12.17.tar.gz",
-        "url_template": "https://yt-dl.org/downloads/<version>/youtube-dl-<version>.tar.gz",
-        "version": "2021.12.17"
     }
 }
