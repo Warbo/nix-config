@@ -1,11 +1,4 @@
 {
-    "firefox": {
-        "sha256": "14zrykqbbh8v7hmnpml39z14nh6hrdvxq3a6hgk6jwfrpc1vq9ms",
-        "type": "file",
-        "url": "https://archive.mozilla.org/pub/firefox/releases/96.0.1/linux-i686/en-GB/firefox-96.0.1.tar.bz2",
-        "url_template": "https://archive.mozilla.org/pub/firefox/releases/<version>/linux-i686/en-GB/firefox-<version>.tar.bz2",
-        "version": "96.0.1"
-    },
     "niv": {
         "branch": "master",
         "description": "Easy dependency management for Nix projects",

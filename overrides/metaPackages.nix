@@ -162,7 +162,6 @@ with {
       inherit (self)
         dillo
         firefox
-        #firefoxBinary  # TODO: Probably delete this (and accompanying def)
         uget
         x11vnc
         ;
