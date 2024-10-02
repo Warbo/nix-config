@@ -7,14 +7,7 @@
 
 with rec {
   inherit
-    (rec {
-      # TODO: Depend only on warbo-utilities, import the others from it
-      sources = import ../nix/sources.nix;
-      nix-helpers = import sources.nix-helpers { nixpkgs = pkgs; };
-      warbo-utilities = import sources.warbo-utilities {
-        warbo-packages = import sources.warbo-packages { inherit nix-helpers; };
-      };
-    })
+    (rec { inherit (import ../overrides/repos.nix overrides { }) overrides; })
     nix-helpers
     warbo-utilities
     ;
