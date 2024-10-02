@@ -121,7 +121,6 @@ with rec {
   xdg.systemDirs.data = [ "${config.home.homeDirectory}/.nix-profile/share/applications" ];
 
   warbo.nixpkgs.overlays = os: [
-    os.sources
     os.repos
     os.metaPackages # os.emacs
   ];
