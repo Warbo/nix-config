@@ -33,6 +33,14 @@ with rec {
     leafpad
     (pkgs.hiPrio warbo-utilities)
     pkgs.lxqt.qterminal
+    (pkgs.writeShellApplication {
+      name = "xfce4-notifyd";
+      text = ''
+        # LXQt's notification daemon has a messed up window, so use XFCE's
+        # The binary lives in a lib/, so we put this wrapper in a bin/
+        exec ${pkgs.xfce.xfce4-notifyd}/lib/xfce4/notifyd/xfce4-notifyd "$@"
+      '';
+    })
   ];
   warbo.nixpkgs.overlays = os: [
     os.sources
