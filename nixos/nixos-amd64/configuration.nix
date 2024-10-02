@@ -6,7 +6,6 @@
   ...
 }:
 
-with rec { nix-helpers-src = (import ../../nix/sources.nix).nix-helpers; };
 {
   imports = [
     # Include the results of the hardware scan.
