@@ -6,15 +6,6 @@
         "url_template": "https://archive.mozilla.org/pub/firefox/releases/<version>/linux-i686/en-GB/firefox-<version>.tar.bz2",
         "version": "96.0.1"
     },
-    "get_iplayer": {
-        "description": "A utility for downloading TV and radio programmes from BBC iPlayer and BBC Sounds",
-        "homepage": "https://github.com/get-iplayer/get_iplayer/wiki",
-        "sha256": "077y31gg020wjpx5pcivqgkqawcjxh5kjnvq97x2gd7i3wwc30qi",
-        "type": "tarball",
-        "url": "https://github.com/get-iplayer/get_iplayer/archive/v3.27.tar.gz",
-        "url_template": "https://github.com/get-iplayer/get_iplayer/archive/<version>.tar.gz",
-        "version": "v3.27"
-    },
     "keepassx-community": {
         "sha256": "1qm4a1k11vy35mrzbzcc7lwlpmjzw18a2zy7z93rqa4vqcdb20rn",
         "type": "file",

@@ -121,7 +121,6 @@ with {
       inherit (self)
         acoustidFingerprinter
         alsaUtils
-        get_iplayer
         imagemagick
         ffmpeg
         opusTools
