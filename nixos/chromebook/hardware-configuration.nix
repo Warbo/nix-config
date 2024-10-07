@@ -41,7 +41,7 @@
   fileSystems."/home/jo/Public" = {
     device = "//dietpi.local/shared";
     fsType = "cifs";
-    options = pkgs.lib.concatStringsSep "," [
+    options = [
       "x-systemd.automount"
       "noauto"
       "x-systemd.idle-timeout=60"
