@@ -56,6 +56,8 @@ trySsh() {
     then
         echo "Connected to $1" 1>&2
         echo "$1"
+    else
+        return
     fi
     return
 }
@@ -106,7 +108,7 @@ lookupNames() {
          'findNameCmds | ssh \
            -o BatchMode=yes \
            -o StrictHostKeyChecking=no \
-           {} sh'
+           {} sh' || true
 }
 
 # Finally we update the entries in /etc/hosts with the corresponding IPs
