@@ -75,6 +75,15 @@ workingLogins() {
 # Once we have some working logins, we can look up some .local domains
 
 findNameCmds() {
+    # Output a command that will get the (remote) system's hostname and IP. We
+    # append '.local' to the name, and select only those address in RANGE (we
+    # can't rely on getent for localhost, since it can give us an IP for any of
+    # the networks we're connected to!)
+    # shellcheck disable=SC2016
+    printf '{ %s; } | xargs -L1 printf "%s" "$(%s)"\n' \
+           'hostname 2>/dev/null || hostnamectl hostname || true' \
+           '%s STREAM %s.local\n' \
+           'ip address | grep -o "'"$RANGE"'.[0-9]*/" | sed -e "s@/@@g"'
     # Output a command to look up each .local domain in our current /etc/hosts
     < /etc/hosts grep -v '^#' |
         awk '{print $2}' |
