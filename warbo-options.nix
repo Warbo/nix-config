@@ -66,7 +66,6 @@ with {
 
   nixpkgs.overlays = mkOption {
     default = os: [
-      os.sources
       os.repos
       os.metaPackages
     ];

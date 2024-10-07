@@ -38,7 +38,6 @@
     })
   ];
   warbo.nixpkgs.overlays = os: [
-    os.sources
     os.repos
     os.metaPackages
     os.nixpkgsUpstream

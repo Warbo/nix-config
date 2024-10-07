@@ -14,7 +14,6 @@
   home.homeDirectory = "/home/pi";
   warbo.enable = true;
   warbo.nixpkgs.overlays = os: [
-    os.sources
     os.repos
     os.metaPackages
     os.nixpkgsUpstream
