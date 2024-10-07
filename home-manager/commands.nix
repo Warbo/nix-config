@@ -1,6 +1,8 @@
 # TODO: Move these to warbo-utilities
 {
-  nix-helpers ? import (import ../nix/sources.nix).nix-helpers { },
+  nix-helpers ?
+    (rec { inherit (import ../overrides/repos.nix overrides { }) overrides; })
+    .overrides.nix-helpers,
   linkFarm ? nix-helpers.nixpkgs.linkFarm,
   newScope ? nix-helpers.nixpkgs.newScope,
   writeShellScriptBin ? nix-helpers.nixpkgs.writeShellScriptBin,

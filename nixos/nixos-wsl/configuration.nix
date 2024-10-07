@@ -13,9 +13,14 @@
   pkgs,
   ...
 }:
-with rec {
-  sources = import ../../nix/sources.nix;
-  nix-helpers-src = sources.nix-helpers;
+with {
+  inherit
+    (
+      (rec { inherit (import ../../overrides/repos.nix overrides { }) overrides; })
+      .overrides.nix-helpers
+    )
+    sanitiseName
+    ;
   osPkgs = pkgs;
 };
 {
@@ -93,9 +98,6 @@ with rec {
             users = filter (
               name: userDirs."${name}" == "directory" && pathExists (userCfg name)
             ) (attrNames userDirs);
-            sanitiseName = import "${nix-helpers-src}/helpers/sanitiseName" {
-              inherit lib;
-            };
           };
           assert
             length users < 2

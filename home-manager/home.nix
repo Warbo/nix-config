@@ -7,14 +7,10 @@
 
 with rec {
   inherit
-    (rec {
-      # TODO: Depend only on warbo-utilities, import the others from it
-      sources = import ../nix/sources.nix;
-      nix-helpers = import sources.nix-helpers { nixpkgs = pkgs; };
-      warbo-utilities = import sources.warbo-utilities {
-        warbo-packages = import sources.warbo-packages { inherit nix-helpers; };
-      };
-    })
+    (
+      (rec { inherit (import ../overrides/repos.nix overrides { }) overrides; })
+      .overrides
+    )
     nix-helpers
     warbo-utilities
     ;
@@ -51,7 +47,6 @@ with rec {
     pkgs.leafpad
     pkgs.lxqt.qterminal # KGX is slow, Foot mangles lines, Konsole needs KDElibs
     pkgs.mpv
-    pkgs.niv
     pkgs.nixfmt-rfc-style
     pkgs.p7zip
     pkgs.rclone
@@ -132,7 +127,6 @@ with rec {
   ];
 
   warbo.nixpkgs.overlays = os: [
-    os.sources
     os.repos
     os.metaPackages # os.emacs
   ];
@@ -281,35 +275,6 @@ with rec {
     home-manager = {
       path = import ./nixos-import.nix;
     };
-
-    /*
-      TODO: Add these:
-      https://github.com/nix-community/home-manager/blob/master/modules/programs/mbsync.nix
-      https://github.com/nix-community/home-manager/blob/master/modules/programs/msmtp.nix
-      https://github.com/nix-community/home-manager/blob/master/modules/programs/mu.nix
-    */
-
-    #rtorrent.enable = true;
-
-    ssh = {
-      enable = true;
-      matchBlocks = {
-        chromebook = {
-          hostname = "chromebook.local";
-          user = "jo";
-        };
-        pi = {
-          hostname = "dietpi.local";
-          user = "pi";
-        };
-        laptop = {
-          hostname = "nixos-amd64.local";
-          user = "chris";
-        };
-      };
-    };
-
-    yt-dlp.enable = true;
   };
 
   services = {

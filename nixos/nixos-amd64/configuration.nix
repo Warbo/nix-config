@@ -1,7 +1,4 @@
-# Edit this configuration file to define what should be installed on
-# your system. Help is available in the configuration.nix(5) man page, on
-# https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
-
+# AMD64 laptop
 {
   config,
   lib,
@@ -9,20 +6,19 @@
   ...
 }:
 
-with rec {
-  inherit (pinnedNixpkgs) repoLatest;
-  nix-helpers-src = (import ../../nix/sources.nix).nix-helpers;
-  pinnedNixpkgs = import "${nix-helpers-src}/helpers/pinnedNixpkgs" { };
-};
 {
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
     (import ../modules/warbo.nix)
+    (import "${import ../../home-manager/nixos-import.nix}/nixos")
   ];
 
+  home-manager.users.chris = import ./home.nix;
   warbo.enable = true;
   warbo.home-manager.username = "chris";
+  warbo.dotfiles =
+    builtins.toString config.home.homeDirectory + "/repos/warbo-dotfiles";
   warbo.packages = with pkgs; [
     devCli
     mediaGui
@@ -31,10 +27,38 @@ with rec {
     sysCli
     leafpad
     (pkgs.hiPrio warbo-utilities)
-    pkgs.libsForQt5.qtstyleplugin-kvantum
-    pkgs.qt6Packages.qtstyleplugin-kvantum
     pkgs.lxqt.qterminal
+    (pkgs.writeShellApplication {
+      name = "xfce4-notifyd";
+      text = ''
+        # LXQt's notification daemon has a messed up window, so use XFCE's
+        # The binary lives in a lib/, so we put this wrapper in a bin/
+        exec ${pkgs.xfce.xfce4-notifyd}/lib/xfce4/notifyd/xfce4-notifyd "$@"
+      '';
+    })
   ];
+  warbo.nixpkgs.overlays = os: [
+    os.sources
+    os.repos
+    os.metaPackages
+    os.nixpkgsUpstream
+    os.theming
+  ];
+
+  xdg.portal.lxqt.styles = [
+    pkgs.warbo-packages.skulpture.qt5
+    pkgs.warbo-packages.skulpture.qt6
+  ];
+
+  environment.systemPackages =
+    with pkgs;
+    [
+      qt5ct
+      qt6ct
+      libsForQt5.qtstyleplugin-kvantum
+      qt6Packages.qtstyleplugin-kvantum
+    ]
+    ++ builtins.attrValues widgetThemes;
 
   # Use the GRUB 2 boot loader.
   boot.loader.grub.enable = true;
@@ -65,13 +89,17 @@ with rec {
   };
 
   # Enable the X11 windowing system.
-  services.xserver.enable = true;
   services.displayManager.sddm.enable = true;
-  services.xserver.desktopManager.plasma5.enable = true;
+  services.xserver = {
+    enable = true;
+    desktopManager.lxqt.enable = true;
+    windowManager.e16.enable = true;
+    xkb.layout = "gb";
+    xkb.options = "ctrl:nocaps";
 
-  # Configure keymap in X11
-  services.xserver.xkb.layout = "gb";
-  # services.xserver.xkb.options = "eurosign:e,caps:escape";
+    # Enable touchpad support (enabled default in most desktopManager).
+    # libinput.enable = true;
+  };
 
   # Enable CUPS to print documents.
   # services.printing.enable = true;
@@ -83,8 +111,7 @@ with rec {
   hardware.bluetooth.powerOnBoot = true;
   hardware.pulseaudio.package = pkgs.pulseaudioFull;
 
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
+  security.sudo.enable = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.chris = {
@@ -134,7 +161,7 @@ with rec {
 
   services.emacs = {
     enable = true;
-    package = pkgs.emacs29-pgtk; # replace with emacs-gtk, or a version provided by the community overlay if desired.
+    #package = pkgs.emacs-unstable; # replace with emacs-gtk, or a version provided by the community overlay if desired.
   };
 
   # Enable the OpenSSH daemon.
@@ -143,12 +170,12 @@ with rec {
     settings.X11Forwarding = true;
   };
 
-  services.gnunet.enable = true;
+  services.gnunet.enable = false;
 
   services.avahi.hostName = config.networking.hostName;
 
   services.kubo = {
-    enable = true;
+    enable = false;
     autoMount = true;
     settings.Addresses.API = [ "/ip4/127.0.0.1/tcp/5001" ];
   };

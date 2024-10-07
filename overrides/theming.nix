@@ -1,5 +1,13 @@
 self: super:
 
+with {
+  warbo-packages =
+    self.warbo-packages or (
+      (rec { inherit (import ./repos.nix overrides super) overrides; })
+      .overrides.warbo-packages
+    );
+};
+with { skulpture = self.skulpture or warbo-packages.skulpture; };
 {
   overrides = {
     iconThemes = {
@@ -9,27 +17,27 @@ self: super:
     };
 
     widgetThemes = {
+      # These come from upstream, so should always be available
       inherit (self)
-        blueshell-theme
         clearlooks-phenix
-        e17gtk-theme
-        gtk2-aurora-engine
+        e17gtk
         gtk_engines
         gtk-engine-murrine
-        vertex-theme
-        zuki-theme
+        theme-vertex
+        zuki-themes
         ;
 
-      inherit (self.skulpture) skulpture-qt4;
+      # These come from warbo-packages, which may not be included in overlays.
+      # Look them up in self, to allow overrides; but fall back to loading
+      # them directly from warbo-packages.
+      blueshell-theme = self.blueshell-theme or warbo-packages.blueshell-theme;
 
-      skulpture-qt5 = self.libsForQt5.skulpture;
+      # TODO: This is broken due to Nixpkgs renaming pkgconfig
+      #gtk2-aurora-engine = self.gtk2-aurora-engine or
+      #  warbo-packages.gtk2-aurora-engine
+
+      skulpture-qt5 = self.skulpture-qt5 or skulpture.qt5;
+      skulpture-qt6 = self.skulpture-qt6 or skulpture.qt6;
     };
-
-    mkLibsForQt5 =
-      qelf:
-      super.mkLibsForQt5 qelf
-      // {
-        skulpture = qelf.callPackage self.skulpture.mkSkulptureQt5 { };
-      };
   };
 }

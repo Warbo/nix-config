@@ -1,7 +1,2 @@
 with import ./nix;
-runCommand "config-env" {
-  buildInputs = [
-    asv-nix
-    niv
-  ];
-} "exit 1"
+runCommand "config-env" { buildInputs = [ asv-nix ]; } "exit 1"

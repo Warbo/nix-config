@@ -46,7 +46,7 @@ with {
     type = types.nullOr types.path;
     default = fetchGit {
       url = "http://chriswarbo.net/git/warbo-dotfiles.git";
-      rev = "f64377e71861cc5ab99ecee5b9e2a90d7fd20cde";
+      rev = "76428a670145953173a2f74cccbac31d95a97be0";
     };
     description = ''
       Copy of chriswarbo.net/git/warbo-dotfiles.git. Defaults to a git clone,
@@ -57,8 +57,8 @@ with {
   nixpkgs.path = mkOption {
     type = types.nullOr types.path;
     default =
-      with { inherit (import nix/sources.nix) nix-helpers; };
-      (import "${nix-helpers}/helpers/pinnedNixpkgs" { }).repoLatest;
+      with rec { inherit (import overrides/repos.nix overrides { }) overrides; };
+      (import "${overrides.nix-helpers-src}/helpers/pinnedNixpkgs" { }).repoLatest;
     description = ''
       Path to use for Nixpkgs. We use this to set <nixpkgs>, etc.
     '';
