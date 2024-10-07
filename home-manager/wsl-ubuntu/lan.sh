@@ -16,10 +16,11 @@ done
 
 # Now we implement a poor man's mDNS. First we scan the local network for all of
 # the active IP addresses.
-export RANGE=$(ip route |
-                   grep -o '^default via [0-9.]*' |
-                   cut -d' ' -f3 |
-                   cut -d. -f1-3)
+RANGE=$(ip route |
+            grep -o '^default via [0-9.]*' |
+            cut -d' ' -f3 |
+            cut -d. -f1-3)
+export RANGE
 
 dedupe() {
     # Like uniq but outputs unique lines immediately (uses O(n) memory though!)
