@@ -44,7 +44,15 @@ else
     do
         TEST_ARGS+=('-m' "$ARG")
     done
-    PODMAN_ARGS+=('--env' "ARGS=${TEST_ARGS[*]}" "$IMAGE_NAME" 'selenium-test')
+    PODMAN_ARGS+=('--env' "ARGS=${TEST_ARGS[*]}")
+    if [[ "${KEEP_ALIVE:-0}" -gt 0 ]]
+    then
+        echo "KEEP_ALIVE given, will drop to terminal after Selenium ends" 1>&2
+        PODMAN_ARGS+=('-it' "$IMAGE_NAME" 'bash' '-c' 'selenium-test; bash -i')
+    else
+        echo "No KEEP_ALIVE given, will exit after Selenium ends" 1>&2
+        PODMAN_ARGS+=("$IMAGE_NAME" 'selenium-test')
+    fi
     unset TEST_ARGS
   else
     echo "Some args aren't SeleniumTests, passing them to podman"
