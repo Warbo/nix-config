@@ -28,7 +28,6 @@
     unzip
     vlc
     wget
-    xfce.xfce4-pulseaudio-plugin
 
     # Fixes Patreon downloading as of Jan 2024
     /*(yt-dlp.overrideAttrs (old: {
@@ -166,6 +165,7 @@
   environment.etc."wireplumber/wireplumber.conf.d/91-increase-headroom.conf".text = ''
     api.alsa.headroom = 2048
   '';
+  environment.systemPackages = [ pkgs.xfce.xfce4-pulseaudio-plugin ];
 
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
