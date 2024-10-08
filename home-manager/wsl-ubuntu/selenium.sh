@@ -19,6 +19,13 @@ LOADED=$(podman load < "$IMAGE_FILE")
 IMAGE_NAME=$(echo "$LOADED" | grep 'Loaded image:' | cut -d' ' -f3)
 [[ -n "$IMAGE_NAME" ]] || fail "Did not find image name in '$LOADED'"
 
+# Extra arguments to podman run can be given in RUN_ARGS, as a JSON array
+EXTRA_ARGS=()
+while read -r RA
+do
+    EXTRA_ARGS+=("$RA")
+done < <(echo "${RUN_ARGS:-[]}" | jq -r '.[]')
+
 # Spot any args beginning with 'SeleniumTests.', so we can pass them as a filter
 # to the 'selenium-tests' command.
 TEST_COUNT=0
@@ -44,7 +51,7 @@ else
     do
         TEST_ARGS+=('-m' "$ARG")
     done
-    PODMAN_ARGS+=('--env' "ARGS=${TEST_ARGS[*]}")
+    PODMAN_ARGS+=('--env' "ARGS=${TEST_ARGS[*]}" '-p' '4444:14444')
     if [[ "${KEEP_ALIVE:-0}" -gt 0 ]]
     then
         echo "KEEP_ALIVE given, will drop to terminal after Selenium ends" 1>&2
@@ -91,4 +98,4 @@ else
   fi
 fi 1>&2
 
-exec podman run "${PODMAN_ARGS[@]}"
+exec podman run "${EXTRA_ARGS[@]}" "${PODMAN_ARGS[@]}"
