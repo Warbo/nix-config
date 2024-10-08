@@ -61,6 +61,7 @@
         text = builtins.readFile ./go.sh;
         runtimeEnv.LAN = lan;
       };
+      pyselenium = pkgs.callPackage ./pyselenium.nix {};
     })
     ++ [
       (pkgs.hiPrio pkgs.moreutils) # prefer timestamping 'ts' on WSL
