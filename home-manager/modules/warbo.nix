@@ -78,6 +78,10 @@ with {
               hostname = "nixos-amd64.local";
               user = "chris";
             };
+            s5 = {
+              hostname = "starfive.local";
+              user = "user";
+            };
           };
         };
         /*
