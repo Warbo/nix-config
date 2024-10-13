@@ -35,7 +35,6 @@ with {
         cabal-install
         ghc
         ghcid
-        haskell-tng
         hlint
         pretty-derivation
         stylish-haskell
