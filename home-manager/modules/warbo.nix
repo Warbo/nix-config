@@ -57,7 +57,8 @@ with {
         password-store = {
           enable = true;
           package = pkgs.pass.withExtensions (exts: [ exts.pass-otp ]);
-          settings.PASSWORD_STORE_DIR = builtins.toString config.home.homeDirectory + "/.password-store";
+          settings.PASSWORD_STORE_DIR =
+            builtins.toString config.home.homeDirectory + "/.password-store";
         };
         ssh = {
           enable = true;
@@ -113,7 +114,9 @@ with {
     (mkIf (cfg.dotfiles != null) {
       programs.bash.bashrcExtra =
         with builtins;
-        assert (typeOf cfg.dotfiles == "path" && pathExists cfg.dotfiles) || (cfg.dotfiles ? outPath);
+        assert
+          (typeOf cfg.dotfiles == "path" && pathExists cfg.dotfiles)
+          || (cfg.dotfiles ? outPath);
         ''
           # Always make Nix binaries available. If they're not defined in /etc,
           # then splice pkgs.nix as a fallback.
