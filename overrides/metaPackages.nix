@@ -160,6 +160,7 @@ with {
       inherit (self)
         dillo
         firefox
+        transmission-qt
         uget
         x11vnc
         ;
