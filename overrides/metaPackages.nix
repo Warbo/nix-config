@@ -61,7 +61,6 @@ with {
         #nix-diff
         nix-top
         nixfmt-rfc-style
-        p7zip
         python3
         racket
         silver-searcher
@@ -204,6 +203,7 @@ with {
             lzip
             nano
             openssh
+            p7zip
             pciutils
             pmutils
             psmisc
