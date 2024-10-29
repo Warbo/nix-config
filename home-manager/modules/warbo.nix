@@ -32,6 +32,7 @@ with {
         # repos which include such files, since they're not for distribution!
         .dir-locals-2.el
       '';
+      home.file.".config/pinentry/preexec".source = ./pinentry-preexec.sh;
       home.packages = cfg.packages;
       nixpkgs.config.allowUnfree = true;
       programs = {
