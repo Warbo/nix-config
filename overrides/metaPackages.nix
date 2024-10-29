@@ -217,6 +217,7 @@ with {
             usbutils
             #warbo-utilities
             xz
+            zbar
             zip
             ;
         };
