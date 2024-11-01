@@ -37,7 +37,7 @@ do
   fi
 done
 
-PODMAN_ARGS=()
+PODMAN_ARGS=('-p' '4444:14444' '-p' '80:8080')
 if [[ "$#" -eq 0 ]]
 then
   echo "No args given, starting an interactive shell"
@@ -51,7 +51,7 @@ else
     do
         TEST_ARGS+=('-m' "$ARG")
     done
-    PODMAN_ARGS+=('--env' "ARGS=${TEST_ARGS[*]}" '-p' '4444:14444')
+    PODMAN_ARGS+=('--env' "ARGS=${TEST_ARGS[*]}")
     if [[ "${KEEP_ALIVE:-0}" -gt 0 ]]
     then
         echo "KEEP_ALIVE given, will drop to terminal after Selenium ends" 1>&2
