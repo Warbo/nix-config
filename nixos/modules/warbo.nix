@@ -36,7 +36,14 @@ with {
 
   config = mkIf cfg.enable (mkMerge [
     {
-      # Unconditional; override if desired
+      # Unconditional settings; override if desired
+      boot.binfmt.emulatedSystems = [
+        "aarch64-linux" # Pinephone
+        "armv6l-linux" # RaspberryPi
+        "i686-linux" # Thinkpad
+        "riscv64-linux" # VisionFive
+        "x86_64-linux" # Laptops
+      ];
       nix.settings.show-trace = true;
       nixpkgs.config.allowUnfree = true;
       programs.iotop.enable = true;
