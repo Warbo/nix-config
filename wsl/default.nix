@@ -40,12 +40,12 @@
         pkgs.nix
         podman-wrapper
       ];
-      text = builtins.readFile ../home-manager/wsl-ubuntu/selenium.sh;
+      text = builtins.readFile ./selenium.sh;
     };
     # Fix up LAN dodginess caused by WSL and VPN
     lan = pkgs.writeShellApplication {
       name = "lan";
-      text = builtins.readFile ../home-manager/wsl-ubuntu/lan.sh;
+      text = builtins.readFile ./lan.sh;
       runtimeInputs = [
         pkgs.parallel
         pkgs.nmap
@@ -54,16 +54,16 @@
     # Simple command to get WSL up and running
     go = pkgs.writeShellApplication {
       name = "go";
-      text = builtins.readFile ../home-manager/wsl-ubuntu/go.sh;
+      text = builtins.readFile ./go.sh;
       runtimeEnv.LAN = lan;
     };
-    pyselenium = pkgs.callPackage ../home-manager/wsl-ubuntu/pyselenium.nix {};
+    pyselenium = pkgs.callPackage ./pyselenium.nix {};
   });
 
   # Settings specific to Home Manager, whether on NixOS or standalone
   home = {
     sessionVariables = {
-      FONT_EXISTS_CMD = builtins.toString ../home-manager/wsl-ubuntu/font_exists.sh;
+      FONT_EXISTS_CMD = builtins.toString ./font_exists.sh;
     };
     file = {
       ".screenrc" = {
