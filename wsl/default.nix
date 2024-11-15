@@ -81,11 +81,11 @@
   };
 
   bashrcExtra =
-    with { npiperelay = pkgs.callPackage ../nixos/nixos-wsl/npiperelay.nix { }; }; ''
+    with { npiperelay = pkgs.callPackage ./npiperelay.nix { }; }; ''
       export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
       (
         export PATH="${pkgs.socat}/bin:${npiperelay}/bin:$PATH"
-        . ${../nixos/nixos-wsl/1password.sh}
+        . ${./1password.sh}
       )
     '';
 
