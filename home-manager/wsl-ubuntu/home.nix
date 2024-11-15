@@ -19,7 +19,6 @@ warbo-wsl.config // {
     pkgs.devCli
     pkgs.devGui
     pkgs.sysCliNoFuse
-    pkgs.google-chrome
     pkgs.haskellPackages.fourmolu
     pkgs.haskellPackages.implicit-hie
     pkgs.haskellPackages.stylish-haskell

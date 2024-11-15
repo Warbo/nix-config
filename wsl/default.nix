@@ -5,6 +5,7 @@
 {
   # Programs to put in PATH, either system-wide (NixOS-only) or via Home Manager
   packages = [
+    pkgs.google-chrome
     pkgs.rxvt-unicode # Used to auto-spawn emacsclient
     pkgs.uw-ttyp0 # Fonts
   ] ++ (builtins.attrValues rec {
