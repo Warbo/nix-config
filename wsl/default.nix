@@ -79,6 +79,15 @@
     };
   };
 
+  bashrcExtra =
+    with { npiperelay = pkgs.callPackage ../nixos/nixos-wsl/npiperelay.nix { }; }; ''
+      export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
+      (
+        export PATH="${pkgs.socat}/bin:${npiperelay}/bin:$PATH"
+        . ${../nixos/nixos-wsl/1password.sh}
+      )
+    '';
+
   # Things which should work as-is, without any merging
   config = {
     fonts.fontconfig.enable = true;

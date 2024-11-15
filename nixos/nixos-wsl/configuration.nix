@@ -22,6 +22,7 @@ with {
     sanitiseName
     ;
   osPkgs = pkgs;
+  warbo-wsl = import ../../wsl { inherit lib pkgs; };
 };
 {
   imports = [
@@ -77,14 +78,8 @@ with {
     {
 
       programs = {
-        bash.bashrcExtra =
-          with { npiperelay = pkgs.callPackage ./npiperelay.nix { }; }; ''
-            export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
-            (
-              export PATH="${pkgs.socat}/bin:${npiperelay}/bin:$PATH"
-              . ${./1password.sh}
-            )
-          '';
+        bash.bashrcExtra = warbo-wsl.bashrcExtra;
+
         git.includes =
           # Look for existing .gitconfig files on WSL. If exactly 1 WSL user has
           # a .gitconfig file, include it.
