@@ -8,13 +8,13 @@
 with {
   warbo-wsl = import ../../wsl { inherit lib pkgs; };
 };
-{
+warbo-wsl.config // {
   imports = [ (../modules/warbo.nix) ];
 
-  warbo-wsl.enable = true;
+  warbo.enable = true;
   warbo.professional = true;
   warbo.home-manager.stateVersion = "24.05";
-  warbo.packages = [
+  warbo.packages = warbo-wsl.packages ++ [
     (pkgs.hiPrio pkgs.moreutils) # prefer timestamping 'ts' on WSL
     pkgs.devCli
     pkgs.devGui
@@ -25,8 +25,10 @@ with {
     pkgs.haskellPackages.stylish-haskell
     pkgs.nix
   ];
-  home.username = "chrisw";
-  home.homeDirectory = "/home/chrisw";
+  home = warbo-wsl.home // {
+    username = "chrisw";
+    homeDirectory = "/home/chrisw";
+  };
 
   # Let Home Manager install and manage itself.
   programs = {
