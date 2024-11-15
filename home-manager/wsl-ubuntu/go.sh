@@ -9,7 +9,7 @@ grep -q SWAP < /proc/swaps || {
     sudo swapon SWAP
 }
 
-"${LAN:?No LAN script}/bin/lan"
+"${LAN:?No LAN script}/bin/lan" || true
 ping -w5 -c1 192.168.0.1 || {
     echo "Couldn't ping local network. Fix routing table, and update $0!"
     exit 1

@@ -61,12 +61,14 @@
         text = builtins.readFile ./go.sh;
         runtimeEnv.LAN = lan;
       };
+      pyselenium = pkgs.callPackage ./pyselenium.nix {};
     })
     ++ [
       (pkgs.hiPrio pkgs.moreutils) # prefer timestamping 'ts' on WSL
       pkgs.devCli
       pkgs.devGui
       pkgs.sysCliNoFuse
+      pkgs.google-chrome
       pkgs.haskellPackages.fourmolu
       pkgs.haskellPackages.implicit-hie
       pkgs.haskellPackages.stylish-haskell
