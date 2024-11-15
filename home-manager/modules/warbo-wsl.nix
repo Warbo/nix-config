@@ -30,7 +30,10 @@ with {
   config = mkIf cfg.enable (mkMerge [
     {
       warbo.enable = true;
-      warbo.packages = (builtins.attrValues rec {
+      warbo.packages = [
+        pkgs.rxvt-unicode # Used to auto-spawn emacsclient
+        pkgs.uw-ttyp0 # Fonts
+      ] ++ (builtins.attrValues rec {
         podman-wrapper = pkgs.writeShellApplication {
           # Podman has issues running "rootless", so we just wrap it in
           # sudo. That needs a little massaging, so (a) it uses our usual $HOME
@@ -82,6 +85,26 @@ with {
         };
         pyselenium = pkgs.callPackage ../wsl-ubuntu/pyselenium.nix {};
       });
+
+      fonts.fontconfig.enable = true;
+
+
+      home.file = {
+        ".screenrc" = {
+          text = ''
+            msgwait 0
+            startup_message off
+            screen -t emacs-daemon 1 emacs --fg-daemon
+            screen -t journald-user 2 journalctl --user --follow
+            screen -t journald-sys 3 sudo journalctl --follow
+            screen -t htop 0 htop
+          '';
+        };
+      };
+
+      home.sessionVariables = {
+        FONT_EXISTS_CMD = builtins.toString ../wsl-ubuntu/font_exists.sh;
+      };
     }
   ]);
 }

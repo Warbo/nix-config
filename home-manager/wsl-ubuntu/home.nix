@@ -21,47 +21,9 @@
     pkgs.haskellPackages.implicit-hie
     pkgs.haskellPackages.stylish-haskell
     pkgs.nix
-    pkgs.rxvt-unicode # Used to auto-spawn emacsclient
-    pkgs.uw-ttyp0 # Fonts
   ];
   home.username = "chrisw";
   home.homeDirectory = "/home/chrisw";
-
-  home.file = {
-    ".screenrc" = {
-      text = ''
-        msgwait 0
-        startup_message off
-        screen -t emacs-daemon 1 emacs --fg-daemon
-        screen -t journald-user 2 journalctl --user --follow
-        screen -t journald-sys 3 sudo journalctl --follow
-        screen -t htop 0 htop
-      '';
-    };
-  };
-
-  fonts.fontconfig.enable = true;
-
-  # Home Manager can also manage your environment variables through
-  # 'home.sessionVariables'. These will be explicitly sourced when using a
-  # shell provided by Home Manager. If you don't want to manage your shell
-  # through Home Manager then you have to manually source 'hm-session-vars.sh'
-  # located at either
-  #
-  #  ~/.nix-profile/etc/profile.d/hm-session-vars.sh
-  #
-  # or
-  #
-  #  ~/.local/state/nix/profiles/profile/etc/profile.d/hm-session-vars.sh
-  #
-  # or
-  #
-  #  /etc/profiles/per-user/chrisw/etc/profile.d/hm-session-vars.sh
-  #
-  home.sessionVariables = {
-    # EDITOR = "emacs";
-    FONT_EXISTS_CMD = builtins.toString ./font_exists.sh;
-  };
 
   # Let Home Manager install and manage itself.
   programs = {
