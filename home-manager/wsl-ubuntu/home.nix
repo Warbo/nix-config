@@ -5,8 +5,11 @@
   ...
 }:
 
+with {
+  warbo-wsl = import ../../wsl { inherit lib pkgs; };
+};
 {
-  imports = [ (../modules/warbo.nix) (../modules/warbo-wsl.nix) ];
+  imports = [ (../modules/warbo.nix) ];
 
   warbo-wsl.enable = true;
   warbo.professional = true;
