@@ -79,38 +79,66 @@
     };
   };
 
-  bash = {
-    bashrcExtra =
-      with { npiperelay = pkgs.callPackage ./npiperelay.nix { }; };
-      # Need mkBefore, since warbo.nix has an early-return when non-interactive
-      # TODO: It would be better to make the latter mkAfter!
-      lib.mkBefore ''
-        # Put Nix in PATH, if it's not already
-        . ${pkgs.nix}/etc/profile.d/nix.sh
+  programs = {
+    bash = {
+      bashrcExtra =
+        with { npiperelay = pkgs.callPackage ./npiperelay.nix { }; };
+        # Need mkBefore, since warbo.nix has an early-return when non-interactive
+        # TODO: It would be better to make the latter mkAfter!
+        lib.mkBefore ''
+          # Put Nix in PATH, if it's not already
+          . ${pkgs.nix}/etc/profile.d/nix.sh
 
-        # Set up 1password socket, if not already running
-        export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
-        (
-          export PATH="${pkgs.socat}/bin:${npiperelay}/bin:$PATH"
-          . ${./1password.sh}
-        )
+          # Set up 1password socket, if not already running
+          export SSH_AUTH_SOCK="$HOME/.1password/agent.sock"
+          (
+            export PATH="${pkgs.socat}/bin:${npiperelay}/bin:$PATH"
+            . ${./1password.sh}
+          )
 
-        for D in '.local/bin' 'bin'
-        do
-          echo "$PATH" | grep -q "$HOME/$D" || export PATH="$HOME/$D:$PATH"
-        done
+          for D in '.local/bin' 'bin'
+          do
+            echo "$PATH" | grep -q "$HOME/$D" || export PATH="$HOME/$D:$PATH"
+          done
 
-        export NVM_DIR="$HOME/.nvm"
-        for F in "$HOME/.ghcup/env" \
-                 "$NVM_DIR/nvm.sh" \
-                 "$NVM_DIR/bash_completion" \
-                 "$HOME/SETUP.SH" \
-                 /usr/share/doc/nix-bin/examples/nix-profile-daemon.sh \
-                 ~/.nix-profile/etc/profile.d/*
-        do
-          [ -e "$F" ] && . "$F"
-        done
-      '';
+          export NVM_DIR="$HOME/.nvm"
+          for F in "$HOME/.ghcup/env" \
+                   "$NVM_DIR/nvm.sh" \
+                   "$NVM_DIR/bash_completion" \
+                   "$HOME/SETUP.SH" \
+                   /usr/share/doc/nix-bin/examples/nix-profile-daemon.sh \
+                   ~/.nix-profile/etc/profile.d/*
+          do
+            [ -e "$F" ] && . "$F"
+          done
+        '';
+    };
+
+    git = {
+      extraConfig.safe.directory = "*";
+      includes =
+        # Look for existing .gitconfig files on WSL. If exactly 1 WSL user has
+        # a .gitconfig file, include it.
+        with builtins;
+        with rec {
+          # Look for any Windows users
+          wslDir = /mnt/c/Users;
+          userDirs = if pathExists wslDir then readDir wslDir else { };
+          # See if any has a .gitconfig file
+          userCfg = name: wslDir + "/${name}/.gitconfig";
+          users = filter (name: userDirs."${name}" == "directory" && pathExists (userCfg name)) (
+            attrNames userDirs
+          );
+        };
+        assert length users < 2 || abort "Ambiguous .gitconfig, found multiple: ${toJSON users}";
+        lib.lists.optional (length users == 1) {
+          # Nix store paths can't begin with ".", so use contents = readFile
+          path = path {
+            path = userCfg (head users);
+            name = "gitconfig-wsl";
+          };
+        };
+    };
   };
 
   # Things which should work as-is, without any merging

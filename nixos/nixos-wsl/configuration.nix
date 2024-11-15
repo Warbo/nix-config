@@ -16,8 +16,7 @@
 with {
   inherit
     (
-      (rec { inherit (import ../../overrides/repos.nix overrides { }) overrides; })
-      .overrides.nix-helpers
+      (rec { inherit (import ../../overrides/repos.nix overrides { }) overrides; }).overrides.nix-helpers
     )
     sanitiseName
     ;
@@ -74,35 +73,8 @@ with {
   };
 
   home-manager.users.nixos =
-    { pkgs, lib, ... }:
+    { ... }:
     {
-      programs = {
-        inherit (warbo-wsl) bash;
-
-        git.includes =
-          # Look for existing .gitconfig files on WSL. If exactly 1 WSL user has
-          # a .gitconfig file, include it.
-          with builtins;
-          with rec {
-            # Look for any Windows users
-            wslDir = /mnt/c/Users;
-            userDirs = if pathExists wslDir then readDir wslDir else { };
-            # See if any has a .gitconfig file
-            userCfg = name: wslDir + "/${name}/.gitconfig";
-            users = filter (
-              name: userDirs."${name}" == "directory" && pathExists (userCfg name)
-            ) (attrNames userDirs);
-          };
-          assert
-            length users < 2
-            || abort "Ambiguous .gitconfig, found multiple: ${toJSON users}";
-          lib.lists.optional (length users == 1) {
-            # Nix store paths can't begin with ".", so use contents = readFile
-            path = path {
-              path = userCfg (head users);
-              name = sanitiseName "gitconfig-${head users}";
-            };
-          };
-      };
+      inherit (warbo-wsl) programs;
     };
 }
