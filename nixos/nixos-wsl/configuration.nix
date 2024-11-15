@@ -76,9 +76,8 @@ with {
   home-manager.users.nixos =
     { pkgs, lib, ... }:
     {
-
       programs = {
-        bash.bashrcExtra = warbo-wsl.bashrcExtra;
+        inherit (warbo-wsl) bash;
 
         git.includes =
           # Look for existing .gitconfig files on WSL. If exactly 1 WSL user has
