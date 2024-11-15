@@ -33,13 +33,14 @@ with {
   warbo.enable = true;
   warbo.professional = true;
   warbo.home-manager = {
+    inherit (warbo-wsl) home programs;
     username = "nixos";
     stateVersion = "24.05";
   };
-  warbo.packages = with pkgs; [
-    devCli
-    devGui
-    sysCli
+  warbo.packages = warbo-wsl.packages ++ [
+    pkgs.devCli
+    pkgs.devGui
+    pkgs.sysCliNoFuse
   ];
 
   wsl.enable = true;
@@ -71,10 +72,4 @@ with {
     enable = true;
     libraries = with pkgs; [ ];
   };
-
-  home-manager.users.nixos =
-    { ... }:
-    {
-      inherit (warbo-wsl) programs;
-    };
 }
