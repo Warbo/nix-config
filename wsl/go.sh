@@ -12,6 +12,13 @@ then
     }
 fi
 
+F_DIR=/mnt/wslg/distro/usr/share/fonts/X11/jmk
+if [[ -e "$F_DIR" ]]
+then
+    xset fp+ "$F_DIR" || true
+    xset fp rehash || true
+fi
+
 "${LAN:?No LAN script}/bin/lan" || true
 ping -w5 -c1 192.168.0.1 || {
     echo "Couldn't ping local network. Fix routing table, and update $0!"

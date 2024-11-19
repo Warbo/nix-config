@@ -56,6 +56,7 @@
         name = "go";
         text = builtins.readFile ./go.sh;
         runtimeEnv.LAN = lan;
+        runtimeInputs = [ pkgs.xorg.xset pkgs.xorg.xfontsel pkgs.xorg.mkfontdir ];
       };
       pyselenium = pkgs.callPackage ./pyselenium.nix { };
     });
