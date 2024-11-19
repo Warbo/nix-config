@@ -33,7 +33,9 @@ with {
   warbo.enable = true;
   warbo.professional = true;
   warbo.home-manager = {
-    inherit (warbo-wsl) home programs;
+    extras = {
+      inherit (warbo-wsl) home programs;
+    };
     username = "nixos";
     stateVersion = "24.05";
   };
