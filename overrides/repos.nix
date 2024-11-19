@@ -6,7 +6,7 @@ self: super: with { inherit (builtins) fetchGit; }; {
     };
     warbo-packages-src = fetchGit {
       url = "http://chriswarbo.net/git/warbo-packages.git";
-      rev = "0111eead4402ab48dcd32bc5de5dbad5734abc21";
+      rev = "8a749a003838a98723ff95b4ef67447464095166";
     };
     warbo-utilities-src = fetchGit {
       url = "http://chriswarbo.net/git/warbo-utilities.git";
