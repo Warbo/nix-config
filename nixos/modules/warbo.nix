@@ -24,6 +24,13 @@ with {
     common
     // {
       home-manager = (common.home-manager or { }) // {
+        extras = mkOption {
+          default = { };
+          description = ''
+            Extra configuration for the user's home-manager setup.
+          '';
+        };
+
         username = mkOption {
           type = types.nullOr types.str;
           default = null;
@@ -70,7 +77,8 @@ with {
     (mkIf (cfg.home-manager.username != null) {
       home-manager.users."${cfg.home-manager.username}" =
         { ... }:
-        {
+        cfg.home-manager.extras
+        // {
           # Load our Home Manager equivalent
           imports = [ (../../home-manager/modules/warbo.nix) ];
 
@@ -86,7 +94,10 @@ with {
             is-nixos = true;
             # Passing along username will cause an error, since our Home Manager
             # module doesn't define that option
-            home-manager = builtins.removeAttrs cfg.home-manager [ "username" ];
+            home-manager = builtins.removeAttrs cfg.home-manager [
+              "extras"
+              "username"
+            ];
           };
         };
     })
