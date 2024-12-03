@@ -38,7 +38,7 @@
   };
 
   environment.systemPackages = [ pkgs.cifs-utils ];
-  fileSystems."/home/jo/Public" = {
+  /*fileSystems."/home/jo/Public" = {
     device = "//dietpi.local/shared";
     fsType = "cifs";
     options = [
@@ -50,7 +50,7 @@
       "user"
       "users"
     ];
-  };
+  };*/
 
   swapDevices = [ { device = "/dev/disk/by-label/chromeos-swap"; } ];
 
