@@ -14,9 +14,6 @@ with rec {
       "FIXME: Taking ${name} from nixpkgs${version} as it's broken on 19.09"
       (getAttr name set);
 
-  from1703 = get "1703";
-  from1809 = get "1809";
-
   nix-helpers = self.nix-helpers or (rec {
     inherit (import ../overrides/repos.nix overrides { }) overrides;
   }).overrides.nix-helpers;
@@ -45,8 +42,6 @@ with rec {
         };
     });
 
-    thermald = from1809 "thermald";
-
     xorg = super.xorg // {
       # Bump driver to avoid https://bugs.freedesktop.org/show_bug.cgi?id=109689
       xf86videointel = super.xorg.xf86videointel.overrideAttrs (
@@ -74,7 +69,6 @@ with rec {
       };
 
       stillBrokenPkgs = mapAttrs' stillBroken {
-        inherit (super) thermald;
         inherit (super.xorg) xf86videointel;
       };
     };
