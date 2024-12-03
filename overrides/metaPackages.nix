@@ -241,7 +241,7 @@ with rec {
       self.iconThemes
       // self.widgetThemes
       // {
-        inherit (self.xfce) exo xfce4notifyd;
+        inherit (self.xfce) exo xfce4-notifyd;
         inherit (self.xorg) xkill;
         inherit (self)
           arandr
