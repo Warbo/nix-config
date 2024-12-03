@@ -25,11 +25,14 @@ with rec {
       }
     );
 
-  nix-helpers = self.nix-helpers or (rec {
+  fallbacks = { inherit (rec {
     inherit (import ../overrides/repos.nix overrides { }) overrides;
-  }).overrides.nix-helpers;
+  }.overrides) nix-helpers warbo-packages;};
 
+  nix-helpers = self.nix-helpers or fallbacks.nix-helpers;
+  warbo-packages = self.warbo-packages or fallbacks.warbo-packages;
   nix-helper = h: getAttr h (if hasAttr h self then self else nix-helpers);
+  warbo-package = p: getAttr p (if hasAttr p self then self else warbo-packages);
 };
 {
   # Packages before a ### are included in the ones after
