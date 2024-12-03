@@ -192,7 +192,7 @@ with { inherit (builtins) toString trace; };
             name = "muteToggle";
             paths = with pkgs; [
               bash
-              alsaUtils
+              alsa-utils
             ];
             script = ''
               #!${pkgs.bash}/bin/bash
@@ -216,7 +216,7 @@ with { inherit (builtins) toString trace; };
           "key"
           "rep"
         ];
-        command = "${pkgs.alsaUtils}/bin/amixer -c 0 sset Master 1-";
+        command = "${pkgs.alsa-utils}/bin/amixer -c 0 sset Master 1-";
       }
 
       {
@@ -226,7 +226,7 @@ with { inherit (builtins) toString trace; };
           "key"
           "rep"
         ];
-        command = "${pkgs.alsaUtils}/bin/amixer -c 0 sset Master 1+";
+        command = "${pkgs.alsa-utils}/bin/amixer -c 0 sset Master 1+";
       }
     ];
   };

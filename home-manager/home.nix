@@ -44,7 +44,7 @@ with rec {
     #pkgs.cantata
     pkgs.dnsutils
     pkgs.entr
-    pkgs.leafpad
+    pkgs.xfce.mousepad
     pkgs.lxqt.qterminal # KGX is slow, Foot mangles lines, Konsole needs KDElibs
     pkgs.mpv
     pkgs.nixfmt-rfc-style

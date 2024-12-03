@@ -25,7 +25,7 @@
     netCli
     netGui
     sysCli
-    leafpad
+    xfce.mousepad
     (pkgs.hiPrio warbo-utilities)
     pkgs.lxqt.qterminal
     (pkgs.writeShellApplication {
@@ -39,6 +39,7 @@
   ];
   warbo.nixpkgs.overlays = os: [
     os.repos
+    os.fixes
     os.metaPackages
     os.nixpkgsUpstream
     os.theming
@@ -52,7 +53,7 @@
   environment.systemPackages =
     with pkgs;
     [
-      qt5ct
+      libsForQt5.qt5ct
       qt6ct
       libsForQt5.qtstyleplugin-kvantum
       qt6Packages.qtstyleplugin-kvantum
@@ -100,15 +101,10 @@
     # libinput.enable = true;
   };
 
-  # Enable CUPS to print documents.
-  # services.printing.enable = true;
-
-  # Enable sound.
-  sound.enable = true;
-  hardware.pulseaudio.enable = true;
+  hardware.pulseaudio.enable = false;
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
-  hardware.pulseaudio.package = pkgs.pulseaudioFull;
+  #hardware.pulseaudio.package = pkgs.pulseaudioFull;
 
   security.sudo.enable = true;
 
@@ -133,7 +129,6 @@
     };
     packages = [
       pkgs.anonymousPro
-      #pkgs.droid-fonts
       pkgs.liberation_ttf
       pkgs.nerdfonts
       pkgs.terminus_font
