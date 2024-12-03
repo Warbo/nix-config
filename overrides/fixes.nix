@@ -2,14 +2,17 @@
 self: super:
 
 with rec {
-  inherit (builtins) compareVersions getAttr trace;
+  inherit (builtins) compareVersions getAttr hasAttr trace;
   inherit (super.lib) mapAttrs;
 
-  get =
-    version: name:
-    trace "FIXME: Taking ${name} from nixpkgs${version} as it's broken on 19.09" (
-      getAttr name (getAttr "nixpkgs${version}" self)
-    );
+  get = version:
+    with rec {
+      attr = "nixpkgs${version}";
+      set = getAttr attr (if hasAttr attr self then self else nix-helpers);
+    };
+    name: trace
+      "FIXME: Taking ${name} from nixpkgs${version} as it's broken on 19.09"
+      (getAttr name set);
 
   from1703 = get "1703";
   from1809 = get "1809";
