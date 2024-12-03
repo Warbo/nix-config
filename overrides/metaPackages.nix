@@ -117,7 +117,7 @@ with {
     mediaCli = {
       inherit (self)
         acoustidFingerprinter
-        alsaUtils
+        alsa-utils
         imagemagick
         ffmpeg
         opusTools
