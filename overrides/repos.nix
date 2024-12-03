@@ -10,7 +10,7 @@ self: super: with { inherit (builtins) fetchGit; }; {
     };
     warbo-utilities-src = fetchGit {
       url = "http://chriswarbo.net/git/warbo-utilities.git";
-      rev = "0fedabbe7e0b549510c9d98b0c10f9ebf82ac398";
+      rev = "574ee2e07e9ff71837501c9aa6997a7450164a1d";
     };
 
     nix-helpers = import self.nix-helpers-src {
