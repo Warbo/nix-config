@@ -250,7 +250,6 @@ with rec {
           awf
           blueman
           compton
-          gksu
           iotop
           lxappearance
           rofi
