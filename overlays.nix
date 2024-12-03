@@ -61,7 +61,9 @@ with rec {
         ];
       };
       nix-config-tests = self: super: {
-        nix-config-tests = { recurseForDerivations = true; };
+        nix-config-tests = {
+          recurseForDerivations = true;
+        };
       };
       nix-config-check = self: super: {
         nix-config-check = foldl' (result: msg: trace msg false) true (

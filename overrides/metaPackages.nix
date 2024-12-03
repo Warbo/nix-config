@@ -25,9 +25,18 @@ with rec {
       }
     );
 
-  fallbacks = { inherit (rec {
-    inherit (import ../overrides/repos.nix overrides { }) overrides;
-  }.overrides) nix-helpers warbo-packages;};
+  fallbacks = {
+    inherit
+      (
+        rec {
+          inherit (import ../overrides/repos.nix overrides { }) overrides;
+        }
+        .overrides
+      )
+      nix-helpers
+      warbo-packages
+      ;
+  };
 
   nix-helper = h: getAttr h (if hasAttr h self then self else nix-helpers);
   nix-helpers = self.nix-helpers or fallbacks.nix-helpers;
@@ -103,7 +112,7 @@ with rec {
         gnumeric
         gv
         libreoffice
-      ;
+        ;
       inherit (self.xfce) mousepad;
       inherit (warbo-packages) basket kbibtex_full;
       mupdf = nix-helper "without" self.mupdf [

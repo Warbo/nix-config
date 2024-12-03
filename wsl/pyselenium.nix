@@ -2,9 +2,10 @@ with rec {
   inherit (import ../..) nix-helpers;
   inherit (nix-helpers) nixpkgs;
 };
-{ python3 ? nixpkgs.python3
-, socat ? nixpkgs.socat
-, writeShellApplication ? nixpkgs.writeShellApplication
+{
+  python3 ? nixpkgs.python3,
+  socat ? nixpkgs.socat,
+  writeShellApplication ? nixpkgs.writeShellApplication,
 }:
 writeShellApplication {
   name = "pyselenium";

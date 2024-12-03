@@ -2,21 +2,29 @@
 self: super:
 
 with rec {
-  inherit (builtins) compareVersions getAttr hasAttr trace;
+  inherit (builtins)
+    compareVersions
+    getAttr
+    hasAttr
+    trace
+    ;
   inherit (super.lib) mapAttrs;
 
-  get = version:
+  get =
+    version:
     with rec {
       attr = "nixpkgs${version}";
       set = getAttr attr (if hasAttr attr self then self else nix-helpers);
     };
-    name: trace
-      "FIXME: Taking ${name} from nixpkgs${version} as it's broken on 19.09"
-      (getAttr name set);
+    name:
+    trace "FIXME: Taking ${name} from nixpkgs${version} as it's broken on 19.09" (
+      getAttr name set
+    );
 
-  nix-helpers = self.nix-helpers or (rec {
-    inherit (import ../overrides/repos.nix overrides { }) overrides;
-  }).overrides.nix-helpers;
+  nix-helpers =
+    self.nix-helpers
+      or (rec { inherit (import ../overrides/repos.nix overrides { }) overrides; })
+      .overrides.nix-helpers;
 
   isBroken = self.isBroken or nix-helpers.isBroken;
 }; {
@@ -33,12 +41,15 @@ with rec {
         self.nothing;
 
     python312 = super.python312.override (old: {
-      packageOverrides = pelf: puper:
-        (old.packageOverrides or (_: _: {})) pelf puper // {
-          dbus-next = nix-helpers.withDeps' "dbus-next" [(isBroken puper.dbus-next)]
-            (puper.dbus-next.overridePythonAttrs (_: {
+      packageOverrides =
+        pelf: puper:
+        (old.packageOverrides or (_: _: { })) pelf puper
+        // {
+          dbus-next = nix-helpers.withDeps' "dbus-next" [ (isBroken puper.dbus-next) ] (
+            puper.dbus-next.overridePythonAttrs (_: {
               doCheck = false;
-            }));
+            })
+          );
         };
     });
 
@@ -72,7 +83,8 @@ with rec {
         inherit (super.xorg) xf86videointel;
       };
     };
-    stillBrokenPkgs // {
+    stillBrokenPkgs
+    // {
       inherit (self.python312Packages) dbus-next;
       libproxyWorks = self.libproxy;
     };

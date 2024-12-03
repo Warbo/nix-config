@@ -16,7 +16,8 @@
 with {
   inherit
     (
-      (rec { inherit (import ../../overrides/repos.nix overrides { }) overrides; }).overrides.nix-helpers
+      (rec { inherit (import ../../overrides/repos.nix overrides { }) overrides; })
+      .overrides.nix-helpers
     )
     sanitiseName
     ;
@@ -33,10 +34,10 @@ with {
   warbo.enable = true;
   warbo.professional = true;
   warbo.home-manager = {
+    username = "nixos";
     extras = {
       inherit (warbo-wsl) home programs;
     };
-    username = "nixos";
   };
   warbo.packages = warbo-wsl.packages ++ [
     pkgs.devCli
