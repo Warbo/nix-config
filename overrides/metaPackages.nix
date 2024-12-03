@@ -90,9 +90,9 @@ with rec {
         anonymousPro
         bibclean
         bibtool
-        droid-fonts
         ghostscript
         md2pdf
+        nerdfonts
         pandocPkgs
         poppler_utils
         ;
