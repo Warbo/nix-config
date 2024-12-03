@@ -29,7 +29,7 @@ with rec {
     inherit (import ../overrides/repos.nix overrides { }) overrides;
   }).overrides.nix-helpers;
 
-  hasBinary = self.hasBinary or nix-helpers.hasBinary;
+  nix-helper = h: getAttr h (if hasAttr h self then self else nix-helpers);
 };
 {
   # Packages before a ### are included in the ones after
@@ -291,8 +291,8 @@ with rec {
   };
 
   tests = {
-    all = hasBinary self.allPkgs "firefox";
-    basic = hasBinary self.allCli "ssh";
+    all = nix-helper "hasBinary" self.allPkgs "firefox";
+    basic = nix-helper "hasBinary" self.allCli "ssh";
     removals = self.runCommand "removed-undesirables" { inherit (self) allPkgs; } ''
       FAIL=0
       for F in bin/mupdf-gl bin/mupdf-x11-curl
