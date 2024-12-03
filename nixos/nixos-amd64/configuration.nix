@@ -25,7 +25,7 @@
     netCli
     netGui
     sysCli
-    leafpad
+    xfce.mousepad
     (pkgs.hiPrio warbo-utilities)
     pkgs.lxqt.qterminal
     (pkgs.writeShellApplication {

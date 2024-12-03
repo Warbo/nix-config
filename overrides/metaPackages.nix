@@ -101,9 +101,9 @@ with {
         gnumeric
         gv
         kbibtex_full
-        leafpad
         libreoffice
-        ;
+      ;
+      inherit (self.xfce) mousepad;
       mupdf = self.without self.mupdf [
         "bin/mupdf-gl"
         "bin/mupdf-x11-curl"
