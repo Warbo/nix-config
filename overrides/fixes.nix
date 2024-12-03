@@ -76,7 +76,7 @@ with rec {
       };
 
       stillBrokenPkgs = mapAttrs' stillBroken {
-        inherit (super) audacious gensgs thermald;
+        inherit (super) gensgs thermald;
         inherit (super.xorg) xf86videointel;
       };
     };
