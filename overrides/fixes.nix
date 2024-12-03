@@ -83,6 +83,15 @@ with rec {
       else
         self.nothing;
 
+    python312 = super.python312.override (old: {
+      packageOverrides = pelf: puper:
+        (old.packageOverrides or (_: _: {})) pelf puper // {
+          dbus-next = puper.dbus-next.overridePythonAttrs (_: {
+            doCheck = false;
+          });
+        };
+    });
+
     stylish-haskell = haskellPkgs.stylish-haskell.components.exes.stylish-haskell;
 
     thermald = from1809 "thermald";
@@ -116,6 +125,7 @@ with rec {
       stillBrokenPkgs = mapAttrs' stillBroken {
         inherit (super) audacious gensgs thermald;
         inherit (super.xorg) xf86videointel;
+        inherit (super.python3Packages) dbus-next;
         # super.libreoffice is just a wrapper; its libreoffice attribute is the
         # derivation which fails to build.
         inherit (super.libreoffice) libreoffice;
