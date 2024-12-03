@@ -249,9 +249,9 @@ with rec {
           asunder
           awf
           blueman
-          compton
           iotop
           lxappearance
+          picom
           rofi
           st
           trayer
