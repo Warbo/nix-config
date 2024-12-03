@@ -32,7 +32,6 @@ with rec {
   nix-helpers = self.nix-helpers or fallbacks.nix-helpers;
   warbo-packages = self.warbo-packages or fallbacks.warbo-packages;
   nix-helper = h: getAttr h (if hasAttr h self then self else nix-helpers);
-  warbo-package = p: getAttr p (if hasAttr p self then self else warbo-packages);
 };
 {
   # Packages before a ### are included in the ones after
@@ -75,9 +74,7 @@ with rec {
         xidel
         ;
       inherit (self.python3Packages) black;
-      inherit (self.warbo-packages)
-        artemis
-        ;
+      inherit (warbo-packages) artemis;
     };
 
     devGui = {
@@ -95,9 +92,8 @@ with rec {
         pandoc
         poppler_utils
         ;
-        aspell = self.aspellWithDicts (dicts: [ dicts.en ]);
-        panpipe = warbo-package "panpipe";
-        panhandle = warbo-package "panhandle";
+      inherit (warbo-packages) panpipe panhandle;
+      aspell = self.aspellWithDicts (dicts: [ dicts.en ]);
     };
 
     docGui = {
@@ -109,8 +105,7 @@ with rec {
         libreoffice
       ;
       inherit (self.xfce) mousepad;
-      basket = warbo-package "basket";
-      kbibtex_full = warbo-package "kbibtex_full";
+      inherit (warbo-packages) basket kbibtex_full;
       mupdf = nix-helper "without" self.mupdf [
         "bin/mupdf-gl"
         "bin/mupdf-x11-curl"
