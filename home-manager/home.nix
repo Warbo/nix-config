@@ -353,76 +353,76 @@ with rec {
         };
       };
 
-      dietpi-smb = {
-        Unit = {
-          Description = "Mount DietPi's shared folder read-only via SMB";
-          After = [ "dietpi-accessible.target" ];
-          PartOf = [ "dietpi-accessible.target" ];
-          BindsTo = [ "dietpi-accessible.target" ];
-          Requires = [ "dietpi-accessible.target" ];
-        };
-        Service = {
-          ExecStart = "${pkgs.writeShellScript "dietpi-smb.sh" ''
-            set -ex
-            ADDR=$(${commands.pi4}/bin/pi4)
-            # NOTE: Remote control (rc) port is arbitrary, but must be unique
-            exec ${pkgs.rclone}/bin/rclone mount \
-              --rc --rc-no-auth --rc-addr=:11111 \
-              --vfs-cache-mode=full \
-              ':smb:shared' \
-              --smb-host "$ADDR" \
-              /home/manjaro/Shared
-          ''}";
-          ExecStop = "fusermount -u /home/manjaro/Shared";
-          Restart = "on-failure";
-        };
-        Install = { };
-      };
-      dietpi-sftp = {
-        Unit = {
-          Description = "Mount DietPi's root folder read/write via SFTP";
-          After = [
-            "dietpi-accessible.target"
-            "keyring-unlocked.target"
-          ];
-          PartOf = [
-            "dietpi-accessible.target"
-            "keyring-unlocked.target"
-          ];
-          BindsTo = [
-            "dietpi-accessible.target"
-            "keyring-unlocked.target"
-          ];
-          Requires = [
-            "dietpi-accessible.target"
-            "keyring-unlocked.target"
-          ];
-        };
-        Service = {
-          ExecStart = "${pkgs.writeShellScript "dietpi-sftp.sh" ''
-            set -ex
-            . /home/manjaro/.bashrc
-            unlocked | grep -q '^ssh' || {
-              echo "SSH key not unlocked, skipping" 1>&2
-              sleep 10
-              exit 1
-            }
-            ADDR=$(${commands.pi4}/bin/pi4)
+      # dietpi-smb = {
+      #   Unit = {
+      #     Description = "Mount DietPi's shared folder read-only via SMB";
+      #     After = [ "dietpi-accessible.target" ];
+      #     PartOf = [ "dietpi-accessible.target" ];
+      #     BindsTo = [ "dietpi-accessible.target" ];
+      #     Requires = [ "dietpi-accessible.target" ];
+      #   };
+      #   Service = {
+      #     ExecStart = "${pkgs.writeShellScript "dietpi-smb.sh" ''
+      #       set -ex
+      #       ADDR=$(${commands.pi4}/bin/pi4)
+      #       # NOTE: Remote control (rc) port is arbitrary, but must be unique
+      #       exec ${pkgs.rclone}/bin/rclone mount \
+      #         --rc --rc-no-auth --rc-addr=:11111 \
+      #         --vfs-cache-mode=full \
+      #         ':smb:shared' \
+      #         --smb-host "$ADDR" \
+      #         /home/manjaro/Shared
+      #     ''}";
+      #     ExecStop = "fusermount -u /home/manjaro/Shared";
+      #     Restart = "on-failure";
+      #   };
+      #   Install = { };
+      # };
+      # dietpi-sftp = {
+      #   Unit = {
+      #     Description = "Mount DietPi's root folder read/write via SFTP";
+      #     After = [
+      #       "dietpi-accessible.target"
+      #       "keyring-unlocked.target"
+      #     ];
+      #     PartOf = [
+      #       "dietpi-accessible.target"
+      #       "keyring-unlocked.target"
+      #     ];
+      #     BindsTo = [
+      #       "dietpi-accessible.target"
+      #       "keyring-unlocked.target"
+      #     ];
+      #     Requires = [
+      #       "dietpi-accessible.target"
+      #       "keyring-unlocked.target"
+      #     ];
+      #   };
+      #   Service = {
+      #     ExecStart = "${pkgs.writeShellScript "dietpi-sftp.sh" ''
+      #       set -ex
+      #       . /home/manjaro/.bashrc
+      #       unlocked | grep -q '^ssh' || {
+      #         echo "SSH key not unlocked, skipping" 1>&2
+      #         sleep 10
+      #         exit 1
+      #       }
+      #       ADDR=$(${commands.pi4}/bin/pi4)
 
-            # NOTE: We avoid setting modtime, to avoid SSH_FX_OP_UNSUPPORTED
-            # NOTE: Remote control (rc) port is arbitrary, but must be unique
-            exec ${pkgs.rclone}/bin/rclone mount \
-              --rc --rc-no-auth --rc-addr=:22222 \
-              --vfs-cache-mode=full \
-              --sftp-set-modtime=false --no-update-modtime \
-              ":sftp,user=pi,host=$ADDR:/" \
-              /home/manjaro/DietPi
-          ''}";
-          ExecStop = "fusermount -u /home/manjaro/DietPi";
-          Restart = "on-failure";
-        };
-        Install = { };
-      };
+      #       # NOTE: We avoid setting modtime, to avoid SSH_FX_OP_UNSUPPORTED
+      #       # NOTE: Remote control (rc) port is arbitrary, but must be unique
+      #       exec ${pkgs.rclone}/bin/rclone mount \
+      #         --rc --rc-no-auth --rc-addr=:22222 \
+      #         --vfs-cache-mode=full \
+      #         --sftp-set-modtime=false --no-update-modtime \
+      #         ":sftp,user=pi,host=$ADDR:/" \
+      #         /home/manjaro/DietPi
+      #     ''}";
+      #     ExecStop = "fusermount -u /home/manjaro/DietPi";
+      #     Restart = "on-failure";
+      #   };
+      #   Install = { };
+      # };
 
       s3-git = {
         Unit = {
@@ -464,23 +464,23 @@ with rec {
     };
 
     targets = {
-      dietpi-accessible = {
-        Unit = {
-          Description = "Can access dietpi.local";
-          Wants = [
-            "dietpi-smb.service"
-            "dietpi-sftp.service"
-            "mpd.service"
-          ];
-        };
-      };
+      # dietpi-accessible = {
+      #   Unit = {
+      #     Description = "Can access dietpi.local";
+      #     Wants = [
+      #       "dietpi-smb.service"
+      #       "dietpi-sftp.service"
+      #       "mpd.service"
+      #     ];
+      #   };
+      # };
 
       home-wifi-connected = {
         Unit = {
           Description = "On home WiFi network";
           Wants = [
-            "dietpi-smb.service"
-            "dietpi-sftp.service"
+            # "dietpi-smb.service"
+            # "dietpi-sftp.service"
           ];
         };
       };
@@ -489,7 +489,7 @@ with rec {
         Unit = {
           Description = "Indicates GNOME keyring and ssh-agent are unlocked";
           Wants = [
-            "dietpi-sftp.service"
+            #"dietpi-sftp.service"
             "s3-git"
           ];
         };
