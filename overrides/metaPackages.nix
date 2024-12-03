@@ -96,10 +96,13 @@ with rec {
         ghostscript
         md2pdf
         nerdfonts
+        pandoc
         poppler_utils
         ;
-      aspell = self.aspellWithDicts (dicts: [ dicts.en ]);
-    } // (if self ? pandocPkgs then { inherit (self) pandocPkgs; } else {});
+        aspell = self.aspellWithDicts (dicts: [ dicts.en ]);
+        panpipe = warbo-package "panpipe";
+        panhandle = warbo-package "panhandle";
+    };
 
     docGui = {
       inherit (self)
