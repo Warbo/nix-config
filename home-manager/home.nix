@@ -30,6 +30,11 @@ with rec {
 
   warbo.enable = true;
   warbo.home-manager.stateVersion = "23.05";
+  warbo.nixpkgs.overlays = os: [
+    os.repos
+    os.metaPackages # os.emacs
+  ];
+  warbo.dotfiles = ~/repos/warbo-dotfiles;
   warbo.packages = builtins.attrValues commands ++ [
     (pkgs.hiPrio warbo-utilities)
 
@@ -100,12 +105,6 @@ with rec {
   xdg.systemDirs.data = [
     "${config.home.homeDirectory}/.nix-profile/share/applications"
   ];
-
-  warbo.nixpkgs.overlays = os: [
-    os.repos
-    os.metaPackages # os.emacs
-  ];
-  warbo.dotfiles = ~/repos/warbo-dotfiles;
 
   gtk = {
     enable = true;
