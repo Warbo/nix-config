@@ -107,14 +107,14 @@ with rec {
     docGui = {
       inherit (self)
         abiword
-        basket
         evince
         gnumeric
         gv
-        kbibtex_full
         libreoffice
       ;
       inherit (self.xfce) mousepad;
+      basket = warbo-package "basket";
+      kbibtex_full = warbo-package "kbibtex_full";
       mupdf = nix-helper "without" self.mupdf [
         "bin/mupdf-gl"
         "bin/mupdf-x11-curl"
