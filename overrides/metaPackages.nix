@@ -109,7 +109,7 @@ with rec {
         libreoffice
       ;
       inherit (self.xfce) mousepad;
-      mupdf = self.without self.mupdf [
+      mupdf = nix-helper "without" self.mupdf [
         "bin/mupdf-gl"
         "bin/mupdf-x11-curl"
       ];
