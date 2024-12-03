@@ -14,6 +14,12 @@ with rec {
   from1703 = get "1703";
   from1809 = get "1809";
 
+  nix-helpers = self.nix-helpers or (rec {
+    inherit (import ../overrides/repos.nix overrides { }) overrides;
+  }).overrides.nix-helpers;
+
+  isBroken = self.isBroken or nix-helpers.isBroken;
+
   # Avoid haskellPackages, since it's a fragile truce between many different
   # packages, and often requires a bunch of manual overrides. In contrast,
   # haskell-nix uses Cabal to solve dependencies automatically per-package.
@@ -108,7 +114,7 @@ with rec {
     with rec {
       stillBroken = name: pkg: {
         name = "${name}StillNeedsOverride";
-        value = self.isBroken pkg;
+        value = isBroken pkg;
       };
 
       stillBrokenPkgs = mapAttrs' stillBroken {
