@@ -93,11 +93,10 @@ with rec {
         ghostscript
         md2pdf
         nerdfonts
-        pandocPkgs
         poppler_utils
         ;
       aspell = self.aspellWithDicts (dicts: [ dicts.en ]);
-    };
+    } // (if self ? pandocPkgs then { inherit (self) pandocPkgs; } else {});
 
     docGui = {
       inherit (self)
