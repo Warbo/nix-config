@@ -30,10 +30,7 @@ with rec {
 
   warbo.enable = true;
   warbo.home-manager.stateVersion = "23.05";
-
-  # The home.packages option allows you to install Nix packages into your
-  # environment.
-  home.packages = builtins.attrValues commands ++ [
+  warbo.packages = builtins.attrValues commands ++ [
     (pkgs.hiPrio warbo-utilities)
 
     pkgs.libsForQt5.qtstyleplugin-kvantum
