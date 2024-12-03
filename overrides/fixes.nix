@@ -22,60 +22,13 @@ with rec {
   }).overrides.nix-helpers;
 
   isBroken = self.isBroken or nix-helpers.isBroken;
-
-  # Avoid haskellPackages, since it's a fragile truce between many different
-  # packages, and often requires a bunch of manual overrides. In contrast,
-  # haskell-nix uses Cabal to solve dependencies automatically per-package.
-  # TODO: Check for latest versions
-  haskellPkgs =
-    with { hn = self.haskell-nix { }; };
-    mapAttrs
-      (
-        _:
-        {
-          ghc ? hn.buildPackages.pkgs.haskell-nix.compiler.ghc865,
-          index-state ? "2020-01-11T00:00:00Z",
-          type ? "hackage-package",
-          ...
-        }@args:
-        (getAttr type hn.haskell-nix) (
-          removeAttrs args [ "type" ] // { inherit ghc index-state; }
-        )
-      )
-      {
-        ghcid = {
-          name = "ghcid";
-          version = "0.7.5";
-        };
-        hlint = {
-          name = "hlint";
-          version = "2.2.2";
-        };
-        stylish-haskell = {
-          name = "stylish-haskell";
-          version = "0.9.2.2";
-        };
-      };
 }; {
   overrides = {
-    cabal-install =
-      (self.haskellPackages.override (old: {
-        overrides = helf: huper: {
-          aeson = self.haskell.lib.dontCheck huper.aeson;
-          lens-aeson = self.haskell.lib.dontCheck huper.lens-aeson;
-          SHA = self.haskell.lib.dontCheck huper.SHA;
-        };
-      })).cabal-install;
-
     # Newer NixOS systems need fuse3 rather than fuse, but it doesn't exist
     # on older systems. We include it if available, otherwise we just warn.
     fuse3 = super.fuse3 or self.nothing;
 
     gensgs = from1809 "gensgs";
-
-    ghcid = haskellPkgs.ghcid.components.exes.ghcid;
-
-    hlint = haskellPkgs.hlint.components.exes.hlint;
 
     libreoffice = from1703 "libreoffice";
 
@@ -94,8 +47,6 @@ with rec {
           });
         };
     });
-
-    stylish-haskell = haskellPkgs.stylish-haskell.components.exes.stylish-haskell;
 
     thermald = from1809 "thermald";
 
@@ -133,8 +84,6 @@ with rec {
         # derivation which fails to build.
         inherit (super.libreoffice) libreoffice;
       };
-
-      haskellTests = mapAttrs (_: p: p.components.tests) haskellPkgs;
     };
-    stillBrokenPkgs // haskellTests // { libproxyWorks = self.libproxy; };
+    stillBrokenPkgs // { libproxyWorks = self.libproxy; };
 }
