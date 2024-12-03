@@ -4,6 +4,6 @@ with { fetchFromGitHub = import ../nix/fetchFromGitHub.nix; };
 fetchFromGitHub {
   owner = "nix-community";
   repo = "home-manager";
-  rev = "845a5c4c073f74105022533907703441e0464bc3"; # release-24.05
-  sha256 = "0l3pcd38p4iq46ipc5h3cw7wmr9h8rbn34h8a5a4v8hcl21s8r5x";
+  rev = "62d536255879be574ebfe9b87c4ac194febf47c5"; # release-24.11
+  sha256 = "0v9bsc6r2626kap2m12zxw47m4p2kpr4pjldr7wvgqq48vwd72cm";
 }

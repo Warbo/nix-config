@@ -2,14 +2,19 @@
 # your system. Help is available in the configuration.nix(5) man page, on
 # https://search.nixos.org/options and in the NixOS manual (`nixos-help`).
 
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
-      (import ../modules/warbo.nix)
-    ];
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+    (import ../modules/warbo.nix)
+  ];
 
   warbo.enable = true;
   warbo.home-manager.username = "jo";
@@ -30,20 +35,24 @@
     wget
 
     # Fixes Patreon downloading as of Jan 2024
-    /*(yt-dlp.overrideAttrs (old: {
-      src = fetchFromGitHub {
-        owner = "yt-dlp";
-        repo  = "yt-dlp";
-        rev   = "f0e8bc7c60b61fe18b63116c975609d76b904771";
-        hash  = "sha256-WgagSVwgC+LB1Mev44UkJsCkI53ca2PTLDrseK63jzA=";
-      };
-    }))*/
+    /*
+      (yt-dlp.overrideAttrs (old: {
+        src = fetchFromGitHub {
+          owner = "yt-dlp";
+          repo  = "yt-dlp";
+          rev   = "f0e8bc7c60b61fe18b63116c975609d76b904771";
+          hash  = "sha256-WgagSVwgC+LB1Mev44UkJsCkI53ca2PTLDrseK63jzA=";
+        };
+      }))
+    */
 
     # Replaces google chrome binary with a wrapper that disables update nags
-    (pkgs.hiPrio (pkgs.writeScriptBin "google-chrome-stable" ''
-      #!${pkgs.bash}/bin/bash
-      exec ${pkgs.google-chrome}/bin/google-chrome-stable --simulate-outdated-no-au='Tue, 31 Dec 2099' "$@"
-    ''))
+    (pkgs.hiPrio (
+      pkgs.writeScriptBin "google-chrome-stable" ''
+        #!${pkgs.bash}/bin/bash
+        exec ${pkgs.google-chrome}/bin/google-chrome-stable --simulate-outdated-no-au='Tue, 31 Dec 2099' "$@"
+      ''
+    ))
 
     openmw
     openra
@@ -63,7 +72,7 @@
   networking.hostName = "chromebook"; # Define your hostname.
   # Pick only one of the below networking options.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-  networking.networkmanager.enable = true;  # Easiest to use and most distros use this by default.
+  networking.networkmanager.enable = true; # Easiest to use and most distros use this by default.
 
   # Set your time zone.
   time.timeZone = "Europe/London";
@@ -75,9 +84,9 @@
   # Select internationalisation properties.
   i18n.defaultLocale = "en_GB.UTF-8";
   console = {
-  #   font = "Lat2-Terminus16";
+    #   font = "Lat2-Terminus16";
     keyMap = "us";
-  #   useXkbConfig = true; # use xkb.options in tty.
+    #   useXkbConfig = true; # use xkb.options in tty.
   };
 
   # Set wireless keyboard-with-trackpad to US layout. Also, its Alt
@@ -139,7 +148,7 @@
   hardware.bluetooth.enable = true; # enables support for Bluetooth
   hardware.bluetooth.powerOnBoot = true; # powers up the default Bluetooth controller on boot
   services.blueman.enable = true;
-  security.rtkit.enable = true;  # Let PipeWire ask for realtime priority
+  security.rtkit.enable = true; # Let PipeWire ask for realtime priority
   services.pipewire = {
     enable = true;
     audio.enable = true;
@@ -173,11 +182,14 @@
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.jo = {
     isNormalUser = true;
-    extraGroups = [ "networkmanager" "wheel" ]; # Enable ‘sudo’ for the user.
-  #   packages = with pkgs; [
-  #     firefox
-  #     tree
-  #   ];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+    ]; # Enable ‘sudo’ for the user.
+    #   packages = with pkgs; [
+    #     firefox
+    #     tree
+    #   ];
   };
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -239,5 +251,3 @@
   # For more information, see `man configuration.nix` or https://nixos.org/manual/nixos/stable/options#opt-system.stateVersion .
   system.stateVersion = "23.11"; # Did you read the comment?
 }
-
-

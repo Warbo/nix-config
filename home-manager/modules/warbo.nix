@@ -32,6 +32,7 @@ with {
         # repos which include such files, since they're not for distribution!
         .dir-locals-2.el
       '';
+      home.file.".config/pinentry/preexec".source = ./pinentry-preexec.sh;
       home.packages = cfg.packages;
       nixpkgs.config.allowUnfree = true;
       programs = {
@@ -57,7 +58,8 @@ with {
         password-store = {
           enable = true;
           package = pkgs.pass.withExtensions (exts: [ exts.pass-otp ]);
-          settings.PASSWORD_STORE_DIR = builtins.toString config.home.homeDirectory + "/.password-store";
+          settings.PASSWORD_STORE_DIR =
+            builtins.toString config.home.homeDirectory + "/.password-store";
         };
         ssh = {
           enable = true;
@@ -77,6 +79,10 @@ with {
             laptop = {
               hostname = "nixos-amd64.local";
               user = "chris";
+            };
+            s5 = {
+              hostname = "starfive.local";
+              user = "user";
             };
           };
         };
@@ -109,7 +115,9 @@ with {
     (mkIf (cfg.dotfiles != null) {
       programs.bash.bashrcExtra =
         with builtins;
-        assert (typeOf cfg.dotfiles == "path" && pathExists cfg.dotfiles) || (cfg.dotfiles ? outPath);
+        assert
+          (typeOf cfg.dotfiles == "path" && pathExists cfg.dotfiles)
+          || (cfg.dotfiles ? outPath);
         ''
           # Always make Nix binaries available. If they're not defined in /etc,
           # then splice pkgs.nix as a fallback.

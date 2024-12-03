@@ -1,4 +1,4 @@
 {
-  pkgs ? (import <nixpkgs> { overlays = [ (import ./overlay.nix) ]; }),
+  pkgs ? import ./nix,
 }:
 pkgs.nix-config-tests

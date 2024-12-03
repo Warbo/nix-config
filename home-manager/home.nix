@@ -30,10 +30,12 @@ with rec {
 
   warbo.enable = true;
   warbo.home-manager.stateVersion = "23.05";
-
-  # The home.packages option allows you to install Nix packages into your
-  # environment.
-  home.packages = builtins.attrValues commands ++ [
+  warbo.nixpkgs.overlays = os: [
+    os.repos
+    os.metaPackages # os.emacs
+  ];
+  warbo.dotfiles = ~/repos/warbo-dotfiles;
+  warbo.packages = builtins.attrValues commands ++ [
     (pkgs.hiPrio warbo-utilities)
 
     pkgs.libsForQt5.qtstyleplugin-kvantum
@@ -44,7 +46,7 @@ with rec {
     #pkgs.cantata
     pkgs.dnsutils
     pkgs.entr
-    pkgs.leafpad
+    pkgs.xfce.mousepad
     pkgs.lxqt.qterminal # KGX is slow, Foot mangles lines, Konsole needs KDElibs
     pkgs.mpv
     pkgs.nixfmt-rfc-style
@@ -93,30 +95,8 @@ with rec {
             };
           };
     };
-    {
-      # # Building this configuration will create a copy of 'dotfiles/screenrc' in
-      # # the Nix store. Activating the configuration will then make '~/.screenrc' a
-      # # symlink to the Nix store copy.
-      # ".screenrc".source = dotfiles/screenrc;
+    autostarts;
 
-      # # You can also set the file content immediately.
-      # ".gradle/gradle.properties".text = ''
-      #   org.gradle.console=verbose
-      #   org.gradle.daemon.idletimeout=3600000
-      # '';
-    }
-    // autostarts;
-
-  # You can also manage environment variables but you will have to manually
-  # source
-  #
-  #  ~/.nix-profile/etc/profile.d/hm-session-vars.sh
-  #
-  # or
-  #
-  #  /etc/profiles/per-user/manjaro/etc/profile.d/hm-session-vars.sh
-  #
-  # if you don't want to manage your shell through Home Manager.
   home.sessionVariables.QT_STYLE_OVERRIDE = "kvantum";
 
   # These three ensure our Nix .desktop files appear in desktops/menus
@@ -125,12 +105,6 @@ with rec {
   xdg.systemDirs.data = [
     "${config.home.homeDirectory}/.nix-profile/share/applications"
   ];
-
-  warbo.nixpkgs.overlays = os: [
-    os.repos
-    os.metaPackages # os.emacs
-  ];
-  warbo.dotfiles = ~/repos/warbo-dotfiles;
 
   gtk = {
     enable = true;
@@ -271,10 +245,6 @@ with rec {
       userEmail = "chriswarbo@gmail.com";
       userName = "Chris Warburton";
     };
-
-    home-manager = {
-      path = import ./nixos-import.nix;
-    };
   };
 
   services = {
@@ -383,76 +353,76 @@ with rec {
         };
       };
 
-      dietpi-smb = {
-        Unit = {
-          Description = "Mount DietPi's shared folder read-only via SMB";
-          After = [ "dietpi-accessible.target" ];
-          PartOf = [ "dietpi-accessible.target" ];
-          BindsTo = [ "dietpi-accessible.target" ];
-          Requires = [ "dietpi-accessible.target" ];
-        };
-        Service = {
-          ExecStart = "${pkgs.writeShellScript "dietpi-smb.sh" ''
-            set -ex
-            ADDR=$(${commands.pi4}/bin/pi4)
-            # NOTE: Remote control (rc) port is arbitrary, but must be unique
-            exec ${pkgs.rclone}/bin/rclone mount \
-              --rc --rc-no-auth --rc-addr=:11111 \
-              --vfs-cache-mode=full \
-              ':smb:shared' \
-              --smb-host "$ADDR" \
-              /home/manjaro/Shared
-          ''}";
-          ExecStop = "fusermount -u /home/manjaro/Shared";
-          Restart = "on-failure";
-        };
-        Install = { };
-      };
-      dietpi-sftp = {
-        Unit = {
-          Description = "Mount DietPi's root folder read/write via SFTP";
-          After = [
-            "dietpi-accessible.target"
-            "keyring-unlocked.target"
-          ];
-          PartOf = [
-            "dietpi-accessible.target"
-            "keyring-unlocked.target"
-          ];
-          BindsTo = [
-            "dietpi-accessible.target"
-            "keyring-unlocked.target"
-          ];
-          Requires = [
-            "dietpi-accessible.target"
-            "keyring-unlocked.target"
-          ];
-        };
-        Service = {
-          ExecStart = "${pkgs.writeShellScript "dietpi-sftp.sh" ''
-            set -ex
-            . /home/manjaro/.bashrc
-            unlocked | grep -q '^ssh' || {
-              echo "SSH key not unlocked, skipping" 1>&2
-              sleep 10
-              exit 1
-            }
-            ADDR=$(${commands.pi4}/bin/pi4)
+      # dietpi-smb = {
+      #   Unit = {
+      #     Description = "Mount DietPi's shared folder read-only via SMB";
+      #     After = [ "dietpi-accessible.target" ];
+      #     PartOf = [ "dietpi-accessible.target" ];
+      #     BindsTo = [ "dietpi-accessible.target" ];
+      #     Requires = [ "dietpi-accessible.target" ];
+      #   };
+      #   Service = {
+      #     ExecStart = "${pkgs.writeShellScript "dietpi-smb.sh" ''
+      #       set -ex
+      #       ADDR=$(${commands.pi4}/bin/pi4)
+      #       # NOTE: Remote control (rc) port is arbitrary, but must be unique
+      #       exec ${pkgs.rclone}/bin/rclone mount \
+      #         --rc --rc-no-auth --rc-addr=:11111 \
+      #         --vfs-cache-mode=full \
+      #         ':smb:shared' \
+      #         --smb-host "$ADDR" \
+      #         /home/manjaro/Shared
+      #     ''}";
+      #     ExecStop = "fusermount -u /home/manjaro/Shared";
+      #     Restart = "on-failure";
+      #   };
+      #   Install = { };
+      # };
+      # dietpi-sftp = {
+      #   Unit = {
+      #     Description = "Mount DietPi's root folder read/write via SFTP";
+      #     After = [
+      #       "dietpi-accessible.target"
+      #       "keyring-unlocked.target"
+      #     ];
+      #     PartOf = [
+      #       "dietpi-accessible.target"
+      #       "keyring-unlocked.target"
+      #     ];
+      #     BindsTo = [
+      #       "dietpi-accessible.target"
+      #       "keyring-unlocked.target"
+      #     ];
+      #     Requires = [
+      #       "dietpi-accessible.target"
+      #       "keyring-unlocked.target"
+      #     ];
+      #   };
+      #   Service = {
+      #     ExecStart = "${pkgs.writeShellScript "dietpi-sftp.sh" ''
+      #       set -ex
+      #       . /home/manjaro/.bashrc
+      #       unlocked | grep -q '^ssh' || {
+      #         echo "SSH key not unlocked, skipping" 1>&2
+      #         sleep 10
+      #         exit 1
+      #       }
+      #       ADDR=$(${commands.pi4}/bin/pi4)
 
-            # NOTE: We avoid setting modtime, to avoid SSH_FX_OP_UNSUPPORTED
-            # NOTE: Remote control (rc) port is arbitrary, but must be unique
-            exec ${pkgs.rclone}/bin/rclone mount \
-              --rc --rc-no-auth --rc-addr=:22222 \
-              --vfs-cache-mode=full \
-              --sftp-set-modtime=false --no-update-modtime \
-              ":sftp,user=pi,host=$ADDR:/" \
-              /home/manjaro/DietPi
-          ''}";
-          ExecStop = "fusermount -u /home/manjaro/DietPi";
-          Restart = "on-failure";
-        };
-        Install = { };
-      };
+      #       # NOTE: We avoid setting modtime, to avoid SSH_FX_OP_UNSUPPORTED
+      #       # NOTE: Remote control (rc) port is arbitrary, but must be unique
+      #       exec ${pkgs.rclone}/bin/rclone mount \
+      #         --rc --rc-no-auth --rc-addr=:22222 \
+      #         --vfs-cache-mode=full \
+      #         --sftp-set-modtime=false --no-update-modtime \
+      #         ":sftp,user=pi,host=$ADDR:/" \
+      #         /home/manjaro/DietPi
+      #     ''}";
+      #     ExecStop = "fusermount -u /home/manjaro/DietPi";
+      #     Restart = "on-failure";
+      #   };
+      #   Install = { };
+      # };
 
       s3-git = {
         Unit = {
@@ -494,23 +464,23 @@ with rec {
     };
 
     targets = {
-      dietpi-accessible = {
-        Unit = {
-          Description = "Can access dietpi.local";
-          Wants = [
-            "dietpi-smb.service"
-            "dietpi-sftp.service"
-            "mpd.service"
-          ];
-        };
-      };
+      # dietpi-accessible = {
+      #   Unit = {
+      #     Description = "Can access dietpi.local";
+      #     Wants = [
+      #       "dietpi-smb.service"
+      #       "dietpi-sftp.service"
+      #       "mpd.service"
+      #     ];
+      #   };
+      # };
 
       home-wifi-connected = {
         Unit = {
           Description = "On home WiFi network";
           Wants = [
-            "dietpi-smb.service"
-            "dietpi-sftp.service"
+            # "dietpi-smb.service"
+            # "dietpi-sftp.service"
           ];
         };
       };
@@ -519,7 +489,7 @@ with rec {
         Unit = {
           Description = "Indicates GNOME keyring and ssh-agent are unlocked";
           Wants = [
-            "dietpi-sftp.service"
+            #"dietpi-sftp.service"
             "s3-git"
           ];
         };
