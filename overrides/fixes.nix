@@ -40,9 +40,10 @@ with rec {
     python312 = super.python312.override (old: {
       packageOverrides = pelf: puper:
         (old.packageOverrides or (_: _: {})) pelf puper // {
-          dbus-next = puper.dbus-next.overridePythonAttrs (_: {
-            doCheck = false;
-          });
+          dbus-next = nix-helpers.withDeps' "dbus-next" [(isBroken puper.dbus-next)]
+            (puper.dbus-next.overridePythonAttrs (_: {
+              doCheck = false;
+            }));
         };
     });
 
@@ -77,8 +78,10 @@ with rec {
       stillBrokenPkgs = mapAttrs' stillBroken {
         inherit (super) audacious gensgs thermald;
         inherit (super.xorg) xf86videointel;
-        inherit (super.python3Packages) dbus-next;
       };
     };
-    stillBrokenPkgs // { libproxyWorks = self.libproxy; };
+    stillBrokenPkgs // {
+      inherit (self.python312Packages) dbus-next;
+      libproxyWorks = self.libproxy;
+    };
 }
