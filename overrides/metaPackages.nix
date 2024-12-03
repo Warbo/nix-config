@@ -241,7 +241,6 @@ with rec {
       self.iconThemes
       // self.widgetThemes
       // {
-        inherit (self.gnome3) gcr;
         inherit (self.xfce) exo xfce4notifyd;
         inherit (self.xorg) xkill;
         inherit (self)
@@ -249,6 +248,7 @@ with rec {
           asunder
           awf
           blueman
+          gcr
           iotop
           lxappearance
           picom
