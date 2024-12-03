@@ -60,14 +60,11 @@ with rec {
         coreutils
         direnv
         entr
-        #gcc
         git
         git-absorb
-        #gnumake
         jq
         msgpack-tools
         nano
-        #nix-diff
         nix-top
         nixfmt-rfc-style
         python3
@@ -80,7 +77,6 @@ with rec {
       inherit (self.python3Packages) black;
       inherit (self.warbo-packages)
         artemis
-        #asv-nix
         ;
     };
 
@@ -174,18 +170,6 @@ with rec {
         uget
         x11vnc
         ;
-      /*
-        TODO: See if we can get this working again
-        pidgin-with-plugins = self.pidgin.override {
-          plugins = with self; [
-            pidgin-otr
-            # We disable gstreamer and farstream by default, to avoid problems
-            # with dependencies (e.g. v4l-utils). Our config should fix those, so
-            # we should use the unaltered pidgin definition.
-            (pidgin-privacy-please.override { overrideGstreamer = false; })
-          ];
-        };
-      */
     };
 
     # Keep these separate, since they won't work on non-NixOS systems (binaries
@@ -226,7 +210,6 @@ with rec {
             ts
             unzip
             usbutils
-            #warbo-utilities
             xz
             zbar
             zip
