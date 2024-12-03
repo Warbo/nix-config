@@ -7,7 +7,7 @@ self: super:
 
 with builtins;
 with super.lib;
-with {
+with rec {
   go =
     name: paths:
     assert
@@ -24,6 +24,12 @@ with {
         paths = attrValues paths;
       }
     );
+
+  nix-helpers = self.nix-helpers or (rec {
+    inherit (import ../overrides/repos.nix overrides { }) overrides;
+  }).overrides.nix-helpers;
+
+  hasBinary = self.hasBinary or nix-helpers.hasBinary;
 };
 {
   # Packages before a ### are included in the ones after
@@ -286,8 +292,8 @@ with {
   };
 
   tests = {
-    all = self.hasBinary self.allPkgs "firefox";
-    basic = self.hasBinary self.allCli "ssh";
+    all = hasBinary self.allPkgs "firefox";
+    basic = hasBinary self.allCli "ssh";
     removals = self.runCommand "removed-undesirables" { inherit (self) allPkgs; } ''
       FAIL=0
       for F in bin/mupdf-gl bin/mupdf-x11-curl
