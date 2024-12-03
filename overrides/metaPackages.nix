@@ -262,7 +262,7 @@ with rec {
           xcape
           xpra
           ;
-        inherit (libsForQt5) qt5ct qtstyleplugin-kvantum;
+        inherit (self.libsForQt5) qt5ct qtstyleplugin-kvantum;
       };
 
     ###
