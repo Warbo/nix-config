@@ -245,10 +245,6 @@ with rec {
       userEmail = "chriswarbo@gmail.com";
       userName = "Chris Warburton";
     };
-
-    home-manager = {
-      path = import ./nixos-import.nix;
-    };
   };
 
   services = {
