@@ -100,15 +100,10 @@
     # libinput.enable = true;
   };
 
-  # Enable CUPS to print documents.
-  # services.printing.enable = true;
-
-  # Enable sound.
-  sound.enable = true;
-  hardware.pulseaudio.enable = true;
+  hardware.pulseaudio.enable = false;
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
-  hardware.pulseaudio.package = pkgs.pulseaudioFull;
+  #hardware.pulseaudio.package = pkgs.pulseaudioFull;
 
   security.sudo.enable = true;
 
