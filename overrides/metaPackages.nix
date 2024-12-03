@@ -29,9 +29,9 @@ with rec {
     inherit (import ../overrides/repos.nix overrides { }) overrides;
   }.overrides) nix-helpers warbo-packages;};
 
+  nix-helper = h: getAttr h (if hasAttr h self then self else nix-helpers);
   nix-helpers = self.nix-helpers or fallbacks.nix-helpers;
   warbo-packages = self.warbo-packages or fallbacks.warbo-packages;
-  nix-helper = h: getAttr h (if hasAttr h self then self else nix-helpers);
 };
 {
   # Packages before a ### are included in the ones after
@@ -233,12 +233,12 @@ with rec {
           rofi
           st
           trayer
-          xsettingsd
           wmname
           xbindkeys
           xcalib
           xcape
           xpra
+          xsettingsd
           ;
         inherit (self.libsForQt5) qt5ct qtstyleplugin-kvantum;
       };
