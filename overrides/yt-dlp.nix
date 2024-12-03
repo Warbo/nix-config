@@ -5,7 +5,7 @@ self: super: {
         inherit (self.nix-helpers.pinnedNixpkgs.nixpkgs2111) phantomjs2;
         rev = "a065086640e888e8d58c615d52ed2f4f4e4c9d18";
       };
-      self.nixpkgsUpstream.yt-dlp.overrideAttrs (_: {
+      self.nixpkgsUpstream.yt-dlp.overrideAttrs (old: {
         name = "yt-dlp-${rev}";
         src = super.fetchFromGitHub {
           inherit rev;
