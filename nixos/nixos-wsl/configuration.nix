@@ -37,7 +37,6 @@ with {
       inherit (warbo-wsl) home programs;
     };
     username = "nixos";
-    stateVersion = "24.05";
   };
   warbo.packages = warbo-wsl.packages ++ [
     pkgs.devCli
