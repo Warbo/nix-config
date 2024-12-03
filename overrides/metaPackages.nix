@@ -121,7 +121,7 @@ with rec {
 
     mediaCli = {
       inherit (self)
-        acoustidFingerprinter
+        chromaprint
         alsa-utils
         imagemagick
         ffmpeg
