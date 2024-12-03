@@ -28,8 +28,6 @@ with rec {
     # on older systems. We include it if available, otherwise we just warn.
     fuse3 = super.fuse3 or self.nothing;
 
-    gensgs = from1809 "gensgs";
-
     # We only need nix-repl for Nix 1.x, since 2.x has a built-in repl
     nix-repl =
       if compareVersions self.nix.version "2" == -1 then
@@ -76,7 +74,7 @@ with rec {
       };
 
       stillBrokenPkgs = mapAttrs' stillBroken {
-        inherit (super) gensgs thermald;
+        inherit (super) thermald;
         inherit (super.xorg) xf86videointel;
       };
     };
