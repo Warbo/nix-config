@@ -30,8 +30,6 @@ with rec {
 
     gensgs = from1809 "gensgs";
 
-    libreoffice = from1703 "libreoffice";
-
     # We only need nix-repl for Nix 1.x, since 2.x has a built-in repl
     nix-repl =
       if compareVersions self.nix.version "2" == -1 then
@@ -80,9 +78,6 @@ with rec {
         inherit (super) audacious gensgs thermald;
         inherit (super.xorg) xf86videointel;
         inherit (super.python3Packages) dbus-next;
-        # super.libreoffice is just a wrapper; its libreoffice attribute is the
-        # derivation which fails to build.
-        inherit (super.libreoffice) libreoffice;
       };
     };
     stillBrokenPkgs // { libproxyWorks = self.libproxy; };
