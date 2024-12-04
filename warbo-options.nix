@@ -76,7 +76,7 @@ with {
 
   home-manager.stateVersion = mkOption {
     type = types.str;
-    default = "24.05"; # Override as needed
+    default = "24.11"; # Override as needed
     description = ''
       Passed along to user's Home Manager. Records the version of Home
       Manager that was originally installed, so future upgrades can apply

@@ -16,7 +16,8 @@
 with {
   inherit
     (
-      (rec { inherit (import ../../overrides/repos.nix overrides { }) overrides; }).overrides.nix-helpers
+      (rec { inherit (import ../../overrides/repos.nix overrides { }) overrides; })
+      .overrides.nix-helpers
     )
     sanitiseName
     ;
@@ -33,9 +34,10 @@ with {
   warbo.enable = true;
   warbo.professional = true;
   warbo.home-manager = {
-    inherit (warbo-wsl) home programs;
     username = "nixos";
-    stateVersion = "24.05";
+    extras = {
+      inherit (warbo-wsl) home programs;
+    };
   };
   warbo.packages = warbo-wsl.packages ++ [
     pkgs.devCli
@@ -72,4 +74,13 @@ with {
     enable = true;
     libraries = with pkgs; [ ];
   };
+
+  # Put some fonts in the place WSL's X server expects to find them
+  # See https://github.com/microsoft/wslg/issues/310#issuecomment-1528839137
+  system.activationScripts.wslFontsDir = ''
+    set -x
+    mkdir -p /usr/share/fonts/X11
+    ${pkgs.rsync}/bin/rsync -r '${pkgs.warbo-packages.jmk-x11-fonts}/share/X11/fonts/' /usr/share/fonts/X11/
+    ${pkgs.xorg.mkfontdir}/bin/mkfontdir /usr/share/fonts/X11
+  '';
 }

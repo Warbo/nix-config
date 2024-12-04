@@ -7,7 +7,7 @@ self: super:
 
 with builtins;
 with super.lib;
-with {
+with rec {
   go =
     name: paths:
     assert
@@ -24,6 +24,23 @@ with {
         paths = attrValues paths;
       }
     );
+
+  fallbacks = {
+    inherit
+      (
+        rec {
+          inherit (import ../overrides/repos.nix overrides { }) overrides;
+        }
+        .overrides
+      )
+      nix-helpers
+      warbo-packages
+      ;
+  };
+
+  nix-helper = h: getAttr h (if hasAttr h self then self else nix-helpers);
+  nix-helpers = self.nix-helpers or fallbacks.nix-helpers;
+  warbo-packages = self.warbo-packages or fallbacks.warbo-packages;
 };
 {
   # Packages before a ### are included in the ones after
@@ -51,14 +68,11 @@ with {
         coreutils
         direnv
         entr
-        #gcc
         git
         git-absorb
-        #gnumake
         jq
         msgpack-tools
         nano
-        #nix-diff
         nix-top
         nixfmt-rfc-style
         python3
@@ -69,10 +83,7 @@ with {
         xidel
         ;
       inherit (self.python3Packages) black;
-      inherit (self.warbo-packages)
-        artemis
-        #asv-nix
-        ;
+      inherit (warbo-packages) artemis;
     };
 
     devGui = {
@@ -84,27 +95,27 @@ with {
         anonymousPro
         bibclean
         bibtool
-        droid-fonts
         ghostscript
         md2pdf
-        pandocPkgs
+        nerdfonts
+        pandoc
         poppler_utils
         ;
+      inherit (warbo-packages) panpipe panhandle;
       aspell = self.aspellWithDicts (dicts: [ dicts.en ]);
     };
 
     docGui = {
       inherit (self)
         abiword
-        basket
         evince
         gnumeric
         gv
-        kbibtex_full
-        leafpad
         libreoffice
         ;
-      mupdf = self.without self.mupdf [
+      inherit (self.xfce) mousepad;
+      inherit (warbo-packages) basket kbibtex_full;
+      mupdf = nix-helper "without" self.mupdf [
         "bin/mupdf-gl"
         "bin/mupdf-x11-curl"
       ];
@@ -116,8 +127,8 @@ with {
 
     mediaCli = {
       inherit (self)
-        acoustidFingerprinter
-        alsaUtils
+        chromaprint
+        alsa-utils
         imagemagick
         ffmpeg
         opusTools
@@ -159,22 +170,10 @@ with {
       inherit (self)
         dillo
         firefox
-        transmission-qt
+        transmission_4-qt
         uget
         x11vnc
         ;
-      /*
-        TODO: See if we can get this working again
-        pidgin-with-plugins = self.pidgin.override {
-          plugins = with self; [
-            pidgin-otr
-            # We disable gstreamer and farstream by default, to avoid problems
-            # with dependencies (e.g. v4l-utils). Our config should fix those, so
-            # we should use the unaltered pidgin definition.
-            (pidgin-privacy-please.override { overrideGstreamer = false; })
-          ];
-        };
-      */
     };
 
     # Keep these separate, since they won't work on non-NixOS systems (binaries
@@ -215,7 +214,6 @@ with {
             ts
             unzip
             usbutils
-            #warbo-utilities
             xz
             zbar
             zip
@@ -230,29 +228,28 @@ with {
       self.iconThemes
       // self.widgetThemes
       // {
-        inherit (self.gnome3) gcr;
-        inherit (self.xfce) exo xfce4notifyd;
+        inherit (self.xfce) exo xfce4-notifyd;
         inherit (self.xorg) xkill;
         inherit (self)
           arandr
           asunder
           awf
           blueman
-          compton
-          gksu
+          gcr
           iotop
           lxappearance
+          picom
           rofi
           st
           trayer
-          xsettingsd
           wmname
           xbindkeys
           xcalib
           xcape
           xpra
+          xsettingsd
           ;
-        inherit (libsForQt5) qt5ct qtstyleplugin-kvantum;
+        inherit (self.libsForQt5) qt5ct qtstyleplugin-kvantum;
       };
 
     ###
@@ -286,8 +283,8 @@ with {
   };
 
   tests = {
-    all = self.hasBinary self.allPkgs "firefox";
-    basic = self.hasBinary self.allCli "ssh";
+    all = nix-helper "hasBinary" self.allPkgs "firefox";
+    basic = nix-helper "hasBinary" self.allCli "ssh";
     removals = self.runCommand "removed-undesirables" { inherit (self) allPkgs; } ''
       FAIL=0
       for F in bin/mupdf-gl bin/mupdf-x11-curl

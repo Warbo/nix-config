@@ -45,7 +45,9 @@ with rec {
           };
           nix-config-tests = self: super: {
             nix-config-tests = (acc.nix-config-tests self super).nix-config-tests // {
-              "${f}" = (this self super).tests or { };
+              "${f}" = ((this self super).tests or { }) // {
+                recurseForDerivations = true;
+              };
             };
           };
         };
@@ -58,7 +60,11 @@ with rec {
           "nix-config-tests"
         ];
       };
-      nix-config-tests = self: super: { nix-config-tests = { }; };
+      nix-config-tests = self: super: {
+        nix-config-tests = {
+          recurseForDerivations = true;
+        };
+      };
       nix-config-check = self: super: {
         nix-config-check = foldl' (result: msg: trace msg false) true (
           concatLists (attrValues self.nix-config-checks)

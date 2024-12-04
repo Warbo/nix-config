@@ -2,15 +2,15 @@ self: super: with { inherit (builtins) fetchGit; }; {
   overrides = {
     nix-helpers-src = fetchGit {
       url = "http://chriswarbo.net/git/nix-helpers.git";
-      rev = "60c48ddc2cf65a13f65af17578a6c5412b954952";
+      rev = "120a170a3a92ecf08b49d712cf1209c74509d1db";
     };
     warbo-packages-src = fetchGit {
       url = "http://chriswarbo.net/git/warbo-packages.git";
-      rev = "0111eead4402ab48dcd32bc5de5dbad5734abc21";
+      rev = "faaeedf0b2de5ff07f7d170b79b1f0997b2df71c";
     };
     warbo-utilities-src = fetchGit {
       url = "http://chriswarbo.net/git/warbo-utilities.git";
-      rev = "b0f03a662ef195ed94df41a44ff4c60ec44dc663";
+      rev = "574ee2e07e9ff71837501c9aa6997a7450164a1d";
     };
 
     nix-helpers = import self.nix-helpers-src {

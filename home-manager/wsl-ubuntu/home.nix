@@ -14,7 +14,6 @@ warbo-wsl.config
 
   warbo.enable = true;
   warbo.professional = true;
-  warbo.home-manager.stateVersion = "24.05";
   warbo.packages = warbo-wsl.packages ++ [
     (pkgs.hiPrio pkgs.moreutils) # prefer timestamping 'ts' on WSL
     pkgs.devCli

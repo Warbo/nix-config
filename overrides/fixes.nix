@@ -2,77 +2,36 @@
 self: super:
 
 with rec {
-  inherit (builtins) compareVersions getAttr trace;
+  inherit (builtins)
+    compareVersions
+    getAttr
+    hasAttr
+    trace
+    ;
   inherit (super.lib) mapAttrs;
 
   get =
-    version: name:
+    version:
+    with rec {
+      attr = "nixpkgs${version}";
+      set = getAttr attr (if hasAttr attr self then self else nix-helpers);
+    };
+    name:
     trace "FIXME: Taking ${name} from nixpkgs${version} as it's broken on 19.09" (
-      getAttr name (getAttr "nixpkgs${version}" self)
+      getAttr name set
     );
 
-  from1703 = get "1703";
-  from1809 = get "1809";
+  nix-helpers =
+    self.nix-helpers
+      or (rec { inherit (import ../overrides/repos.nix overrides { }) overrides; })
+      .overrides.nix-helpers;
 
-  # Avoid haskellPackages, since it's a fragile truce between many different
-  # packages, and often requires a bunch of manual overrides. In contrast,
-  # haskell-nix uses Cabal to solve dependencies automatically per-package.
-  # TODO: Check for latest versions
-  haskellPkgs =
-    with { hn = self.haskell-nix { }; };
-    mapAttrs
-      (
-        _:
-        {
-          ghc ? hn.buildPackages.pkgs.haskell-nix.compiler.ghc865,
-          index-state ? "2020-01-11T00:00:00Z",
-          type ? "hackage-package",
-          ...
-        }@args:
-        (getAttr type hn.haskell-nix) (
-          removeAttrs args [ "type" ] // { inherit ghc index-state; }
-        )
-      )
-      {
-        ghcid = {
-          name = "ghcid";
-          version = "0.7.5";
-        };
-        hlint = {
-          name = "hlint";
-          version = "2.2.2";
-        };
-        stylish-haskell = {
-          name = "stylish-haskell";
-          version = "0.9.2.2";
-        };
-      };
+  isBroken = self.isBroken or nix-helpers.isBroken;
 }; {
   overrides = {
-    cabal-install =
-      (self.haskellPackages.override (old: {
-        overrides = helf: huper: {
-          aeson = self.haskell.lib.dontCheck huper.aeson;
-          lens-aeson = self.haskell.lib.dontCheck huper.lens-aeson;
-          SHA = self.haskell.lib.dontCheck huper.SHA;
-        };
-      })).cabal-install;
-
     # Newer NixOS systems need fuse3 rather than fuse, but it doesn't exist
     # on older systems. We include it if available, otherwise we just warn.
     fuse3 = super.fuse3 or self.nothing;
-
-    gensgs = from1809 "gensgs";
-
-    ghcid = haskellPkgs.ghcid.components.exes.ghcid;
-
-    hlint = haskellPkgs.hlint.components.exes.hlint;
-
-    libreoffice = from1703 "libreoffice";
-
-    libupnp = super.libupnp.overrideAttrs (old: {
-      configureFlags = (old.configureFlags or [ ]) ++ [ "--disable-largefile" ];
-    });
 
     # We only need nix-repl for Nix 1.x, since 2.x has a built-in repl
     nix-repl =
@@ -81,9 +40,18 @@ with rec {
       else
         self.nothing;
 
-    stylish-haskell = haskellPkgs.stylish-haskell.components.exes.stylish-haskell;
-
-    thermald = from1809 "thermald";
+    python312 = super.python312.override (old: {
+      packageOverrides =
+        pelf: puper:
+        (old.packageOverrides or (_: _: { })) pelf puper
+        // {
+          dbus-next = nix-helpers.withDeps' "dbus-next" [ (isBroken puper.dbus-next) ] (
+            puper.dbus-next.overridePythonAttrs (_: {
+              doCheck = false;
+            })
+          );
+        };
+    });
 
     xorg = super.xorg // {
       # Bump driver to avoid https://bugs.freedesktop.org/show_bug.cgi?id=109689
@@ -108,18 +76,16 @@ with rec {
     with rec {
       stillBroken = name: pkg: {
         name = "${name}StillNeedsOverride";
-        value = self.isBroken pkg;
+        value = isBroken pkg;
       };
 
       stillBrokenPkgs = mapAttrs' stillBroken {
-        inherit (super) audacious gensgs thermald;
         inherit (super.xorg) xf86videointel;
-        # super.libreoffice is just a wrapper; its libreoffice attribute is the
-        # derivation which fails to build.
-        inherit (super.libreoffice) libreoffice;
       };
-
-      haskellTests = mapAttrs (_: p: p.components.tests) haskellPkgs;
     };
-    stillBrokenPkgs // haskellTests // { libproxyWorks = self.libproxy; };
+    stillBrokenPkgs
+    // {
+      inherit (self.python312Packages) dbus-next;
+      libproxyWorks = self.libproxy;
+    };
 }

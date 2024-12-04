@@ -24,6 +24,13 @@ with {
     common
     // {
       home-manager = (common.home-manager or { }) // {
+        extras = mkOption {
+          default = { };
+          description = ''
+            Extra configuration for the user's home-manager setup.
+          '';
+        };
+
         username = mkOption {
           type = types.nullOr types.str;
           default = null;
@@ -36,11 +43,29 @@ with {
 
   config = mkIf cfg.enable (mkMerge [
     {
-      # Unconditional; override if desired
+      # Unconditional settings; override if desired
       nix.settings.show-trace = true;
       nixpkgs.config.allowUnfree = true;
       programs.iotop.enable = true;
       programs.screen.enable = true;
+      boot.binfmt = {
+        # See https://discourse.nixos.org/t/chroot-into-arm-container-with-systemd-nspawn/34735/9
+        emulatedSystems =
+          with builtins;
+          filter (s: s != currentSystem) [
+            "aarch64-linux" # Pinephone
+            "armv6l-linux" # RaspberryPi
+            "i686-linux" # Thinkpad
+            "riscv64-linux" # VisionFive
+            "x86_64-linux" # Laptops
+          ];
+        # https://github.com/felixonmars/archriscv-packages/blob/7c270ecef6a84edd6031b357b7bd1f6be2d6d838/devtools-riscv64/z-archriscv-qemu-riscv64.conf#L1
+        registrations."riscv64-linux" = {
+          preserveArgvZero = true;
+          matchCredentials = true;
+          fixBinary = true;
+        };
+      };
     }
     (mkIf (cfg.nixpkgs.path != null) {
       nix.nixPath = [ "nixpkgs=${cfg.nixpkgs.path}" ];
@@ -70,7 +95,8 @@ with {
     (mkIf (cfg.home-manager.username != null) {
       home-manager.users."${cfg.home-manager.username}" =
         { ... }:
-        {
+        cfg.home-manager.extras
+        // {
           # Load our Home Manager equivalent
           imports = [ (../../home-manager/modules/warbo.nix) ];
 
@@ -86,7 +112,10 @@ with {
             is-nixos = true;
             # Passing along username will cause an error, since our Home Manager
             # module doesn't define that option
-            home-manager = builtins.removeAttrs cfg.home-manager [ "username" ];
+            home-manager = builtins.removeAttrs cfg.home-manager [
+              "extras"
+              "username"
+            ];
           };
         };
     })
