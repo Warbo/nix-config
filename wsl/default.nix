@@ -4,6 +4,7 @@
   packages =
     [
       pkgs.google-chrome
+      pkgs.haskellPackages.hasktags
       pkgs.rxvt-unicode # Used to auto-spawn emacsclient
       pkgs.uw-ttyp0 # Fonts
     ]
