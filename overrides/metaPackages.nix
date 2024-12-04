@@ -29,7 +29,7 @@ with {
   # Packages before a ### are included in the ones after
   overrides = mapAttrs go {
     haskellCli = {
-      inherit (self.haskellPackages) happy pretty-show;
+      inherit (self.haskellPackages) happy hasktags pretty-show;
       inherit (self)
         brittany
         cabal-install
