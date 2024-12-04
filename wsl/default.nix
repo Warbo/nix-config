@@ -127,11 +127,13 @@
           userDirs = if pathExists wslDir then readDir wslDir else { };
           # See if any has a .gitconfig file
           userCfg = name: wslDir + "/${name}/.gitconfig";
-          users = filter (name: userDirs."${name}" == "directory" && pathExists (userCfg name)) (
-            attrNames userDirs
-          );
+          users = filter (
+            name: userDirs."${name}" == "directory" && pathExists (userCfg name)
+          ) (attrNames userDirs);
         };
-        assert length users < 2 || abort "Ambiguous .gitconfig, found multiple: ${toJSON users}";
+        assert
+          length users < 2
+          || abort "Ambiguous .gitconfig, found multiple: ${toJSON users}";
         lib.lists.optional (length users == 1) {
           # Nix store paths can't begin with ".", so use contents = readFile
           path = path {
