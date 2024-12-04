@@ -37,7 +37,7 @@ do
   fi
 done
 
-PODMAN_ARGS=('-p' '4444:14444' '-p' '80:8080')
+PODMAN_ARGS=('-p' '4444:14444')
 if [[ "$#" -eq 0 ]]
 then
   echo "No args given, starting an interactive shell"
