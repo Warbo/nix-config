@@ -58,24 +58,24 @@ with { nixpkgs-path = import ./nixpkgs.nix; };
             }) { config = {}; };
         }; { inherit (rustNixpkgs) rustPackages; };
 
-      nixWithoutDocumentation = self: super:
-        with {
-          # Disabling Nix documentation breaks the test suite of Nix 2.24, so
-          # update to 2.25.2 to include https://github.com/NixOS/nix/pull/11729
-          nixNixpkgs = warn "Nix" "2.25" super.nix.version import (fetchFromGitHub {
-            owner = "NixOS";
-            repo = "nixpkgs";
-            rev = "10a35620c9a348a87af60316f17ede79fa55a84a";
-            sha256 = "sha256:15k1xxnipv3mxwphg7vaprizq11ncphawc13ns6v1shm180ck9i1";
-          }) { config = { overlays = [ avoidRustBreakage ]; }; };
-        };
-        {
-          # 2024-11-20 ChrisW: Disable documentation to avoid depending on Rust,
-          # since we hit https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=282853
-          nix = nixNixpkgs.nixVersions.nix_2_25.override (_: {
-            enableDocumentation = false;
-          });
-        };
+      # nixWithoutDocumentation = self: super:
+      #   with {
+      #     # Disabling Nix documentation breaks the test suite of Nix 2.24, so
+      #     # update to 2.25.2 to include https://github.com/NixOS/nix/pull/11729
+      #     nixNixpkgs = warn "Nix" "2.25" super.nix.version import (fetchFromGitHub {
+      #       owner = "NixOS";
+      #       repo = "nixpkgs";
+      #       rev = "10a35620c9a348a87af60316f17ede79fa55a84a";
+      #       sha256 = "sha256:15k1xxnipv3mxwphg7vaprizq11ncphawc13ns6v1shm180ck9i1";
+      #     }) { config = { overlays = [ avoidRustBreakage ]; }; };
+      #   };
+      #   {
+      #     # 2024-11-20 ChrisW: Disable documentation to avoid depending on Rust,
+      #     # since we hit https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=282853
+      #     nix = nixNixpkgs.nixVersions.nix_2_25.override (_: {
+      #       enableDocumentation = false;
+      #     });
+      #   };
     };
   systemd.services.nix-daemon.environment.TMPDIR =
     "/mnt/internal/nix-daemon-tmp";
@@ -159,6 +159,9 @@ with { nixpkgs-path = import ./nixpkgs.nix; };
    users.users.nixos = {
      isNormalUser = true;
      initialPassword = "123";
+     openssh.authorizedKeys.keys = [
+       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOuJIYFjGTZyEdIIilGLRkDy1M/AYBmsjML8tQJG48Rn chris@nixos-amd64"
+     ];
      extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
      packages = with pkgs; [
        curl
