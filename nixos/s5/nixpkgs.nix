@@ -1,4 +1,7 @@
-# Version taken from flake.lock in github.com/NickCao/nixos-riscv
+# Version taken from flake.lock in github.com/NickCao/nixos-riscv. We can try
+# replacing this with a "normal" NixOS/Nixpkgs release once there's one with the
+# required support (notably Linux 6.11). NixOS 24.11 *might* be enough, though
+# it would be safer to wait until 25.*
 with {
   owner = "NixOS";
   repo = "Nixpkgs";
