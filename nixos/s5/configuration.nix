@@ -14,6 +14,7 @@ with { nixpkgs-path = import ./nixpkgs.nix; };
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
+    "${import ./nixos-hardware.nix}/starfive/visionfive/v2"
   ];
 
   documentation.nixos.enable = false;  # This also uses Rust
