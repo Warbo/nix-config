@@ -2,12 +2,10 @@
 # replacing this with a "normal" NixOS/Nixpkgs release once there's one with the
 # required support (notably Linux 6.11). NixOS 24.11 *might* be enough, though
 # it would be safer to wait until 25.*
-with {
+with { fetchFromGitHub = import ../../nix/fetchFromGitHub.nix; };
+fetchFromGitHub {
   owner = "NixOS";
   repo = "Nixpkgs";
-  rev = "276e1b72206635f5cee5e50ff66aa5ec6271b2e1";
-};
-builtins.fetchTarball {
-  url = "https://github.com/${owner}/${repo}/archive/${rev}.tar.gz";
-  sha256 = "sha256-EW63zYHpMjh12RJdnuk41liWxE6eTkocssCReg8HgsI=";
+  rev = "003998619b45e244f23d1cb69f92de9a0adf7635";
+  sha256 = "sha256-aMc3rjeLxsF7SViuiC8/4eLvZjLQav9fi4mJbhiZxDM=";
 }
