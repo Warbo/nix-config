@@ -8,26 +8,314 @@
   pkgs,
   ...
 }:
-
-with { nixpkgs-path = import ./nixpkgs.nix; };
-{
+with rec {
+  nixpkgs-path = import ./nixpkgs.nix;
+  nixpkgs-x86_64 = import nixpkgs-path {
+    config = {};
+    overlays = [];
+    system = "x86_64-linux";
+  };
+  nixpkgs-built-on-x86_64 = import nixpkgs-path {
+    config = {};
+    overlays = [];
+    hostSystem = "riscv64-linux";
+    buildSystem = "x86_64-linux";
+  };
+  initial = import /home/nixos/deleteme/reproduce-initial-setup;
+  rm = builtins.removeAttrs;
+  fiddle = c: rm c [
+    "debug" "fonts" "installer" "krb5" "nesting" "qt5" "sdImage" "sound"
+    "stubby" "zramSwap"
+  ] // {
+    warnings = [];
+    boot = rm c.boot [
+      "bootMount" "crashDump" "extraTTYs" "plymouth" "uvesafb" "zfs"
+    ] // {
+      initrd = rm c.boot.initrd [ "luks" "secrets" "network" ];
+      loader = rm c.boot.loader [ "grub" "raspberryPi" ];
+    };
+    console = rm c.console [ "extraTTYs" ];
+    documentation = c.documentation // {
+      nixos = c.documentation.nixos // {
+        options = rm c.documentation.nixos.options [ "allowDocBook" ];
+      };
+    };
+    environment = rm c.environment [ "blcr" "noXlibs" ] // {
+      etc = rm c.environment.etc [ "os-release" ];
+    };
+    #fonts = rm c.fonts [ "enableCoreFonts" ] // {
+    #  fontconfig = rm c.fonts.fontconfig [ "penultimate" "ultimate" ];
+    #};
+    hardware.display = rm c.hardware.display [ "edid" ];
+    programs = rm c.programs [
+      "_1password"
+      "_1password-gui"
+      "adb"
+      "alvr"
+      "appgate-sdp"
+      "appimage"
+      "arp-scan"
+      "atop"
+      "ausweisapp"
+      "autojump"
+      "bandwhich"
+      "bash"
+      "bash-my-aws"
+      "bcc"
+      "benchexec"
+      "browserpass"
+      "calls"
+      "captive-browser"
+      "cardboard"
+      "ccache"
+      "cdemu"
+      "cfs-zen-tweaks"
+      "chromium"
+      "clash-verge"
+      "cnping"
+      "coolercontrol"
+      "corectl"
+      "corefreq"
+      "cpu-energy-meter"
+      "criu"
+      "darling"
+      "dconf"
+      "digitalbitbox"
+      "direnv"
+      "dmrconfig"
+      "droidcam"
+      "dublin-traceroute"
+      "ecryptfs"
+      "envision"
+      "evince"
+      "evolution"
+      "extra-container"
+      "fcast-receiver"
+      "feedbackd"
+      "file-roller"
+      "firefox"
+      "firejail"
+      "fish"
+      "flashrom"
+      "flexoptix-app"
+      "foot"
+      "fuse"
+      "fzf"
+      "gamemode"
+      "gamescope"
+      "gdk-pixbuf"
+      "geary"
+      "git"
+      "gnome-disks"
+      "gnome-documents"
+      "nautilus-open-any-terminal"
+      "nbd"
+      "neovim"
+      "nethoscope"
+      "nexttrace"
+      "nh"
+      "niri"
+      "nix-index"
+      "nix-ld"
+      "nix-required-mounts"
+      "nm-applet"
+      "nncp"
+      "noisetorch"
+      "npm"
+      "ns-usbloader"
+      "mdevctl"
+      "mepo"
+      "mininet"
+      "minipro"
+      "miriway"
+      "mosh"
+      "mouse-actions"
+      "msmtp"
+      "mtr"
+      "liboping"
+      "light"
+      "localsend"
+      "ladybird"
+      "lazygit"
+      "kdeconnect"
+      "kubeswitch"
+      "labwc"
+      "kbdlight"
+      "kclock"
+      "kde-pim"
+      "joycond-cemuhook"
+      "k3b"
+      "k40-whisperer"
+      "iotop"
+      "java"
+      "immersed-vr"
+      "gnome-terminal"
+      "gnupg"
+      "goldwarden"
+      "gpaste"
+      "gphoto2"
+      "gpu-screen-recorder"
+      "haguichi"
+      "hamster"
+      "htop"
+      "hyprland"
+      "hyprlock"
+      "i3lock"
+      "iay"
+      "ibus"
+      "iftop"
+      "iio-hyprland"
+      "immersed"
+      "pantheon-tweaks"
+      "obs-studio"
+      "oddjobd"
+      "oblogout"
+      "openvpn3"
+      "qt5ct"
+      "partition-manager"
+      "pay-respects"
+      "plotinus"
+      "pqos-wrapper"
+      "projecteur"
+      "proxychains"
+      "pulseview"
+      "qdmr"
+      "qgroundcontrol"
+      "rog-control-center"
+      "quark-goldleaf"
+      "regreet"
+      "river"
+      "sedutil"
+      "rust-motd"
+      "ryzen-monitor-ng"
+      "screen"
+      "seahorse"
+      "sharing"
+      "singularity"
+      "skim"
+      "slock"
+      "sniffnet"
+      "soundmodem"
+      "spacefm"
+      "ssh"
+      "starship"
+      "steam"
+      "streamcontroller"
+      "streamdeck-ui"
+      "sway"
+      "sysdig"
+      "system-config-printer"
+      "systemtap"
+      "tcpdump"
+      "thefuck"
+      "thunar"
+      "thunderbird"
+      "tilp2"
+      "tmux"
+      "traceroute"
+      "trippy"
+      "tsmClient"
+      "tuxclocker"
+      "udevil"
+      "unity3d"
+      "usbtop"
+      "uwsm"
+      "vim"
+      "virt-manager"
+      "wavemon"
+      "way-cooler"
+      "waybar"
+      "wayfire"
+      "weylus"
+      "winbox"
+      "wireshark"
+      "wshowkeys"
+      "xastir"
+      "xfconf"
+      "xonsh"
+      "xss-lock"
+      "xwayland"
+      "yabar"
+      "yazi"
+      "ydotool"
+      "yubikey-touch-detector"
+      "zmap"
+      "zsh"
+      "unity3d" "zsh"
+      "x2goserver"
+    ];
+    security = rm c.security [
+      "acme" "apparmor" "hideProcessInformation" "initialRootPassword" "klogd"
+      "rngd" "setuidOwners" "setuidPrograms" "wrappers"
+    ] // {
+      duosec = rm c.security.duosec [ "host" "ikey" "integrationKey" "skey" ];
+      #wrappers = rm c.security.wrappers [
+      #  "dbus-daemon-launch-helper" "fusermount" "fusermount3"
+      #];
+    };
+    systemd = rm c.systemd
+      [ "enableUnifiedCgroupHierarchy" "generator-packages" "shutdownRamfs" "timers"] // {
+        services = rm c.systemd.services ["logrotate"];
+      };
+    services = rm c.services [ "logging" "logrotate" ];
+    users = (c.users or {}) // {
+      root = (c.users.root or {}) // {
+        initialHashedPassword = c.users.root.initialHashedPassword or
+          c.security.initialRootPassword;
+      };
+    };
+    virtualisation = rm c.virtualisation [ "growPartition"
+                                           "anbox"
+                                           "appvm"
+                                           "containerd"
+                                           "containers"
+                                           "cri-o"
+                                           "docker"
+                                           "hypervGuest"
+                                           "incus"
+                                           "kvmgt"
+                                           "libvirtd"
+                                           "lxc"
+                                           "lxd"
+                                           "multipass"
+                                           "podman"
+                                           "rkt"
+                                           "rosetta"
+                                           "spiceUSBRedirection"
+                                           "vswitch"
+                                           "waydroid"
+                                           "xen"
+                                         ];
+    xdg = c.xdg // {
+      portal = rm c.xdg.portal [ "gtkUsePortal" ];
+    };
+  };
+};
+/*{ inherit (fiddle initial.config) boot hardware; } //*/ {
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
+    # Include VisionFive2 support from nixos-hardware
     "${import ./nixos-hardware.nix}/starfive/visionfive/v2"
+    #(import "/nix/store/1sgcsmyckgds3pqsvzkci84xhz4bjfq7-source/starfive/visionfive/v2")
   ];
 
-  documentation.nixos.enable = false;  # This also uses Rust
+  boot.kernelPackages = pkgs.linuxPackages_latest;
+
+  #documentation.nixos.enable = false;  # This also uses Rust
   system.tools.nixos-option.enable = false;  # This drags in an old Nix 2.18
-  services.nscd.enableNsncd = false; # This also uses Rust
-  systemd.shutdownRamfs.enable = false; # Uses make-initrd-ng which uses Rust
+  #services.nscd.enableNsncd = false; # This also uses Rust
+  #systemd.shutdownRamfs.enable = false; # Uses make-initrd-ng which uses Rust
 
   nix.nixPath = [
     "nixos-config=${../..}/nixos/s5/configuration.nix"
     "nixpkgs=${nixpkgs-path}"
   ];
-  nixpkgs.flake.source = nixpkgs-path;
-  nixpkgs.overlays =
+  nixpkgs = {
+    flake.source = nixpkgs-path;
+    hostPlatform.system = "riscv64-linux";
+    buildPlatform.system = "x86_64-linux";
+    overlays =
     with {
       fetchFromGitHub = import ../../nix/fetchFromGitHub.nix;
 
@@ -38,6 +326,16 @@ with { nixpkgs-path = import ./nixpkgs.nix; };
           WARNING: Avoiding breakage with ${name} < ${bound} but it's now ${got}
         '';
     }; builtins.attrValues rec {
+      # x86-GHC = self: super: {
+      #   inherit (nixpkgs-built-on-x86_64) ghc haskell haskellPackages shellcheck-minimal;
+      # };
+      # Avoids modprobe: FATAL: Module dw_mmc_starfive not found in directory
+      # when cross-compiling kernel
+      #avoidInitrdError = self: super: {
+      #  makeModulesClosure = x:
+      #    super.makeModulesClosure (x // { allowMissing = true; });
+      #};
+
       disableShellcheck = self: super: {
         # GHC isn't bootstrapped for RiscV in Nixpkgs, but seems to claim it is.
         # Override that, so that trivial-builders don't try to shellcheck their
@@ -58,32 +356,33 @@ with { nixpkgs-path = import ./nixpkgs.nix; };
             }) { config = {}; };
         }; { inherit (rustNixpkgs) rustPackages; };
 
-      # nixWithoutDocumentation = self: super:
-      #   with {
-      #     # Disabling Nix documentation breaks the test suite of Nix 2.24, so
-      #     # update to 2.25.2 to include https://github.com/NixOS/nix/pull/11729
-      #     nixNixpkgs = warn "Nix" "2.25" super.nix.version import (fetchFromGitHub {
-      #       owner = "NixOS";
-      #       repo = "nixpkgs";
-      #       rev = "10a35620c9a348a87af60316f17ede79fa55a84a";
-      #       sha256 = "sha256:15k1xxnipv3mxwphg7vaprizq11ncphawc13ns6v1shm180ck9i1";
-      #     }) { config = { overlays = [ avoidRustBreakage ]; }; };
-      #   };
-      #   {
-      #     # 2024-11-20 ChrisW: Disable documentation to avoid depending on Rust,
-      #     # since we hit https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=282853
-      #     nix = nixNixpkgs.nixVersions.nix_2_25.override (_: {
-      #       enableDocumentation = false;
-      #     });
-      #   };
+      nixWithoutDocumentation = self: super:
+        with {
+          # Disabling Nix documentation breaks the test suite of Nix 2.24, so
+          # update to 2.25.2 to include https://github.com/NixOS/nix/pull/11729
+          nixNixpkgs = warn "Nix" "2.25" super.nix.version import (fetchFromGitHub {
+            owner = "NixOS";
+            repo = "nixpkgs";
+            rev = "10a35620c9a348a87af60316f17ede79fa55a84a";
+            sha256 = "sha256:15k1xxnipv3mxwphg7vaprizq11ncphawc13ns6v1shm180ck9i1";
+          }) { config = { overlays = [ avoidRustBreakage ]; }; };
+        };
+        {
+          # 2024-11-20 ChrisW: Disable documentation to avoid depending on Rust,
+          # since we hit https://bugs.freebsd.org/bugzilla/show_bug.cgi?id=282853
+          nix = nixNixpkgs.nixVersions.nix_2_25.override (_: {
+            enableDocumentation = false;
+          });
+        };
     };
-  systemd.services.nix-daemon.environment.TMPDIR =
-    "/mnt/internal/nix-daemon-tmp";
+  };
+  #systemd.services.nix-daemon.environment.TMPDIR =
+  #  "/mnt/internal/nix-daemon-tmp";
 
   # Use the extlinux boot loader. (NixOS wants to enable GRUB by default)
-  boot.loader.grub.enable = false;
+  #boot.loader.grub.enable = false;
   # Enables the generation of /boot/extlinux/extlinux.conf
-  boot.loader.generic-extlinux-compatible.enable = true;
+  #boot.loader.generic-extlinux-compatible.enable = true;
 
   fileSystems =
     with rec {
@@ -139,7 +438,7 @@ with { nixpkgs-path = import ./nixpkgs.nix; };
   networking.hostName = "s5";
   # Pick only one of the below networking options.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-  # networking.networkmanager.enable = true;  # Easiest to use and most distros use this by default.
+  networking.networkmanager.enable = true;  # Easiest to use and most distros use this by default.
 
   time.timeZone = "Europe/London";
 
@@ -160,6 +459,7 @@ with { nixpkgs-path = import ./nixpkgs.nix; };
      isNormalUser = true;
      initialPassword = "123";
      openssh.authorizedKeys.keys = [
+       "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCxAT8WR2oMGuFTQiOnShMlp+XjtP16WZNfDCo1sMsZ0I7kflcvmJtn0mxMHiNoMhP39slVkZf6Idd3T9d05reWx0X8SNFyQlCiDZFS5/t1Vc5c4CGVAFGoKGUzAa7dN9n3tX6uhSx8HSWvdzqiJGolh1u9iawJ+oM15ijXvfBJShL+nG7tTszdSpSeFJ6Pbfy3c3VEm9xw4DE3AkOxHNtACgZQx1OXM6MFBgIsBl/BvZ/4x6OcD2tIQTXZsOKePGvSkFvXNlsFfySELoNpLerWoAnDGUX1bbYCrUkdQ9BuOTt9WJa1JztEUtLyhEJ5o+61IBsY7OBsXV2tXqluL2Hl warbo@github.com"
        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOuJIYFjGTZyEdIIilGLRkDy1M/AYBmsjML8tQJG48Rn chris@nixos-amd64"
      ];
      extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
@@ -174,5 +474,5 @@ with { nixpkgs-path = import ./nixpkgs.nix; };
 
   services.openssh.enable = true;
 
-  system.stateVersion = "24.11";
+  system.stateVersion = "25.05"; #"24.11";
 }
