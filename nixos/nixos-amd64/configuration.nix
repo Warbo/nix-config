@@ -143,6 +143,9 @@
     nixPath = with builtins; [
       "nixos-config=${toString ../..}/nixos/nixos-amd64/configuration.nix"
     ];
+    settings = {
+      trusted-users = [ "root" "@wheel" ];
+    };
   };
 
   # Some programs need SUID wrappers, can be configured further or are
