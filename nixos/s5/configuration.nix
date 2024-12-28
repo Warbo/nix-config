@@ -77,13 +77,6 @@ with {
         options = [ "bind" ];
         neededForBoot = true;
       };
-      "/nix" = rec {
-        device = "/mnt/internal/nix";
-        depends = [ device ];
-        fsType = "none";
-        options = [ "bind" ];
-        neededForBoot = true;
-      };
     };
 
   swapDevices = [
