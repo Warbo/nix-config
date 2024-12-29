@@ -118,21 +118,21 @@ with {
   i18n.defaultLocale = "en_GB.UTF-8";
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
-   users.users.nixos = {
-     isNormalUser = true;
-     initialPassword = "123";
-     openssh.authorizedKeys.keys = [
-       "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCxAT8WR2oMGuFTQiOnShMlp+XjtP16WZNfDCo1sMsZ0I7kflcvmJtn0mxMHiNoMhP39slVkZf6Idd3T9d05reWx0X8SNFyQlCiDZFS5/t1Vc5c4CGVAFGoKGUzAa7dN9n3tX6uhSx8HSWvdzqiJGolh1u9iawJ+oM15ijXvfBJShL+nG7tTszdSpSeFJ6Pbfy3c3VEm9xw4DE3AkOxHNtACgZQx1OXM6MFBgIsBl/BvZ/4x6OcD2tIQTXZsOKePGvSkFvXNlsFfySELoNpLerWoAnDGUX1bbYCrUkdQ9BuOTt9WJa1JztEUtLyhEJ5o+61IBsY7OBsXV2tXqluL2Hl warbo@github.com"
-       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOuJIYFjGTZyEdIIilGLRkDy1M/AYBmsjML8tQJG48Rn chris@nixos-amd64"
-     ];
-     extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
-     packages = with pkgs; [
-       curl
-       git
-       nix
-       #tree
-     ];
-   };
+  users.users.nixos = {
+    isNormalUser = true;
+    initialPassword = "123";
+    openssh.authorizedKeys.keys = [
+      "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCxAT8WR2oMGuFTQiOnShMlp+XjtP16WZNfDCo1sMsZ0I7kflcvmJtn0mxMHiNoMhP39slVkZf6Idd3T9d05reWx0X8SNFyQlCiDZFS5/t1Vc5c4CGVAFGoKGUzAa7dN9n3tX6uhSx8HSWvdzqiJGolh1u9iawJ+oM15ijXvfBJShL+nG7tTszdSpSeFJ6Pbfy3c3VEm9xw4DE3AkOxHNtACgZQx1OXM6MFBgIsBl/BvZ/4x6OcD2tIQTXZsOKePGvSkFvXNlsFfySELoNpLerWoAnDGUX1bbYCrUkdQ9BuOTt9WJa1JztEUtLyhEJ5o+61IBsY7OBsXV2tXqluL2Hl warbo@github.com"
+      "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOuJIYFjGTZyEdIIilGLRkDy1M/AYBmsjML8tQJG48Rn chris@nixos-amd64"
+    ];
+    extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
+    packages = with pkgs; [
+      curl
+      git
+      nix
+      #tree
+    ];
+  };
 
   environment.systemPackages = with pkgs; [ curl git mergerfs nix ];
   services.avahi.enable = true;
