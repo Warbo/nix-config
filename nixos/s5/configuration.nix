@@ -22,10 +22,16 @@ with {
   boot.kernelPackages = pkgs.linuxPackages_latest;
   system.tools.nixos-option.enable = false;  # This drags in an old Nix 2.18
 
-  nix.nixPath = [
-    "nixos-config=${../..}/nixos/s5/configuration.nix"
-    "nixpkgs=${nixpkgs-path}"
-  ];
+  nix = {
+    extraOptions = ''experimental-features = nix-command flakes'';
+    nixPath = [
+      "nixos-config=${../..}/nixos/s5/configuration.nix"
+      "nixpkgs=${nixpkgs-path}"
+    ];
+    settings = {
+      trusted-users = [ "root" "@wheel" ];
+    };
+  };
   nixpkgs = {
     flake.source = nixpkgs-path;
     hostPlatform.system = "riscv64-linux";
