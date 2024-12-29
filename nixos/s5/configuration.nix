@@ -137,6 +137,7 @@ with {
   environment.systemPackages = with pkgs; [ curl git mergerfs nix ];
   services.avahi.enable = true;
   services.openssh.enable = true;
+  security.sudo.wheelNeedsPassword = false;
 
   system.stateVersion = "25.05"; #"24.11";
 }
