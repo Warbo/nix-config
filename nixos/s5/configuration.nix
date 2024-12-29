@@ -43,6 +43,14 @@ with {
         # scripts.
         shellcheck-minimal.compiler.meta.platforms = [];
       };
+
+      mergerFsDependency = self: super: {
+        mergerfs = super.mergerfs.overrideAttrs (old: {
+          nativeBuildInputs = (old.nativeBuildInputs or []) ++ [
+            self.binutils
+          ];
+        });
+      };
     };
   };
   #systemd.services.nix-daemon.environment.TMPDIR =
