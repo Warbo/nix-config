@@ -91,6 +91,17 @@ with {
         options = [ "bind" ];
         neededForBoot = true;
       };
+
+      # Shared drive
+      "/mnt/shared" = {
+        fsType = "fuse.mergerfs";
+        device = "/mnt/uuid/*/Shared";
+        options = [
+          "cache.files=partial"
+          "dropcacheonclose=true"
+          "category.create=mfs"
+        ];
+      };
     };
 
   swapDevices = [
@@ -123,6 +134,7 @@ with {
      ];
    };
 
+  environment.systemPackages = with pkgs; [ curl git mergerfs nix ];
   services.avahi.enable = true;
   services.openssh.enable = true;
 
