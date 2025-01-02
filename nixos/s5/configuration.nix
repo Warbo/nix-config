@@ -20,6 +20,25 @@ with {
   ];
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
+  boot.binfmt = {
+    # See https://discourse.nixos.org/t/chroot-into-arm-container-with-systemd-nspawn/34735/9
+    emulatedSystems =
+      with builtins;
+      filter (s: s != currentSystem) [
+        "aarch64-linux" # Pinephone
+        "armv6l-linux" # RaspberryPi
+        "i686-linux" # Thinkpad
+        "riscv64-linux" # VisionFive
+        "x86_64-linux" # Laptops
+      ];
+    # https://github.com/felixonmars/archriscv-packages/blob/7c270ecef6a84edd6031b357b7bd1f6be2d6d838/devtools-riscv64/z-archriscv-qemu-riscv64.conf#L1
+    registrations."x86_64-linux" = {
+      preserveArgvZero = true;
+      matchCredentials = true;
+      fixBinary = true;
+    };
+  };
+
   system.tools.nixos-option.enable = false;  # This drags in an old Nix 2.18
 
   nix = {
