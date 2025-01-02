@@ -320,38 +320,38 @@ with rec {
         };
       };
 
-      mpd.Unit.After = [
-        "s5-smb.service"
-        "mpd-forwarder.service"
-      ];
-      mpd.Unit.Requires = [
-        "s5-smb.service"
-        "mpd-forwarder.service"
-      ];
-      mpd-forwarder = {
-        Unit = {
-          Description = "Proxy MPD on an IPv6 mDNS host, to a local port";
-          After = [ "s5-accessible.target" ];
-          PartOf = [ "s5-accessible.target" ];
-          BindsTo = [ "s5-accessible.target" ];
-          Requires = [ "s5-accessible.target" ];
-        };
-        Service = {
-          ExecStart = "${pkgs.writeShellScript "mpd-forwarder" ''
-            set -ex
-            if ADDRS=$(getent ahosts s5.local)
-            then
-              ADDR=$(echo "$ADDRS" | head -n1 | awk '{print $1}')
-              exec ${pkgs.socat}/bin/socat \
-                TCP-LISTEN:6666,fork,reuseaddr \
-                TCP:[$ADDR]:6600
-            else
-              echo "Couldn't resolve s5.local" 1>&2
-              exit 1
-            fi
-          ''}";
-        };
-      };
+      # mpd.Unit.After = [
+      #   "s5-smb.service"
+      #   "mpd-forwarder.service"
+      # ];
+      # mpd.Unit.Requires = [
+      #   "s5-smb.service"
+      #   "mpd-forwarder.service"
+      # ];
+      # mpd-forwarder = {
+      #   Unit = {
+      #     Description = "Proxy MPD on an IPv6 mDNS host, to a local port";
+      #     After = [ "s5-accessible.target" ];
+      #     PartOf = [ "s5-accessible.target" ];
+      #     BindsTo = [ "s5-accessible.target" ];
+      #     Requires = [ "s5-accessible.target" ];
+      #   };
+      #   Service = {
+      #     ExecStart = "${pkgs.writeShellScript "mpd-forwarder" ''
+      #       set -ex
+      #       if ADDRS=$(getent ahosts s5.local)
+      #       then
+      #         ADDR=$(echo "$ADDRS" | head -n1 | awk '{print $1}')
+      #         exec ${pkgs.socat}/bin/socat \
+      #           TCP-LISTEN:6666,fork,reuseaddr \
+      #           TCP:[$ADDR]:6600
+      #       else
+      #         echo "Couldn't resolve s5.local" 1>&2
+      #         exit 1
+      #       fi
+      #     ''}";
+      #   };
+      # };
 
       s5-smb = {
         Unit = {
