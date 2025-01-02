@@ -160,19 +160,59 @@ with {
   services = {
     avahi = {
       enable = true;
-      publish.enable = true;
-      publish.userServices = true;  # Let samba register mDNS records
-      #nssmdns4 = true;
+      nssmdns = true;
+      openFirewall = true;
+      publish = {
+        enable = true;
+        addresses = true;
+        domain = true;
+        hinfo = true;
+        userServices = true; # Let samba register mDNS records
+        workstation = true;
+      };
+      extraServiceFiles = {
+        smb = ''
+          <?xml version="1.0" standalone='no'?><!--*-nxml-*-->
+          <!DOCTYPE service-group SYSTEM "avahi-service.dtd">
+          <service-group>
+            <name replace-wildcards="yes">%h</name>
+            <service>
+              <type>_smb._tcp</type>
+              <port>445</port>
+            </service>
+          </service-group>
+        '';
+      };
     };
     openssh.enable = true;
     samba = {
       enable = true;
-      #package = pkgs.samba4Full;  # Has avahi, etc
+      openFirewall = true;
+      settings = {
+        global = {
+          "invalid users" = [
+            "root"
+          ];
+          "passwd program" = "/run/wrappers/bin/passwd %u";
+          security = "user";
+          "guest account" = "nobody";
+          "map to guest" = "bad user";
+        };
+      };
       shares.shared = {
         path = "/mnt/shared";
+        browseable = "yes";
+        "read only" = "true";
         writable = "false";
+        "guest ok" = "yes";
         comment = "Merged hard drive pool";
       };
+    };
+    samba-wsdd = {
+      enable = true;
+      discovery = true;
+      openFirewall = true;
+      workgroup = "WORKGROUP";
     };
   };
   system.stateVersion = "25.05"; #"24.11";
