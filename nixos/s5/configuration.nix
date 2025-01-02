@@ -154,9 +154,26 @@ with {
   };
 
   environment.systemPackages = with pkgs; [ curl git mergerfs nix ];
-  services.avahi.enable = true;
-  services.openssh.enable = true;
+
   security.sudo.wheelNeedsPassword = false;
 
+  services = {
+    avahi = {
+      enable = true;
+      publish.enable = true;
+      publish.userServices = true;  # Let samba register mDNS records
+      #nssmdns4 = true;
+    };
+    openssh.enable = true;
+    samba = {
+      enable = true;
+      #package = pkgs.samba4Full;  # Has avahi, etc
+      shares.shared = {
+        path = "/mnt/shared";
+        writable = "false";
+        comment = "Merged hard drive pool";
+      };
+    };
+  };
   system.stateVersion = "25.05"; #"24.11";
 }
