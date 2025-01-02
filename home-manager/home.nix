@@ -320,109 +320,109 @@ with rec {
         };
       };
 
-      mpd.Unit.After = [
-        "dietpi-smb.service"
-        "mpd-forwarder.service"
-      ];
-      mpd.Unit.Requires = [
-        "dietpi-smb.service"
-        "mpd-forwarder.service"
-      ];
-      mpd-forwarder = {
+      # mpd.Unit.After = [
+      #   "s5-smb.service"
+      #   "mpd-forwarder.service"
+      # ];
+      # mpd.Unit.Requires = [
+      #   "s5-smb.service"
+      #   "mpd-forwarder.service"
+      # ];
+      # mpd-forwarder = {
+      #   Unit = {
+      #     Description = "Proxy MPD on an IPv6 mDNS host, to a local port";
+      #     After = [ "s5-accessible.target" ];
+      #     PartOf = [ "s5-accessible.target" ];
+      #     BindsTo = [ "s5-accessible.target" ];
+      #     Requires = [ "s5-accessible.target" ];
+      #   };
+      #   Service = {
+      #     ExecStart = "${pkgs.writeShellScript "mpd-forwarder" ''
+      #       set -ex
+      #       if ADDRS=$(getent ahosts s5.local)
+      #       then
+      #         ADDR=$(echo "$ADDRS" | head -n1 | awk '{print $1}')
+      #         exec ${pkgs.socat}/bin/socat \
+      #           TCP-LISTEN:6666,fork,reuseaddr \
+      #           TCP:[$ADDR]:6600
+      #       else
+      #         echo "Couldn't resolve s5.local" 1>&2
+      #         exit 1
+      #       fi
+      #     ''}";
+      #   };
+      # };
+
+      s5-smb = {
         Unit = {
-          Description = "Proxy MPD on an IPv6 mDNS host, to a local port";
-          After = [ "dietpi-accessible.target" ];
-          PartOf = [ "dietpi-accessible.target" ];
-          BindsTo = [ "dietpi-accessible.target" ];
-          Requires = [ "dietpi-accessible.target" ];
+          Description = "Mount StarFive's shared folder read-only via SMB";
+          After = [ "s5-accessible.target" ];
+          PartOf = [ "s5-accessible.target" ];
+          BindsTo = [ "s5-accessible.target" ];
+          Requires = [ "s5-accessible.target" ];
         };
         Service = {
-          ExecStart = "${pkgs.writeShellScript "mpd-forwarder" ''
+          ExecStart = "${pkgs.writeShellScript "s5-smb.sh" ''
             set -ex
-            if ADDRS=$(getent ahosts dietpi.local)
-            then
-              ADDR=$(echo "$ADDRS" | head -n1 | awk '{print $1}')
-              exec ${pkgs.socat}/bin/socat \
-                TCP-LISTEN:6666,fork,reuseaddr \
-                TCP:[$ADDR]:6600
-            else
-              echo "Couldn't resolve dietpi.local" 1>&2
-              exit 1
-            fi
+            ADDR=$(${commands.s5_ip4}/bin/s5_ip4)
+            # NOTE: Remote control (rc) port is arbitrary, but must be unique
+            exec ${pkgs.rclone}/bin/rclone mount \
+              --rc --rc-no-auth --rc-addr=:11111 \
+              --vfs-cache-mode=full \
+              ':smb:shared' \
+              --smb-host "$ADDR" \
+              /home/manjaro/Shared
           ''}";
+          ExecStop = "fusermount -u /home/manjaro/Shared";
+          Restart = "on-failure";
         };
+        Install = { };
       };
+      s5-sftp = {
+        Unit = {
+          Description = "Mount StarFive's root folder read/write via SFTP";
+          After = [
+            "s5-accessible.target"
+            "keyring-unlocked.target"
+          ];
+          PartOf = [
+            "s5-accessible.target"
+            "keyring-unlocked.target"
+          ];
+          BindsTo = [
+            "s5-accessible.target"
+            "keyring-unlocked.target"
+          ];
+          Requires = [
+            "s5-accessible.target"
+            "keyring-unlocked.target"
+          ];
+        };
+        Service = {
+          ExecStart = "${pkgs.writeShellScript "s5-sftp.sh" ''
+            set -ex
+            . /home/manjaro/.bashrc
+            unlocked | grep -q '^ssh' || {
+              echo "SSH key not unlocked, skipping" 1>&2
+              sleep 10
+              exit 1
+            }
+            ADDR=$(${commands.s5_ip4}/bin/s5_ip4)
 
-      # dietpi-smb = {
-      #   Unit = {
-      #     Description = "Mount DietPi's shared folder read-only via SMB";
-      #     After = [ "dietpi-accessible.target" ];
-      #     PartOf = [ "dietpi-accessible.target" ];
-      #     BindsTo = [ "dietpi-accessible.target" ];
-      #     Requires = [ "dietpi-accessible.target" ];
-      #   };
-      #   Service = {
-      #     ExecStart = "${pkgs.writeShellScript "dietpi-smb.sh" ''
-      #       set -ex
-      #       ADDR=$(${commands.pi4}/bin/pi4)
-      #       # NOTE: Remote control (rc) port is arbitrary, but must be unique
-      #       exec ${pkgs.rclone}/bin/rclone mount \
-      #         --rc --rc-no-auth --rc-addr=:11111 \
-      #         --vfs-cache-mode=full \
-      #         ':smb:shared' \
-      #         --smb-host "$ADDR" \
-      #         /home/manjaro/Shared
-      #     ''}";
-      #     ExecStop = "fusermount -u /home/manjaro/Shared";
-      #     Restart = "on-failure";
-      #   };
-      #   Install = { };
-      # };
-      # dietpi-sftp = {
-      #   Unit = {
-      #     Description = "Mount DietPi's root folder read/write via SFTP";
-      #     After = [
-      #       "dietpi-accessible.target"
-      #       "keyring-unlocked.target"
-      #     ];
-      #     PartOf = [
-      #       "dietpi-accessible.target"
-      #       "keyring-unlocked.target"
-      #     ];
-      #     BindsTo = [
-      #       "dietpi-accessible.target"
-      #       "keyring-unlocked.target"
-      #     ];
-      #     Requires = [
-      #       "dietpi-accessible.target"
-      #       "keyring-unlocked.target"
-      #     ];
-      #   };
-      #   Service = {
-      #     ExecStart = "${pkgs.writeShellScript "dietpi-sftp.sh" ''
-      #       set -ex
-      #       . /home/manjaro/.bashrc
-      #       unlocked | grep -q '^ssh' || {
-      #         echo "SSH key not unlocked, skipping" 1>&2
-      #         sleep 10
-      #         exit 1
-      #       }
-      #       ADDR=$(${commands.pi4}/bin/pi4)
-
-      #       # NOTE: We avoid setting modtime, to avoid SSH_FX_OP_UNSUPPORTED
-      #       # NOTE: Remote control (rc) port is arbitrary, but must be unique
-      #       exec ${pkgs.rclone}/bin/rclone mount \
-      #         --rc --rc-no-auth --rc-addr=:22222 \
-      #         --vfs-cache-mode=full \
-      #         --sftp-set-modtime=false --no-update-modtime \
-      #         ":sftp,user=pi,host=$ADDR:/" \
-      #         /home/manjaro/DietPi
-      #     ''}";
-      #     ExecStop = "fusermount -u /home/manjaro/DietPi";
-      #     Restart = "on-failure";
-      #   };
-      #   Install = { };
-      # };
+            # NOTE: We avoid setting modtime, to avoid SSH_FX_OP_UNSUPPORTED
+            # NOTE: Remote control (rc) port is arbitrary, but must be unique
+            exec ${pkgs.rclone}/bin/rclone mount \
+              --rc --rc-no-auth --rc-addr=:22222 \
+              --vfs-cache-mode=full \
+              --sftp-set-modtime=false --no-update-modtime \
+              ":sftp,user=pi,host=$ADDR:/" \
+              /home/manjaro/S5
+          ''}";
+          ExecStop = "fusermount -u /home/manjaro/S5";
+          Restart = "on-failure";
+        };
+        Install = { };
+      };
 
       s3-git = {
         Unit = {
@@ -464,23 +464,23 @@ with rec {
     };
 
     targets = {
-      # dietpi-accessible = {
-      #   Unit = {
-      #     Description = "Can access dietpi.local";
-      #     Wants = [
-      #       "dietpi-smb.service"
-      #       "dietpi-sftp.service"
+       s5-accessible = {
+         Unit = {
+           Description = "Can access s5.local";
+           Wants = [
+             "s5-smb.service"
+             "s5-sftp.service"
       #       "mpd.service"
-      #     ];
-      #   };
-      # };
+           ];
+         };
+       };
 
       home-wifi-connected = {
         Unit = {
           Description = "On home WiFi network";
           Wants = [
-            # "dietpi-smb.service"
-            # "dietpi-sftp.service"
+            "s5-smb.service"
+            "s5-sftp.service"
           ];
         };
       };
@@ -489,7 +489,7 @@ with rec {
         Unit = {
           Description = "Indicates GNOME keyring and ssh-agent are unlocked";
           Wants = [
-            #"dietpi-sftp.service"
+            "s5-sftp.service"
             "s3-git"
           ];
         };

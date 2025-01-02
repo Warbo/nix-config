@@ -46,6 +46,12 @@ with {
       # Unconditional settings; override if desired
       nix.settings.show-trace = true;
       nixpkgs.config.allowUnfree = true;
+
+      # Install packages system-wide. If Home Manager is being used then we'll
+      # also put these in the user's home.packages, but it's annoying to not
+      # have things available as root, to require a login shell for them, etc.
+      environment.systemPackages = cfg.packages;
+
       programs.iotop.enable = true;
       programs.screen.enable = true;
       boot.binfmt = {
@@ -118,11 +124,6 @@ with {
             ];
           };
         };
-    })
-    (mkIf (cfg.home-manager.username == null) {
-      # We prefer to put cfg.packages in the user's home.packages, but if HM
-      # isn't being used then we put them in the system environment.
-      environment.systemPackages = cfg.packages;
     })
   ]);
 }

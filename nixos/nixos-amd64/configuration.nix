@@ -28,6 +28,8 @@
     xfce.mousepad
     (pkgs.hiPrio warbo-utilities)
     pkgs.lxqt.qterminal
+    pkgs.gparted
+    pkgs.nmap
     (pkgs.writeShellApplication {
       name = "xfce4-notifyd";
       text = ''
@@ -141,6 +143,9 @@
     nixPath = with builtins; [
       "nixos-config=${toString ../..}/nixos/nixos-amd64/configuration.nix"
     ];
+    settings = {
+      trusted-users = [ "root" "@wheel" ];
+    };
   };
 
   # Some programs need SUID wrappers, can be configured further or are

@@ -38,8 +38,9 @@
   };
 
   environment.systemPackages = [ pkgs.cifs-utils ];
-  /*fileSystems."/home/jo/Public" = {
-    device = "//dietpi.local/shared";
+
+  fileSystems."/home/jo/Public" = {
+    device = "//s5.local/shared";
     fsType = "cifs";
     options = [
       "x-systemd.automount"

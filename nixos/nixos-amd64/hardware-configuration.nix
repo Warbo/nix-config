@@ -31,7 +31,7 @@
     fsType = "ext4";
   };
   fileSystems."/home/chris/Public" = {
-    device = "//dietpi.local/shared";
+    device = "//s5.local/shared";
     fsType = "cifs";
     options = [
       "x-systemd.automount"
