@@ -149,11 +149,11 @@ with rec {
           Description = "Use rclone to mount ${mountPoint}";
           After = [
             "network-online.target"
-            "dietpi-accessible" # TODO: Stabilise dietpi connecting
+            "s5-accessible" # TODO: Stabilise s5 connecting
           ];
           Wants = [
             "network-online.target"
-            "dietpi-accessible" # TODO: Stabilise dietpi connecting
+            "s5-accessible" # TODO: Stabilise s5 connecting
           ];
         };
         Service = {
