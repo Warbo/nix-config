@@ -43,7 +43,6 @@
     os.repos
     os.fixes
     os.metaPackages
-    os.nixpkgsUpstream
     os.theming
   ];
 
