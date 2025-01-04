@@ -202,14 +202,14 @@ with {
           "guest account" = "nobody";
           "map to guest" = "bad user";
         };
-      };
-      shares.shared = {
-        path = "/mnt/shared";
-        browseable = "yes";
-        "read only" = "true";
-        writable = "false";
-        "guest ok" = "yes";
-        comment = "Merged hard drive pool";
+        shared = {
+          path = "/mnt/shared";
+          browseable = "yes";
+          "read only" = "true";
+          writable = "false";
+          "guest ok" = "yes";
+          comment = "Merged hard drive pool";
+        };
       };
     };
     samba-wsdd = {
