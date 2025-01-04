@@ -17,6 +17,8 @@ with {
     ./hardware-configuration.nix
     # Include VisionFive2 support from nixos-hardware
     "${import ./nixos-hardware.nix}/starfive/visionfive/v2"
+    # Fetch youtube videos
+    ../modules/fetch-youtube.nix
   ];
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
@@ -70,6 +72,8 @@ with {
           ];
         });
       };
+
+      inherit (import ../../overlays.nix) yt-dlp;
     };
   };
   #systemd.services.nix-daemon.environment.TMPDIR =
@@ -215,5 +219,21 @@ with {
       workgroup = "WORKGROUP";
     };
   };
+
+  fetch-youtube = {
+    enable = true;
+    user = "nixos";
+    dir = /mnt/internal/youtube;
+    destination = /mnt/shared/TODO/Videos;
+    args = [
+      "-f"
+      "b[height<600]"
+    ];
+    timer = {
+      OnBootSec = "5min";
+      OnUnitActiveSec = "6h";
+    };
+  };
+
   system.stateVersion = "25.05"; #"24.11";
 }
