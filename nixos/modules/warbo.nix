@@ -52,6 +52,7 @@ with {
       # have things available as root, to require a login shell for them, etc.
       environment.systemPackages = cfg.packages;
 
+      programs.fuse.userAllowOther = true;
       programs.iotop.enable = true;
       programs.screen.enable = true;
       boot.binfmt = {
