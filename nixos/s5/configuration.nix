@@ -243,10 +243,11 @@ with {
     {
       inherit dir;
       enable = true;
-      download_path = "/mnt/shared/Audio/TODO/{podname}";
+      user = "nixos";
+      destination = /mnt/shared/Audio/TODO;
       podcasts = "${toString dir}/podcasts.toml";
       extraConfig.tracker_path = "${toString dir}/partial/{podname}/.downloaded";
-  };
+    };
 
   system.stateVersion = "25.05"; #"24.11";
 }
