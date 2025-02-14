@@ -9,6 +9,7 @@
   ...
 }:
 with {
+  inherit (builtins) toString;
   nixpkgs-path = import ./nixpkgs.nix;
 };
 {
@@ -19,6 +20,8 @@ with {
     "${import ./nixos-hardware.nix}/starfive/visionfive/v2"
     # Fetch youtube videos
     ../modules/fetch-youtube.nix
+    # Fetch podcasts
+    ../modules/talecast.nix
   ];
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
@@ -233,6 +236,16 @@ with {
       OnBootSec = "5min";
       OnUnitActiveSec = "6h";
     };
+  };
+
+  services.talecast =
+    with { dir = /mnt/internal/podcasts; };
+    {
+      inherit dir;
+      enable = true;
+      download_path = "/mnt/shared/Audio/TODO/{podname}";
+      podcasts = "${toString dir}/podcasts.toml";
+      extraConfig.tracker_path = "${toString dir}/partial/{podname}/.downloaded";
   };
 
   system.stateVersion = "25.05"; #"24.11";
