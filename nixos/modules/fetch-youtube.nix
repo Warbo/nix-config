@@ -107,7 +107,7 @@ with {
       type = types.nullOr types.path;
       default = null;
       description = ''
-        Directory to rsync completed results to. This can be on different
+        Directory to rsync completed results to. This can be on a different
         filesystem to the 'dir' option. Use null to leave in fetched dir.
       '';
     };
