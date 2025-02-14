@@ -155,8 +155,10 @@ with {
     packages = with pkgs; [
       curl
       git
+      htop
       nix
-      #tree
+      rsync
+      tree
     ];
   };
 
