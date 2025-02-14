@@ -118,6 +118,7 @@
       "wheel" # Enable ‘sudo’ for the user.
       "kvm" # Faster virtualisation
       config.services.kubo.group # Required to run IPFS CLI commands
+      config.users.users.gnunet.group # Required to run GNUNet CLI commands
     ];
   };
 
@@ -168,7 +169,15 @@
     settings.X11Forwarding = true;
   };
 
-  services.gnunet.enable = false;
+  services.gnunet = {
+    enable = false;
+    extraOptions = ''
+      [nat]
+      BEHIND_NAT = YES
+      ENABLE_UPNP = YES
+      DISABLEV6 = YES
+    '';
+  };
 
   services.avahi.hostName = config.networking.hostName;
 
