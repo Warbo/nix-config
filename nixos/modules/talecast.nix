@@ -18,6 +18,8 @@ with rec {
 
   default_download_path = "${cfg.fetched_path}/{podname}";
 
+  doneFile = "${toString cfg.dir}/done";
+
   enableMoveService =
     # Only enable if we know downloads will be in cfg.fetched_path. We can't
     # support an arbitray configEntries.download_path since it allows variables
@@ -120,7 +122,19 @@ with rec {
                   path = toString cfg.podcasts;
                 }
               ];
-            text = ''exec talecast --config ${configFile}'';
+            text =
+              ''
+                # Tell talecast-move that we're running, so it shouldn't rmdir
+                # the directories we're about to put things into
+                rm ${doneFile} || true
+                sleep 1
+                talecast --config ${configFile} "$@"
+                CODE="$?"
+
+                # Tell talecast-move that we've finished, so it's free to rmdir
+                touch ${doneFile}
+                exit "$CODE"
+              '';
           }}/bin/run-talecast";
         };
       };
@@ -150,6 +164,7 @@ with rec {
             text = builtins.readFile ./talecast-move.sh;
             runtimeInputs = with pkgs; [ bash coreutils rsync ];
             runtimeEnv = {
+              inherit doneFile;
               DEST = toString cfg.destination;
               FETCHED = toString cfg.fetched_path;
             };

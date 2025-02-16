@@ -249,6 +249,10 @@ with {
       destination = /mnt/shared/Audio/TODO;
       podcasts = "${toString dir}/podcasts.toml";
       extraConfig.tracker_path = "${toString dir}/partial/{podname}/.downloaded";
+      timer = {
+        OnBootSec = "15min";
+        OnUnitActiveSec = "7h";
+      };
     };
 
   system.stateVersion = "25.05"; #"24.11";
