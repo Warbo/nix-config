@@ -118,8 +118,12 @@
       "wheel" # Enable ‘sudo’ for the user.
       "kvm" # Faster virtualisation
       config.services.kubo.group # Required to run IPFS CLI commands
-      config.users.users.gnunet.group # Required to run GNUNet CLI commands
-    ];
+
+    ] ++
+    # Required to run GNUNet CLI commands
+    (if config.services.gnunet.enable
+     then [config.users.users.gnunet.group]
+     else []);
   };
 
   fonts = {
