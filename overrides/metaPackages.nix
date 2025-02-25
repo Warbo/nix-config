@@ -66,6 +66,7 @@ with rec {
         awscli
         binutils
         coreutils
+        delta
         direnv
         entr
         git
