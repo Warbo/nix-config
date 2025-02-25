@@ -34,6 +34,14 @@ with {
     '';
   };
 
+  wsl = mkOption {
+    type = types.bool;
+    default = false;
+    description = ''
+      Whether we're running on Windows Subsystem for Linux.
+    '';
+  };
+
   direnv = mkOption {
     type = types.bool;
     default = true;

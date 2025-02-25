@@ -33,6 +33,7 @@ with {
 
   warbo.enable = true;
   warbo.professional = true;
+  warbo.wsl = true;
   warbo.home-manager = {
     username = "nixos";
     extras = {
