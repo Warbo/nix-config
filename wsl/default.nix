@@ -3,6 +3,7 @@
   # Programs to put in PATH, either system-wide (NixOS-only) or via Home Manager
   packages =
     [
+      pkgs.delta
       pkgs.google-chrome
       pkgs.haskellPackages.hasktags
       pkgs.rxvt-unicode # Used to auto-spawn emacsclient
