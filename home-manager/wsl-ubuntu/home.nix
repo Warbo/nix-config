@@ -24,6 +24,7 @@ warbo-wsl.config
     pkgs.haskellPackages.stylish-haskell
     pkgs.j2cli
     pkgs.nix
+    pkgs.nixos-container
   ];
   home = warbo-wsl.home // {
     username = "chrisw";
