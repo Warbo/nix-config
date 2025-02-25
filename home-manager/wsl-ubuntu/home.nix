@@ -26,6 +26,13 @@ warbo-wsl.config
     pkgs.nix
     pkgs.nixos-container
   ];
+  warbo.nixpkgs.overlays = os: [
+    os.repos
+    os.metaPackages
+    (self: super: {
+      inherit (self.nix-helpers.nixpkgs2405) openssh;
+    })
+  ];
   home = warbo-wsl.home // {
     username = "chrisw";
     homeDirectory = "/home/chrisw";
