@@ -32,6 +32,14 @@
   # start up!
   environment.etc.os-release.mode = "direct-symlink";
 
+  users.users.chrisw = {
+    isNormalUser  = true;
+    home = "/home/chrisw";
+    description = "Chris Warburton";
+    extraGroups = [ "wheel" "networkmanager" ];
+    uid = 1000;
+  };
+
   services = {
     ollama.enable = true;
   };
