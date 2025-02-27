@@ -6,7 +6,10 @@ set -e
 # garbage collector can remove it; which causes a lot of unnecessary fetching,
 # which is avoided by making a root.
 
-X=$(nix-instantiate --eval --read-write-mode \
-                    -E 'import home-manager/nixos-import.nix')
-X="${X%\"}" X="${X#\"}"  # Strip surrounding "
-nix-store --add-root hm-gcroot -r "$X"
+mkRoot() {
+    X=$(nix-instantiate --eval --read-write-mode -E "$1")
+    X="${X%\"}" X="${X#\"}"  # Strip surrounding "
+    nix-store --add-root "$2" -r "$X"
+}
+mkRoot 'import home-manager/nixos-import.nix' 'hm-gcroot'
+mkRoot '(import ./nix).path' 'nixpkgs-gcroot'

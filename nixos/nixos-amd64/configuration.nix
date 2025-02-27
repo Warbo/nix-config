@@ -28,6 +28,8 @@
     xfce.mousepad
     (pkgs.hiPrio warbo-utilities)
     pkgs.lxqt.qterminal
+    pkgs.gparted
+    pkgs.nmap
     (pkgs.writeShellApplication {
       name = "xfce4-notifyd";
       text = ''
@@ -41,7 +43,6 @@
     os.repos
     os.fixes
     os.metaPackages
-    os.nixpkgsUpstream
     os.theming
   ];
 
@@ -117,7 +118,12 @@
       "wheel" # Enable ‘sudo’ for the user.
       "kvm" # Faster virtualisation
       config.services.kubo.group # Required to run IPFS CLI commands
-    ];
+
+    ] ++
+    # Required to run GNUNet CLI commands
+    (if config.services.gnunet.enable
+     then [config.users.users.gnunet.group]
+     else []);
   };
 
   fonts = {
@@ -141,6 +147,9 @@
     nixPath = with builtins; [
       "nixos-config=${toString ../..}/nixos/nixos-amd64/configuration.nix"
     ];
+    settings = {
+      trusted-users = [ "root" "@wheel" ];
+    };
   };
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -164,7 +173,15 @@
     settings.X11Forwarding = true;
   };
 
-  services.gnunet.enable = false;
+  services.gnunet = {
+    enable = false;
+    extraOptions = ''
+      [nat]
+      BEHIND_NAT = YES
+      ENABLE_UPNP = YES
+      DISABLEV6 = YES
+    '';
+  };
 
   services.avahi.hostName = config.networking.hostName;
 
@@ -172,6 +189,10 @@
     enable = false;
     autoMount = true;
     settings.Addresses.API = [ "/ip4/127.0.0.1/tcp/5001" ];
+  };
+
+  services.ollama = {
+    enable = true;
   };
 
   # Open ports in the firewall.

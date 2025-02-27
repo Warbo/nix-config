@@ -81,8 +81,8 @@ with {
               user = "chris";
             };
             s5 = {
-              hostname = "starfive.local";
-              user = "user";
+              hostname = "s5.local";
+              user = "nixos";
             };
           };
         };
