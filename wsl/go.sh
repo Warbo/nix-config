@@ -15,7 +15,7 @@ fi
 if [[ -e "$CONTAINERS_UNIT" ]] && [[ "$(lsb_release -is)" = "Ubuntu" ]]
 then
     # If we're on Ubuntu, tell SystemD how to run a nixos-container
-    sudo ln "$CONTAINERS_UNIT" '/etc/systemd/system/container@.service'
+    sudo ln -sfn "$CONTAINERS_UNIT" '/etc/systemd/system/container@.service'
     sudo systemctl daemon-reload
 
     # Then start our NixOS containers
@@ -23,7 +23,9 @@ then
         shopt -s nullglob
         for MACHINE in /etc/nixos-containers/*
         do
-            sudo env PATH="$PATH" nixos-container start "${MACHINE/.conf/}"
+            MACHINE_NAME=$(basename "$MACHINE")
+            MACHINE_NAME="${MACHINE_NAME/.conf/}"
+            sudo env PATH="$PATH" nixos-container start "$MACHINE_NAME"
         done
     )
 fi
