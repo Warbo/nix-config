@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+[[ "${DEBUG:-0}" -eq 1 ]] && set -x
 
 [[ "$PWD" = "$HOME" ]] || {
     echo "Going $HOME" 1>&2
