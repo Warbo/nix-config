@@ -17,8 +17,7 @@
   home-manager.users.chris = import ./home.nix;
   warbo.enable = true;
   warbo.home-manager.username = "chris";
-  warbo.dotfiles =
-    builtins.toString config.home.homeDirectory + "/repos/warbo-dotfiles";
+  warbo.dotfiles = builtins.toString config.home.homeDirectory + "/repos/warbo-dotfiles";
   warbo.packages = with pkgs; [
     devCli
     mediaGui
@@ -113,17 +112,17 @@
   users.users.chris = {
     isNormalUser = true;
     initialPassword = "123";
-    extraGroups = [
-      "networkmanager" # Allows managing NetworkManager, e.g. for WiFi
-      "wheel" # Enable ‘sudo’ for the user.
-      "kvm" # Faster virtualisation
-      config.services.kubo.group # Required to run IPFS CLI commands
+    extraGroups =
+      [
+        "networkmanager" # Allows managing NetworkManager, e.g. for WiFi
+        "wheel" # Enable ‘sudo’ for the user.
+        "kvm" # Faster virtualisation
+        config.services.kubo.group # Required to run IPFS CLI commands
 
-    ] ++
-    # Required to run GNUNet CLI commands
-    (if config.services.gnunet.enable
-     then [config.users.users.gnunet.group]
-     else []);
+      ]
+      ++
+      # Required to run GNUNet CLI commands
+      (if config.services.gnunet.enable then [ config.users.users.gnunet.group ] else [ ]);
   };
 
   fonts = {
@@ -148,7 +147,10 @@
       "nixos-config=${toString ../..}/nixos/nixos-amd64/configuration.nix"
     ];
     settings = {
-      trusted-users = [ "root" "@wheel" ];
+      trusted-users = [
+        "root"
+        "@wheel"
+      ];
     };
   };
 
@@ -160,39 +162,36 @@
   #   enableSSHSupport = true;
   # };
 
-  # List services that you want to enable:
+  services = {
+    emacs = {
+      enable = true;
+      #package = pkgs.emacs-unstable; # replace with emacs-gtk, or a version provided by the community overlay if desired.
+    };
 
-  services.emacs = {
-    enable = true;
-    #package = pkgs.emacs-unstable; # replace with emacs-gtk, or a version provided by the community overlay if desired.
-  };
+    openssh = {
+      enable = true;
+      settings.X11Forwarding = true;
+    };
 
-  # Enable the OpenSSH daemon.
-  services.openssh = {
-    enable = true;
-    settings.X11Forwarding = true;
-  };
+    gnunet = {
+      enable = false;
+      extraOptions = ''
+        [nat]
+        BEHIND_NAT = YES
+        ENABLE_UPNP = YES
+        DISABLEV6 = YES
+      '';
+    };
 
-  services.gnunet = {
-    enable = false;
-    extraOptions = ''
-      [nat]
-      BEHIND_NAT = YES
-      ENABLE_UPNP = YES
-      DISABLEV6 = YES
-    '';
-  };
+    avahi.hostName = config.networking.hostName;
 
-  services.avahi.hostName = config.networking.hostName;
+    kubo = {
+      enable = false;
+      autoMount = true;
+      settings.Addresses.API = [ "/ip4/127.0.0.1/tcp/5001" ];
+    };
 
-  services.kubo = {
-    enable = false;
-    autoMount = true;
-    settings.Addresses.API = [ "/ip4/127.0.0.1/tcp/5001" ];
-  };
-
-  services.ollama = {
-    enable = true;
+    ollama.enable = true;
   };
 
   # Open ports in the firewall.
