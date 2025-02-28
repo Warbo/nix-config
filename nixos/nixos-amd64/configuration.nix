@@ -88,19 +88,6 @@
     #   useXkbConfig = true; # use xkb.options in tty.
   };
 
-  # Enable the X11 windowing system.
-  services.displayManager.sddm.enable = true;
-  services.xserver = {
-    enable = true;
-    desktopManager.lxqt.enable = true;
-    windowManager.e16.enable = true;
-    xkb.layout = "gb";
-    xkb.options = "ctrl:nocaps";
-
-    # Enable touchpad support (enabled default in most desktopManager).
-    # libinput.enable = true;
-  };
-
   hardware.pulseaudio.enable = false;
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
@@ -163,6 +150,19 @@
   # };
 
   services = {
+    displayManager.sddm.enable = true;
+
+    xserver = {
+      enable = true;
+      desktopManager.lxqt.enable = true;
+      windowManager.e16.enable = true;
+      xkb.layout = "gb";
+      xkb.options = "ctrl:nocaps";
+
+      # Enable touchpad support (enabled default in most desktopManager).
+      # libinput.enable = true;
+    };
+
     emacs = {
       enable = true;
       #package = pkgs.emacs-unstable; # replace with emacs-gtk, or a version provided by the community overlay if desired.
