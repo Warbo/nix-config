@@ -6,6 +6,12 @@
 }:
 
 {
+  imports = [
+    (import /home/chrisw/extra.nix)
+    (import ../modules/warbo.nix)
+    (import "${import ../../home-manager/nixos-import.nix}/nixos")
+  ];
+
   boot.isContainer = true;
   networking = {
     # Disable all sorts of stuff, so we use the host (Ubuntu) networking
@@ -32,6 +38,31 @@
   # start up!
   environment.etc.os-release.mode = "direct-symlink";
 
+  environment.variables = {
+    DISPLAY = ":0";
+    PAGER = "cat";
+  };
+
+  warbo.enable = true;
+  warbo.professional = true;
+  warbo.wsl = true;
+  warbo.home-manager.username = "chrisw";
+  warbo.packages = with pkgs; [
+    devCli
+    mediaGui
+    netCli
+    netGui
+    sysCli
+  ];
+  warbo.nixpkgs.overlays = os: [
+    os.repos
+    os.fixes
+    os.metaPackages
+    os.theming
+  ];
+
+  i18n.defaultLocale = "en_GB.UTF-8";
+  security.sudo.wheelNeedsPassword = false;
   users.users.chrisw = {
     isNormalUser  = true;
     home = "/home/chrisw";
@@ -40,7 +71,30 @@
     uid = 1000;
   };
 
+  nix = {
+    extraOptions = ''experimental-features = nix-command flakes'';
+    nixPath = with builtins; [
+      "nixos-config=/etc/nixos/configuration.nix"
+    ];
+    settings = {
+      trusted-users = [ "root" "@wheel" ];
+    };
+  };
+
+  system.activationScripts.container.text = ''
+    mkdir -p /tmp/.X11-unix
+    ln -sfn /mnt/tmp_.X11-unix/X0 /tmp/.X11-unix/X0
+  '';
+
+  # Required to run dodgy Linux executables provided by Windows applications
+  # (e.g. 1Password's op-ssh-sign-wsl)
+  programs.nix-ld = {
+    enable = true;
+    libraries = with pkgs; [ ];
+  };
+
   services = {
+    emacs.enable = true;
     ollama.enable = true;
   };
 }
