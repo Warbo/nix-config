@@ -26,11 +26,11 @@
     netGui
     sysCli
     xfce.mousepad
-    (pkgs.hiPrio warbo-utilities)
     pkgs.kdePackages.kwalletmanager
     pkgs.lxqt.qterminal
     pkgs.gparted
     pkgs.nmap
+    (pkgs.hiPrio warbo-utilities)
     (pkgs.writeShellApplication {
       name = "xfce4-notifyd";
       text = ''
