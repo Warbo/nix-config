@@ -10,6 +10,7 @@
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
+    (import ../modules/pkdns.nix)
     (import ../modules/warbo.nix)
     (import "${import ../../home-manager/nixos-import.nix}/nixos")
   ];
@@ -188,6 +189,8 @@
       autoMount = true;
       settings.Addresses.API = [ "/ip4/127.0.0.1/tcp/5001" ];
     };
+
+    pkdns.enable = true;
 
     ollama.enable = true;
   };
