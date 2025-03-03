@@ -167,9 +167,10 @@ with rec {
     };
 
     netGui = {
+      # NOTE: Some useful programs are not included, since it's better to use
+      # their associated 'programs.<foo>.enable' option in NixOS
       inherit (self)
         dillo
-        firefox
         transmission_4-qt
         uget
         x11vnc
