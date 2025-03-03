@@ -27,6 +27,7 @@
     sysCli
     xfce.mousepad
     (pkgs.hiPrio warbo-utilities)
+    pkgs.kdePackages.kwalletmanager
     pkgs.lxqt.qterminal
     pkgs.gparted
     pkgs.nmap
@@ -146,6 +147,10 @@
     firefox = {
       enable = true;
       nativeMessagingHosts.packages = [ pkgs.passff-host ];
+    };
+    kde-pim = {
+      enable = true;
+      kmail = true;
     };
   };
 
