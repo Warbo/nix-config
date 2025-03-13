@@ -83,15 +83,11 @@ with rec {
             name = ".config/autostart/${pname}.desktop";
           })
           {
-            thunderbird.text = pkgs.thunderbird.desktopItem.text;
-            firefox.text = pkgs.firefox.desktopItem.text;
+            #thunderbird.text = pkgs.thunderbird.desktopItem.text;
+            #firefox.text = pkgs.firefox.desktopItem.text;
             screen-local.source = mkDesktop "screen-local" {
               desktopName = "screen-local";
               exec = ''${pkgs.lxqt.qterminal}/bin/qterminal -e "screen -DR"'';
-            };
-            screen-pi.source = mkDesktop "screen-pi" {
-              desktopName = "screen-pi";
-              exec = ''${pkgs.lxqt.qterminal}/bin/qterminal -e "ssh -t pi screen -DR"'';
             };
           };
     };
