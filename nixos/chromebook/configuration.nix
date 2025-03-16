@@ -226,6 +226,15 @@
     publish.workstation = true;
   };
 
+  # Avoid excessive logs killing flash memory
+  services.journald.extraConfig = ''
+    Storage=volatile
+    RateLimitInterval=30s
+    RateLimitBurst=10000
+    RuntimeMaxUse=16M
+    SystemMaxUse==16M
+  '';
+
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
