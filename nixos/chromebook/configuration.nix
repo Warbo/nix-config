@@ -23,6 +23,7 @@ with {
     (import ../modules/warbo.nix)
   ];
 
+  nixpkgs.config.allowUnfree = true;
   warbo.enable = true;
   warbo.home-manager.username = "jo";
   warbo.packages = with pkgs; [
