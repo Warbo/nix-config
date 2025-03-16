@@ -9,6 +9,7 @@
   ...
 }:
 with {
+  inherit (builtins) toString;
   nixpkgs-path = import ./nixpkgs.nix;
 };
 {
@@ -17,6 +18,10 @@ with {
     ./hardware-configuration.nix
     # Include VisionFive2 support from nixos-hardware
     "${import ./nixos-hardware.nix}/starfive/visionfive/v2"
+    # Fetch youtube videos
+    ../modules/fetch-youtube.nix
+    # Fetch podcasts
+    ../modules/talecast.nix
   ];
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
@@ -70,6 +75,8 @@ with {
           ];
         });
       };
+
+      inherit (import ../../overlays.nix) yt-dlp;
     };
   };
   #systemd.services.nix-daemon.environment.TMPDIR =
@@ -148,8 +155,10 @@ with {
     packages = with pkgs; [
       curl
       git
+      htop
       nix
-      #tree
+      rsync
+      tree
     ];
   };
 
@@ -198,14 +207,14 @@ with {
           "guest account" = "nobody";
           "map to guest" = "bad user";
         };
-      };
-      shares.shared = {
-        path = "/mnt/shared";
-        browseable = "yes";
-        "read only" = "true";
-        writable = "false";
-        "guest ok" = "yes";
-        comment = "Merged hard drive pool";
+        shared = {
+          path = "/mnt/shared";
+          browseable = "yes";
+          "read only" = "true";
+          writable = "false";
+          "guest ok" = "yes";
+          comment = "Merged hard drive pool";
+        };
       };
     };
     samba-wsdd = {
@@ -215,5 +224,36 @@ with {
       workgroup = "WORKGROUP";
     };
   };
+
+  fetch-youtube = {
+    enable = true;
+    user = "nixos";
+    dir = /mnt/internal/youtube;
+    destination = /mnt/shared/TODO/Videos;
+    args = [
+      "-f"
+      "b[height<600]"
+    ];
+    timer = {
+      OnBootSec = "5min";
+      OnUnitActiveSec = "6h";
+    };
+  };
+
+  services.talecast =
+    with { dir = /mnt/internal/podcasts; };
+    {
+      inherit dir;
+      enable = true;
+      user = "nixos";
+      destination = /mnt/shared/Audio/TODO;
+      podcasts = "${toString dir}/podcasts.toml";
+      extraConfig.tracker_path = "${toString dir}/partial/{podname}/.downloaded";
+      timer = {
+        OnBootSec = "15min";
+        OnUnitActiveSec = "7h";
+      };
+    };
+
   system.stateVersion = "25.05"; #"24.11";
 }

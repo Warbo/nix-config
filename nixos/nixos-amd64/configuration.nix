@@ -10,6 +10,7 @@
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
+    (import ../modules/pkdns.nix)
     (import ../modules/warbo.nix)
     (import "${import ../../home-manager/nixos-import.nix}/nixos")
   ];
@@ -17,8 +18,7 @@
   home-manager.users.chris = import ./home.nix;
   warbo.enable = true;
   warbo.home-manager.username = "chris";
-  warbo.dotfiles =
-    builtins.toString config.home.homeDirectory + "/repos/warbo-dotfiles";
+  warbo.dotfiles = builtins.toString config.home.homeDirectory + "/repos/warbo-dotfiles";
   warbo.packages = with pkgs; [
     devCli
     mediaGui
@@ -26,10 +26,11 @@
     netGui
     sysCli
     xfce.mousepad
-    (pkgs.hiPrio warbo-utilities)
+    pkgs.kdePackages.kwalletmanager
     pkgs.lxqt.qterminal
     pkgs.gparted
     pkgs.nmap
+    (pkgs.hiPrio warbo-utilities)
     (pkgs.writeShellApplication {
       name = "xfce4-notifyd";
       text = ''
@@ -43,7 +44,6 @@
     os.repos
     os.fixes
     os.metaPackages
-    os.nixpkgsUpstream
     os.theming
   ];
 
@@ -90,19 +90,6 @@
     #   useXkbConfig = true; # use xkb.options in tty.
   };
 
-  # Enable the X11 windowing system.
-  services.displayManager.sddm.enable = true;
-  services.xserver = {
-    enable = true;
-    desktopManager.lxqt.enable = true;
-    windowManager.e16.enable = true;
-    xkb.layout = "gb";
-    xkb.options = "ctrl:nocaps";
-
-    # Enable touchpad support (enabled default in most desktopManager).
-    # libinput.enable = true;
-  };
-
   hardware.pulseaudio.enable = false;
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
@@ -114,12 +101,17 @@
   users.users.chris = {
     isNormalUser = true;
     initialPassword = "123";
-    extraGroups = [
-      "networkmanager" # Allows managing NetworkManager, e.g. for WiFi
-      "wheel" # Enable ‘sudo’ for the user.
-      "kvm" # Faster virtualisation
-      config.services.kubo.group # Required to run IPFS CLI commands
-    ];
+    extraGroups =
+      [
+        "networkmanager" # Allows managing NetworkManager, e.g. for WiFi
+        "wheel" # Enable ‘sudo’ for the user.
+        "kvm" # Faster virtualisation
+        config.services.kubo.group # Required to run IPFS CLI commands
+
+      ]
+      ++
+      # Required to run GNUNet CLI commands
+      (if config.services.gnunet.enable then [ config.users.users.gnunet.group ] else [ ]);
   };
 
   fonts = {
@@ -144,39 +136,69 @@
       "nixos-config=${toString ../..}/nixos/nixos-amd64/configuration.nix"
     ];
     settings = {
-      trusted-users = [ "root" "@wheel" ];
+      trusted-users = [
+        "root"
+        "@wheel"
+      ];
     };
   };
 
-  # Some programs need SUID wrappers, can be configured further or are
-  # started in user sessions.
-  # programs.mtr.enable = true;
-  # programs.gnupg.agent = {
-  #   enable = true;
-  #   enableSSHSupport = true;
-  # };
-
-  # List services that you want to enable:
-
-  services.emacs = {
-    enable = true;
-    #package = pkgs.emacs-unstable; # replace with emacs-gtk, or a version provided by the community overlay if desired.
+  programs = {
+    firefox = {
+      enable = true;
+      nativeMessagingHosts.packages = [ pkgs.passff-host ];
+    };
+    kde-pim = {
+      enable = true;
+      kmail = true;
+    };
   };
 
-  # Enable the OpenSSH daemon.
-  services.openssh = {
-    enable = true;
-    settings.X11Forwarding = true;
-  };
+  services = {
+    displayManager.sddm.enable = true;
 
-  services.gnunet.enable = false;
+    xserver = {
+      enable = true;
+      desktopManager.lxqt.enable = true;
+      windowManager.e16.enable = true;
+      xkb.layout = "gb";
+      xkb.options = "ctrl:nocaps";
 
-  services.avahi.hostName = config.networking.hostName;
+      # Enable touchpad support (enabled default in most desktopManager).
+      # libinput.enable = true;
+    };
 
-  services.kubo = {
-    enable = false;
-    autoMount = true;
-    settings.Addresses.API = [ "/ip4/127.0.0.1/tcp/5001" ];
+    emacs = {
+      enable = true;
+      #package = pkgs.emacs-unstable; # replace with emacs-gtk, or a version provided by the community overlay if desired.
+    };
+
+    openssh = {
+      enable = true;
+      settings.X11Forwarding = true;
+    };
+
+    gnunet = {
+      enable = false;
+      extraOptions = ''
+        [nat]
+        BEHIND_NAT = YES
+        ENABLE_UPNP = YES
+        DISABLEV6 = YES
+      '';
+    };
+
+    avahi.hostName = config.networking.hostName;
+
+    kubo = {
+      enable = false;
+      autoMount = true;
+      settings.Addresses.API = [ "/ip4/127.0.0.1/tcp/5001" ];
+    };
+
+    pkdns.enable = true;
+
+    ollama.enable = true;
   };
 
   # Open ports in the firewall.

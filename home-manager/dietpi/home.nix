@@ -16,7 +16,6 @@
   warbo.nixpkgs.overlays = os: [
     os.repos
     os.metaPackages
-    os.nixpkgsUpstream
     os.yt-dlp
   ];
 
