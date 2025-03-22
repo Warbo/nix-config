@@ -51,7 +51,7 @@
       "user"
       "users"
     ];
-  };*/
+  };
 
   swapDevices = [ { device = "/dev/disk/by-label/chromeos-swap"; } ];
 
