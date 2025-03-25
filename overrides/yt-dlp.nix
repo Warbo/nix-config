@@ -5,8 +5,8 @@ self: super: {
         src = super.fetchFromGitHub {
           owner = "yt-dlp";
           repo = "yt-dlp";
-          rev = "3905f64920ed078d9eeb5640884f5854e01d744d";
-          sha256 = "sha256-6zv2NqbUxirMwa6OCzeKXuqLB4sFiYAcy3TYke2jhKc=";
+          rev = "336b33e72fe0105a33c40c8e5afdff720e17afdb";
+          sha256 = "sha256-rL8jhTD+nMjSuCvt//ZXQvqDcGsHkGUJUUUOqrznufg=";
         };
       };
       super.yt-dlp.overrideAttrs (old: {
