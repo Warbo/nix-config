@@ -163,6 +163,8 @@
     };
   };
 
+  virtualisation.containers.enable = true;
+
   programs = {
     firefox = {
       enable = true;
