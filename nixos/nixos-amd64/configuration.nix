@@ -131,7 +131,27 @@
   };
 
   nix = {
-    extraOptions = ''experimental-features = nix-command flakes'';
+    package = with rec {
+      src = pkgs.fetchFromGitHub {
+        owner = "NixOS";
+        repo = "nix";
+        rev = "8e8edb5bf857d62f7295c15534d2a4e555065fdf";
+        hash = "sha256-4IG4ITgGcT7uXFbhRjf/wfIewX87IoaaUS+TFfif5Nc=";
+      };
+      backported-2_27 = (import src).default;
+      redundant = pkgs.nixVersions ? nix_2_27;
+      warn = if redundant
+             then builtins.trace "WARNING: Backport of Nix 2.27 is redundant"
+             else (x: x);
+    };
+    warn backported-2_27;
+
+    extraOptions = ''experimental-features = ${lib.concatStringsSep " " [
+      "configurable-impure-env"
+      "flakes"
+      "git-hashing"
+      "nix-command"
+    ]}'';
     nixPath = with builtins; [
       "nixos-config=${toString ../..}/nixos/nixos-amd64/configuration.nix"
     ];
