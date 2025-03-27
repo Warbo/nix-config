@@ -20,7 +20,7 @@ with {
   imports = [ (import "${import ../../home-manager/nixos-import.nix}/nixos") ];
 
   options.warbo =
-    with { common = import ../../warbo-options.nix { inherit lib; }; };
+    with { common = import ../../warbo-options.nix { inherit lib pkgs; }; };
     common
     // {
       home-manager = (common.home-manager or { }) // {

@@ -1,6 +1,6 @@
 # Options which are common to warbo.nix NixOS module and HomeManager module.
 # Check those files to see what extras they provide on top of these!
-{ lib }:
+{ pkgs, lib }:
 with {
   inherit (lib)
     mkIf
@@ -57,8 +57,10 @@ with {
   nixpkgs.path = mkOption {
     type = types.nullOr types.path;
     default =
-      with rec { inherit (import overrides/repos.nix overrides { }) overrides; };
-      (import "${overrides.nix-helpers-src}/helpers/pinnedNixpkgs" { }).repoLatest;
+      with rec {
+        inherit (import overrides/nix-helpers.nix overrides { }) overrides;
+      };
+      pkgs.repoLatest or overrides.nix-helpers.repoLatest;
     description = ''
       Path to use for Nixpkgs. We use this to set <nixpkgs>, etc.
     '';
