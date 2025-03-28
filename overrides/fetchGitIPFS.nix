@@ -43,5 +43,5 @@ with rec {
     else raw;
 };
 {
-  overrides.fetchGitIPFS = super.fetchGitIPFS or fetchGitIPFS;
+  overrides.fetchGitIPFS = fetchGitIPFS;
 }

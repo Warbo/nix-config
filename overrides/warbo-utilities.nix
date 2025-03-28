@@ -18,6 +18,5 @@ with rec {
     (if self ? path then { nixpkgs = self; } else {});
 };
 {
-  overrides.warbo-utilities =
-    super.warbo-utilities or (import warbo-utilities-src args);
+  overrides.warbo-utilities = import warbo-utilities-src args;
 }
