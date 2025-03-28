@@ -15,7 +15,7 @@ with rec {
     get "nix-helpers" //
     get "warbo-packages" //
     get "nixpkgs-lib" //
-    (if super ? fetchurl then { nixpkgs = super; } else {});
+    (if self ? path then { nixpkgs = self; } else {});
 };
 {
   overrides.warbo-utilities =
