@@ -6,11 +6,12 @@ with rec {
     (import ./fetchGitIPFS.nix self super).overrides.fetchGitIPFS;
 
   warbo-utilities-src =
-    fetchGitIPFS { sha1 = "e586c369177768d9a27e0db7deb3d0916c99d56a"; };
+    fetchGitIPFS { sha1 = "aadddd763727644dabe8c4feeafcfcdb2c9f9888"; };
 
   get = name: { ${if hasAttr name super then name else null} = super.${name}; };
 
   args =
+    { inherit fetchGitIPFS; } //
     get "nix-helpers" //
     get "warbo-packages" //
     get "nixpkgs-lib" //
