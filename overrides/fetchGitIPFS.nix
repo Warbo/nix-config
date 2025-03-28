@@ -37,8 +37,11 @@ with rec {
 
       raw = import file;
     };
-    if super ? fetchurl then (raw { pkgs = super; }).fetchGitIPFS else raw;
+    # super is full of references to self, so reimport with no overlays
+    if super ? path
+    then raw { pkgs = import super.path { config = {}; overlays = []; }; }
+    else raw;
 };
 {
-  overrides = if super ? fetchGitIPFS then {} else { inherit fetchGitIPFS; };
+  overrides.fetchGitIPFS = super.fetchGitIPFS or fetchGitIPFS;
 }
