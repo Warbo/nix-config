@@ -22,6 +22,8 @@ with {
     ../modules/fetch-youtube.nix
     # Fetch podcasts
     ../modules/talecast.nix
+    # Fetch news feeds
+    ../modules/fetch-news.nix
   ];
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
@@ -76,7 +78,7 @@ with {
         });
       };
 
-      inherit (import ../../overlays.nix) yt-dlp;
+      inherit (import ../../overlays.nix) yt-dlp warbo-packages;
     };
   };
   #systemd.services.nix-daemon.environment.TMPDIR =
@@ -236,7 +238,19 @@ with {
     ];
     timer = {
       OnBootSec = "5min";
-      OnUnitActiveSec = "6h";
+      OnUnitActiveSec = "7h";
+    };
+  };
+
+  services.fetch-news = {
+    enable = true;
+    user = "nixos";
+    dir = /mnt/internal/news;
+    opml = /mnt/internal/news/feeds.opml;
+    maildir = /mnt/internal/news/maildir;
+    timer = {
+      OnBootSec = "15min";
+      OnUnitActiveSec = "5h";
     };
   };
 
