@@ -218,12 +218,35 @@
     kubo = {
       enable = true;
       autoMount = true;
-      settings.Addresses.API = [ "/ip4/127.0.0.1/tcp/5001" ];
+      settings = {
+        Addresses.API = [ "/ip4/127.0.0.1/tcp/5001" ];
+        Datastore.StorageMax = "1G";
+        Gateway.NoFetch = true;
+        Routing.Type = "dht";
+        Swarm = {
+          ConnMgr = {
+            LowWater = 10;
+            HighWater = 20;
+            GracePeriod = "15s";
+          };
+          DisableBandwidthMetrics = true;
+          RelayService.Enabled = false;
+          ResourceMgr = {
+            Enabled = true;
+            MaxMemory = "150MB";
+          };
+        };
+      };
     };
 
     pkdns.enable = true;
 
     ollama.enable = true;
+  };
+
+  systemd.services = lib.mkIf config.services.kubo.enable {
+    # Restart Kubo if it exceeds a memory limit
+    ipfs.serviceConfig.MemoryMax = "320M";
   };
 
   # Open ports in the firewall.
