@@ -25,6 +25,7 @@
     netCli
     netGui
     sysCli
+    warbo-packages.git-on-ipfs.git-in-kubo
     xfce.mousepad
     pkgs.kdePackages.kwalletmanager
     pkgs.lxqt.qterminal
