@@ -105,10 +105,12 @@ with rec {
             process-news-feeds = {
               description = "Process news feeds after they've been downloaded";
               pathConfig.DirectoryNotEmpty = FETCHED;
+              wantedBy = [ "multi-user.target" ];
             };
             convert-news-feeds = {
               description = "Convert feeds to Maildir after processing";
               pathConfig.DirectoryNotEmpty = PROCESSED;
+              wantedBy = [ "multi-user.target" ];
             };
           };
           timers = {
