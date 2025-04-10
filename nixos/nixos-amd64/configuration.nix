@@ -25,19 +25,21 @@
     netCli
     netGui
     sysCli
+
+    gparted
+    kdePackages.kwalletmanager
+    lxqt.qterminal
+    nmap
     warbo-packages.git-on-ipfs.git-in-kubo
     xfce.mousepad
-    pkgs.kdePackages.kwalletmanager
-    pkgs.lxqt.qterminal
-    pkgs.gparted
-    pkgs.nmap
-    (pkgs.hiPrio warbo-utilities)
-    (pkgs.writeShellApplication {
+
+    (hiPrio warbo-utilities)
+    (writeShellApplication {
       name = "xfce4-notifyd";
       text = ''
         # LXQt's notification daemon has a messed up window, so use XFCE's
         # The binary lives in a lib/, so we put this wrapper in a bin/
-        exec ${pkgs.xfce.xfce4-notifyd}/lib/xfce4/notifyd/xfce4-notifyd "$@"
+        exec ${xfce.xfce4-notifyd}/lib/xfce4/notifyd/xfce4-notifyd "$@"
       '';
     })
   ];
