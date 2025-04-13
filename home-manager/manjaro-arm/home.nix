@@ -8,7 +8,7 @@
 with rec {
   inherit
     (
-      (rec { inherit (import ../overrides/repos.nix overrides { }) overrides; })
+      (rec { inherit (import ../../overrides/repos.nix overrides { }) overrides; })
       .overrides
     )
     nix-helpers
