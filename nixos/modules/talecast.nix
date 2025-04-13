@@ -152,6 +152,7 @@ with rec {
       systemd.paths.talecast-move = {
         description = "Move completed downloads";
         pathConfig.DirectoryNotEmpty = toString cfg.fetched_path;
+        wantedBy = [ "multi-user.target" ];
       };
 
       systemd.services.talecast-move = {
@@ -174,4 +175,3 @@ with rec {
     })
   ]);
 }
-
