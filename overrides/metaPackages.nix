@@ -156,8 +156,10 @@ with rec {
       inherit (self)
         aria2
         autossh
+        curl
         ddgr
         gnutls
+        inetutils
         msmtp
         mu
         pptp
