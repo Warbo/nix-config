@@ -164,6 +164,7 @@ with {
           fetch-youtube-files = {
             description = "Fetch files when new entries appear in todo";
             pathConfig.DirectoryNotEmpty = toString cfg.todo;
+            wantedBy = [ "multi-user.target" ];
           };
         };
         timers = {
@@ -227,6 +228,7 @@ with {
         paths.fetch-youtube-move = {
           description = "Move completed downloads";
           pathConfig.DirectoryNotEmpty = toString cfg.fetched;
+          wantedBy = [ "multi-user.target" ];
         };
         services.fetch-youtube-move = {
           description = "Move completed downloads";

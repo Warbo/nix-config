@@ -2,11 +2,11 @@ self: super: {
   overrides = {
     yt-dlp =
       with {
-        src = super.fetchFromGitHub {
+        src = super.fetchFromGitHub rec {
           owner = "yt-dlp";
           repo = "yt-dlp";
-          rev = "3905f64920ed078d9eeb5640884f5854e01d744d";
-          sha256 = "sha256-6zv2NqbUxirMwa6OCzeKXuqLB4sFiYAcy3TYke2jhKc=";
+          rev = "349f36606fa7fb658216334a73ac7825c13503c2";
+          hash = "sha256-csw91VbzY9IursMQFGwnlobZI3U6QOBDo31oq+X0ETI=";
         };
       };
       super.yt-dlp.overrideAttrs (old: {

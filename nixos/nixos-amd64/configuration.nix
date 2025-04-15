@@ -25,18 +25,21 @@
     netCli
     netGui
     sysCli
+
+    gparted
+    kdePackages.kwalletmanager
+    lxqt.qterminal
+    nmap
+    warbo-packages.git-on-ipfs.git-in-kubo
     xfce.mousepad
-    pkgs.kdePackages.kwalletmanager
-    pkgs.lxqt.qterminal
-    pkgs.gparted
-    pkgs.nmap
-    (pkgs.hiPrio warbo-utilities)
-    (pkgs.writeShellApplication {
+
+    (hiPrio warbo-utilities)
+    (writeShellApplication {
       name = "xfce4-notifyd";
       text = ''
         # LXQt's notification daemon has a messed up window, so use XFCE's
         # The binary lives in a lib/, so we put this wrapper in a bin/
-        exec ${pkgs.xfce.xfce4-notifyd}/lib/xfce4/notifyd/xfce4-notifyd "$@"
+        exec ${xfce.xfce4-notifyd}/lib/xfce4/notifyd/xfce4-notifyd "$@"
       '';
     })
   ];
@@ -131,7 +134,27 @@
   };
 
   nix = {
-    extraOptions = ''experimental-features = nix-command flakes'';
+    package = with rec {
+      src = pkgs.fetchFromGitHub {
+        owner = "NixOS";
+        repo = "nix";
+        rev = "8e8edb5bf857d62f7295c15534d2a4e555065fdf";
+        hash = "sha256-4IG4ITgGcT7uXFbhRjf/wfIewX87IoaaUS+TFfif5Nc=";
+      };
+      backported-2_27 = (import src).default;
+      redundant = pkgs.nixVersions ? nix_2_27;
+      warn = if redundant
+             then builtins.trace "WARNING: Backport of Nix 2.27 is redundant"
+             else (x: x);
+    };
+    warn backported-2_27;
+
+    extraOptions = ''experimental-features = ${lib.concatStringsSep " " [
+      "configurable-impure-env"
+      "flakes"
+      "git-hashing"
+      "nix-command"
+    ]}'';
     nixPath = with builtins; [
       "nixos-config=${toString ../..}/nixos/nixos-amd64/configuration.nix"
     ];
@@ -142,6 +165,8 @@
       ];
     };
   };
+
+  virtualisation.containers.enable = true;
 
   programs = {
     firefox = {
@@ -191,14 +216,37 @@
     avahi.hostName = config.networking.hostName;
 
     kubo = {
-      enable = false;
+      enable = true;
       autoMount = true;
-      settings.Addresses.API = [ "/ip4/127.0.0.1/tcp/5001" ];
+      settings = {
+        Addresses.API = [ "/ip4/127.0.0.1/tcp/5001" ];
+        Datastore.StorageMax = "1G";
+        Gateway.NoFetch = true;
+        Routing.Type = "dht";
+        Swarm = {
+          ConnMgr = {
+            LowWater = 10;
+            HighWater = 20;
+            GracePeriod = "15s";
+          };
+          DisableBandwidthMetrics = true;
+          RelayService.Enabled = false;
+          ResourceMgr = {
+            Enabled = true;
+            MaxMemory = "150MB";
+          };
+        };
+      };
     };
 
     pkdns.enable = true;
 
     ollama.enable = true;
+  };
+
+  systemd.services = lib.mkIf config.services.kubo.enable {
+    # Restart Kubo if it exceeds a memory limit
+    ipfs.serviceConfig.MemoryMax = "320M";
   };
 
   # Open ports in the firewall.
