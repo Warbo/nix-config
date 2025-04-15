@@ -67,7 +67,7 @@
     isNormalUser  = true;
     home = "/home/chrisw";
     description = "Chris Warburton";
-    extraGroups = [ "wheel" "networkmanager" ];
+    extraGroups = [ "wheel" "networkmanager" "nix-users" ];
     uid = 1000;
   };
 
@@ -77,7 +77,7 @@
       "nixos-config=/etc/nixos/configuration.nix"
     ];
     settings = {
-      trusted-users = [ "root" "@wheel" ];
+      trusted-users = [ "root" "@wheel" "@nix-users" ];
     };
   };
 
