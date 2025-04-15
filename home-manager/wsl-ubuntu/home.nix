@@ -24,7 +24,16 @@ warbo-wsl.config
     pkgs.haskellPackages.stylish-haskell
     pkgs.j2cli
     pkgs.nix
-    pkgs.nixos-container
+    (pkgs.writeShellApplication {
+      # nixos-container is mostly useless as a regular user but sudo needs extra
+      # args to preserve required env vars, so we make this wrapper for it.
+      name = "nixos-container";
+      text = ''
+        exec sudo env PATH="$PATH" NIX_PATH="$NIX_PATH" ${
+          pkgs.nixos-container
+        }/bin/nixos-container "$@"
+      '';
+    })
   ];
   warbo.nixpkgs.overlays = os: [
     os.repos
