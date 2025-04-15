@@ -46,7 +46,6 @@
   warbo.enable = true;
   warbo.professional = true;
   warbo.wsl = true;
-  warbo.home-manager.username = "chrisw";
   warbo.packages = with pkgs; [
     devCli
     mediaGui
