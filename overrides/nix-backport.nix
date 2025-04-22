@@ -8,10 +8,11 @@ with rec {
   };
   backported-2_28 = (import src).default;
   redundant = super.nixVersions ? nix_2_28;
-  warn = if redundant
-         then builtins.trace "WARNING: Backport of Nix 2.28 is redundant"
-         else (x: x);
-};
-{
+  warn =
+    if redundant then
+      builtins.trace "WARNING: Backport of Nix 2.28 is redundant"
+    else
+      (x: x);
+}; {
   overrides.nix-backport = warn backported-2_28;
 }

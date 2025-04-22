@@ -30,9 +30,7 @@ warbo-wsl.config
       # args to preserve required env vars, so we make this wrapper for it.
       name = "nixos-container";
       text = ''
-        exec sudo env PATH="$PATH" NIX_PATH="$NIX_PATH" ${
-          pkgs.nixos-container
-        }/bin/nixos-container "$@"
+        exec sudo env PATH="$PATH" NIX_PATH="$NIX_PATH" ${pkgs.nixos-container}/bin/nixos-container "$@"
       '';
     })
   ];

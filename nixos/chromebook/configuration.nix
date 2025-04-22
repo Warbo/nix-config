@@ -207,7 +207,10 @@
       "nixos-config=${toString ../..}/nixos/chromebook/configuration.nix"
     ];
     settings = {
-      trusted-users = [ "root" "@wheel" ];
+      trusted-users = [
+        "root"
+        "@wheel"
+      ];
     };
   };
 

@@ -63,10 +63,14 @@
   i18n.defaultLocale = "en_GB.UTF-8";
   security.sudo.wheelNeedsPassword = false;
   users.users.chrisw = {
-    isNormalUser  = true;
+    isNormalUser = true;
     home = "/home/chrisw";
     description = "Chris Warburton";
-    extraGroups = [ "wheel" "networkmanager" "nix-users" ];
+    extraGroups = [
+      "wheel"
+      "networkmanager"
+      "nix-users"
+    ];
     uid = 1000;
   };
 
@@ -76,7 +80,11 @@
       "nixos-config=/etc/nixos/configuration.nix"
     ];
     settings = {
-      trusted-users = [ "root" "@wheel" "@nix-users" ];
+      trusted-users = [
+        "root"
+        "@wheel"
+        "@nix-users"
+      ];
     };
   };
 

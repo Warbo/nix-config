@@ -18,7 +18,8 @@
   home-manager.users.chris = import ./home.nix;
   warbo.enable = true;
   warbo.home-manager.username = "chris";
-  warbo.dotfiles = builtins.toString config.home.homeDirectory + "/repos/warbo-dotfiles";
+  warbo.dotfiles =
+    builtins.toString config.home.homeDirectory + "/repos/warbo-dotfiles";
   warbo.packages = with pkgs; [
     devCli
     mediaGui
@@ -115,7 +116,12 @@
       ]
       ++
       # Required to run GNUNet CLI commands
-      (if config.services.gnunet.enable then [ config.users.users.gnunet.group ] else [ ]);
+      (
+        if config.services.gnunet.enable then
+          [ config.users.users.gnunet.group ]
+        else
+          [ ]
+      );
   };
 
   fonts = {
@@ -137,12 +143,14 @@
   nix = {
     package = pkgs.nix-backport;
 
-    extraOptions = ''experimental-features = ${lib.concatStringsSep " " [
-      "configurable-impure-env"
-      "flakes"
-      "git-hashing"
-      "nix-command"
-    ]}'';
+    extraOptions = ''experimental-features = ${
+      lib.concatStringsSep " " [
+        "configurable-impure-env"
+        "flakes"
+        "git-hashing"
+        "nix-command"
+      ]
+    }'';
     nixPath = with builtins; [
       "nixos-config=${toString ../..}/nixos/nixos-amd64/configuration.nix"
     ];
