@@ -1,6 +1,7 @@
 self: super:
 with rec {
-  inherit (builtins) currentSystem getEnv fetchTree pathExists;
+  inherit (builtins) concatStringsSep currentSystem getEnv fetchTree pathExists
+    unsafeDiscardStringContext;
 
   fetchGitIPFS =
     with rec {
@@ -23,12 +24,25 @@ with rec {
         outputHash = narHash;
         args = [
           "-c"
-          ''read -r -d "" content < ${src}; printf '%s\n' "$content" > "$out"''
+          ''
+            exec 1>"$out"
+            while IFS= read -r line
+            do
+              printf "%s\n" "$line"
+            done <${src}
+            [ -n "$line" ] && printf "%s" "$line"
+            exec 1>&-
+          ''
         ];
       };
       # See if we already have an outPath for this narHash, by checking with a
-      # dummy src: if so, use that path; otherwise call 'fetchTree'.
-      existing = (fixed "/dev/null").outPath;
+      # dummy src: if so, use that path; otherwise call 'fetchTree'. We need
+      # unsafeDiscardStringContext to prevent depending on the /dev/null drv
+      # (which will fail to build, since it's nonsense). Note that the evaluator
+      # seems to cache the result of pathExists; so once fetchTree has run, its
+      # outPath will still be assumed to not exist. Running your command again
+      # should work though (this is so hacky...)
+      existing = unsafeDiscardStringContext (fixed "/dev/null").outPath;
       file = if pathExists existing then existing else fixed (fetchTree {
         inherit narHash;
         type = "file";
