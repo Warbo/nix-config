@@ -25,6 +25,8 @@ warbo-wsl.config
     pkgs.j2cli
     pkgs.nix-backport
     pkgs.typescript-language-server
+    pkgs.vscode-langservers-extracted # CSS, HTML, etc.
+    pkgs.vue-language-server
     (pkgs.writeShellApplication {
       # nixos-container is mostly useless as a regular user but sudo needs extra
       # args to preserve required env vars, so we make this wrapper for it.
