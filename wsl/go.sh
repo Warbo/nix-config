@@ -26,7 +26,7 @@ then
         do
             MACHINE_NAME=$(basename "$MACHINE")
             MACHINE_NAME="${MACHINE_NAME/.conf/}"
-            sudo env PATH="$PATH" nixos-container start "$MACHINE_NAME"
+            sudo env PATH="$PATH" NIX_PATH="$NIX_PATH" nixos-container start "$MACHINE_NAME"
         done
     )
 fi
