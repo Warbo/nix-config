@@ -48,6 +48,7 @@
     os.fixes
     os.metaPackages
     os.theming
+    os.nix-backport
   ];
 
   xdg.portal.lxqt.styles = [
@@ -134,20 +135,7 @@
   };
 
   nix = {
-    package = with rec {
-      src = pkgs.fetchFromGitHub {
-        owner = "NixOS";
-        repo = "nix";
-        rev = "8e8edb5bf857d62f7295c15534d2a4e555065fdf";
-        hash = "sha256-4IG4ITgGcT7uXFbhRjf/wfIewX87IoaaUS+TFfif5Nc=";
-      };
-      backported-2_27 = (import src).default;
-      redundant = pkgs.nixVersions ? nix_2_27;
-      warn = if redundant
-             then builtins.trace "WARNING: Backport of Nix 2.27 is redundant"
-             else (x: x);
-    };
-    warn backported-2_27;
+    package = pkgs.nix-backport;
 
     extraOptions = ''experimental-features = ${lib.concatStringsSep " " [
       "configurable-impure-env"
