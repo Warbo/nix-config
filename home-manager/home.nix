@@ -19,6 +19,8 @@ with rec {
   buuf = pkgs.callPackage ./buuf { };
 
   commands = import ./commands.nix { inherit nix-helpers; };
+
+  nix-2_27 = (import ../overrides/nix-2.27.nix pkgs pkgs).overrides.nix;
 };
 {
   imports = [ (import modules/warbo.nix) ];
@@ -37,7 +39,7 @@ with rec {
   warbo.dotfiles = ~/repos/warbo-dotfiles;
   warbo.packages = builtins.attrValues commands ++ [
     (pkgs.hiPrio warbo-utilities)
-
+    nix-2_27
     pkgs.libsForQt5.qtstyleplugin-kvantum
     pkgs.qt6Packages.qtstyleplugin-kvantum
 
@@ -94,6 +96,8 @@ with rec {
     autostarts;
 
   home.sessionVariables.QT_STYLE_OVERRIDE = "kvantum";
+
+  nix.package = nix-2_27;
 
   # These three ensure our Nix .desktop files appear in desktops/menus
   targets.genericLinux.enable = true;
