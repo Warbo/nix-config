@@ -21,7 +21,7 @@ with rec {
   commands = import ./commands.nix { inherit nix-helpers; };
 };
 {
-  imports = [ (import modules/warbo.nix) ];
+  imports = [ (import ../modules/warbo.nix) ];
 
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
