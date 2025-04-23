@@ -415,7 +415,7 @@ with rec {
               --rc --rc-no-auth --rc-addr=:22222 \
               --vfs-cache-mode=full \
               --sftp-set-modtime=false --no-update-modtime \
-              ":sftp,user=pi,host=$ADDR:/" \
+              ":sftp,user=nixos,host=$ADDR:/" \
               /home/manjaro/S5
           ''}";
           ExecStop = "fusermount -u /home/manjaro/S5";
