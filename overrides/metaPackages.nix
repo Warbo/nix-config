@@ -66,6 +66,7 @@ with rec {
         awscli
         binutils
         coreutils
+        delta
         direnv
         entr
         git
@@ -155,8 +156,10 @@ with rec {
       inherit (self)
         aria2
         autossh
+        curl
         ddgr
         gnutls
+        inetutils
         msmtp
         mu
         pptp

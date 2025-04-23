@@ -22,7 +22,7 @@ with rec {
 
   overlays =
     with rec {
-      # Names of every ".nix" file in overrides/ (this must not depend on 'self')
+      # Names of every ".nix" file in overrides/ (this mustn't depend on 'self')
       fileNames = map (removeSuffix ".nix") (
         filter (hasSuffix ".nix") (attrNames (readDir ./overrides))
       );

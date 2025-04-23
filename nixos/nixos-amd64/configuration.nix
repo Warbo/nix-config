@@ -18,25 +18,29 @@
   home-manager.users.chris = import ./home.nix;
   warbo.enable = true;
   warbo.home-manager.username = "chris";
-  warbo.dotfiles = builtins.toString config.home.homeDirectory + "/repos/warbo-dotfiles";
+  warbo.dotfiles =
+    builtins.toString config.home.homeDirectory + "/repos/warbo-dotfiles";
   warbo.packages = with pkgs; [
     devCli
     mediaGui
     netCli
     netGui
     sysCli
+
+    gparted
+    kdePackages.kwalletmanager
+    lxqt.qterminal
+    nmap
+    warbo-packages.git-on-ipfs.git-in-kubo
     xfce.mousepad
-    pkgs.kdePackages.kwalletmanager
-    pkgs.lxqt.qterminal
-    pkgs.gparted
-    pkgs.nmap
-    (pkgs.hiPrio warbo-utilities)
-    (pkgs.writeShellApplication {
+
+    (hiPrio warbo-utilities)
+    (writeShellApplication {
       name = "xfce4-notifyd";
       text = ''
         # LXQt's notification daemon has a messed up window, so use XFCE's
         # The binary lives in a lib/, so we put this wrapper in a bin/
-        exec ${pkgs.xfce.xfce4-notifyd}/lib/xfce4/notifyd/xfce4-notifyd "$@"
+        exec ${xfce.xfce4-notifyd}/lib/xfce4/notifyd/xfce4-notifyd "$@"
       '';
     })
   ];
@@ -45,6 +49,7 @@
     os.fixes
     os.metaPackages
     os.theming
+    os.nix-backport
   ];
 
   xdg.portal.lxqt.styles = [
@@ -111,7 +116,12 @@
       ]
       ++
       # Required to run GNUNet CLI commands
-      (if config.services.gnunet.enable then [ config.users.users.gnunet.group ] else [ ]);
+      (
+        if config.services.gnunet.enable then
+          [ config.users.users.gnunet.group ]
+        else
+          [ ]
+      );
   };
 
   fonts = {
@@ -131,7 +141,16 @@
   };
 
   nix = {
-    extraOptions = ''experimental-features = nix-command flakes'';
+    package = pkgs.nix-backport;
+
+    extraOptions = ''experimental-features = ${
+      lib.concatStringsSep " " [
+        "configurable-impure-env"
+        "flakes"
+        "git-hashing"
+        "nix-command"
+      ]
+    }'';
     nixPath = with builtins; [
       "nixos-config=${toString ../..}/nixos/nixos-amd64/configuration.nix"
     ];
@@ -142,6 +161,8 @@
       ];
     };
   };
+
+  virtualisation.containers.enable = true;
 
   programs = {
     firefox = {
@@ -191,14 +212,37 @@
     avahi.hostName = config.networking.hostName;
 
     kubo = {
-      enable = false;
+      enable = true;
       autoMount = true;
-      settings.Addresses.API = [ "/ip4/127.0.0.1/tcp/5001" ];
+      settings = {
+        Addresses.API = [ "/ip4/127.0.0.1/tcp/5001" ];
+        Datastore.StorageMax = "1G";
+        Gateway.NoFetch = true;
+        Routing.Type = "dht";
+        Swarm = {
+          ConnMgr = {
+            LowWater = 10;
+            HighWater = 20;
+            GracePeriod = "15s";
+          };
+          DisableBandwidthMetrics = true;
+          RelayService.Enabled = false;
+          ResourceMgr = {
+            Enabled = true;
+            MaxMemory = "150MB";
+          };
+        };
+      };
     };
 
     pkdns.enable = true;
 
     ollama.enable = true;
+  };
+
+  systemd.services = lib.mkIf config.services.kubo.enable {
+    # Restart Kubo if it exceeds a memory limit
+    ipfs.serviceConfig.MemoryMax = "320M";
   };
 
   # Open ports in the firewall.

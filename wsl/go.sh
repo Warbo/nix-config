@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+[[ "${DEBUG:-0}" -eq 1 ]] && set -x
 
 [[ "$PWD" = "$HOME" ]] || {
     echo "Going $HOME" 1>&2
@@ -10,6 +11,24 @@ then
         echo "Activating $PWD/SWAP" 1>&2
         sudo swapon SWAP
     }
+fi
+
+if [[ -e "$CONTAINERS_UNIT" ]] && [[ "$(lsb_release -is)" = "Ubuntu" ]]
+then
+    # If we're on Ubuntu, tell SystemD how to run a nixos-container
+    sudo ln -sfn "$CONTAINERS_UNIT" '/etc/systemd/system/container@.service'
+    sudo systemctl daemon-reload
+
+    # Then start our NixOS containers
+    (
+        shopt -s nullglob
+        for MACHINE in /etc/nixos-containers/*
+        do
+            MACHINE_NAME=$(basename "$MACHINE")
+            MACHINE_NAME="${MACHINE_NAME/.conf/}"
+            sudo env PATH="$PATH" NIX_PATH="$NIX_PATH" nixos-container start "$MACHINE_NAME"
+        done
+    )
 fi
 
 F_DIR=/mnt/wslg/distro/usr/share/fonts/X11/jmk

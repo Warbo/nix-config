@@ -20,7 +20,7 @@ with {
   imports = [ (import "${import ../../home-manager/nixos-import.nix}/nixos") ];
 
   options.warbo =
-    with { common = import ../../warbo-options.nix { inherit lib; }; };
+    with { common = import ../../warbo-options.nix { inherit lib pkgs; }; };
     common
     // {
       home-manager = (common.home-manager or { }) // {
@@ -55,6 +55,10 @@ with {
       programs.fuse.userAllowOther = true;
       programs.iotop.enable = true;
       programs.screen.enable = true;
+    }
+    (mkIf (!cfg.wsl) {
+      # Trying this on NixOS in WSL will unload the Windows executable support
+      # from the kernel, affecting every other running container!
       boot.binfmt = {
         # See https://discourse.nixos.org/t/chroot-into-arm-container-with-systemd-nspawn/34735/9
         emulatedSystems =
@@ -73,7 +77,7 @@ with {
           fixBinary = true;
         };
       };
-    }
+    })
     (mkIf (cfg.nixpkgs.path != null) {
       nix.nixPath = [ "nixpkgs=${cfg.nixpkgs.path}" ];
       nixpkgs.flake.source = cfg.nixpkgs.path;

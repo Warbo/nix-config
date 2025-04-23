@@ -14,7 +14,7 @@ with {
   cfg = config.warbo;
 };
 {
-  options.warbo = import ../../warbo-options.nix { inherit lib; };
+  options.warbo = import ../../warbo-options.nix { inherit lib pkgs; };
 
   config = mkIf cfg.enable (mkMerge [
     {

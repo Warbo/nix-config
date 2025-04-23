@@ -155,97 +155,118 @@ with {
 
   config =
     with {
-      setUser = x: (if cfg.user == null then {} else { User = cfg.user; }) // x;
+      setUser = x: (if cfg.user == null then { } else { User = cfg.user; }) // x;
     };
     mkIf cfg.enable (mkMerge [
-    {
-      systemd = {
-        paths = {
-          fetch-youtube-files = {
-            description = "Fetch files when new entries appear in todo";
-            pathConfig.DirectoryNotEmpty = toString cfg.todo;
+      {
+        systemd = {
+          paths = {
+            fetch-youtube-files = {
+              description = "Fetch files when new entries appear in todo";
+              pathConfig.DirectoryNotEmpty = toString cfg.todo;
+              wantedBy = [ "multi-user.target" ];
+            };
+          };
+          timers = {
+            fetch-youtube-feeds = {
+              description = "Fetch Youtube feeds daily";
+              timerConfig = cfg.timer;
+              wantedBy = [ "multi-user.target" ];
+            };
+          };
+          services = {
+            fetch-youtube-feeds = {
+              description = "Fetch Youtube feeds";
+              environment = {
+                TEMP = toString cfg.temp;
+                FEEDS = toString cfg.feeds;
+                TODO = toString cfg.todo;
+                DONE = toString cfg.done;
+              };
+              serviceConfig = setUser {
+                Type = "oneshot";
+                RemainAfterExit = "no";
+                ExecStart = "${
+                  pkgs.writeShellApplication {
+                    name = "fetch-youtube-feeds";
+                    text = builtins.readFile ./fetch-youtube-feeds.sh;
+                    runtimeInputs = with pkgs; [
+                      bash
+                      curl
+                      coreutils
+                      gnugrep
+                    ];
+                  }
+                }/bin/fetch-youtube-feeds";
+              };
+            };
+
+            fetch-youtube-files = {
+              description = "Fetch all Youtube videos identified in todo";
+              environment = {
+                FETCHED = toString cfg.fetched;
+                TODO = toString cfg.todo;
+                DONE_BASE = toString cfg.done;
+                TEMP = toString cfg.temp;
+                CMD = pkgs.writeShellScript "fetch-youtube-cmd" ''
+                  exec ${
+                    if builtins.isList cfg.command then
+                      lib.concatMapStringsSep " " lib.escapeShellArg cfg.command
+                    else
+                      cfg.command
+                  } "$@"
+                '';
+              };
+              serviceConfig = setUser {
+                Type = "oneshot";
+                RemainAfterExit = "no";
+                ExecStart = "${
+                  pkgs.writeShellApplication {
+                    name = "fetch-youtube-files";
+                    text = builtins.readFile ./fetch-youtube-files.sh;
+                    runtimeInputs = with pkgs; [
+                      bash
+                      coreutils
+                      findutils
+                      gnugrep
+                    ];
+                  }
+                }/bin/fetch-youtube-files";
+              };
+            };
           };
         };
-        timers = {
-          fetch-youtube-feeds = {
-            description = "Fetch Youtube feeds daily";
-            timerConfig = cfg.timer;
+      }
+      (mkIf (cfg.destination != null) {
+        systemd = {
+          paths.fetch-youtube-move = {
+            description = "Move completed downloads";
+            pathConfig.DirectoryNotEmpty = toString cfg.fetched;
             wantedBy = [ "multi-user.target" ];
           };
-        };
-        services = {
-          fetch-youtube-feeds = {
-            description = "Fetch Youtube feeds";
+          services.fetch-youtube-move = {
+            description = "Move completed downloads";
             environment = {
-              TEMP = toString cfg.temp;
-              FEEDS = toString cfg.feeds;
-              TODO = toString cfg.todo;
-              DONE = toString cfg.done;
-            };
-            serviceConfig = setUser {
-              Type = "oneshot";
-              RemainAfterExit = "no";
-              ExecStart = "${pkgs.writeShellApplication {
-                name = "fetch-youtube-feeds";
-                text = builtins.readFile ./fetch-youtube-feeds.sh;
-                runtimeInputs = with pkgs; [ bash curl coreutils gnugrep ];
-              }}/bin/fetch-youtube-feeds";
-            };
-          };
-
-          fetch-youtube-files = {
-            description = "Fetch all Youtube videos identified in todo";
-            environment = {
+              DEST = toString cfg.destination;
               FETCHED = toString cfg.fetched;
-              TODO = toString cfg.todo;
-              DONE_BASE = toString cfg.done;
-              TEMP = toString cfg.temp;
-              CMD = pkgs.writeShellScript "fetch-youtube-cmd" ''
-                exec ${
-                  if builtins.isList cfg.command then
-                    lib.concatMapStringsSep " " lib.escapeShellArg cfg.command
-                  else
-                    cfg.command
-                } "$@"
-              '';
+              RSYNC = "${pkgs.rsync}/bin/rsync";
             };
             serviceConfig = setUser {
               Type = "oneshot";
               RemainAfterExit = "no";
-              ExecStart = "${pkgs.writeShellApplication {
-                name = "fetch-youtube-files";
-                text = builtins.readFile ./fetch-youtube-files.sh;
-                runtimeInputs = with pkgs; [ bash coreutils findutils gnugrep ];
-              }}/bin/fetch-youtube-files";
+              ExecStart = "${
+                pkgs.writeShellApplication {
+                  name = "fetch-youtube-move";
+                  text = builtins.readFile ./fetch-youtube-move.sh;
+                  runtimeInputs = with pkgs; [
+                    bash
+                    coreutils
+                  ];
+                }
+              }/bin/fetch-youtube-move";
             };
           };
         };
-      };
-    }
-    (mkIf (cfg.destination != null) {
-      systemd = {
-        paths.fetch-youtube-move = {
-          description = "Move completed downloads";
-          pathConfig.DirectoryNotEmpty = toString cfg.fetched;
-        };
-        services.fetch-youtube-move = {
-          description = "Move completed downloads";
-          environment = {
-            DEST = toString cfg.destination;
-            FETCHED = toString cfg.fetched;
-            RSYNC = "${pkgs.rsync}/bin/rsync";
-          };
-          serviceConfig = setUser {
-            Type = "oneshot";
-            RemainAfterExit = "no";
-            ExecStart = "${pkgs.writeShellApplication {
-              name = "fetch-youtube-move";
-              text = builtins.readFile ./fetch-youtube-move.sh;
-              runtimeInputs = with pkgs; [ bash coreutils ];
-            }}/bin/fetch-youtube-move";
-          };
-        };
-      };
-    })
-  ]);
+      })
+    ]);
 }

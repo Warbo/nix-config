@@ -22,6 +22,8 @@ with {
     ../modules/fetch-youtube.nix
     # Fetch podcasts
     ../modules/talecast.nix
+    # Fetch news feeds
+    ../modules/fetch-news.nix
   ];
 
   boot.kernelPackages = pkgs.linuxPackages_latest;
@@ -44,7 +46,7 @@ with {
     };
   };
 
-  system.tools.nixos-option.enable = false;  # This drags in an old Nix 2.18
+  system.tools.nixos-option.enable = false; # This drags in an old Nix 2.18
 
   nix = {
     extraOptions = ''experimental-features = nix-command flakes'';
@@ -53,7 +55,10 @@ with {
       "nixpkgs=${nixpkgs-path}"
     ];
     settings = {
-      trusted-users = [ "root" "@wheel" ];
+      trusted-users = [
+        "root"
+        "@wheel"
+      ];
     };
   };
   nixpkgs = {
@@ -65,18 +70,18 @@ with {
         # GHC isn't bootstrapped for RiscV in Nixpkgs, but seems to claim it is.
         # Override that, so that trivial-builders don't try to shellcheck their
         # scripts.
-        shellcheck-minimal.compiler.meta.platforms = [];
+        shellcheck-minimal.compiler.meta.platforms = [ ];
       };
 
       mergerFsDependency = self: super: {
         mergerfs = super.mergerfs.overrideAttrs (old: {
-          nativeBuildInputs = (old.nativeBuildInputs or []) ++ [
+          nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [
             self.binutils
           ];
         });
       };
 
-      inherit (import ../../overlays.nix) yt-dlp;
+      inherit (import ../../overlays.nix) yt-dlp warbo-packages;
     };
   };
   #systemd.services.nix-daemon.environment.TMPDIR =
@@ -162,7 +167,12 @@ with {
     ];
   };
 
-  environment.systemPackages = with pkgs; [ curl git mergerfs nix ];
+  environment.systemPackages = with pkgs; [
+    curl
+    git
+    mergerfs
+    nix
+  ];
 
   security.sudo.wheelNeedsPassword = false;
 
@@ -236,24 +246,34 @@ with {
     ];
     timer = {
       OnBootSec = "5min";
-      OnUnitActiveSec = "6h";
+      OnUnitActiveSec = "7h";
     };
   };
 
-  services.talecast =
-    with { dir = /mnt/internal/podcasts; };
-    {
-      inherit dir;
-      enable = true;
-      user = "nixos";
-      destination = /mnt/shared/Audio/TODO;
-      podcasts = "${toString dir}/podcasts.toml";
-      extraConfig.tracker_path = "${toString dir}/partial/{podname}/.downloaded";
-      timer = {
-        OnBootSec = "15min";
-        OnUnitActiveSec = "7h";
-      };
+  services.fetch-news = {
+    enable = true;
+    user = "nixos";
+    dir = /mnt/internal/news;
+    opml = /mnt/internal/news/feeds.opml;
+    maildir = /mnt/internal/news/maildir;
+    timer = {
+      OnBootSec = "15min";
+      OnUnitActiveSec = "5h";
     };
+  };
 
-  system.stateVersion = "25.05"; #"24.11";
+  services.talecast = with { dir = /mnt/internal/podcasts; }; {
+    inherit dir;
+    enable = true;
+    user = "nixos";
+    destination = /mnt/shared/Audio/TODO;
+    podcasts = "${toString dir}/podcasts.toml";
+    extraConfig.tracker_path = "${toString dir}/partial/{podname}/.downloaded";
+    timer = {
+      OnBootSec = "15min";
+      OnUnitActiveSec = "7h";
+    };
+  };
+
+  system.stateVersion = "25.05"; # "24.11";
 }

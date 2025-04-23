@@ -3,6 +3,7 @@
   # Programs to put in PATH, either system-wide (NixOS-only) or via Home Manager
   packages =
     [
+      pkgs.delta
       pkgs.google-chrome
       pkgs.haskellPackages.hasktags
       pkgs.rxvt-unicode # Used to auto-spawn emacsclient
@@ -56,7 +57,29 @@
       go = pkgs.writeShellApplication {
         name = "go";
         text = builtins.readFile ./go.sh;
-        runtimeEnv.LAN = lan;
+        runtimeEnv = {
+          LAN = lan;
+
+          # Hacky. Instantiate a basic NixOS config with boot.enableContainers
+          # so we can extract the SystemD unit that it generates.
+          CONTAINERS_UNIT =
+            with rec {
+              inherit (nixos.config.systemd.units."container@.service") unit;
+              nixos = import <nixpkgs/nixos> {
+                configuration =
+                  { ... }:
+                  {
+                    boot.enableContainers = true;
+
+                    # This is unrelated to what we're trying to do; it placates
+                    # assertions about not having a filesystem or GRUB device.
+                    boot.isContainer = true;
+                    system.stateVersion = "24.11";
+                  };
+              };
+            };
+            "${unit}/container@.service";
+        };
         runtimeInputs = [
           pkgs.xorg.xset
           pkgs.xorg.xfontsel

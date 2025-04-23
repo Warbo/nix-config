@@ -56,7 +56,7 @@
 
     #openmw
     #openra
-    retroarchFull
+    #retroarchFull
   ];
 
   # Use the systemd-boot EFI boot loader.
@@ -207,7 +207,10 @@
       "nixos-config=${toString ../..}/nixos/chromebook/configuration.nix"
     ];
     settings = {
-      trusted-users = [ "root" "@wheel" ];
+      trusted-users = [
+        "root"
+        "@wheel"
+      ];
     };
   };
 

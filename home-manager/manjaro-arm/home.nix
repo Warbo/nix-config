@@ -8,7 +8,7 @@
 with rec {
   inherit
     (
-      (rec { inherit (import ../overrides/repos.nix overrides { }) overrides; })
+      (rec { inherit (import ../../overrides/repos.nix overrides { }) overrides; })
       .overrides
     )
     nix-helpers
@@ -464,16 +464,16 @@ with rec {
     };
 
     targets = {
-       s5-accessible = {
-         Unit = {
-           Description = "Can access s5.local";
-           Wants = [
-             "s5-smb.service"
-             "s5-sftp.service"
-      #       "mpd.service"
-           ];
-         };
-       };
+      s5-accessible = {
+        Unit = {
+          Description = "Can access s5.local";
+          Wants = [
+            "s5-smb.service"
+            "s5-sftp.service"
+            #       "mpd.service"
+          ];
+        };
+      };
 
       home-wifi-connected = {
         Unit = {
