@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with rec {
   inherit (builtins) toString readFile;
   inherit (lib)
@@ -6,7 +11,7 @@ with rec {
     mkMerge
     mkOption
     types
-  ;
+    ;
 
   cfg = config.services.fetch-news;
 
@@ -96,7 +101,7 @@ with rec {
 
   config =
     with {
-      setUser = x: (if cfg.user == null then {} else { User = cfg.user; }) // x;
+      setUser = x: (if cfg.user == null then { } else { User = cfg.user; }) // x;
     };
     mkIf cfg.enable (mkMerge [
       {
@@ -129,11 +134,16 @@ with rec {
               serviceConfig = setUser {
                 Type = "oneshot";
                 RemainAfterExit = "no";
-                ExecStart = "${pkgs.writeShellApplication {
-                  name = "fetch-news";
-                  runtimeInputs = [ pkgs.curl pkgs.xmlstarlet ];
-                  text = readFile ./fetch-news.sh;
-                }}/bin/fetch-news";
+                ExecStart = "${
+                  pkgs.writeShellApplication {
+                    name = "fetch-news";
+                    runtimeInputs = [
+                      pkgs.curl
+                      pkgs.xmlstarlet
+                    ];
+                    text = readFile ./fetch-news.sh;
+                  }
+                }/bin/fetch-news";
               };
             };
 
@@ -145,18 +155,20 @@ with rec {
               serviceConfig = setUser {
                 Type = "oneshot";
                 RemainAfterExit = "no";
-                ExecStart = "${pkgs.writeShellApplication {
-                  name = "process-news";
-                  runtimeEnv.UNSUMMARISE = "${./unsummarise.py}";
-                  runtimeInputs = [
-                    (pkgs.python3.withPackages (python3Packages: [
-                      (pkgs.warbo-packages.morss.override {
-                        inherit python3Packages;
-                      }).lib
-                    ]))
-                  ];
-                  text = readFile ./process-news.sh;
-                }}/bin/process-news";
+                ExecStart = "${
+                  pkgs.writeShellApplication {
+                    name = "process-news";
+                    runtimeEnv.UNSUMMARISE = "${./unsummarise.py}";
+                    runtimeInputs = [
+                      (pkgs.python3.withPackages (python3Packages: [
+                        (pkgs.warbo-packages.morss.override {
+                          inherit python3Packages;
+                        }).lib
+                      ]))
+                    ];
+                    text = readFile ./process-news.sh;
+                  }
+                }/bin/process-news";
               };
             };
 
@@ -166,11 +178,13 @@ with rec {
               serviceConfig = setUser {
                 Type = "oneshot";
                 RemainAfterExit = "no";
-                ExecStart = "${pkgs.writeShellApplication {
-                  name = "convert-news";
-                  runtimeInputs = [ pkgs.warbo-packages.feed2maildirsimple ];
-                  text = readFile ./convert-news.sh;
-                }}/bin/convert-news";
+                ExecStart = "${
+                  pkgs.writeShellApplication {
+                    name = "convert-news";
+                    runtimeInputs = [ pkgs.warbo-packages.feed2maildirsimple ];
+                    text = readFile ./convert-news.sh;
+                  }
+                }/bin/convert-news";
               };
             };
           };

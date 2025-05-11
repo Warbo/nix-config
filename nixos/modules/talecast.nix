@@ -1,20 +1,32 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with rec {
   inherit (builtins) attrValues mapAttrs toString;
-  inherit (lib) mkIf mkMerge mkOption types;
+  inherit (lib)
+    mkIf
+    mkMerge
+    mkOption
+    types
+    ;
 
   cfg = config.services.talecast;
 
-  configEntries = {
-    # These two paths must be on the same FS (see also: cfg.destination)
-    partial_path = "${toString cfg.dir}/partial/{podname}";
-    download_path = default_download_path;
-  } // (if cfg ? download_hook then { inherit (cfg) download_hook; } else {}) //
-  (cfg.extraConfig or {});
+  configEntries =
+    {
+      # These two paths must be on the same FS (see also: cfg.destination)
+      partial_path = "${toString cfg.dir}/partial/{podname}";
+      download_path = default_download_path;
+    }
+    // (if cfg ? download_hook then { inherit (cfg) download_hook; } else { })
+    // (cfg.extraConfig or { });
 
-  configFile = (pkgs.formats.toml {}).generate "talecast" configEntries;
+  configFile = (pkgs.formats.toml { }).generate "talecast" configEntries;
 
-  setUser = x: (if cfg.user == null then {} else { User = cfg.user; }) // x;
+  setUser = x: (if cfg.user == null then { } else { User = cfg.user; }) // x;
 
   default_download_path = "${cfg.fetched_path}/{podname}";
 
@@ -24,8 +36,8 @@ with rec {
     # Only enable if we know downloads will be in cfg.fetched_path. We can't
     # support an arbitray configEntries.download_path since it allows variables
     # like '{podname}' which aren't worth attempting to interpret.
-    configEntries.download_path == default_download_path &&
-    cfg.destination != null;  # We also need somewhere to put them!
+    configEntries.download_path == default_download_path
+    && cfg.destination != null; # We also need somewhere to put them!
 };
 {
   options.services.talecast = {
@@ -90,7 +102,7 @@ with rec {
       example = {
         tracker_path = "${toString cfg.dir}/partial/{podname}/.downloaded";
       };
-      default = {};
+      default = { };
       description = ''
         Extra options to append to the global config file.
       '';
@@ -112,18 +124,17 @@ with rec {
         serviceConfig = setUser {
           Type = "oneshot";
           RemainAfterExit = "no";
-          ExecStart = "${pkgs.writeShellApplication {
-            name = "run-talecast";
-            runtimeInputs = with pkgs; [ pkgs.talecast ];
-            runtimeEnv.XDG_CONFIG_HOME =
-              pkgs.linkFarm "talecast-config" [
+          ExecStart = "${
+            pkgs.writeShellApplication {
+              name = "run-talecast";
+              runtimeInputs = with pkgs; [ pkgs.talecast ];
+              runtimeEnv.XDG_CONFIG_HOME = pkgs.linkFarm "talecast-config" [
                 {
                   name = "talecast/podcasts.toml";
                   path = toString cfg.podcasts;
                 }
               ];
-            text =
-              ''
+              text = ''
                 # Tell talecast-move that we're running, so it shouldn't rmdir
                 # the directories we're about to put things into
                 rm ${doneFile} || true
@@ -135,7 +146,8 @@ with rec {
                 touch ${doneFile}
                 exit "$CODE"
               '';
-          }}/bin/run-talecast";
+            }
+          }/bin/run-talecast";
         };
       };
     }
@@ -146,7 +158,6 @@ with rec {
         wantedBy = [ "multi-user.target" ];
       };
     })
-
 
     (mkIf enableMoveService {
       systemd.paths.talecast-move = {
@@ -160,16 +171,22 @@ with rec {
         serviceConfig = setUser {
           Type = "oneshot";
           RemainAfterExit = "no";
-          ExecStart = "${pkgs.writeShellApplication {
-            name = "talecast-move";
-            text = builtins.readFile ./talecast-move.sh;
-            runtimeInputs = with pkgs; [ bash coreutils rsync ];
-            runtimeEnv = {
-              inherit doneFile;
-              DEST = toString cfg.destination;
-              FETCHED = toString cfg.fetched_path;
-            };
-          }}/bin/talecast-move";
+          ExecStart = "${
+            pkgs.writeShellApplication {
+              name = "talecast-move";
+              text = builtins.readFile ./talecast-move.sh;
+              runtimeInputs = with pkgs; [
+                bash
+                coreutils
+                rsync
+              ];
+              runtimeEnv = {
+                inherit doneFile;
+                DEST = toString cfg.destination;
+                FETCHED = toString cfg.fetched_path;
+              };
+            }
+          }/bin/talecast-move";
         };
       };
     })

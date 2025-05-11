@@ -21,7 +21,7 @@ with rec {
   commands = import ./commands.nix { inherit nix-helpers; };
 };
 {
-  imports = [ (import modules/warbo.nix) ];
+  imports = [ (import ../modules/warbo.nix) ];
 
   # Home Manager needs a bit of information about you and the paths it should
   # manage.
@@ -32,12 +32,14 @@ with rec {
   warbo.home-manager.stateVersion = "23.05";
   warbo.nixpkgs.overlays = os: [
     os.repos
-    os.metaPackages # os.emacs
+    os.metaPackages
+    # os.emacs
+    os.nix-backport
   ];
   warbo.dotfiles = ~/repos/warbo-dotfiles;
   warbo.packages = builtins.attrValues commands ++ [
     (pkgs.hiPrio warbo-utilities)
-
+    pkgs.nix-backport
     pkgs.libsForQt5.qtstyleplugin-kvantum
     pkgs.qt6Packages.qtstyleplugin-kvantum
 
@@ -83,21 +85,19 @@ with rec {
             name = ".config/autostart/${pname}.desktop";
           })
           {
-            thunderbird.text = pkgs.thunderbird.desktopItem.text;
-            firefox.text = pkgs.firefox.desktopItem.text;
+            #thunderbird.text = pkgs.thunderbird.desktopItem.text;
+            #firefox.text = pkgs.firefox.desktopItem.text;
             screen-local.source = mkDesktop "screen-local" {
               desktopName = "screen-local";
               exec = ''${pkgs.lxqt.qterminal}/bin/qterminal -e "screen -DR"'';
-            };
-            screen-pi.source = mkDesktop "screen-pi" {
-              desktopName = "screen-pi";
-              exec = ''${pkgs.lxqt.qterminal}/bin/qterminal -e "ssh -t pi screen -DR"'';
             };
           };
     };
     autostarts;
 
   home.sessionVariables.QT_STYLE_OVERRIDE = "kvantum";
+
+  nix.package = pkgs.nix-backport;
 
   # These three ensure our Nix .desktop files appear in desktops/menus
   targets.genericLinux.enable = true;
@@ -415,7 +415,7 @@ with rec {
               --rc --rc-no-auth --rc-addr=:22222 \
               --vfs-cache-mode=full \
               --sftp-set-modtime=false --no-update-modtime \
-              ":sftp,user=pi,host=$ADDR:/" \
+              ":sftp,user=nixos,host=$ADDR:/" \
               /home/manjaro/S5
           ''}";
           ExecStop = "fusermount -u /home/manjaro/S5";
@@ -464,16 +464,16 @@ with rec {
     };
 
     targets = {
-       s5-accessible = {
-         Unit = {
-           Description = "Can access s5.local";
-           Wants = [
-             "s5-smb.service"
-             "s5-sftp.service"
-      #       "mpd.service"
-           ];
-         };
-       };
+      s5-accessible = {
+        Unit = {
+          Description = "Can access s5.local";
+          Wants = [
+            "s5-smb.service"
+            "s5-sftp.service"
+            #       "mpd.service"
+          ];
+        };
+      };
 
       home-wifi-connected = {
         Unit = {

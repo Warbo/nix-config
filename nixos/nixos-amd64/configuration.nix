@@ -18,7 +18,8 @@
   home-manager.users.chris = import ./home.nix;
   warbo.enable = true;
   warbo.home-manager.username = "chris";
-  warbo.dotfiles = builtins.toString config.home.homeDirectory + "/repos/warbo-dotfiles";
+  warbo.dotfiles =
+    builtins.toString config.home.homeDirectory + "/repos/warbo-dotfiles";
   warbo.packages = with pkgs; [
     devCli
     mediaGui
@@ -48,6 +49,7 @@
     os.fixes
     os.metaPackages
     os.theming
+    os.nix-backport
   ];
 
   xdg.portal.lxqt.styles = [
@@ -116,7 +118,12 @@
       ]
       ++
       # Required to run GNUNet CLI commands
-      (if config.services.gnunet.enable then [ config.users.users.gnunet.group ] else [ ]);
+      (
+        if config.services.gnunet.enable then
+          [ config.users.users.gnunet.group ]
+        else
+          [ ]
+      );
   };
 
   fonts = {
@@ -136,27 +143,16 @@
   };
 
   nix = {
-    package = with rec {
-      src = pkgs.fetchFromGitHub {
-        owner = "NixOS";
-        repo = "nix";
-        rev = "8e8edb5bf857d62f7295c15534d2a4e555065fdf";
-        hash = "sha256-4IG4ITgGcT7uXFbhRjf/wfIewX87IoaaUS+TFfif5Nc=";
-      };
-      backported-2_27 = (import src).default;
-      redundant = pkgs.nixVersions ? nix_2_27;
-      warn = if redundant
-             then builtins.trace "WARNING: Backport of Nix 2.27 is redundant"
-             else (x: x);
-    };
-    warn backported-2_27;
+    package = pkgs.nix-backport;
 
-    extraOptions = ''experimental-features = ${lib.concatStringsSep " " [
-      "configurable-impure-env"
-      "flakes"
-      "git-hashing"
-      "nix-command"
-    ]}'';
+    extraOptions = ''experimental-features = ${
+      lib.concatStringsSep " " [
+        "configurable-impure-env"
+        "flakes"
+        "git-hashing"
+        "nix-command"
+      ]
+    }'';
     nixPath = with builtins; [
       "nixos-config=${toString ../..}/nixos/nixos-amd64/configuration.nix"
     ];

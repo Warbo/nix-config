@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with rec {
   inherit (lib) mkIf mkOption types;
 
@@ -30,7 +35,7 @@ with rec {
 
   config = mkIf cfg.enable {
     users = {
-      groups.pkdns = {};
+      groups.pkdns = { };
       users.pkdns = {
         isSystemUser = true;
         group = "pkdns";
