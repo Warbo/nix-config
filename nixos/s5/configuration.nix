@@ -53,7 +53,14 @@ with {
   system.tools.nixos-option.enable = false; # This drags in an old Nix 2.18
 
   nix = {
-    extraOptions = ''experimental-features = nix-command flakes'';
+    extraOptions = ''experimental-features = ${
+      lib.concatStringsSep " " [
+        "configurable-impure-env"
+        "flakes"
+        "git-hashing"
+        "nix-command"
+      ]
+    }'';
     nixPath = [
       "nixos-config=${../..}/nixos/s5/configuration.nix"
       "nixpkgs=${nixpkgs-path}"
@@ -65,6 +72,7 @@ with {
       ];
     };
   };
+
   nixpkgs = {
     flake.source = nixpkgs-path;
     hostPlatform.system = "riscv64-linux";
