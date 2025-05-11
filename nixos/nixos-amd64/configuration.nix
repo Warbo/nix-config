@@ -217,7 +217,8 @@
 
     kubo = {
       enable = true;
-      autoMount = true;
+      # Avoid autoMount due to https://github.com/ipfs/kubo/issues/8095
+      autoMount = false;
       settings = {
         Addresses.API = [ "/ip4/127.0.0.1/tcp/5001" ];
         Datastore.StorageMax = "1G";
