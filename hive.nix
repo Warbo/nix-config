@@ -15,4 +15,5 @@
 
   # TODO: Gradually move more machines into here!
   "nixos-amd64.local" = import ./nixos/nixos-amd64/configuration.nix;
+  "chromebook.local" = import ./nixos/chromebook/configuration.nix;
 }
