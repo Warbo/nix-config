@@ -8,7 +8,14 @@
   pkgs,
   ...
 }:
-
+with {
+  backported-chrome = (import (pkgs.fetchFromGitHub { 
+      owner = "nixos";
+      repo = "nixpkgs";
+      rev = "a76a965e646a71c9e6baf211bcb57da717adbc15";
+      hash = "sha256-zMTpCtodNiaAoXv+d/itdqioScKRbgOvZEbA087JymA=";
+    }) { overlays = []; }).google-chrome;
+};
 {
   imports = [
     # Include the results of the hardware scan.
@@ -16,12 +23,13 @@
     (import ../modules/warbo.nix)
   ];
 
+  nixpkgs.config.allowUnfree = true;
   warbo.enable = true;
   warbo.home-manager.username = "jo";
   warbo.packages = with pkgs; [
     curl
     git
-    google-chrome
+    backported-chrome
     htop
     mpv
     p7zip
@@ -50,7 +58,7 @@
     (pkgs.hiPrio (
       pkgs.writeScriptBin "google-chrome-stable" ''
         #!${pkgs.bash}/bin/bash
-        exec ${pkgs.google-chrome}/bin/google-chrome-stable --simulate-outdated-no-au='Tue, 31 Dec 2099' "$@"
+        exec ${backported-chrome}/bin/google-chrome-stable --simulate-outdated-no-au='Tue, 31 Dec 2099' "$@"
       ''
     ))
 
@@ -228,6 +236,15 @@
     publish.addresses = true;
     publish.workstation = true;
   };
+
+  # Avoid excessive logs killing flash memory
+  services.journald.extraConfig = ''
+    Storage=volatile
+    RateLimitInterval=30s
+    RateLimitBurst=10000
+    RuntimeMaxUse=16M
+    SystemMaxUse==16M
+  '';
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];

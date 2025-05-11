@@ -21,6 +21,7 @@
   boot.initrd.kernelModules = [ ];
   boot.kernelModules = [ "kvm-intel" ];
   boot.extraModulePackages = [ ];
+  boot.tmp.useTmpfs = true;
 
   fileSystems."/" = {
     device = "/dev/disk/by-uuid/d6e18d5c-f29f-4d9b-b6b0-c6fc2b0b74dd";
