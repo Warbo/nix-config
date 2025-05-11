@@ -9,7 +9,7 @@
   ...
 }:
 with {
-  inherit (builtins) toString;
+  inherit (builtins) currentSystem toString;
   nixpkgs-path = import ./nixpkgs.nix;
 };
 {
