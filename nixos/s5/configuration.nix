@@ -53,6 +53,8 @@ with {
   system.tools.nixos-option.enable = false; # This drags in an old Nix 2.18
 
   nix = {
+    package = pkgs.nix-backport;
+
     extraOptions = ''experimental-features = ${
       lib.concatStringsSep " " [
         "configurable-impure-env"
@@ -93,7 +95,7 @@ with {
         });
       };
 
-      inherit (import ../../overlays.nix) yt-dlp warbo-packages;
+      inherit (import ../../overlays.nix) nix-backport warbo-packages yt-dlp;
     };
   };
   #systemd.services.nix-daemon.environment.TMPDIR =
