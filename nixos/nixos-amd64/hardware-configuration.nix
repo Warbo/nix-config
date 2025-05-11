@@ -26,22 +26,24 @@
   boot.kernelModules = [ "wl" ];
   boot.extraModulePackages = [ config.boot.kernelPackages.broadcom_sta ];
 
-  fileSystems."/" = {
-    device = "/dev/disk/by-label/nixos-amd64";
-    fsType = "ext4";
-  };
-  fileSystems."/home/chris/Public" = {
-    device = "//s5.local/shared";
-    fsType = "cifs";
-    options = [
-      "x-systemd.automount"
-      "noauto"
-      "x-systemd.idle-timeout=60"
-      "x-systemd.device-timeout=5s"
-      "x-systemd.mount-timeout=5s"
-      "user"
-      "users"
-    ];
+  fileSystems = {
+    "/" = {
+      device = "/dev/disk/by-label/nixos-amd64";
+      fsType = "ext4";
+    };
+    "/home/chris/Public" = {
+      device = "//s5.local/shared";
+      fsType = "cifs";
+      options = [
+        "x-systemd.automount"
+        "noauto"
+        "x-systemd.idle-timeout=60"
+        "x-systemd.device-timeout=5s"
+        "x-systemd.mount-timeout=5s"
+        "user"
+        "users"
+      ];
+    };
   };
 
   swapDevices = [
