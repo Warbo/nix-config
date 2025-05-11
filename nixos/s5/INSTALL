@@ -3,7 +3,7 @@ set -ex
 HOST=$(hostname)
 NIXPKGS=$(nix-instantiate --eval nixpkgs.nix | tr -d '"')
 REMOTE_IP=$(getent ahostsv4 "${S5_HOST:-s5.local}" | cut -d' ' -f1 | head -n1)
-REMOTE="${S5_USER:?Var S5_USER is not set}@${REMOTE_IP}"
+REMOTE="${S5_USER:-nixos}@${REMOTE_IP}"
 sudo nixos-rebuild \
     --use-remote-sudo \
     --target-host "$REMOTE" \
