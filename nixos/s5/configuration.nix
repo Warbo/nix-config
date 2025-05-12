@@ -18,6 +18,8 @@ with {
     ./hardware-configuration.nix
     # Include VisionFive2 support from nixos-hardware
     "${import ./nixos-hardware.nix}/starfive/visionfive/v2"
+    # Use a Nix version that has git-hashing
+    ../modules/nix-backport.nix
     # Fetch youtube videos
     ../modules/fetch-youtube.nix
     # Fetch podcasts
@@ -53,8 +55,6 @@ with {
   system.tools.nixos-option.enable = false; # This drags in an old Nix 2.18
 
   nix = {
-    package = pkgs.nix-backport;
-
     extraOptions = ''experimental-features = ${
       lib.concatStringsSep " " [
         "configurable-impure-env"
@@ -95,7 +95,7 @@ with {
         });
       };
 
-      inherit (import ../../overlays.nix) nix-backport warbo-packages yt-dlp;
+      inherit (import ../../overlays.nix) warbo-packages yt-dlp;
     };
   };
   #systemd.services.nix-daemon.environment.TMPDIR =

@@ -10,6 +10,7 @@
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
+    (import ../modules/nix-backport.nix)
     (import ../modules/pkdns.nix)
     (import ../modules/warbo.nix)
     (import "${import ../../home-manager/nixos-import.nix}/nixos")
@@ -49,7 +50,6 @@
     os.fixes
     os.metaPackages
     os.theming
-    os.nix-backport
   ];
 
   xdg.portal.lxqt.styles = [
@@ -143,8 +143,6 @@
   };
 
   nix = {
-    package = pkgs.nix-backport;
-
     extraOptions = ''experimental-features = ${
       lib.concatStringsSep " " [
         "configurable-impure-env"
