@@ -29,10 +29,6 @@ with rec {
   isBroken = self.isBroken or nix-helpers.isBroken;
 }; {
   overrides = {
-    # Newer NixOS systems need fuse3 rather than fuse, but it doesn't exist
-    # on older systems. We include it if available, otherwise we just warn.
-    fuse3 = super.fuse3 or self.nothing;
-
     # We only need nix-repl for Nix 1.x, since 2.x has a built-in repl
     nix-repl =
       if compareVersions self.nix.version "2" == -1 then
