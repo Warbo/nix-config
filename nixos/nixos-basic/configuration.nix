@@ -41,6 +41,7 @@
   environment.variables = {
     DISPLAY = ":0";
     PAGER = "cat";
+    SSH_AUTH_SOCK = "/mnt/host-chrisw/.1password/agent.sock";
   };
 
   warbo.enable = true;
