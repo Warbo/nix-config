@@ -9,7 +9,7 @@
   ...
 }:
 with {
-  inherit (builtins) toString;
+  inherit (builtins) currentSystem toString;
   nixpkgs-path = import ./nixpkgs.nix;
 };
 {
@@ -18,6 +18,8 @@ with {
     ./hardware-configuration.nix
     # Include VisionFive2 support from nixos-hardware
     "${import ./nixos-hardware.nix}/starfive/visionfive/v2"
+    # Use a Nix version that has git-hashing
+    ../modules/nix-backport.nix
     # Fetch youtube videos
     ../modules/fetch-youtube.nix
     # Fetch podcasts
@@ -35,21 +37,32 @@ with {
         "aarch64-linux" # Pinephone
         "armv6l-linux" # RaspberryPi
         "i686-linux" # Thinkpad
-        "riscv64-linux" # VisionFive
+        #"riscv64-linux" # VisionFive
         "x86_64-linux" # Laptops
       ];
     # https://github.com/felixonmars/archriscv-packages/blob/7c270ecef6a84edd6031b357b7bd1f6be2d6d838/devtools-riscv64/z-archriscv-qemu-riscv64.conf#L1
-    registrations."x86_64-linux" = {
+    /*registrations."x86_64-linux" = {
       preserveArgvZero = true;
       matchCredentials = true;
-      fixBinary = true;
-    };
+      # TODO: 2025-05-11: Comment-out to avoid assertion failure that "cannot
+      # have fixBinary when the interpreter is invoked through a shell". Note
+      # that this failure doesn't occur when running INSTALL, but does in e.g. a
+      # nix-repl session.
+      #fixBinary = true;
+    };*/
   };
 
   system.tools.nixos-option.enable = false; # This drags in an old Nix 2.18
 
   nix = {
-    extraOptions = ''experimental-features = nix-command flakes'';
+    extraOptions = ''experimental-features = ${
+      lib.concatStringsSep " " [
+        "configurable-impure-env"
+        "flakes"
+        "git-hashing"
+        "nix-command"
+      ]
+    }'';
     nixPath = [
       "nixos-config=${../..}/nixos/s5/configuration.nix"
       "nixpkgs=${nixpkgs-path}"
@@ -61,6 +74,7 @@ with {
       ];
     };
   };
+
   nixpkgs = {
     flake.source = nixpkgs-path;
     hostPlatform.system = "riscv64-linux";
@@ -81,7 +95,7 @@ with {
         });
       };
 
-      inherit (import ../../overlays.nix) yt-dlp warbo-packages;
+      inherit (import ../../overlays.nix) warbo-packages yt-dlp;
     };
   };
   #systemd.services.nix-daemon.environment.TMPDIR =

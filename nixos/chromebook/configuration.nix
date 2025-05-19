@@ -8,7 +8,14 @@
   pkgs,
   ...
 }:
-
+with {
+  backported-chrome = (import (pkgs.fetchFromGitHub { 
+      owner = "nixos";
+      repo = "nixpkgs";
+      rev = "a76a965e646a71c9e6baf211bcb57da717adbc15";
+      hash = "sha256-zMTpCtodNiaAoXv+d/itdqioScKRbgOvZEbA087JymA=";
+    }) { overlays = []; }).google-chrome;
+};
 {
   imports = [
     # Include the results of the hardware scan.
@@ -16,12 +23,13 @@
     (import ../modules/warbo.nix)
   ];
 
+  nixpkgs.config.allowUnfree = true;
   warbo.enable = true;
   warbo.home-manager.username = "jo";
   warbo.packages = with pkgs; [
     curl
     git
-    google-chrome
+    backported-chrome
     htop
     mpv
     p7zip
@@ -50,13 +58,13 @@
     (pkgs.hiPrio (
       pkgs.writeScriptBin "google-chrome-stable" ''
         #!${pkgs.bash}/bin/bash
-        exec ${pkgs.google-chrome}/bin/google-chrome-stable --simulate-outdated-no-au='Tue, 31 Dec 2099' "$@"
+        exec ${backported-chrome}/bin/google-chrome-stable --simulate-outdated-no-au='Tue, 31 Dec 2099' "$@"
       ''
     ))
 
-    #openmw
+    openmw
     #openra
-    #retroarchFull
+    retroarchFull
   ];
 
   # Use the systemd-boot EFI boot loader.
@@ -139,12 +147,6 @@
     };
   };
 
-  # Enable CUPS to print documents.
-  # services.printing.enable = true;
-
-  # Enable sound.
-  #sound.enable = true;  # This is just for ALSA?
-  #hardware.pulseaudio.enable = true;
   hardware.bluetooth.enable = true; # enables support for Bluetooth
   hardware.bluetooth.powerOnBoot = true; # powers up the default Bluetooth controller on boot
   services.blueman.enable = true;
@@ -179,17 +181,15 @@
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
 
+  programs.firefox.enable = true;
+
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.jo = {
     isNormalUser = true;
     extraGroups = [
       "networkmanager"
       "wheel"
-    ]; # Enable ‘sudo’ for the user.
-    #   packages = with pkgs; [
-    #     firefox
-    #     tree
-    #   ];
+    ];
   };
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -214,9 +214,6 @@
     };
   };
 
-  # List services that you want to enable:
-
-  # Enable the OpenSSH daemon.
   services.openssh.enable = true;
 
   services.avahi = {
@@ -228,6 +225,15 @@
     publish.addresses = true;
     publish.workstation = true;
   };
+
+  # Avoid excessive logs killing flash memory
+  services.journald.extraConfig = ''
+    Storage=volatile
+    RateLimitInterval=30s
+    RateLimitBurst=10000
+    RuntimeMaxUse=16M
+    SystemMaxUse==16M
+  '';
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];

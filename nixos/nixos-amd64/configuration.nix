@@ -10,6 +10,7 @@
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
+    (import ../modules/nix-backport.nix)
     (import ../modules/pkdns.nix)
     (import ../modules/warbo.nix)
     (import "${import ../../home-manager/nixos-import.nix}/nixos")
@@ -49,7 +50,6 @@
     os.fixes
     os.metaPackages
     os.theming
-    os.nix-backport
   ];
 
   xdg.portal.lxqt.styles = [
@@ -60,6 +60,8 @@
   environment.systemPackages =
     with pkgs;
     [
+      colmena  # TODO: Move this to sysCli or something once we're happy
+
       libsForQt5.qt5ct
       qt6ct
       libsForQt5.qtstyleplugin-kvantum
@@ -141,8 +143,6 @@
   };
 
   nix = {
-    package = pkgs.nix-backport;
-
     extraOptions = ''experimental-features = ${
       lib.concatStringsSep " " [
         "configurable-impure-env"
@@ -213,7 +213,8 @@
 
     kubo = {
       enable = true;
-      autoMount = true;
+      # Avoid autoMount due to https://github.com/ipfs/kubo/issues/8095
+      autoMount = false;
       settings = {
         Addresses.API = [ "/ip4/127.0.0.1/tcp/5001" ];
         Datastore.StorageMax = "1G";
