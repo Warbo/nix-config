@@ -70,6 +70,7 @@
       "wheel"
       "networkmanager"
       "nix-users"
+      "nscd" # Same gid as nix-users on our host. Eww...
     ];
     uid = 1000;
   };
