@@ -11,7 +11,7 @@
     (import ../modules/warbo.nix)
     (import "${import ../../home-manager/nixos-import.nix}/nixos")
   ];
-
+  extra.enable = true;
   boot.isContainer = true;
   networking = {
     # Disable all sorts of stuff, so we use the host (Ubuntu) networking
