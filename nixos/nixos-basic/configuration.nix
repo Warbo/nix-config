@@ -57,6 +57,7 @@
     os.repos
     os.fixes
     os.metaPackages
+    os.ollama
     os.theming
   ];
 
