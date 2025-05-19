@@ -22,6 +22,7 @@ warbo-wsl.config
     pkgs.haskellPackages.fourmolu
     pkgs.haskellPackages.implicit-hie
     pkgs.haskellPackages.stylish-haskell
+    pkgs.aider-chat
     pkgs.j2cli
     pkgs.nix-backport
     pkgs.typescript-language-server
