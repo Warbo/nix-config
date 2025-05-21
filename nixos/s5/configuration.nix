@@ -217,7 +217,9 @@ with {
         '';
       };
     };
+
     openssh.enable = true;
+
     samba = {
       enable = true;
       openFirewall = true;
@@ -241,51 +243,52 @@ with {
         };
       };
     };
+
     samba-wsdd = {
       enable = true;
       discovery = true;
       openFirewall = true;
       workgroup = "WORKGROUP";
     };
-  };
 
-  fetch-youtube = {
-    enable = true;
-    user = "nixos";
-    dir = /mnt/internal/youtube;
-    destination = /mnt/shared/TODO/Videos;
-    args = [
-      "-f"
-      "b[height<600]"
-    ];
-    timer = {
-      OnBootSec = "5min";
-      OnUnitActiveSec = "7h";
+    fetch-youtube = {
+      enable = true;
+      user = "nixos";
+      dir = /mnt/internal/youtube;
+      destination = /mnt/shared/TODO/Videos;
+      args = [
+        "-f"
+        "b[height<600]"
+      ];
+      timer = {
+        OnBootSec = "5min";
+        OnUnitActiveSec = "7h";
+      };
     };
-  };
 
-  services.fetch-news = {
-    enable = true;
-    user = "nixos";
-    dir = /mnt/internal/news;
-    opml = /mnt/internal/news/feeds.opml;
-    maildir = /mnt/internal/news/maildir;
-    timer = {
-      OnBootSec = "15min";
-      OnUnitActiveSec = "5h";
+    fetch-news = {
+      enable = true;
+      user = "nixos";
+      dir = /mnt/internal/news;
+      opml = /mnt/internal/news/feeds.opml;
+      maildir = /mnt/internal/news/maildir;
+      timer = {
+        OnBootSec = "15min";
+        OnUnitActiveSec = "5h";
+      };
     };
-  };
 
-  services.talecast = with { dir = /mnt/internal/podcasts; }; {
-    inherit dir;
-    enable = true;
-    user = "nixos";
-    destination = /mnt/shared/Audio/TODO;
-    podcasts = "${toString dir}/podcasts.toml";
-    extraConfig.tracker_path = "${toString dir}/partial/{podname}/.downloaded";
-    timer = {
-      OnBootSec = "15min";
-      OnUnitActiveSec = "7h";
+    talecast = with { dir = /mnt/internal/podcasts; }; {
+      inherit dir;
+      enable = true;
+      user = "nixos";
+      destination = /mnt/shared/Audio/TODO;
+      podcasts = "${toString dir}/podcasts.toml";
+      extraConfig.tracker_path = "${toString dir}/partial/{podname}/.downloaded";
+      timer = {
+        OnBootSec = "15min";
+        OnUnitActiveSec = "7h";
+      };
     };
   };
 
