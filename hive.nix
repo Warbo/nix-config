@@ -1,9 +1,27 @@
 # Assign each NixOS configuration to its associated machine, so they can all be
 # applied/deployed at once using Colmena.
+with {
+  # TODO: Gradually move more machines into here!
+  # Put this out here so it's easy to list all the node names
+  configs = {
+    "nixos-amd64.local" = import ./nixos/nixos-amd64/configuration.nix;
+    "chromebook.local" = import ./nixos/chromebook/configuration.nix;
+    "s5.local" = import ./nixos/s5/configuration.nix;
+  };
+};
 {
   meta = {
     name = "warbo-nix-config";
     description = "Applies NixOS configurations to various machines";
+    nodeNixpkgs =
+      with rec {
+        inherit (import overrides/nix-helpers.nix overrides { }) overrides;
+        default = overrides.nix-helpers.repoLatest;
+        nonDefaults = {
+          "s5.local" = import (import nixos/s5/nixpkgs.nix);
+        };
+      };
+      builtins.mapAttrs (node: _: nonDefaults.${node} or default) configs;
   };
 
   # This module will be imported by all hosts
@@ -25,9 +43,4 @@
         buildOnTarget = name != "s5.local";
       };
     };
-
-  # TODO: Gradually move more machines into here!
-  "nixos-amd64.local" = import ./nixos/nixos-amd64/configuration.nix;
-  "chromebook.local" = import ./nixos/chromebook/configuration.nix;
-  "s5.local" = import ./nixos/s5/configuration.nix;
-}
+} // configs
