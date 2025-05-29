@@ -50,6 +50,7 @@
     os.fixes
     os.metaPackages
     os.theming
+    os.yt-dlp
   ];
 
   xdg.portal.lxqt.styles = [
