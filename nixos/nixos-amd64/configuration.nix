@@ -238,8 +238,6 @@
     };
 
     pkdns.enable = true;
-
-    ollama.enable = true;
   };
 
   systemd.services = lib.mkIf config.services.kubo.enable {
