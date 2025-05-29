@@ -10,10 +10,10 @@
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
-    (import ../modules/nix-backport.nix)
-    (import ../modules/pkdns.nix)
-    (import ../modules/warbo.nix)
-    (import "${import ../../home-manager/nixos-import.nix}/nixos")
+    ../modules/nix-backport.nix
+    ../modules/pkdns.nix
+    ../modules/warbo.nix
+    "${import ../../home-manager/nixos-import.nix}/nixos"
   ];
 
   home-manager.users.chris = import ./home.nix;
