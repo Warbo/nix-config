@@ -136,7 +136,7 @@
     packages = [
       pkgs.anonymousPro
       pkgs.liberation_ttf
-      pkgs.nerdfonts
+      pkgs.nerd-fonts.droid-sans-mono
       pkgs.terminus_font
       pkgs.ttf_bitstream_vera
     ];
