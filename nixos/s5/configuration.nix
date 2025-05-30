@@ -18,8 +18,6 @@ with {
     ./hardware-configuration.nix
     # Include VisionFive2 support from nixos-hardware
     "${import ./nixos-hardware.nix}/starfive/visionfive/v2"
-    # Use a Nix version that has git-hashing
-    ../modules/nix-backport.nix
     # Fetch youtube videos
     ../modules/fetch-youtube.nix
     # Fetch podcasts
