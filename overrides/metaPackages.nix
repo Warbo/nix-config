@@ -72,7 +72,6 @@ with rec {
         git
         git-absorb
         jq
-        msgpack-tools
         nano
         nix-top
         nixfmt-rfc-style
