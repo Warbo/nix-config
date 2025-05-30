@@ -29,19 +29,6 @@ with rec {
   isBroken = self.isBroken or nix-helpers.isBroken;
 }; {
   overrides = {
-    python312 = super.python312.override (old: {
-      packageOverrides =
-        pelf: puper:
-        (old.packageOverrides or (_: _: { })) pelf puper
-        // {
-          dbus-next = nix-helpers.withDeps' "dbus-next" [ (isBroken puper.dbus-next) ] (
-            puper.dbus-next.overridePythonAttrs (_: {
-              doCheck = false;
-            })
-          );
-        };
-    });
-
     xorg = super.xorg // {
       # Bump driver to avoid https://bugs.freedesktop.org/show_bug.cgi?id=109689
       xf86videointel = super.xorg.xf86videointel.overrideAttrs (
