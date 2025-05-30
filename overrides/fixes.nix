@@ -29,13 +29,6 @@ with rec {
   isBroken = self.isBroken or nix-helpers.isBroken;
 }; {
   overrides = {
-    # We only need nix-repl for Nix 1.x, since 2.x has a built-in repl
-    nix-repl =
-      if compareVersions self.nix.version "2" == -1 then
-        super.nix-repl
-      else
-        self.nothing;
-
     python312 = super.python312.override (old: {
       packageOverrides =
         pelf: puper:
