@@ -97,10 +97,9 @@
     #   useXkbConfig = true; # use xkb.options in tty.
   };
 
-  hardware.pulseaudio.enable = false;
+  services.pulseaudio.enable = false;
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
-  #hardware.pulseaudio.package = pkgs.pulseaudioFull;
 
   security.sudo.enable = true;
 
