@@ -57,6 +57,17 @@
     pkgs.warbo-packages.skulpture.qt6
   ];
 
+  environment.variables = {
+    # These tell QtKeychain to use KWallet, so KMail can store its credentials
+    # See https://bugs.kde.org/show_bug.cgi?id=441214#c9
+    #KDE_SESSION_VERSION = "5";
+    #XDG_CURRENT_DESKTOP = "kde";
+
+    # Avoid graphics-related crashes when opening KMail
+    QTWEBENGINE_CHROMIUM_FLAGS =
+      "--disable-gpu --disable-gpu-compositing --disable-gpu-rasterization";
+  };
+
   environment.systemPackages =
     with pkgs;
     [
