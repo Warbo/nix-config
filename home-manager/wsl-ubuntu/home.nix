@@ -33,7 +33,12 @@ warbo-wsl.config
       # args to preserve required env vars, so we make this wrapper for it.
       name = "nixos-container";
       text = ''
-        exec sudo env PATH="$PATH" NIX_PATH="$NIX_PATH" ${pkgs.nixos-container}/bin/nixos-container "$@"
+        echo "Running ChrisW's nixos-container wrapper" 1>&2
+        ENVS=(env "PATH=$PATH")
+        [[ -n "''${NIX_PATH:-}"      ]] && ENVS+=("NIX_PATH=$NIX_PATH")
+        [[ -n "''${SSH_AUTH_SOCK:-}" ]] && ENVS+=("SSH_AUTH_SOCK=$SSH_AUTH_SOCK")
+        [[ -n "''${IPFS_GATEWAY:-}"  ]] && ENVS+=("IPFS_GATEWAY=$IPFS_GATEWAY")
+        exec sudo "''${ENVS[@]}" ${pkgs.nixos-container}/bin/nixos-container "$@"
       '';
     })
   ];
