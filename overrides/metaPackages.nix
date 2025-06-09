@@ -76,6 +76,7 @@ with rec {
         nano
         nix-top
         nixfmt-rfc-style
+        pretty-simple
         python3
         racket
         silver-searcher
