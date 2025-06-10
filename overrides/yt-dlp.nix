@@ -7,7 +7,7 @@ self: super: {
     {
       yt-dlp =
         with rec {
-          tree = "bcc63f76e169d360685d4a4ad7c2a5433ba406bf";
+          tree = "497d3e58b206ba02c662aa9ce097dd8dd1832793";
           src = nix-helpers.fetchTreeFromGitHub {
             inherit tree;
             owner = "yt-dlp";
