@@ -31,6 +31,9 @@ with {
         # show up as unstaged changes, etc. whilst (b) not having to worry about
         # repos which include such files, since they're not for distribution!
         .dir-locals-2.el
+
+        # Aider creates these
+        .aider*
       '';
       home.file.".config/pinentry/preexec".source = ./pinentry-preexec.sh;
       home.packages = cfg.packages;
