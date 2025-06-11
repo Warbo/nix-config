@@ -198,6 +198,7 @@ with rec {
             dtach
             dvtm
             exfat
+            fd
             file
             htop
             inotify-tools
