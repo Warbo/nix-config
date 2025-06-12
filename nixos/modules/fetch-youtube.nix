@@ -12,10 +12,10 @@ with {
     mkOption
     types
     ;
-  cfg = config.fetch-youtube;
+  cfg = config.services.fetch-youtube;
 };
 {
-  options.fetch-youtube = {
+  options.services.fetch-youtube = {
     enable = mkOption {
       type = types.bool;
       default = false;

@@ -24,7 +24,7 @@ warbo-wsl.config
     pkgs.haskellPackages.stylish-haskell
     pkgs.aider-chat
     pkgs.j2cli
-    pkgs.nix-backport
+    pkgs.nix
     pkgs.typescript-language-server
     pkgs.vscode-langservers-extracted # CSS, HTML, etc.
     pkgs.vue-language-server
@@ -45,7 +45,6 @@ warbo-wsl.config
   warbo.nixpkgs.overlays = os: [
     os.repos
     os.metaPackages
-    os.nix-backport
     (self: super: {
       inherit (self.nix-helpers.nixpkgs2405) openssh;
     })

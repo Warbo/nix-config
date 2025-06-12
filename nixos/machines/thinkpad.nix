@@ -141,7 +141,7 @@ with { inherit (builtins) toString trace; };
 
   hardware.cpu.intel.updateMicrocode = true;
 
-  hardware.pulseaudio = {
+  services.pulseaudio = {
     systemWide = true;
     enable = true;
     package = pkgs.pulseaudioFull;

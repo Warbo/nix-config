@@ -72,7 +72,6 @@ with rec {
         git
         git-absorb
         jq
-        msgpack-tools
         nano
         nix-top
         nixfmt-rfc-style
@@ -99,10 +98,10 @@ with rec {
         bibtool
         ghostscript
         md2pdf
-        nerdfonts
         pandoc
         poppler_utils
         ;
+      inherit (self.nerd-fonts) droid-sans-mono;
       inherit (warbo-packages) panpipe panhandle;
       aspell = self.aspellWithDicts (dicts: [ dicts.en ]);
     };
@@ -200,6 +199,7 @@ with rec {
             dtach
             dvtm
             exfat
+            fd
             file
             htop
             inotify-tools

@@ -10,10 +10,9 @@
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
-    (import ../modules/nix-backport.nix)
-    (import ../modules/pkdns.nix)
-    (import ../modules/warbo.nix)
-    (import "${import ../../home-manager/nixos-import.nix}/nixos")
+    ../modules/pkdns.nix
+    ../modules/warbo.nix
+    "${import ../../home-manager/nixos-import.nix}/nixos"
   ];
 
   home-manager.users.chris = import ./home.nix;
@@ -50,12 +49,24 @@
     os.fixes
     os.metaPackages
     os.theming
+    os.yt-dlp
   ];
 
   xdg.portal.lxqt.styles = [
     pkgs.warbo-packages.skulpture.qt5
     pkgs.warbo-packages.skulpture.qt6
   ];
+
+  environment.variables = {
+    # These tell QtKeychain to use KWallet, so KMail can store its credentials
+    # See https://bugs.kde.org/show_bug.cgi?id=441214#c9
+    #KDE_SESSION_VERSION = "5";
+    #XDG_CURRENT_DESKTOP = "kde";
+
+    # Avoid graphics-related crashes when opening KMail
+    QTWEBENGINE_CHROMIUM_FLAGS =
+      "--disable-gpu --disable-gpu-compositing --disable-gpu-rasterization";
+  };
 
   environment.systemPackages =
     with pkgs;
@@ -75,7 +86,7 @@
   # boot.loader.grub.efiInstallAsRemovable = true;
   # boot.loader.efi.efiSysMountPoint = "/boot/efi";
   # Define on which hard drive you want to install Grub.
-  boot.loader.grub.device = "/dev/sdb"; # or "nodev" for efi only
+  boot.loader.grub.device = "/dev/sda"; # or "nodev" for efi only
 
   networking.hostName = "nixos-amd64"; # Define your hostname.
   # Pick only one of the below networking options.
@@ -97,10 +108,9 @@
     #   useXkbConfig = true; # use xkb.options in tty.
   };
 
-  hardware.pulseaudio.enable = false;
+  services.pulseaudio.enable = false;
   hardware.bluetooth.enable = true;
   hardware.bluetooth.powerOnBoot = true;
-  #hardware.pulseaudio.package = pkgs.pulseaudioFull;
 
   security.sudo.enable = true;
 
@@ -136,7 +146,7 @@
     packages = [
       pkgs.anonymousPro
       pkgs.liberation_ttf
-      pkgs.nerdfonts
+      pkgs.nerd-fonts.droid-sans-mono
       pkgs.terminus_font
       pkgs.ttf_bitstream_vera
     ];
@@ -237,8 +247,6 @@
     };
 
     pkdns.enable = true;
-
-    ollama.enable = true;
   };
 
   systemd.services = lib.mkIf config.services.kubo.enable {

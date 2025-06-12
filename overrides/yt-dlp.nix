@@ -1,18 +1,23 @@
 self: super: {
-  overrides = {
-    yt-dlp =
-      with {
-        src = super.fetchFromGitHub rec {
-          owner = "yt-dlp";
-          repo = "yt-dlp";
-          rev = "349f36606fa7fb658216334a73ac7825c13503c2";
-          hash = "sha256-csw91VbzY9IursMQFGwnlobZI3U6QOBDo31oq+X0ETI=";
+  overrides =
+    with rec {
+      inherit (import ./nix-helpers.nix (super // overrides) super) overrides;
+      nix-helpers = super.nix-helpers or overrides.nix-helpers;
+    };
+    {
+      yt-dlp =
+        with rec {
+          tree = "497d3e58b206ba02c662aa9ce097dd8dd1832793";
+          src = nix-helpers.fetchTreeFromGitHub {
+            inherit tree;
+            owner = "yt-dlp";
+            repo = "yt-dlp";
+          };
         };
-      };
-      super.yt-dlp.overrideAttrs (old: {
-        inherit src;
-        name = "yt-dlp-${src.rev}";
-      });
-  };
+        super.yt-dlp.overrideAttrs (old: {
+          inherit src;
+          name = "yt-dlp-${tree}";
+        });
+    };
   tests = { };
 }

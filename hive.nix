@@ -16,7 +16,7 @@ with {
     nodeNixpkgs =
       with rec {
         inherit (import overrides/nix-helpers.nix overrides { }) overrides;
-        default = overrides.nix-helpers.repoLatest;
+        default = import overrides.nix-helpers.repoLatest;
         nonDefaults = {
           "s5.local" = import (import nixos/s5/nixpkgs.nix);
         };

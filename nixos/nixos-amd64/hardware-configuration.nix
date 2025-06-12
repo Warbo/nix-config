@@ -29,7 +29,7 @@
   system.fsPackages = [ pkgs.getent pkgs.rclone ];
   fileSystems = {
     "/" = {
-      device = "/dev/disk/by-label/nixos-amd64";
+      device = "/dev/disk/by-uuid/e5a6b657-ba4f-4e14-bc78-38842fa4400e";
       fsType = "ext4";
     };
     "/home/chris/Public" = {

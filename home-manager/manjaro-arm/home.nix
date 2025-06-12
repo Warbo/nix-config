@@ -34,12 +34,11 @@ with rec {
     os.repos
     os.metaPackages
     # os.emacs
-    os.nix-backport
   ];
   warbo.dotfiles = ~/repos/warbo-dotfiles;
   warbo.packages = builtins.attrValues commands ++ [
     (pkgs.hiPrio warbo-utilities)
-    pkgs.nix-backport
+    pkgs.nix
     pkgs.libsForQt5.qtstyleplugin-kvantum
     pkgs.qt6Packages.qtstyleplugin-kvantum
 
@@ -96,8 +95,6 @@ with rec {
     autostarts;
 
   home.sessionVariables.QT_STYLE_OVERRIDE = "kvantum";
-
-  nix.package = pkgs.nix-backport;
 
   # These three ensure our Nix .desktop files appear in desktops/menus
   targets.genericLinux.enable = true;
