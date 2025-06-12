@@ -49,9 +49,7 @@
   warbo.wsl = true;
   warbo.packages = with pkgs; [
     devCli
-    mediaGui
     netCli
-    netGui
     sysCli
   ];
   warbo.nixpkgs.overlays = os: [
