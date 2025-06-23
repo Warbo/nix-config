@@ -237,11 +237,6 @@ with rec {
         };
       };
     };
-
-    git = {
-      userEmail = "chriswarbo@gmail.com";
-      userName = "Chris Warburton";
-    };
   };
 
   services = {

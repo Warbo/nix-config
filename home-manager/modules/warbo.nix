@@ -106,6 +106,10 @@ with {
     })
     (mkIf (!cfg.professional) {
       # Disable by setting 'warbo.professional'
+      programs.git = {
+        userEmail = "chriswarbo@gmail.com";
+        userName = "Chris Warburton";
+      };
       programs.yt-dlp.enable = true;
       #rtorrent.enable = true;
     })
