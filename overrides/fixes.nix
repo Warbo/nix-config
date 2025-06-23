@@ -45,6 +45,10 @@ with rec {
 
     # xproto was replaced by xorgproto
     xorgproto = super.xorg.xorgproto or super.xorg.xproto;
+
+    warbo-packages = super.warbo-packages // {
+      awf = self.empty;
+    };
   };
 
   tests =
