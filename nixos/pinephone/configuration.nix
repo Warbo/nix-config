@@ -35,6 +35,10 @@ with {
 
   hardware.bluetooth.enable = true;
 
+  fileSystems."/home/chris/Mounts/internal" = {
+    device = "/dev/disk/by-uuid/2c28dbf2-d97a-42aa-8072-5a2f404cb89f";
+  };
+
   networking = {
     hostName = "pinephone";
     networkmanager.enable = true;
