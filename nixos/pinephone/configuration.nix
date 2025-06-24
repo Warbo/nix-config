@@ -53,6 +53,7 @@ with {
       };
       defaultSession = "plasma-mobile";
     };
+    emacs.enable = true;
     libinput.enable = true;
     openssh = {
       enable = true;
