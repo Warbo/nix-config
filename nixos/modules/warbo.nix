@@ -50,9 +50,6 @@ with {
       # have things available as root, to require a login shell for them, etc.
       environment.systemPackages = cfg.packages;
 
-      programs.fuse.userAllowOther = true;
-      programs.iotop.enable = true;
-      programs.screen.enable = true;
       fonts = {
         enableDefaultPackages = true;
         fontconfig.defaultFonts = {
@@ -88,6 +85,12 @@ with {
       };
 
       nixpkgs.config.allowUnfree = true;
+
+      programs = {
+        fuse.userAllowOther = true;
+        iotop.enable = true;
+        screen.enable = true;
+      };
 
       services = {
         avahi.hostName = config.networking.hostName;
@@ -151,7 +154,7 @@ with {
         cfg.home-manager.extras
         // {
           # Load our Home Manager equivalent
-          imports = [ (../../home-manager/modules/warbo.nix) ];
+          imports = [ ../../home-manager/modules/warbo.nix ];
 
           # Pass along relevant config to our Home Manager module
           warbo = {

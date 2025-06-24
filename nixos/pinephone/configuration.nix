@@ -53,10 +53,13 @@ with {
       };
       defaultSession = "plasma-mobile";
     };
+    libinput.enable = true;
     openssh = {
       enable = true;
       settings.PasswordAuthentication = false;
     };
+    pipewire.enable = lib.mkDefault true;
+    pulseaudio.enable = lib.mkDefault false;
     xserver = {
       enable = true;
       desktopManager.plasma5.mobile.enable = true;
@@ -69,9 +72,6 @@ with {
         '';
       };
     };
-    libinput.enable = true;
-    pipewire.enable = lib.mkDefault true;
-    pulseaudio.enable = lib.mkDefault false;
   };
   system.stateVersion = "25.11";
 
