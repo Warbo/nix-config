@@ -55,6 +55,13 @@ with {
       defaultSession = "plasma-mobile";
     };
     emacs.enable = true;
+    journald.extraConfig = ''
+      Storage=volatile
+      RateLimitInterval=30s
+      RateLimitBurst=10000
+      RuntimeMaxUse=16M
+      SystemMaxUse==16M
+    '';  # Avoid excessive logs killing flash memory
     libinput.enable = true;
     openssh = {
       enable = true;
