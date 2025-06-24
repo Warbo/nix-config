@@ -55,6 +55,22 @@ with {
       programs.fuse.userAllowOther = true;
       programs.iotop.enable = true;
       programs.screen.enable = true;
+      fonts = {
+        enableDefaultPackages = true;
+        fontconfig.defaultFonts = {
+          monospace = [ "Droid Sans Mono" ];
+          sansSerif = [ "Droid Sans" ];
+          serif = [ "Droid Sans" ];
+        };
+        packages = [
+          pkgs.anonymousPro
+          pkgs.liberation_ttf
+          pkgs.nerd-fonts.droid-sans-mono
+          pkgs.terminus_font
+          pkgs.ttf_bitstream_vera
+        ];
+      };
+
     }
     (mkIf (!cfg.wsl) {
       # Trying this on NixOS in WSL will unload the Windows executable support

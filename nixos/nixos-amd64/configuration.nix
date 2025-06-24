@@ -136,22 +136,6 @@
       );
   };
 
-  fonts = {
-    enableDefaultPackages = true;
-    fontconfig.defaultFonts = {
-      monospace = [ "Droid Sans Mono" ];
-      sansSerif = [ "Droid Sans" ];
-      serif = [ "Droid Sans" ];
-    };
-    packages = [
-      pkgs.anonymousPro
-      pkgs.liberation_ttf
-      pkgs.nerd-fonts.droid-sans-mono
-      pkgs.terminus_font
-      pkgs.ttf_bitstream_vera
-    ];
-  };
-
   nix = {
     extraOptions = ''experimental-features = ${
       lib.concatStringsSep " " [
