@@ -21,6 +21,7 @@ with {
   nix.nixPath = with builtins; [
     "nixos-config=${toString ../..}/nixos/pinephone/configuration.nix"
   ];
+
   nixpkgs.overlays = [
     (self: super: {
       libchewing =
@@ -31,9 +32,9 @@ with {
           null;
     })
   ];
-  hardware = {
-    bluetooth.enable = true;
-  };
+
+  hardware.bluetooth.enable = true;
+
   networking = {
     hostName = "pinephone";
     networkmanager.enable = true;
