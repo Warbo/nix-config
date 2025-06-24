@@ -143,10 +143,6 @@
   virtualisation.containers.enable = true;
 
   programs = {
-    firefox = {
-      enable = true;
-      nativeMessagingHosts.packages = [ pkgs.passff-host ];
-    };
     kde-pim = {
       enable = true;
       kmail = true;

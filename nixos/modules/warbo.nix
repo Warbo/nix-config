@@ -87,6 +87,7 @@ with {
       nixpkgs.config.allowUnfree = true;
 
       programs = {
+        firefox.enable = true;
         fuse.userAllowOther = true;
         iotop.enable = true;
         screen.enable = true;
@@ -132,6 +133,7 @@ with {
     })
     (mkIf (!cfg.professional) {
       # Disable by setting 'warbo.professional'
+      programs.firefox.nativeMessagingHosts.packages = [ pkgs.passff-host ];
       programs.gnupg.agent.enable = true;
       services.avahi = {
         enable = true;

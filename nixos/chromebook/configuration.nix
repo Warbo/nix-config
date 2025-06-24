@@ -181,8 +181,6 @@ with {
   # Enable touchpad support (enabled default in most desktopManager).
   # services.xserver.libinput.enable = true;
 
-  programs.firefox.enable = true;
-
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.jo = {
     isNormalUser = true;
