@@ -10,6 +10,7 @@
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
+    ../modules/lan.nix
     ../modules/pkdns.nix
     ../modules/warbo.nix
     "${import ../../home-manager/nixos-import.nix}/nixos"

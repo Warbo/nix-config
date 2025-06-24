@@ -38,22 +38,6 @@
     fsType = "ext4";
   };
 
-  environment.systemPackages = [ pkgs.cifs-utils ];
-
-  fileSystems."/home/jo/Public" = {
-    device = "//s5.local/shared";
-    fsType = "cifs";
-    options = [
-      "x-systemd.automount"
-      "noauto"
-      "x-systemd.idle-timeout=60"
-      "x-systemd.device-timeout=5s"
-      "x-systemd.mount-timeout=5s"
-      "user"
-      "users"
-    ];
-  };
-
   swapDevices = [ { device = "/dev/disk/by-label/chromeos-swap"; } ];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking

@@ -7,6 +7,7 @@ with {
   imports = import "${mobile-nixos}/modules/module-list.nix" ++ [
     "${mobile-nixos}/devices/pine64-pinephone"
     ../modules/warbo.nix
+    ../modules/lan.nix
   ];
 
   mobile = {

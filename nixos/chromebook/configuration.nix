@@ -20,7 +20,8 @@ with {
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
-    (import ../modules/warbo.nix)
+    ../modules/lan.nix
+    ../modules/warbo.nix
   ];
 
   nixpkgs.config.allowUnfree = true;

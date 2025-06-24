@@ -26,23 +26,10 @@
   boot.kernelModules = [ "wl" ];
   boot.extraModulePackages = [ config.boot.kernelPackages.broadcom_sta ];
 
-  system.fsPackages = [ pkgs.getent pkgs.rclone ];
   fileSystems = {
     "/" = {
       device = "/dev/disk/by-uuid/e5a6b657-ba4f-4e14-bc78-38842fa4400e";
       fsType = "ext4";
-    };
-    "/home/chris/Public" = {
-      device = "//s5.local/shared";
-      fsType = "cifs";
-      options = [
-        "x-systemd.automount"
-        "noauto"
-        "x-systemd.idle-timeout=60"
-        "x-systemd.mount-timeout=5s"
-        "user"
-        "users"
-      ];
     };
     "/home/chris/Mounts/s5" = {
       device = ":sftp:/";
