@@ -89,6 +89,14 @@ with {
 
       nixpkgs.config.allowUnfree = true;
 
+      services = {
+        avahi.hostName = config.networking.hostName;
+        openssh.settings.X11Forwarding = config.services.xserver.enable;
+        xserver = {
+          xkb.layout = "gb";
+          xkb.options = "ctrl:nocaps";
+        };
+      };
     }
     (mkIf (!cfg.wsl) {
       # Trying this on NixOS in WSL will unload the Windows executable support

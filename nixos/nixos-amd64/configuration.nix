@@ -160,9 +160,6 @@
       enable = true;
       desktopManager.lxqt.enable = true;
       windowManager.e16.enable = true;
-      xkb.layout = "gb";
-      xkb.options = "ctrl:nocaps";
-
       # Enable touchpad support (enabled default in most desktopManager).
       # libinput.enable = true;
     };
@@ -174,7 +171,6 @@
 
     openssh = {
       enable = true;
-      settings.X11Forwarding = true;
       settings.PasswordAuthentication = false;
     };
 
@@ -187,8 +183,6 @@
         DISABLEV6 = YES
       '';
     };
-
-    avahi.hostName = config.networking.hostName;
 
     kubo = {
       enable = true;

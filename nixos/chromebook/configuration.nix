@@ -207,7 +207,6 @@ with {
   services.openssh.enable = true;
 
   services.avahi = {
-    inherit (config.networking) hostName;
     enable = true;
     nssmdns4 = true;
     ipv4 = true;

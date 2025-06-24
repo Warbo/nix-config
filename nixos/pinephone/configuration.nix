@@ -59,10 +59,7 @@ with {
     };
     xserver = {
       enable = true;
-      xkb.layout = "gb";
-      xkb.options = "ctrl:nocaps";
       desktopManager.plasma5.mobile.enable = true;
-
       displayManager.lightdm = {
         enable = true;
         # Workaround for autologin only working at first launch.
@@ -72,7 +69,6 @@ with {
         '';
       };
     };
-    avahi.hostName = config.networking.hostName;
     libinput.enable = true;
     pipewire.enable = lib.mkDefault true;
     pulseaudio.enable = lib.mkDefault false;
