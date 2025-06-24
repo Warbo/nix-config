@@ -1,11 +1,11 @@
 # Assign each NixOS configuration to its associated machine, so they can all be
 # applied/deployed at once using Colmena.
 with {
-  # TODO: Gradually move more machines into here!
   # Put this out here so it's easy to list all the node names
   configs = {
     "nixos-amd64.local" = import ./nixos/nixos-amd64/configuration.nix;
     "chromebook.local" = import ./nixos/chromebook/configuration.nix;
+    "pinephone.local" = import ./nixos/pinephone/configuration.nix;
     "s5.local" = import ./nixos/s5/configuration.nix;
   };
 };
@@ -18,6 +18,7 @@ with {
         inherit (import overrides/nix-helpers.nix overrides { }) overrides;
         default = import overrides.nix-helpers.repoLatest;
         nonDefaults = {
+          "pinephone.local" = import (import nixos/pinephone/nixpkgs.nix);
           "s5.local" = import (import nixos/s5/nixpkgs.nix);
         };
       };
