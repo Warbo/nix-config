@@ -39,6 +39,17 @@ with {
     device = "/dev/disk/by-uuid/2c28dbf2-d97a-42aa-8072-5a2f404cb89f";
   };
 
+  swapDevices = [
+    {
+      device = "/home/chris/Mounts/internal/home/manjaro/SWAP";
+      size = 500;
+    }
+    {
+      device = "/home/chris/Mounts/internal/home/manjaro/SWAP2";
+      size = 5000;
+    }
+  ];
+
   networking = {
     hostName = "pinephone";
     networkmanager.enable = true;
