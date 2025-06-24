@@ -53,6 +53,10 @@ with {
       };
       defaultSession = "plasma-mobile";
     };
+    openssh = {
+      enable = true;
+      settings.PasswordAuthentication = false;
+    };
     xserver = {
       enable = true;
       xkb.layout = "gb";
@@ -70,7 +74,6 @@ with {
     };
     avahi.hostName = config.networking.hostName;
     libinput.enable = true;
-    openssh.enable = true;
     pipewire.enable = lib.mkDefault true;
     pulseaudio.enable = lib.mkDefault false;
   };

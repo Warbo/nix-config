@@ -175,6 +175,7 @@
     openssh = {
       enable = true;
       settings.X11Forwarding = true;
+      settings.PasswordAuthentication = false;
     };
 
     gnunet = {
