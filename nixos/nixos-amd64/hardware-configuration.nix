@@ -31,31 +31,6 @@
       device = "/dev/disk/by-uuid/e5a6b657-ba4f-4e14-bc78-38842fa4400e";
       fsType = "ext4";
     };
-    "/home/chris/Mounts/s5" = {
-      device = ":sftp:/";
-      fsType = "rclone";
-      noCheck = true;
-      options = [
-        # General mount options
-        "nodev"
-        "nofail"
-        "noauto"
-        "allow_other"
-        "_netdev"
-        # SystemD-specific, useful for network mounts
-        "x-systemd.automount"
-        "x-systemd.idle-timeout=60"
-        "x-systemd.mount-timeout=5s"
-        # Rclone-specific
-        "sftp-host=s5.local"
-        "sftp-user=nixos"
-        "vfs-cache-mode=full"
-        "sftp-set-modtime=false" # Avoids SSH_FX_OP_UNSUPPORTED
-        "no-update-modtime"
-        "sftp-ciphers=aes128-ctr"
-        "sftp-key-file=/home/chris/.ssh/id_ed25519"
-      ];
-    };
   };
 
   swapDevices = [
