@@ -17,25 +17,9 @@ with {
     };
   };
 
-  nix = {
-    extraOptions = ''experimental-features = ${
-      lib.concatStringsSep " " [
-        "configurable-impure-env"
-        "flakes"
-        "git-hashing"
-        "nix-command"
-      ]
-    }'';
-    nixPath = with builtins; [
-      "nixos-config=${toString ../..}/nixos/pinephone/configuration.nix"
-    ];
-    settings = {
-      trusted-users = [
-        "root"
-        "@wheel"
-      ];
-    };
-  };
+  nix.nixPath = with builtins; [
+    "nixos-config=${toString ../..}/nixos/pinephone/configuration.nix"
+  ];
   nixpkgs.overlays = [
     (self: super: {
       libchewing =

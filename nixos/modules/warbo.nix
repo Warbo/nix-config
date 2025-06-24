@@ -44,8 +44,6 @@ with {
   config = mkIf cfg.enable (mkMerge [
     {
       # Unconditional settings; override if desired
-      nix.settings.show-trace = true;
-      nixpkgs.config.allowUnfree = true;
 
       # Install packages system-wide. If Home Manager is being used then we'll
       # also put these in the user's home.packages, but it's annoying to not
@@ -70,6 +68,26 @@ with {
           pkgs.ttf_bitstream_vera
         ];
       };
+
+      nix = {
+        extraOptions = ''experimental-features = ${
+          lib.concatStringsSep " " [
+            "configurable-impure-env"
+            "flakes"
+            "git-hashing"
+            "nix-command"
+          ]
+        }'';
+        settings = {
+          show-trace = true;
+          trusted-users = [
+            "root"
+            "@wheel"
+          ];
+        };
+      };
+
+      nixpkgs.config.allowUnfree = true;
 
     }
     (mkIf (!cfg.wsl) {

@@ -136,25 +136,9 @@
       );
   };
 
-  nix = {
-    extraOptions = ''experimental-features = ${
-      lib.concatStringsSep " " [
-        "configurable-impure-env"
-        "flakes"
-        "git-hashing"
-        "nix-command"
-      ]
-    }'';
-    nixPath = with builtins; [
-      "nixos-config=${toString ../..}/nixos/nixos-amd64/configuration.nix"
-    ];
-    settings = {
-      trusted-users = [
-        "root"
-        "@wheel"
-      ];
-    };
-  };
+  nix.nixPath = with builtins; [
+    "nixos-config=${toString ../..}/nixos/nixos-amd64/configuration.nix"
+  ];
 
   virtualisation.containers.enable = true;
 
