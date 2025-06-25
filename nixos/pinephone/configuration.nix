@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with {
   defaultUserName = "chris";
   mobile-nixos = import ./mobile-nixos.nix;
@@ -26,9 +31,12 @@ with {
     (self: super: {
       libchewing =
         # Marked as broken, and removed in later Nixpkgs
-        (if super ? libchewing
-         then (x: x)
-         else builtins.trace "WARNING: libchewing override may not be needed")
+        (
+          if super ? libchewing then
+            (x: x)
+          else
+            builtins.trace "WARNING: libchewing override may not be needed"
+        )
           null;
     })
   ];
@@ -53,7 +61,10 @@ with {
   networking = {
     hostName = "pinephone";
     networkmanager.enable = true;
-    networkmanager.unmanaged = [ "rndis0" "usb0" ];
+    networkmanager.unmanaged = [
+      "rndis0"
+      "usb0"
+    ];
     wireless.enable = false;
   };
   powerManagement.enable = true;
@@ -83,7 +94,7 @@ with {
       RateLimitBurst=10000
       RuntimeMaxUse=16M
       SystemMaxUse==16M
-    '';  # Avoid excessive logs killing flash memory
+    ''; # Avoid excessive logs killing flash memory
     libinput.enable = true;
     openssh = {
       enable = true;
