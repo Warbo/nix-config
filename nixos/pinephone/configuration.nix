@@ -58,9 +58,15 @@ with {
   };
   powerManagement.enable = true;
 
-  environment.systemPackages = [
-    pkgs.colmena
-  ] ++ builtins.attrValues pkgs.widgetThemes;
+  environment = {
+    systemPackages = [
+      pkgs.colmena
+    ] ++ builtins.attrValues pkgs.widgetThemes;
+
+    variables = {
+      QT_QUICK_CONTROLS_STYLE = "org.kde.desktop";
+    };
+  };
 
   services = {
     displayManager = {
