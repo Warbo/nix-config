@@ -2,12 +2,10 @@ self: super:
 with rec {
   inherit (builtins) getAttr hasAttr;
 
-  fetchGitIPFS =
-    super.fetchGitIPFS or (import ./fetchGitIPFS.nix self super)
-    .overrides.fetchGitIPFS;
+  fetchGitIPFS = super.fetchGitIPFS or (import ./fetchGitIPFS.nix self super).overrides.fetchGitIPFS;
 
   warbo-utilities-src = fetchGitIPFS {
-    sha1 = "bdb0b1f1431695dc9164383b084d76bcf7d5e6f0";
+    sha1 = "d90ad16c8c74a4126293b71bceb7cc2afbb7dd18";
   };
 
   get = name: { ${if hasAttr name super then name else null} = super.${name}; };
