@@ -8,15 +8,27 @@ with rec {
   username = config.warbo.home-manager.username or null;
 
   shared = {
-    device = "//s5.local/shared";
-    fsType = "cifs";
+    device = ":smb:shared"; # Rclone SMB backend, 'shared' is the remote name
+    fsType = "rclone";
+    noCheck = true; # Often needed for rclone mounts
     options = [
-      "x-systemd.automount"
+      # General mount options
+      "nodev"
+      "nofail"
       "noauto"
+      "allow_other"
+      "_netdev"
+      # SystemD-specific, useful for network mounts
+      "x-systemd.automount"
       "x-systemd.idle-timeout=60"
       "x-systemd.mount-timeout=5s"
-      "user"
-      "users"
+      # Rclone-specific SMB options
+      "smb-host=s5.local"
+      "smb-share=shared"
+      "smb-user=${username}" # Use the defined username
+      "vfs-cache-mode=full"
+      # Note: smb-pass is not included here, assuming credentials are handled elsewhere
+      # or the user will add it.
     ];
   };
 
@@ -48,7 +60,7 @@ with rec {
 };
 {
   config = mkMerge [
-    { system.fsPackages = [ pkgs.cifs-utils pkgs.getent pkgs.rclone ]; }
+    { system.fsPackages = [ pkgs.getent pkgs.rclone ]; }
 
     (mkIf (username != null) {
       fileSystems."/home/${username}/Public" = shared;
