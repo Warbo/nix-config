@@ -13,7 +13,7 @@ with rec {
   username = config.warbo.home-manager.username or null;
 
   shared = {
-    device = ":smb:shared"; # Rclone SMB backend, share name
+    device = ":smb:/"; # Rclone SMB backend, mount root path
     fsType = "rclone";
     noCheck = true;
     options = [
@@ -29,6 +29,7 @@ with rec {
       "x-systemd.mount-timeout=5s"
       # Rclone-specific SMB options
       "smb-host=s5.local" # Specify the host
+      "smb-share=shared" # Specify the share name
       "smb-user=guest"   # Specify the user for anonymous access
       "vfs-cache-mode=full"
     ];
