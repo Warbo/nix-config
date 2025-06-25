@@ -25,10 +25,8 @@ with rec {
       # Rclone-specific SMB options
       "smb-host=s5.local"
       "smb-share=shared"
-      "smb-user=${username}" # Use the defined username
       "vfs-cache-mode=full"
-      # Note: smb-pass is not included here, assuming credentials are handled elsewhere
-      # or the user will add it.
+      # smb-user and smb-pass are omitted for anonymous access
     ];
   };
 
