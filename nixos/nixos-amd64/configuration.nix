@@ -32,7 +32,6 @@
     kdePackages.kwalletmanager
     lxqt.qterminal
     nmap
-    warbo-packages.git-on-ipfs.git-in-kubo
     xfce.mousepad
 
     (hiPrio warbo-utilities)
@@ -44,7 +43,9 @@
         exec ${xfce.xfce4-notifyd}/lib/xfce4/notifyd/xfce4-notifyd "$@"
       '';
     })
-  ];
+  ] ++ (if config.services.ipfs.enable
+        then [ warbo-packages.git-on-ipfs.git-in-kubo ]
+        else []);
   warbo.nixpkgs.overlays = os: [
     os.repos
     os.fixes
