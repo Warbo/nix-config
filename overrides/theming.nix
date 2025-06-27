@@ -11,8 +11,7 @@ with { skulpture = self.skulpture or warbo-packages.skulpture; };
 {
   overrides = {
     iconThemes = {
-      inherit (self) adwaita-icon-theme hicolor-icon-theme;
-      inherit (self.gnome2) gnome_icon_theme;
+      inherit (self) adwaita-icon-theme gnome-icon-theme hicolor-icon-theme;
     };
 
     widgetThemes = {
