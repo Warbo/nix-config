@@ -143,7 +143,7 @@ with rec {
         audacious
         cmus
         gimp
-        mplayer
+        mpv
         pamixer
         paprefs
         pavucontrol
