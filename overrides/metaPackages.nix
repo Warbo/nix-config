@@ -162,6 +162,7 @@ with rec {
         inetutils
         msmtp
         mu
+        nmap
         pptp
         sshuttle
         w3m
@@ -195,6 +196,7 @@ with rec {
             acpi
             binutils
             cifs-utils
+            colmena
             coreutils
             dtach
             dvtm
@@ -233,6 +235,10 @@ with rec {
       self.iconThemes
       // self.widgetThemes
       // {
+        inherit (self.kdePackages) kwalletmanager;
+        inherit (self.libsForQt5) qt5ct;
+        inherit (self.lxqt) qterminal;
+        inherit (self.qt6Packages) qtstyleplugin-kvantum;
         inherit (self.xfce) exo xfce4-notifyd;
         inherit (self.xorg) xkill;
         inherit (self)
@@ -241,9 +247,11 @@ with rec {
           awf
           blueman
           gcr
+          gparted
           iotop
           lxappearance
           picom
+          qt6ct
           rofi
           st
           trayer
@@ -254,7 +262,6 @@ with rec {
           xpra
           xsettingsd
           ;
-        inherit (self.libsForQt5) qt5ct qtstyleplugin-kvantum;
       };
 
     ###
