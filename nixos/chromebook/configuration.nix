@@ -9,12 +9,13 @@
   ...
 }:
 with {
-  backported-chrome = (import (pkgs.fetchFromGitHub { 
+  backported-chrome =
+    (import (pkgs.fetchFromGitHub {
       owner = "nixos";
       repo = "nixpkgs";
       rev = "a76a965e646a71c9e6baf211bcb57da717adbc15";
       hash = "sha256-zMTpCtodNiaAoXv+d/itdqioScKRbgOvZEbA087JymA=";
-    }) { overlays = []; }).google-chrome;
+    }) { overlays = [ ]; }).google-chrome;
 };
 {
   imports = [
@@ -174,9 +175,10 @@ with {
   # finished, and a bigger buffer means more milliseconds worth of audio
   # to get through. That's fine for media players, etc. although high
   # latency might be more noticable in games or phone calls.
-  environment.etc."wireplumber/wireplumber.conf.d/91-increase-headroom.conf".text = ''
-    api.alsa.headroom = 2048
-  '';
+  environment.etc."wireplumber/wireplumber.conf.d/91-increase-headroom.conf".text =
+    ''
+      api.alsa.headroom = 2048
+    '';
   environment.systemPackages = [ pkgs.xfce.xfce4-pulseaudio-plugin ];
 
   # Enable touchpad support (enabled default in most desktopManager).

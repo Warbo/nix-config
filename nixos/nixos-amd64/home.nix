@@ -20,7 +20,8 @@ with rec {
     "DarkAlloy" = "sha256-ffvlXkRmS5mD5qNQwaLc3PSg8zu1hC65omRN2O216Oo=";
     "DarkOne" = "sha256-1//OSVJpTtUIaMt4lmdkQlQktUhP5RusChc2nF6tx8I=";
     "DreamWorks" = "sha256-T98l5Lj6McfFoUOWpfFF+OERw+0HKSv7/wBncj8EcPw=";
-    "Fossils_of_the_Machine" = "sha256-NzoVkS23CCJmKHGMSgGQvvFfuFck1+zosRu/LombqG4=";
+    "Fossils_of_the_Machine" =
+      "sha256-NzoVkS23CCJmKHGMSgGQvvFfuFck1+zosRu/LombqG4=";
     "Workbench" = "sha256-WoOj+yfSwBVk2YTc+7B5PJ7Ihcdi3XkFuN4qFCjlUhw=";
   };
 };
