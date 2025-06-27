@@ -26,6 +26,9 @@ with { skulpture = self.skulpture or warbo-packages.skulpture; };
         zuki-themes
         ;
 
+      qt5styleplugin-kvantum = self.libsForQt5.qtstyleplugin-kvantum;
+      qt6styleplugin-kvantum = self.qt6Packages.qtstyleplugin-kvantum;
+
       # These come from warbo-packages, which may not be included in overlays.
       # Look them up in self, to allow overrides; but fall back to loading
       # them directly from warbo-packages.
