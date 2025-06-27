@@ -66,7 +66,11 @@
     #XDG_CURRENT_DESKTOP = "kde";
 
     # Avoid graphics-related crashes when opening KMail
-    QTWEBENGINE_CHROMIUM_FLAGS = "--disable-gpu --disable-gpu-compositing --disable-gpu-rasterization";
+    QTWEBENGINE_CHROMIUM_FLAGS = lib.concatStringsSep " " [
+      "--disable-gpu"
+      "--disable-gpu-compositing"
+      "--disable-gpu-rasterization"
+    ];
   };
 
   environment.systemPackages =
