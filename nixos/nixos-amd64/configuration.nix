@@ -27,12 +27,7 @@
     netCli
     netGui
     sysCli
-
-    gparted
-    kdePackages.kwalletmanager
-    lxqt.qterminal
-    nmap
-    xfce.mousepad
+    sysGui
 
     (hiPrio warbo-utilities)
     (writeShellApplication {
@@ -72,18 +67,6 @@
       "--disable-gpu-rasterization"
     ];
   };
-
-  environment.systemPackages =
-    with pkgs;
-    [
-      colmena # TODO: Move this to sysCli or something once we're happy
-
-      libsForQt5.qt5ct
-      qt6ct
-      libsForQt5.qtstyleplugin-kvantum
-      qt6Packages.qtstyleplugin-kvantum
-    ]
-    ++ builtins.attrValues widgetThemes;
 
   # Use the GRUB 2 boot loader.
   boot.loader.grub.enable = true;
