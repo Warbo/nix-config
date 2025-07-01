@@ -23,6 +23,7 @@
     builtins.toString config.home.homeDirectory + "/repos/warbo-dotfiles";
   warbo.packages = with pkgs; [
     devCli
+    docCli
     mediaGui
     netCli
     netGui
