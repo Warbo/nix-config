@@ -78,7 +78,7 @@ with {
             phone = {
               hostname = "pinephone.local";
               user = "chris";
-            }
+            };
             pi = {
               hostname = "dietpi.local";
               user = "pi";
