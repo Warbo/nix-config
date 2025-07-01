@@ -71,10 +71,14 @@ with {
               hostname = "chromebook.local";
               user = "jo";
             };
-            phone = {
+            manjaro = {
               hostname = "manjaro-arm.local";
               user = "manjaro";
             };
+            phone = {
+              hostname = "pinephone.local";
+              user = "chris";
+            }
             pi = {
               hostname = "dietpi.local";
               user = "pi";
