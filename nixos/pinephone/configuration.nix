@@ -145,6 +145,8 @@ with {
     devCli
     netCli
     sysCli
+    audacious
+    mpv
   ];
   warbo.nixpkgs = {
     path = (import "${mobile-nixos}/npins").nixpkgs.outPath;
