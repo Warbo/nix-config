@@ -206,6 +206,7 @@ with rec {
             file
             htop
             inotify-tools
+            isd
             libnotify
             lzip
             nano
