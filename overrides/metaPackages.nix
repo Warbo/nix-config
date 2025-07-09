@@ -81,6 +81,7 @@ with rec {
         silver-searcher
         update-nix-fetchgit
         vim
+        yq
         xidel
         ;
       inherit (self.python3Packages) black;
