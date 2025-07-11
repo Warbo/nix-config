@@ -85,7 +85,7 @@ with rec {
         xidel
         ;
       inherit (self.python3Packages) black;
-      inherit (warbo-packages) artemis;
+      inherit (warbo-packages) artemis multibase-cli;
     };
 
     devGui = {
@@ -227,6 +227,7 @@ with rec {
             zbar
             zip
             ;
+          inherit (warbo-packages) multibase-cli;
         };
       })
       sysCli
