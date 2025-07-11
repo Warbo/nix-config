@@ -43,7 +43,7 @@
       })
     ]
     ++ (
-      if config.services.ipfs.enable then
+      if config.services.kubo.enable then
         [ warbo-packages.git-on-ipfs.git-in-kubo ]
       else
         [ ]
