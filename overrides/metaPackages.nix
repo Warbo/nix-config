@@ -235,7 +235,7 @@ with rec {
 
     sysGui =
       self.iconThemes
-      // (self.widgetThemes or {})
+      // (self.widgetThemes or { })
       // {
         inherit (self.kdePackages) kwalletmanager;
         inherit (self.libsForQt5) qt5ct;
@@ -262,7 +262,7 @@ with rec {
           xcape
           xpra
           xsettingsd
-        ;
+          ;
       };
 
     ###

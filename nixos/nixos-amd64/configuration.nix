@@ -21,27 +21,33 @@
   warbo.home-manager.username = "chris";
   warbo.dotfiles =
     builtins.toString config.home.homeDirectory + "/repos/warbo-dotfiles";
-  warbo.packages = with pkgs; [
-    devCli
-    docCli
-    mediaGui
-    netCli
-    netGui
-    sysCli
-    sysGui
+  warbo.packages =
+    with pkgs;
+    [
+      devCli
+      docCli
+      mediaGui
+      netCli
+      netGui
+      sysCli
+      sysGui
 
-    (hiPrio warbo-utilities)
-    (writeShellApplication {
-      name = "xfce4-notifyd";
-      text = ''
-        # LXQt's notification daemon has a messed up window, so use XFCE's
-        # The binary lives in a lib/, so we put this wrapper in a bin/
-        exec ${xfce.xfce4-notifyd}/lib/xfce4/notifyd/xfce4-notifyd "$@"
-      '';
-    })
-  ] ++ (if config.services.ipfs.enable
-        then [ warbo-packages.git-on-ipfs.git-in-kubo ]
-        else []);
+      (hiPrio warbo-utilities)
+      (writeShellApplication {
+        name = "xfce4-notifyd";
+        text = ''
+          # LXQt's notification daemon has a messed up window, so use XFCE's
+          # The binary lives in a lib/, so we put this wrapper in a bin/
+          exec ${xfce.xfce4-notifyd}/lib/xfce4/notifyd/xfce4-notifyd "$@"
+        '';
+      })
+    ]
+    ++ (
+      if config.services.ipfs.enable then
+        [ warbo-packages.git-on-ipfs.git-in-kubo ]
+      else
+        [ ]
+    );
   warbo.nixpkgs.overlays = os: [
     os.repos
     os.fixes
