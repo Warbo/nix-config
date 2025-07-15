@@ -138,7 +138,8 @@
                    /usr/share/doc/nix-bin/examples/nix-profile-daemon.sh \
                    ~/.nix-profile/etc/profile.d/*
           do
-            [ -e "$F" ] && . "$F"
+            echo "$F" | grep -q '\.fish$' && continue  # Fish syntax breaks Bash
+            [[ -e "$F" ]] && . "$F"
           done
         '';
     };
