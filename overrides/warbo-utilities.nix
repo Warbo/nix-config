@@ -6,8 +6,9 @@ with rec {
     super.fetchGitIPFS or (import ./fetchGitIPFS.nix self super)
     .overrides.fetchGitIPFS;
 
-  warbo-utilities-src =
-    fetchGitIPFS { sha1 = "705bfe157e41b40a433ddc52959e501771bfcb99"; };
+  warbo-utilities-src = fetchGitIPFS {
+    sha1 = "98658033d67546655a0fcf843e5ebb0bcc6340b9";
+  };
 
   get = name: { ${if hasAttr name super then name else null} = super.${name}; };
 

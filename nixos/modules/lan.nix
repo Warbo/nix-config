@@ -1,22 +1,36 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with rec {
   inherit (lib)
     mkIf
     mkMerge
-  ;
+    ;
 
   username = config.warbo.home-manager.username or null;
 
   shared = {
-    device = "//s5.local/shared";
-    fsType = "cifs";
+    device = ":smb:shared";
+    fsType = "rclone";
+    noCheck = true;
     options = [
-      "x-systemd.automount"
+      # General mount options
+      "nodev"
+      "nofail"
       "noauto"
+      "allow_other"
+      "_netdev"
+      # SystemD-specific, useful for network mounts
+      "x-systemd.automount"
       "x-systemd.idle-timeout=60"
       "x-systemd.mount-timeout=5s"
-      "user"
-      "users"
+      # Rclone-specific SMB options
+      "smb-host=s5.local"
+      "smb-user=guest"
+      "vfs-cache-mode=full"
     ];
   };
 
@@ -48,7 +62,12 @@ with rec {
 };
 {
   config = mkMerge [
-    { system.fsPackages = [ pkgs.cifs-utils pkgs.getent pkgs.rclone ]; }
+    {
+      system.fsPackages = [
+        pkgs.getent
+        pkgs.rclone
+      ];
+    }
 
     (mkIf (username != null) {
       fileSystems."/home/${username}/Public" = shared;

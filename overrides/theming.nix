@@ -11,8 +11,7 @@ with { skulpture = self.skulpture or warbo-packages.skulpture; };
 {
   overrides = {
     iconThemes = {
-      inherit (self) adwaita-icon-theme hicolor-icon-theme;
-      inherit (self.gnome2) gnome_icon_theme;
+      inherit (self) adwaita-icon-theme gnome-icon-theme hicolor-icon-theme;
     };
 
     widgetThemes = {
@@ -25,6 +24,9 @@ with { skulpture = self.skulpture or warbo-packages.skulpture; };
         theme-vertex
         zuki-themes
         ;
+
+      qt5styleplugin-kvantum = self.libsForQt5.qtstyleplugin-kvantum;
+      qt6styleplugin-kvantum = self.qt6Packages.qtstyleplugin-kvantum;
 
       # These come from warbo-packages, which may not be included in overlays.
       # Look them up in self, to allow overrides; but fall back to loading

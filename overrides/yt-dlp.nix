@@ -3,8 +3,7 @@ self: super: {
     with rec {
       inherit (import ./nix-helpers.nix (super // overrides) super) overrides;
       nix-helpers = super.nix-helpers or overrides.nix-helpers;
-    };
-    {
+    }; {
       yt-dlp =
         with rec {
           tree = "497d3e58b206ba02c662aa9ce097dd8dd1832793";

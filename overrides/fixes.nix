@@ -29,6 +29,14 @@ with rec {
   isBroken = self.isBroken or nix-helpers.isBroken;
 }; {
   overrides = {
+    update-nix-fetchgit = super.update-nix-fetchgit.overrideAttrs {
+      name = "update-nix-fetchgit-patchApiVersion";
+      src = builtins.fetchGit {
+        url = "https://github.com/ja0nz/update-nix-fetchgit.git";
+        rev = "7460aede467fbaf4f3db363102d299232f9684e2";
+      };
+    };
+
     xorg = super.xorg // {
       # Bump driver to avoid https://bugs.freedesktop.org/show_bug.cgi?id=109689
       xf86videointel = super.xorg.xf86videointel.overrideAttrs (

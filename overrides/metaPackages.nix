@@ -78,13 +78,15 @@ with rec {
         pretty-simple
         python3
         racket
+        retry
         silver-searcher
         update-nix-fetchgit
         vim
+        yq
         xidel
         ;
       inherit (self.python3Packages) black;
-      inherit (warbo-packages) artemis;
+      inherit (warbo-packages) artemis multibase-cli;
     };
 
     devGui = {
@@ -143,7 +145,7 @@ with rec {
         audacious
         cmus
         gimp
-        mplayer
+        mpv
         pamixer
         paprefs
         pavucontrol
@@ -158,12 +160,15 @@ with rec {
         autossh
         curl
         ddgr
+        dig
         gnutls
         inetutils
         msmtp
         mu
+        nmap
         pptp
         sshuttle
+        tcpdump
         w3m
         wget
         ;
@@ -195,6 +200,7 @@ with rec {
             acpi
             binutils
             cifs-utils
+            colmena
             complete-alias
             coreutils
             dtach
@@ -204,6 +210,7 @@ with rec {
             file
             htop
             inotify-tools
+            isd
             libnotify
             lzip
             nano
@@ -212,6 +219,7 @@ with rec {
             pciutils
             pmutils
             psmisc
+            retry
             rclone
             rsync
             screen
@@ -224,6 +232,7 @@ with rec {
             zbar
             zip
             ;
+          inherit (warbo-packages) multibase-cli;
         };
       })
       sysCli
@@ -232,8 +241,11 @@ with rec {
 
     sysGui =
       self.iconThemes
-      // self.widgetThemes
+      // (self.widgetThemes or { })
       // {
+        inherit (self.kdePackages) kwalletmanager;
+        inherit (self.libsForQt5) qt5ct;
+        inherit (self.lxqt) qterminal;
         inherit (self.xfce) exo xfce4-notifyd;
         inherit (self.xorg) xkill;
         inherit (self)
@@ -242,9 +254,11 @@ with rec {
           awf
           blueman
           gcr
+          gparted
           iotop
           lxappearance
           picom
+          qt6ct
           rofi
           st
           trayer
@@ -255,7 +269,6 @@ with rec {
           xpra
           xsettingsd
           ;
-        inherit (self.libsForQt5) qt5ct qtstyleplugin-kvantum;
       };
 
     ###

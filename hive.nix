@@ -18,7 +18,7 @@ with {
         inherit (import overrides/nix-helpers.nix overrides { }) overrides;
         default = import overrides.nix-helpers.repoLatest;
         nonDefaults = {
-          "pinephone.local" = import (import nixos/pinephone/nixpkgs.nix);
+          "pinephone.local" = import nixos/pinephone/nixpkgs.nix;
           "s5.local" = import (import nixos/s5/nixpkgs.nix);
         };
       };
@@ -44,4 +44,5 @@ with {
         buildOnTarget = name != "s5.local";
       };
     };
-} // configs
+}
+// configs

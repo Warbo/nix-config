@@ -1,4 +1,9 @@
-{ config, lib, pkgs, ... }:
+{
+  config,
+  lib,
+  pkgs,
+  ...
+}:
 with {
   defaultUserName = "chris";
   mobile-nixos = import ./mobile-nixos.nix;
@@ -26,9 +31,12 @@ with {
     (self: super: {
       libchewing =
         # Marked as broken, and removed in later Nixpkgs
-        (if super ? libchewing
-         then (x: x)
-         else builtins.trace "WARNING: libchewing override may not be needed")
+        (
+          if super ? libchewing then
+            (x: x)
+          else
+            builtins.trace "WARNING: libchewing override may not be needed"
+        )
           null;
     })
   ];
@@ -53,14 +61,22 @@ with {
   networking = {
     hostName = "pinephone";
     networkmanager.enable = true;
-    networkmanager.unmanaged = [ "rndis0" "usb0" ];
+    networkmanager.unmanaged = [
+      "rndis0"
+      "usb0"
+    ];
     wireless.enable = false;
   };
   powerManagement.enable = true;
 
-  environment.systemPackages = [
-    pkgs.colmena
-  ] ++ builtins.attrValues pkgs.widgetThemes;
+  environment = {
+    systemPackages = builtins.attrValues pkgs.widgetThemes;
+
+    variables = {
+      QT_QUICK_CONTROLS_STYLE = "org.kde.desktop";
+      QT_STYLE_OVERRIDE = "skulpture";
+    };
+  };
 
   services = {
     displayManager = {
@@ -77,7 +93,7 @@ with {
       RateLimitBurst=10000
       RuntimeMaxUse=16M
       SystemMaxUse==16M
-    '';  # Avoid excessive logs killing flash memory
+    ''; # Avoid excessive logs killing flash memory
     libinput.enable = true;
     openssh = {
       enable = true;
@@ -129,6 +145,8 @@ with {
     devCli
     netCli
     sysCli
+    audacious
+    mpv
   ];
   warbo.nixpkgs = {
     path = (import "${mobile-nixos}/npins").nixpkgs.outPath;

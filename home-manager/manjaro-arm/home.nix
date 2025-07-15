@@ -213,7 +213,8 @@ with rec {
 
           # Privacy, anti-tracking, etc.
           "browser.contentblocking.category" = "strict";
-          "general.useragent.override" = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:98.0) Gecko/20100101 Firefox/98.0";
+          "general.useragent.override" =
+            "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:98.0) Gecko/20100101 Firefox/98.0";
           "privacy.clearOnShutdown.cookies" = false;
           "privacy.clearOnShutdown.sessions" = false;
           "privacy.history.custom" = true;

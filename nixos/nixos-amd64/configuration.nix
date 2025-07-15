@@ -21,30 +21,33 @@
   warbo.home-manager.username = "chris";
   warbo.dotfiles =
     builtins.toString config.home.homeDirectory + "/repos/warbo-dotfiles";
-  warbo.packages = with pkgs; [
-    devCli
-    mediaGui
-    netCli
-    netGui
-    sysCli
+  warbo.packages =
+    with pkgs;
+    [
+      devCli
+      docCli
+      mediaGui
+      netCli
+      netGui
+      sysCli
+      sysGui
 
-    gparted
-    kdePackages.kwalletmanager
-    lxqt.qterminal
-    nmap
-    warbo-packages.git-on-ipfs.git-in-kubo
-    xfce.mousepad
-
-    (hiPrio warbo-utilities)
-    (writeShellApplication {
-      name = "xfce4-notifyd";
-      text = ''
-        # LXQt's notification daemon has a messed up window, so use XFCE's
-        # The binary lives in a lib/, so we put this wrapper in a bin/
-        exec ${xfce.xfce4-notifyd}/lib/xfce4/notifyd/xfce4-notifyd "$@"
-      '';
-    })
-  ];
+      (hiPrio warbo-utilities)
+      (writeShellApplication {
+        name = "xfce4-notifyd";
+        text = ''
+          # LXQt's notification daemon has a messed up window, so use XFCE's
+          # The binary lives in a lib/, so we put this wrapper in a bin/
+          exec ${xfce.xfce4-notifyd}/lib/xfce4/notifyd/xfce4-notifyd "$@"
+        '';
+      })
+    ]
+    ++ (
+      if config.services.kubo.enable then
+        [ warbo-packages.git-on-ipfs.git-in-kubo ]
+      else
+        [ ]
+    );
   warbo.nixpkgs.overlays = os: [
     os.repos
     os.fixes
@@ -65,21 +68,12 @@
     #XDG_CURRENT_DESKTOP = "kde";
 
     # Avoid graphics-related crashes when opening KMail
-    QTWEBENGINE_CHROMIUM_FLAGS =
-      "--disable-gpu --disable-gpu-compositing --disable-gpu-rasterization";
+    QTWEBENGINE_CHROMIUM_FLAGS = lib.concatStringsSep " " [
+      "--disable-gpu"
+      "--disable-gpu-compositing"
+      "--disable-gpu-rasterization"
+    ];
   };
-
-  environment.systemPackages =
-    with pkgs;
-    [
-      colmena  # TODO: Move this to sysCli or something once we're happy
-
-      libsForQt5.qt5ct
-      qt6ct
-      libsForQt5.qtstyleplugin-kvantum
-      qt6Packages.qtstyleplugin-kvantum
-    ]
-    ++ builtins.attrValues widgetThemes;
 
   # Use the GRUB 2 boot loader.
   boot.loader.grub.enable = true;
