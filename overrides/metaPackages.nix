@@ -78,6 +78,7 @@ with rec {
         pretty-simple
         python3
         racket
+        retry
         silver-searcher
         update-nix-fetchgit
         vim
@@ -159,6 +160,7 @@ with rec {
         autossh
         curl
         ddgr
+        dig
         gnutls
         inetutils
         msmtp
@@ -166,6 +168,7 @@ with rec {
         nmap
         pptp
         sshuttle
+        tcpdump
         w3m
         wget
         ;
@@ -215,6 +218,7 @@ with rec {
             pciutils
             pmutils
             psmisc
+            retry
             rclone
             rsync
             screen
