@@ -87,6 +87,7 @@ with {
       nixpkgs.config.allowUnfree = true;
 
       programs = {
+        bash.completion.enable = true;
         firefox.enable = true;
         fuse.userAllowOther = true;
         iotop.enable = true;

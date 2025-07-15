@@ -41,6 +41,7 @@ with {
       programs = {
         bash = {
           enable = true;
+          enableCompletion = true;
           profileExtra = ''
             if [[ -n "$BASH_VERSION" ]] && [[ -e "$HOME/.bashrc" ]]
             then
