@@ -195,6 +195,7 @@ with rec {
             acpi
             binutils
             cifs-utils
+            complete-alias
             coreutils
             dtach
             dvtm
