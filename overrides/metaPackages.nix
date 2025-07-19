@@ -73,6 +73,7 @@ with rec {
         git-absorb
         jq
         nano
+        nix-diff
         nix-top
         nixfmt-rfc-style
         pretty-simple
@@ -198,6 +199,7 @@ with rec {
           inherit (self.xorg) xmodmap;
           inherit (self)
             acpi
+            ansifilter
             binutils
             cifs-utils
             colmena
