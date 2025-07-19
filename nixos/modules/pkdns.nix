@@ -31,6 +31,14 @@ with rec {
       description = "pkdns package to use";
       default = package;
     };
+
+    log-level = mkOption {
+      type = types.string;
+      default = "info";
+      description = ''
+        Value for RUST_LOG: trace, debug, info, warning or error.
+      '';
+    };
   };
 
   config = mkIf cfg.enable {
@@ -56,6 +64,7 @@ with rec {
         ExecStart = "${pkgs.writeScript "pkdns-start" ''
           #!${pkgs.bash}/bin/bash
           export HOME="$STATE_DIRECTORY"
+          export RUST_LOG=${cfg.log-level}
           ${cfg.package}/bin/pkdns -p "$STATE_DIRECTORY"
         ''}";
         Restart = "on-failure";
